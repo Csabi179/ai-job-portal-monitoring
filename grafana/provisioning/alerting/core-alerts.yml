@@ -1,0 +1,76 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: core-monitoring
+    folder: AI Job Portal
+    interval: 1m
+    rules:
+      - uid: ai_job_test_endpoint_down
+        title: "Monitoring Test Endpoint DOWN"
+        condition: C
+
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              editorMode: code
+              expr: '1 - probe_success{job="blackbox_http",service="monitoring_test"}'
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              reducer: last
+              type: reduce
+              refId: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: B
+              type: threshold
+              conditions:
+                - evaluator:
+                    params: [0.5]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [C]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              refId: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+        for: 3m
+        noDataState: NoData
+        execErrState: Error
+        annotations:
+          summary: "The monitoring test endpoint is unavailable."
+          description: "The HTTP probe has failed for at least 3 minutes."
+        labels:
+          severity: warning
+          component: monitoring_test
+        isPaused: false
