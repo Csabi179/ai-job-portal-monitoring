@@ -6,3 +6,11 @@ modules:
       method: GET
       valid_status_codes: [200]
       preferred_ip_protocol: ip4
+
+  http_render_2xx:
+    prober: http
+    timeout: 100s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      preferred_ip_protocol: ip4

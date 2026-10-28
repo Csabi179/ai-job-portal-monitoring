@@ -1,0 +1,199 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "render-backend-monitoring",
+      "folder": "AI Job Portal",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "matchwise_backend_down",
+          "title": "MatchWise Backend DOWN",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "((count_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) >= bool 2) * (max_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) == bool 0)) or vector(0)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise Backend DOWN",
+            "description": "At least two failed HTTP checks and no successful checks in the last 65 minutes."
+          },
+          "labels": {
+            "severity": "warning",
+            "component": "matchwise_backend"
+          },
+          "isPaused": false
+        },
+        {
+          "uid": "matchwise_backend_probe_missing",
+          "title": "MatchWise Backend Monitoring Data Missing",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "absent_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) or vector(0)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise Backend Monitoring Data Missing",
+            "description": "No backend probe_success measurements received during the last 65 minutes."
+          },
+          "labels": {
+            "severity": "warning",
+            "component": "matchwise_backend"
+          },
+          "isPaused": false
+        }
+      ]
+    }
+  ]
+}
