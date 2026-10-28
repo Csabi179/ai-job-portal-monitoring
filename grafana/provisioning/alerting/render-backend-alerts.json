@@ -25,7 +25,7 @@
                   "uid": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "((count_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) >= bool 2) * (max_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) == bool 0)) or vector(0)",
+                "expr": "((max((count_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) >= bool 2) * (last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) == bool 0) * (idelta(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) == bool 0))) or vector(0))",
                 "instant": true,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200,
@@ -92,7 +92,7 @@
           "execErrState": "Error",
           "annotations": {
             "summary": "MatchWise Backend DOWN",
-            "description": "At least two failed HTTP checks and no successful checks in the last 65 minutes."
+            "description": "The two most recent backend HTTP checks failed within the last 65 minutes."
           },
           "labels": {
             "severity": "warning",
