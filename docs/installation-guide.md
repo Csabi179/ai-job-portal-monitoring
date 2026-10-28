@@ -70,3 +70,72 @@ Public Grafana, Prometheus and exporter ports are not required.
 
 Initial validation was successful on 2026-10-28.
 Dashboard provisioning and alerting verification are pending.
+
+---
+
+## Backup and Recovery Strategy
+
+### Configuration
+
+The monitoring configuration is stored in a private GitHub
+repository.
+
+The following items are version-controlled:
+- Docker Compose configuration
+- Prometheus configuration
+- Exporter configuration
+- Grafana dashboards
+- Grafana alerting rules
+- Installation and monitoring documentation
+
+### Secrets
+
+The .env file is excluded from Git.
+
+Grafana administrator credentials and Telegram bot credentials
+must be stored securely outside the Git repository.
+
+### Grafana persistent data
+
+Grafana uses the named Docker volume:
+
+    ai-job-monitoring_grafana_data
+
+A verified backup was created on 2026-10-28.
+
+Backup directory:
+
+    ~/monitoring-private-backups
+
+The backup was created while Grafana was stopped.
+Only the Grafana container was restarted afterward.
+
+### Recovery verification
+
+A backup archive was successfully extracted into a temporary
+Docker volume.
+
+The grafana.db database file was verified.
+
+This is an extraction test, not a complete application
+restore test.
+
+### Prometheus data
+
+Prometheus metrics are retained for up to 7 days or 2 GiB.
+
+Prometheus historical metrics are not included in the
+Grafana backup.
+
+### Disaster recovery
+
+1. Restore the monitoring repository from GitHub.
+2. Restore the required environment variables securely.
+3. Install Docker and Docker Compose.
+4. Restore the Grafana volume if historical Grafana data is needed.
+5. Start the monitoring stack.
+6. Verify Prometheus targets, Grafana dashboards and alert rules.
+7. Test the Telegram notification channel.
+
+Store an encrypted backup copy outside the Oracle VM
+to protect against complete server loss.

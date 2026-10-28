@@ -77,3 +77,57 @@ The actual Grafana service was not stopped.
 
 Telegram Firing and Resolved messages were observed.
 Screenshots can be stored separately for the university demo.
+
+---
+
+## TEST-02 - Grafana Backup and Restore Extraction
+
+**Date:** 2026-10-28
+**Status:** PASS
+**Environment:** Oracle Cloud Ubuntu 24.04 ARM64
+
+### Objective
+
+Verify that Grafana persistent data can be backed up
+and extracted into a separate Docker volume.
+
+### Test procedure
+
+1. Created a private backup directory.
+2. Stopped the Grafana container.
+3. Created a compressed archive of the Grafana Docker volume.
+4. Restarted Grafana.
+5. Verified the Grafana health endpoint.
+6. Verified that the archive contains grafana.db.
+7. Created a separate temporary Docker volume.
+8. Extracted the backup into the temporary volume.
+9. Verified that grafana.db exists and is not empty.
+10. Removed the temporary test volume.
+
+### Observed results
+
+| Check | Result |
+|---|---|
+| Backup command exit code | 0 |
+| Backup archive size | 159 MB |
+| Archive contains grafana.db | PASS |
+| Grafana restarted successfully | PASS |
+| Grafana database health | OK |
+| Restore extraction | PASS |
+| Temporary test volume removed | PASS |
+| Other monitoring containers remained running | PASS |
+
+### Limitations
+
+This test verified backup creation and successful extraction
+into an isolated Docker volume.
+
+A complete Grafana application restore on a separate server
+was not performed.
+
+The local backup alone does not protect against the loss
+of the entire Oracle VM.
+
+### Conclusion
+
+PASS - Grafana backup and restore extraction verified.
