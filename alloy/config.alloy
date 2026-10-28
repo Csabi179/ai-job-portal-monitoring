@@ -1,0 +1,22 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+loki.source.file "monitoring_test" {
+  targets = [
+    {
+      __path__     = "/var/log/matchwise/monitoring-test.log",
+      job          = "monitoring_test",
+      service_name = "matchwise_test",
+    },
+  ]
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://127.0.0.1:3100/loki/api/v1/push"
+  }
+}

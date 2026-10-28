@@ -61,6 +61,46 @@ services:
       - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
     logging: *logconfig
 
+  loki:
+    image: grafana/loki:3.7.9
+    container_name: monitoring-loki
+    network_mode: host
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/loki/config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/config.yaml:ro
+      - loki_data:/loki
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  alloy:
+    image: grafana/alloy:v1.21.2
+    container_name: monitoring-alloy
+    network_mode: host
+    restart: unless-stopped
+    command:
+      - run
+      - --server.http.listen-addr=127.0.0.1:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - ./test-logs:/var/log/matchwise:ro
+      - alloy_data:/var/lib/alloy/data
+    depends_on:
+      - loki
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   prometheus_data:
   grafana_data:
+  loki_data:
+  alloy_data:
