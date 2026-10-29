@@ -1,0 +1,199 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "vercel-frontend-monitoring",
+      "folder": "AI Job Portal",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "matchwise_frontend_down",
+          "title": "MatchWise Frontend DOWN",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "((max((count_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m]) >= bool 2) * (last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m]) == bool 0) * (idelta(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m]) == bool 0))) or vector(0))",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise Frontend DOWN",
+            "description": "The last two frontend HTTP checks failed."
+          },
+          "labels": {
+            "severity": "warning",
+            "component": "matchwise_frontend"
+          },
+          "isPaused": false
+        },
+        {
+          "uid": "matchwise_frontend_probe_missing",
+          "title": "MatchWise Frontend Monitoring Data Missing",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "absent_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m]) or vector(0)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise Frontend Monitoring Data Missing",
+            "description": "No frontend monitoring samples during the last 5 minutes."
+          },
+          "labels": {
+            "severity": "warning",
+            "component": "matchwise_frontend"
+          },
+          "isPaused": false
+        }
+      ]
+    }
+  ]
+}
