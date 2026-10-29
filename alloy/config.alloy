@@ -20,3 +20,19 @@ loki.write "local" {
     url = "http://127.0.0.1:3100/loki/api/v1/push"
   }
 }
+
+
+// Local RFC5424 syslog test receiver.
+// Do not expose this port publicly.
+loki.source.syslog "render_local_test" {
+  listener {
+    address = "127.0.0.1:1514"
+    protocol = "tcp"
+    labels = {
+      job = "render_syslog_test",
+      source = "local_test",
+    }
+  }
+
+  forward_to = [loki.write.local.receiver]
+}

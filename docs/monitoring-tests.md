@@ -131,3 +131,39 @@ of the entire Oracle VM.
 ### Conclusion
 
 PASS - Grafana backup and restore extraction verified.
+
+---
+
+## TEST-03 - Local RFC5424 Syslog to Loki
+
+**Date:** 2026-10-30
+**Status:** PASS
+
+### Objective
+
+Verify the local RFC5424 syslog ingestion pipeline:
+
+Syslog TCP -> Grafana Alloy -> Grafana Loki -> Grafana Explore
+
+### Test
+
+A synthetic RFC5424 message containing JSON application
+logging fields was sent to the local Alloy TCP listener
+at 127.0.0.1:1514.
+
+### Verification
+
+Grafana Explore, Loki data source:
+
+    {job="render_syslog_test"} |= "render_syslog_pipeline_test"
+
+The expected log entry was found and displayed.
+
+### Limitations
+
+This verifies the local syslog ingestion pipeline only.
+
+The external Render Log Streams TLS connection has not
+yet been configured or tested.
+
+No public syslog listener was enabled during this test.
