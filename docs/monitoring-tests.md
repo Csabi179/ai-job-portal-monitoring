@@ -10,18 +10,26 @@
 - Blackbox Exporter metrics endpoint: PASS
 - Grafana web login: PASS
 
-## Pending tests
+## Verification overview updated 2026-10-30
 
-- Prometheus target status
-- Infrastructure dashboard
-- Application availability dashboard
-- Alert notification
-- Simulated service outage
-- Recovery notification
-- Backend structured logging
-- Monitoring configuration backup and restoration
+The October 28 baseline describes the **earlier four-service stage**. The current deployment uses six monitoring containers.
 
-Actual test results and screenshots will be added during implementation.
+| Area | Recorded evidence | Status |
+| --- | --- | --- |
+| Prometheus, Node Exporter, Blackbox | Metrics and HTTP probe outputs | Verified |
+| Infrastructure, Availability, Backend Logs dashboards | Real data displayed in Grafana | Verified |
+| Unified Monitoring dashboard (English) | User visually accepted Oracle, Render, Vercel, backend and collector sections | Verified visually |
+| Alert Firing, Telegram Firing and Resolved | TEST-01: controlled local test endpoint | Verified **for the local test** |
+| Grafana backup and extraction | TEST-02; not a full restored Grafana server | Extraction verified |
+| Render API log pull → JSONL → Alloy → Loki | Pino HTTP requests and 404 in Grafana | Verified |
+| SQLite deduplication | Integrity check and duplicate-ID counts | Verified in project tests |
+| File rotation with Alloy ingestion | Synthetic 120-message run: 120 present, 0 missing, 0 duplicate | Verified for synthetic case |
+| Collector health metric/alert | Node Exporter scrape error 0; Prometheus timestamp; new Grafana rule Normal | Verified Normal, not independently fired |
+| Render Log Streams external TLS push | Endpoint rejected connection; experimental ingress removed | **Not deployed** |
+| Individual firing of all nine alerts | Only local test firing/resolved confirmed | **Not fully tested** |
+| End-to-end disaster restoration | Only Grafana backup extraction tested | **Not tested** |
+
+Historical test steps below are retained as evidence and must not be read as the current configuration.
 
 ---
 
@@ -202,10 +210,38 @@ Grafana Explore successfully displayed the test entry.
 
 The test used a local TLS connection.
 
-External Render Log Streams connectivity has not yet
-been configured or verified.
+Render Log Streams connectivity was attempted but not established. Experimental inbound Oracle rules were subsequently removed. **Current ingestion uses Render Logs API over HTTPS**, not external syslog push.
 
-The syslog endpoint remains bound to localhost.
+The local test listener remains bound to 127.0.0.1.
 
 Private keys and certificate files are stored outside
 the Git repository.
+
+
+---
+
+## TEST-04 — Render Logs API and SQLite collector
+
+**Date:** 2026-10-30 · **Result:** PASS for the independently hosted backend.
+
+Pino JSON HTTP requests were returned by Render Logs API, appended to the local allowlisted JSONL stream, forwarded by Alloy into Loki and displayed in Grafana. An intentionally generated HTTP 404 appeared as `statusCode=404` and `route=unmatched`. The SQLite integrity check passed, and duplicate identity counts were zero in the recorded checks. The team-hosted backend has **not** been verified to use the same logging middleware.
+
+## TEST-05 — Synthetic log rotation under write load
+
+**Date:** 2026-10-30 · **Result:** PASS for controlled synthetic test.
+
+A 120-message synthetic file rotation produced **120 unique messages in Loki, 0 missing and 0 duplicate**. This did not force-rotate the real Render backend JSONL and does not establish an absolute zero-data-loss guarantee.
+
+## TEST-06 — Render collector health and alert
+
+**Date:** 2026-10-30 · **Result:** PASS for telemetry and rule provisioning.
+
+Node Exporter exposed `matchwise_render_collector_last_success_timestamp_seconds` with `node_textfile_scrape_error=0`. Prometheus returned the metric. Grafana displayed **MatchWise - Render Log Collector Stale** as **Provisioned / Normal**. Its individual Telegram Firing/Resolved delivery was **not** tested.
+
+## TEST-07 — Unified Monitoring dashboard
+
+**Date:** 2026-10-30 · **Result:** PASS for visual user acceptance.
+
+The unified English dashboard displayed Oracle CPU/RAM/disk and host history, Render and Vercel HTTP probes, backend Pino logs and collector monitoring; seven collapsible sections were present. The user confirmed the final translated and query-corrected dashboard worked as intended.
+
+Refer to `docs/MONITORING_GUIDE.md` for the deployed architecture and the exact backend migration procedure.
