@@ -12,6 +12,7 @@ WorkingDirectory=/home/ubuntu/ai-job-monitoring
 EnvironmentFile=/home/ubuntu/monitoring-private-secrets/render-logs.env
 
 ExecStart=/usr/bin/flock -w 90 /home/ubuntu/monitoring-private-state/render-logs.lock /usr/bin/python3 /home/ubuntu/ai-job-monitoring/scripts/render-logs-poll.py
+ExecStartPost=/usr/bin/python3 /home/ubuntu/ai-job-monitoring/scripts/write-collector-success-metric.py
 
 TimeoutStartSec=180
 NoNewPrivileges=true

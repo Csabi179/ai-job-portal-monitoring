@@ -1,0 +1,106 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "render-log-collector-monitoring",
+      "folder": "AI Job Portal",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "matchwise_render_collector_stale",
+          "title": "MatchWise - Render Log Collector Stale",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "max(time() - matchwise_render_collector_last_success_timestamp_seconds) or vector(1000000)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        300
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "Alerting",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise Render log collector is not updating",
+            "description": "No successful Render Logs API collection for over 5 minutes, or the collector metric is missing. Check: systemctl status matchwise-render-logs.timer and journalctl -u matchwise-render-logs.service."
+          },
+          "labels": {
+            "severity": "warning",
+            "component": "render_log_collector"
+          },
+          "isPaused": false
+        }
+      ]
+    }
+  ]
+}
