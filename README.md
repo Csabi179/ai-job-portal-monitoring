@@ -1,69 +1,68 @@
-# AI Job Portal - Monitoring
+# MatchWise — AI Job Portal Monitoring
 
-DevOps monitoring system for the AI Job Portal university project.
+DevOps monitoring for the university AI-assisted job portal project.
 
-## Scope
+## Main dashboard
 
-- Infrastructure monitoring
-- Frontend and backend availability
-- HTTP response times
-- Backend logging
-- Grafana dashboards
-- Alerting
-- Monitoring verification and documentation
+**MatchWise | Unified Monitoring** (Grafana UID: `matchwise-unified-overview`) is the default operations view. It combines:
 
-## Technology stack
+- Oracle Cloud VM: CPU, RAM, filesystem, disk I/O, network traffic, uptime and system load.
+- Render backend: HTTP status, latest probe, response time and availability history.
+- Vercel frontend: HTTP status, availability and response time (no host CPU/RAM metrics).
+- Backend application: Pino HTTP requests, 4xx/5xx errors, error rate, P50/P95, routes and searchable logs.
+- Render log collector: latest successful collection and Node Exporter textfile scrape health.
+- Expandable diagnostics for detailed HTTP logs.
 
-- Docker Engine and Docker Compose
-- Prometheus
-- Grafana OSS
-- Node Exporter
-- Blackbox Exporter
+Dashboard JSON: `grafana/provisioning/dashboards/json/matchwise-unified-monitoring.json`.
 
-## Environment
+The original dedicated Infrastructure, Application Availability and Backend Logs dashboards are retained.
 
-Initial hosting: Oracle Cloud Ubuntu 24.04 ARM64.
+## Stack and ingestion
 
-Verified on 2026-10-28:
-- Docker Engine 29.9.2
-- Docker Compose 5.6.1
-- Four monitoring containers running
-- Grafana health endpoint responding
-- Prometheus ready
-- Node Exporter and Blackbox Exporter responding
+- **Docker Compose:** Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Grafana Alloy.
+- **Render logs:** Pino JSON → Render Logs API → Python systemd collector → deduplicated JSONL → Alloy → Loki.
+- **Metrics:** Node Exporter and Blackbox Exporter → Prometheus → Grafana.
+- **Alerting:** Nine provisioned rules; notifications routed to the existing Telegram contact point.
+- **Retention:** Prometheus 7 days or 2 GB; logrotate rotates the local JSONL at 20 MB with seven archives. Loki retention is separate.
 
-## Installation
+Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). All monitoring web services are bound to loopback and are intended to be reached through an SSH tunnel.
 
-See docs/installation-guide.md.
+## Installation and operations
 
-## Configuration
+Start here: **[Monitoring architecture and operations guide](docs/MONITORING_GUIDE.md)**.
 
-1. Copy .env.example to .env.
-2. Set GRAFANA_ADMIN_PASSWORD to a strong secret.
-3. Validate the Docker Compose configuration.
-4. Start the monitoring services.
+Additional documentation:
 
-Commands:
+- [Render backend logging and migration runbook](docs/RENDER_LOGGING_RUNBOOK.md)
+- [Installation guide](docs/installation-guide.md)
+- [Monitoring tests](docs/monitoring-tests.md)
+- [Monitoring plan](docs/monitoring-plan.md)
 
-    sudo docker compose config --quiet
-    sudo docker compose pull
-    sudo docker compose up -d
-    sudo docker compose ps
+Basic operations on Oracle:
 
-## Security
+```bash
+cd ~/ai-job-monitoring
+sudo docker compose config --quiet
+sudo docker compose ps
+sudo systemctl list-timers --all | grep matchwise-render
+```
 
-Do not commit .env, credentials, private keys or runtime data.
+To get new GitHub commits on the VM:
 
-Monitoring interfaces are intended to be accessible through
-an SSH tunnel, not directly from the public internet.
+```bash
+cd ~/ai-job-monitoring
+git status --short
+git pull --ff-only
+```
 
-## Documentation
+If `git pull --ff-only` reports a conflict or untracked-file collision, **stop and inspect the local files**. Do not use `git reset --hard`.
 
-- docs/monitoring-plan.md
-- docs/installation-guide.md
-- docs/monitoring-tests.md
+## Backend migration
 
-## Project lifetime
+The current test Render backend can be replaced by the team-hosted backend. Update the private Render API collector credentials/Service ID and the **Render Blackbox probe target URL** separately; keep the stable Loki job and Prometheus service labels. The Pino `http_request` logging format must remain compatible. See the operations guide for the safe sequence.
 
-Target completion: as soon as practical.
-Expected shutdown: no later than 2026-12-15.
+## Security and limits
+
+Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. No Render/Vercel host CPU/RAM telemetry or frontend browser-performance data is currently collected. Render availability is sampled every 30 minutes, so the latest UP result is not a continuous-uptime guarantee.
+
+Project target completion/shutdown: no later than **December 15, 2026**.
