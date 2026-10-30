@@ -34,11 +34,20 @@ def main():
         key = getpass.getpass("Render API key: ")
 
     seen = set()
+    seen_ids = set()
+
     if OUTPUT.exists():
         with OUTPUT.open(encoding="utf-8") as file:
             for line in file:
-                if line.strip():
-                    seen.add(identity(json.loads(line)))
+                if not line.strip():
+                    continue
+
+                existing = json.loads(line)
+                seen.add(identity(existing))
+
+                existing_id = existing.get("renderLogId")
+                if isinstance(existing_id, str):
+                    seen_ids.add(existing_id)
 
     now = datetime.now(timezone.utc)
     safe_end = now - timedelta(seconds=20)
@@ -122,15 +131,19 @@ def main():
 
             timestamp = item.get("timestamp")
             req_id = message.get("reqId")
+            render_id = item.get("id")
 
             if not isinstance(timestamp, str):
                 continue
             if not isinstance(req_id, str):
                 continue
+            if not isinstance(render_id, str) or not render_id:
+                raise RuntimeError("Render log missing unique ID")
 
             safe = {
                 "service": "job-portal-backend",
                 "renderTimestamp": timestamp,
+                "renderLogId": render_id,
             }
 
             allowed = (
@@ -146,8 +159,9 @@ def main():
 
             record_id = identity(safe)
 
-            if record_id not in seen:
+            if record_id not in seen and render_id not in seen_ids:
                 seen.add(record_id)
+                seen_ids.add(render_id)
                 collected.append(safe)
 
         if not data.get("hasMore", False):
