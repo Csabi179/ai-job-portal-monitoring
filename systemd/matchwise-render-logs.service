@@ -11,7 +11,7 @@ WorkingDirectory=/home/ubuntu/ai-job-monitoring
 
 EnvironmentFile=/home/ubuntu/monitoring-private-secrets/render-logs.env
 
-ExecStart=/usr/bin/flock -n /home/ubuntu/monitoring-private-state/render-logs.lock /usr/bin/python3 /home/ubuntu/ai-job-monitoring/scripts/render-logs-poll.py
+ExecStart=/usr/bin/flock -w 90 /home/ubuntu/monitoring-private-state/render-logs.lock /usr/bin/python3 /home/ubuntu/ai-job-monitoring/scripts/render-logs-poll.py
 
 TimeoutStartSec=180
 NoNewPrivileges=true

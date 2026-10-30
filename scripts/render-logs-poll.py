@@ -14,8 +14,9 @@ STATE_DIR = Path.home() / "monitoring-private-state"
 STATE = STATE_DIR / "render-api-state.json"
 DATABASE = STATE_DIR / "render-logs-seen.sqlite3"
 
-OWNER = "tea-dbh72puc6qcc73fqjgvg"
-SERVICE = "srv-dbh7b1nb9u1s73e6hpbg"
+OWNER = os.environ["RENDER_OWNER_ID"]
+SERVICE = os.environ["RENDER_SERVICE_ID"]
+PINO_SERVICE = os.environ.get("RENDER_PINO_SERVICE", "job-portal-backend")
 
 ALLOWED = (
     "level", "event", "reqId", "method", "route",
@@ -198,7 +199,7 @@ def main():
 
                 if (
                     message.get("event") != "http_request"
-                    or message.get("service") != "job-portal-backend"
+                    or message.get("service") != PINO_SERVICE
                 ):
                     continue
 
@@ -214,7 +215,8 @@ def main():
                     raise RuntimeError("Render log missing unique ID")
 
                 safe = {
-                    "service": "job-portal-backend",
+                    "service": PINO_SERVICE,
+                    "renderServiceId": SERVICE,
                     "renderTimestamp": timestamp,
                     "renderLogId": render_id,
                 }

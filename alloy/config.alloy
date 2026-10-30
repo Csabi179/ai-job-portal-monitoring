@@ -72,5 +72,23 @@ loki.source.file "render_backend_api" {
     },
   ]
 
+  forward_to = [loki.process.render_backend_timestamp.receiver]
+}
+
+
+// Use original Render event timestamps in Loki.
+loki.process "render_backend_timestamp" {
+  stage.json {
+    expressions = {
+      event_time = "renderTimestamp",
+    }
+  }
+
+  stage.timestamp {
+    source = "event_time"
+    format = "RFC3339Nano"
+    action_on_failure = "skip"
+  }
+
   forward_to = [loki.write.local.receiver]
 }

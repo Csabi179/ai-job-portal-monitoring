@@ -1,0 +1,8 @@
+[Unit]
+Description=Rotate MatchWise Render backend logs
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/flock -w 90 /home/ubuntu/monitoring-private-state/render-logs.lock /usr/sbin/logrotate --state /var/lib/logrotate/matchwise-render-backend.status /etc/matchwise-render-backend.logrotate.conf
+TimeoutStartSec=180
+NoNewPrivileges=true

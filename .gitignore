@@ -23,8 +23,10 @@ backups/
 .vscode/
 .idea/
 
-/test-logs/render-backend.jsonl
+/test-logs/render-backend.jsonl*
 
 # Python generated files
 __pycache__/
 *.py[cod]
+
+/test-logs/rotation-probe.log*
