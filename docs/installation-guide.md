@@ -39,6 +39,10 @@ The hello-world ARM64 test completed successfully.
 
 ## Monitoring deployment
 
+The current stack contains **six** services: Prometheus, Grafana, Node Exporter, Blackbox Exporter, Loki and Alloy. The original four-container test was an earlier milestone.
+
+**Important:** a fresh clone is not a complete recovery. Populate `.env` from `.env.example` securely; provision private paths for `../monitoring-private-tls`, `../monitoring-exporter-metrics`, `~/monitoring-private-secrets/render-logs.env`, `~/monitoring-private-state` (cursor, SQLite and lock), and `~/monitoring-private-archives`. Preserve permissions and never commit credentials or runtime logs.
+
 From the project root:
 
     sudo docker compose config --quiet
@@ -52,13 +56,22 @@ From the project root:
     curl -fsS http://127.0.0.1:3000/api/health
     curl -fsS http://127.0.0.1:9100/metrics
     curl -fsS http://127.0.0.1:9115/metrics
+    curl -fsS http://127.0.0.1:3100/ready
+    curl -fsS http://127.0.0.1:12345/-/ready
+    sudo systemctl is-active matchwise-render-logs.timer
+    sudo systemctl is-active matchwise-render-logrotate.timer
+
+Node Exporter collector health:
+
+    sudo systemctl show matchwise-render-logs.service -p Result -p ExecMainStatus
+    curl -fsS http://127.0.0.1:9100/metrics | grep -E '^(matchwise_render_collector_last_success_timestamp_seconds|node_textfile_scrape_error)'
 
 ## Maintenance
 
     sudo docker compose logs --tail=50
     sudo docker stats --no-stream
 
-Persistent Docker volumes store Grafana and Prometheus data.
+Named Docker volumes store Grafana, Prometheus, Loki and Alloy data/positions.
 Do not remove volumes during routine maintenance.
 
 ## Access
@@ -68,8 +81,7 @@ Public Grafana, Prometheus and exporter ports are not required.
 
 ## Notes
 
-Initial validation was successful on 2026-10-28.
-Dashboard provisioning and alerting verification are pending.
+Initial four-container validation was successful on 2026-10-28. By 2026-10-30 the six-service stack, four provisioned dashboards, nine Grafana alert rules, automatic Render API collection, and the Unified Monitoring dashboard were in use. The local test alert delivered Firing and Resolved Telegram messages; do not infer that all nine alert rules were independently fired.
 
 ---
 
@@ -124,18 +136,18 @@ restore test.
 
 Prometheus metrics are retained for up to 7 days or 2 GiB.
 
-Prometheus historical metrics are not included in the
-Grafana backup.
+Prometheus metrics, Loki log data, Alloy read positions and the Render collector's private state are not included in the Grafana volume backup.
 
 ### Disaster recovery
 
 1. Restore the monitoring repository from GitHub.
 2. Restore the required environment variables securely.
 3. Install Docker and Docker Compose.
-4. Restore the Grafana volume if historical Grafana data is needed.
-5. Start the monitoring stack.
-6. Verify Prometheus targets, Grafana dashboards and alert rules.
-7. Test the Telegram notification channel.
+4. Restore the Grafana volume if historical Grafana data is needed; recover Prometheus/Loki/Alloy volumes separately if their history is required.
+5. Restore the collector private environment file, cursor, SQLite database, textfile metric directory and other private mounts; install systemd service/timer units from `systemd/`.
+6. Start Docker Compose and the two Render-related systemd timers.
+7. Verify Prometheus targets, the four Grafana dashboards, nine alert rules and collector heartbeat.
+8. Verify Telegram notification routing with a controlled test if needed.
 
 Store an encrypted backup copy outside the Oracle VM
 to protect against complete server loss.
