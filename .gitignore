@@ -22,3 +22,9 @@ backups/
 # Editor files
 .vscode/
 .idea/
+
+/test-logs/render-backend.jsonl
+
+# Python generated files
+__pycache__/
+*.py[cod]

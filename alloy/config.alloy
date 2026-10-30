@@ -59,3 +59,18 @@ loki.source.syslog "render_tls_test" {
 
   forward_to = [loki.write.local.receiver]
 }
+
+
+// MatchWise backend logs retrieved securely from Render API.
+loki.source.file "render_backend_api" {
+  targets = [
+    {
+      __path__     = "/var/log/matchwise/render-backend.jsonl",
+      job          = "matchwise_backend_render_api",
+      service_name = "job-portal-backend",
+      source       = "render_logs_api",
+    },
+  ]
+
+  forward_to = [loki.write.local.receiver]
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Collect MatchWise Render backend logs automatically
+
+[Timer]
+Unit=matchwise-render-logs.service
+OnBootSec=2min
+OnUnitInactiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

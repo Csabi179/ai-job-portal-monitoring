@@ -1,0 +1,21 @@
+[Unit]
+Description=MatchWise Render API log collector
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/ai-job-monitoring
+
+EnvironmentFile=/home/ubuntu/monitoring-private-secrets/render-logs.env
+
+ExecStart=/usr/bin/flock -n /home/ubuntu/monitoring-private-state/render-logs.lock /usr/bin/python3 /home/ubuntu/ai-job-monitoring/scripts/render-logs-poll.py
+
+TimeoutStartSec=180
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
