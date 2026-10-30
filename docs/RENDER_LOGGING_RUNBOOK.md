@@ -93,6 +93,18 @@ P50/P95 backend válaszidőket, útvonalakat és naplókat mutat.
 A responseTimeMs az alkalmazás feldolgozási ideje,
 nem a teljes hálózati válaszidő.
 
+
+
+## A központi monitoring dashboard
+
+A fő áttekintő nézet: **AI Job Portal / MatchWise | Unified Monitoring**
+(UID: `matchwise-unified-overview`).
+
+A Backend Logs dashboard továbbra is elérhető a részletes hibakereséshez.
+A fő nézet az Oracle VM, a Render HTTP-próbák, a Vercel HTTP-próbák,
+a Pino HTTP-alkalmazásnaplók és a collector állapotának adatait egyesíti.
+Render/Vercel host CPU/RAM és frontend böngészős hibák jelenleg nincsenek gyűjtve.
+
 ## Gyűjtő állapotának ellenőrzése
 
 Timer:
@@ -170,7 +182,19 @@ ha jogosult az új szolgáltatás naplóinak olvasására.
 
     sudo systemctl start matchwise-render-logs.timer
 
-A Loki job címke és a Grafana dashboard nem változik.
+8. A Render backend HTTP-elérhetőségének figyelését **külön át kell állítani**.
+   A `prometheus/prometheus.yml` `blackbox_render_backend` target URL-jét
+   módosítsuk a csapat valódi health endpointjára; tartsuk meg a
+   `service: matchwise_backend` címkét. Prometheus konfigurációellenőrzés
+   és újratöltés/újraindítás után ellenőrizzük a célpontot.
+
+9. Ha a frontend is a csapat másik Vercel-címére kerül,
+   a `blackbox_vercel_frontend` target URL-jét külön frissítsük,
+   megtartva a `service: matchwise_frontend` címkét.
+
+A Loki `job=matchwise_backend_render_api` címke és a Grafana-dashboard
+ezek után változatlanul használható, **ha az új backend azonos Pino
+`http_request` mezőket készít**.
 
 Fontos: az első lekérdezés nem importálja automatikusan
 az új szolgáltatás teljes korábbi naplóelőzményét.
@@ -217,6 +241,17 @@ Először készítsünk biztonsági másolatot.
 - A korábbi internetes syslog-fogadás nincs engedélyezve.
 - A naplógyűjtés HTTPS-en keresztül történik.
 - A Python collector csak engedélyezett Pino-mezőket tárol.
+
+## Régi diagnosztikai segédszkript — fontos
+
+A `scripts/render-logs-once.py` korai, **kézi tesztlekérő**, amelyben
+rögzített test Service ID van. **Nem használja az éles gyűjtő SQLite
+azonosítókezelését, időkurzorát és közös `flock` zárolását.** Ne futtassuk
+az aktív `test-logs/render-backend.jsonl` fájlra az automatikus
+collector mellett: duplikált naplókhoz és állapoteltéréshez vezethet.
+
+Az éles gyűjtő kizárólag a `matchwise-render-logs.service` által
+indított `scripts/render-logs-poll.py` program.
 
 ## Ismert korlátok
 
