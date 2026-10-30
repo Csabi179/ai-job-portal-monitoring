@@ -36,3 +36,26 @@ loki.source.syslog "render_local_test" {
 
   forward_to = [loki.write.local.receiver]
 }
+
+// MatchWise TLS syslog receiver.
+// Local-only during initial testing.
+// Do not expose publicly without access restrictions.
+loki.source.syslog "render_tls_test" {
+  listener {
+    address  = "127.0.0.1:6514"
+    protocol = "tcp"
+
+    labels = {
+      job    = "render_tls_test",
+      source = "tls_local_test",
+    }
+
+    tls_config {
+      cert_file   = "/etc/alloy/tls/fullchain.pem"
+      key_file    = "/etc/alloy/tls/privkey.pem"
+      min_version = "TLS12"
+    }
+  }
+
+  forward_to = [loki.write.local.receiver]
+}

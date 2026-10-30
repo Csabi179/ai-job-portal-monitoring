@@ -167,3 +167,45 @@ The external Render Log Streams TLS connection has not
 yet been configured or tested.
 
 No public syslog listener was enabled during this test.
+
+---
+
+## TEST-TLS-01 - Local TLS Syslog Ingestion
+
+Date: 2026-10-30
+Status: PASS
+
+### Objective
+
+Verify encrypted RFC5424 syslog ingestion using:
+
+TLS client -> Grafana Alloy -> Grafana Loki -> Grafana Explore
+
+### Configuration
+
+- TLS endpoint: 127.0.0.1:6514
+- Certificate: Let's Encrypt
+- Domain: matchwise-logs-r0cecq.duckdns.org
+- TLS version tested: TLS 1.3
+- Loki job label: render_tls_test
+
+### Verification
+
+A synthetic RFC5424 syslog message was transmitted over TLS.
+
+The Alloy loki_source_syslog_entries_total counter
+increased from 0 to 1 while the connection remained open.
+
+Grafana Explore successfully displayed the test entry.
+
+### Limitations
+
+The test used a local TLS connection.
+
+External Render Log Streams connectivity has not yet
+been configured or verified.
+
+The syslog endpoint remains bound to localhost.
+
+Private keys and certificate files are stored outside
+the Git repository.
