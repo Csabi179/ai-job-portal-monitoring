@@ -4,7 +4,7 @@
   "title": "MatchWise | Unified Monitoring",
   "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected. Probe freshness and sample counts, optional health-check exclusion, endpoint summary, HTTP log freshness, deployment annotations and log drilldowns. Supabase database resource, connection-capacity, transaction, PostgREST pool and disk I/O monitoring.",
   "schemaVersion": 42,
-  "version": 6,
+  "version": 7,
   "editable": false,
   "refresh": "1m",
   "time": {
@@ -41,17 +41,17 @@
     {
       "id": 50,
       "type": "text",
-      "title": "Application endpoints and deployment context",
+      "title": "Application endpoints and verification",
       "options": {
         "mode": "markdown",
-        "content": "**Frontend** [www.matchwise.tech](https://www.matchwise.tech/) · **Backend** [matchwise-backend-monitoring-test.onrender.com](https://matchwise-backend-monitoring-test.onrender.com/)\n\n**Backend source** [emmanuelkyeremeh/job-portal-backend · main](https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main) · **Deployed commit, manually recorded** `${deployed_commit}` · **Auth status, manually recorded** ${auth_status}\n\nUpdate deployment metadata through the dashboard variables through this JSON in Git, in the current values of `deployed_commit` and `auth_status`. Verify the commit in Render Events and change auth status after the team tests it. Add deploy markers using the **Deployments and operations** annotation query. The Request ID and Log status controls filter diagnostics. Traffic and Route contains filter application metrics and diagnostics.\n\n**Supabase metrics target** `${supabase_instance}` · Resource thresholds are visual indicators. Database connections include internal services. Supabase panels use their own target selector."
+        "content": "**Frontend** [www.matchwise.tech](https://www.matchwise.tech/) · **Backend** [matchwise-backend-monitoring-test.onrender.com](https://matchwise-backend-monitoring-test.onrender.com/)\n\n**Backend source** [emmanuelkyeremeh/job-portal-backend · main](https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main) · **Latest recorded auth test** Passed on 2026-11-09 — registration, login, account access and logout. [Test record](https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/monitoring-tests.md#test-08--team-backend-new-supabase-project-and-auth-log-delivery)\n\n**Supabase metrics target** `${supabase_instance}` · Use **Traffic** and **Route contains** for application metrics, and **Request ID** and **Log status** for diagnostics. The six authentication counters use the selected time range independently of these filters."
       },
-      "description": "Endpoints from the monitoring configuration. Deployment and auth metadata are operator-maintained, with no automatic verification.",
+      "description": "Application endpoints, backend source and the dated operator-verified auth test. The displayed auth result records a completed test.",
       "gridPos": {
         "x": 0,
         "y": 5,
         "w": 24,
-        "h": 8
+        "h": 5
       }
     },
     {
@@ -62,7 +62,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 13,
+        "y": 10,
         "w": 24,
         "h": 1
       }
@@ -140,7 +140,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 14,
+        "y": 11,
         "w": 6,
         "h": 5
       }
@@ -218,7 +218,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 14,
+        "y": 11,
         "w": 6,
         "h": 5
       }
@@ -296,7 +296,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 14,
+        "y": 11,
         "w": 6,
         "h": 5
       }
@@ -363,7 +363,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 14,
+        "y": 11,
         "w": 6,
         "h": 5
       }
@@ -430,7 +430,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 19,
+        "y": 16,
         "w": 6,
         "h": 5
       }
@@ -497,7 +497,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 19,
+        "y": 16,
         "w": 6,
         "h": 5
       }
@@ -564,7 +564,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 19,
+        "y": 16,
         "w": 6,
         "h": 5
       }
@@ -648,7 +648,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 19,
+        "y": 16,
         "w": 6,
         "h": 5
       }
@@ -721,7 +721,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 24,
+        "y": 21,
         "w": 8,
         "h": 4
       }
@@ -794,7 +794,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 24,
+        "y": 21,
         "w": 8,
         "h": 4
       }
@@ -863,7 +863,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 24,
+        "y": 21,
         "w": 8,
         "h": 4
       }
@@ -876,7 +876,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 25,
         "w": 24,
         "h": 1
       }
@@ -930,7 +930,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 29,
+        "y": 26,
         "w": 6,
         "h": 4
       }
@@ -984,7 +984,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 29,
+        "y": 26,
         "w": 6,
         "h": 4
       }
@@ -1038,7 +1038,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 29,
+        "y": 26,
         "w": 6,
         "h": 4
       }
@@ -1092,7 +1092,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 29,
+        "y": 26,
         "w": 6,
         "h": 4
       }
@@ -1163,7 +1163,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 33,
+        "y": 30,
         "w": 12,
         "h": 7
       }
@@ -1234,7 +1234,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 33,
+        "y": 30,
         "w": 12,
         "h": 7
       }
@@ -1305,7 +1305,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 37,
         "w": 12,
         "h": 7
       }
@@ -1386,7 +1386,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 40,
+        "y": 37,
         "w": 12,
         "h": 7
       }
@@ -1467,7 +1467,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 47,
+        "y": 44,
         "w": 12,
         "h": 7
       }
@@ -1559,7 +1559,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 47,
+        "y": 44,
         "w": 12,
         "h": 7
       }
@@ -1572,7 +1572,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 54,
+        "y": 51,
         "w": 24,
         "h": 1
       }
@@ -1664,7 +1664,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 55,
+        "y": 52,
         "w": 6,
         "h": 5
       }
@@ -1756,7 +1756,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 55,
+        "y": 52,
         "w": 6,
         "h": 5
       }
@@ -1839,7 +1839,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 55,
+        "y": 52,
         "w": 6,
         "h": 5
       }
@@ -1922,7 +1922,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 55,
+        "y": 52,
         "w": 6,
         "h": 5
       }
@@ -2005,7 +2005,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 60,
+        "y": 57,
         "w": 6,
         "h": 5
       }
@@ -2088,7 +2088,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 60,
+        "y": 57,
         "w": 6,
         "h": 5
       }
@@ -2155,7 +2155,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 60,
+        "y": 57,
         "w": 6,
         "h": 5
       }
@@ -2222,7 +2222,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 60,
+        "y": 57,
         "w": 6,
         "h": 5
       }
@@ -2308,7 +2308,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 65,
+        "y": 62,
         "w": 12,
         "h": 7
       }
@@ -2383,7 +2383,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 65,
+        "y": 62,
         "w": 12,
         "h": 7
       }
@@ -2457,7 +2457,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 72,
+        "y": 69,
         "w": 12,
         "h": 7
       }
@@ -2542,7 +2542,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 72,
+        "y": 69,
         "w": 12,
         "h": 7
       }
@@ -2617,7 +2617,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 79,
+        "y": 76,
         "w": 12,
         "h": 7
       }
@@ -2691,7 +2691,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 79,
+        "y": 76,
         "w": 12,
         "h": 7
       }
@@ -2765,7 +2765,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 86,
+        "y": 83,
         "w": 12,
         "h": 7
       }
@@ -2850,7 +2850,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 86,
+        "y": 83,
         "w": 12,
         "h": 7
       }
@@ -2935,7 +2935,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 93,
+        "y": 90,
         "w": 12,
         "h": 7
       }
@@ -3020,7 +3020,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 93,
+        "y": 90,
         "w": 12,
         "h": 7
       }
@@ -3033,7 +3033,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 100,
+        "y": 97,
         "w": 24,
         "h": 1
       }
@@ -3088,7 +3088,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 101,
+        "y": 98,
         "w": 8,
         "h": 4
       }
@@ -3159,7 +3159,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 101,
+        "y": 98,
         "w": 8,
         "h": 4
       }
@@ -3214,7 +3214,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 101,
+        "y": 98,
         "w": 8,
         "h": 4
       }
@@ -3270,7 +3270,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 105,
+        "y": 102,
         "w": 8,
         "h": 4
       }
@@ -3326,7 +3326,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 105,
+        "y": 102,
         "w": 8,
         "h": 4
       }
@@ -3396,7 +3396,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 105,
+        "y": 102,
         "w": 8,
         "h": 4
       }
@@ -3466,7 +3466,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 109,
+        "y": 106,
         "w": 12,
         "h": 7
       }
@@ -3537,7 +3537,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 109,
+        "y": 106,
         "w": 12,
         "h": 7
       }
@@ -3550,7 +3550,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 116,
+        "y": 113,
         "w": 24,
         "h": 1
       }
@@ -3605,7 +3605,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 117,
+        "y": 114,
         "w": 8,
         "h": 4
       }
@@ -3660,7 +3660,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 117,
+        "y": 114,
         "w": 8,
         "h": 4
       }
@@ -3715,7 +3715,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 117,
+        "y": 114,
         "w": 8,
         "h": 4
       }
@@ -3771,7 +3771,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 121,
+        "y": 118,
         "w": 8,
         "h": 4
       }
@@ -3827,7 +3827,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 121,
+        "y": 118,
         "w": 8,
         "h": 4
       }
@@ -3897,7 +3897,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 121,
+        "y": 118,
         "w": 8,
         "h": 4
       }
@@ -3967,7 +3967,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 125,
+        "y": 122,
         "w": 12,
         "h": 7
       }
@@ -4038,7 +4038,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 125,
+        "y": 122,
         "w": 12,
         "h": 7
       }
@@ -4051,7 +4051,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 132,
+        "y": 129,
         "w": 24,
         "h": 1
       }
@@ -4126,7 +4126,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 133,
+        "y": 130,
         "w": 6,
         "h": 5
       }
@@ -4210,7 +4210,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 133,
+        "y": 130,
         "w": 6,
         "h": 5
       }
@@ -4294,7 +4294,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 133,
+        "y": 130,
         "w": 6,
         "h": 5
       }
@@ -4382,7 +4382,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 133,
+        "y": 130,
         "w": 6,
         "h": 5
       }
@@ -4458,7 +4458,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 138,
+        "y": 135,
         "w": 6,
         "h": 4
       }
@@ -4534,7 +4534,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 138,
+        "y": 135,
         "w": 6,
         "h": 4
       }
@@ -4603,7 +4603,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 138,
+        "y": 135,
         "w": 6,
         "h": 4
       }
@@ -4672,7 +4672,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 138,
+        "y": 135,
         "w": 6,
         "h": 4
       }
@@ -4745,7 +4745,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 142,
+        "y": 139,
         "w": 12,
         "h": 7
       }
@@ -4830,7 +4830,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 142,
+        "y": 139,
         "w": 12,
         "h": 7
       }
@@ -4915,7 +4915,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 149,
+        "y": 146,
         "w": 12,
         "h": 7
       }
@@ -4987,7 +4987,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 149,
+        "y": 146,
         "w": 12,
         "h": 7
       }
@@ -5059,7 +5059,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 156,
+        "y": 153,
         "w": 24,
         "h": 6
       }
@@ -5201,7 +5201,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 162,
+        "y": 159,
         "w": 24,
         "h": 9
       },
@@ -5244,7 +5244,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 171,
+        "y": 168,
         "w": 24,
         "h": 1
       }
@@ -5333,7 +5333,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 172,
+        "y": 169,
         "w": 8,
         "h": 5
       }
@@ -5422,7 +5422,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 172,
+        "y": 169,
         "w": 8,
         "h": 5
       }
@@ -5511,7 +5511,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 172,
+        "y": 169,
         "w": 8,
         "h": 5
       }
@@ -5600,7 +5600,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 177,
+        "y": 174,
         "w": 8,
         "h": 5
       }
@@ -5689,7 +5689,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 177,
+        "y": 174,
         "w": 8,
         "h": 5
       }
@@ -5778,7 +5778,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 177,
+        "y": 174,
         "w": 8,
         "h": 5
       }
@@ -5791,7 +5791,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 182,
+        "y": 179,
         "w": 24,
         "h": 1
       }
@@ -5858,7 +5858,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 183,
+        "y": 180,
         "w": 12,
         "h": 4
       }
@@ -5927,7 +5927,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 183,
+        "y": 180,
         "w": 12,
         "h": 4
       }
@@ -5942,7 +5942,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 187,
+        "y": 184,
         "w": 24,
         "h": 4
       }
@@ -6012,7 +6012,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 191,
+        "y": 188,
         "w": 12,
         "h": 7
       }
@@ -6083,7 +6083,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 191,
+        "y": 188,
         "w": 12,
         "h": 7
       }
@@ -6116,7 +6116,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 199,
+            "y": 196,
             "w": 24,
             "h": 9
           },
@@ -6161,7 +6161,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 208,
+            "y": 205,
             "w": 24,
             "h": 9
           },
@@ -6187,7 +6187,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 198,
+        "y": 195,
         "w": 24,
         "h": 1
       }
@@ -6310,47 +6310,6 @@
         "multi": false,
         "includeAll": false,
         "hide": 0,
-        "skipUrlSync": false
-      },
-      {
-        "name": "deployed_commit",
-        "type": "textbox",
-        "label": "Deployed commit (manual)",
-        "query": "Not recorded",
-        "current": {
-          "text": "Not recorded",
-          "value": "Not recorded"
-        },
-        "hide": 2,
-        "skipUrlSync": false
-      },
-      {
-        "name": "auth_status",
-        "type": "custom",
-        "label": "Auth status (manual)",
-        "query": "Awaiting configuration, Configured - verification pending, Verified by team",
-        "current": {
-          "text": "Verified by team",
-          "value": "Verified by team"
-        },
-        "options": [
-          {
-            "text": "Awaiting configuration",
-            "value": "Awaiting configuration",
-            "selected": false
-          },
-          {
-            "text": "Configured - verification pending",
-            "value": "Configured - verification pending",
-            "selected": false
-          },
-          {
-            "text": "Verified by team",
-            "value": "Verified by team",
-            "selected": true
-          }
-        ],
-        "hide": 2,
         "skipUrlSync": false
       }
     ]
