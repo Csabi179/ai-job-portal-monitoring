@@ -4,7 +4,7 @@
   "title": "MatchWise | Unified Monitoring",
   "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected. Probe freshness and sample counts, optional health-check exclusion, endpoint summary, HTTP log freshness, deployment annotations and log drilldowns. Supabase database resource, connection-capacity, transaction, PostgREST pool and disk I/O monitoring.",
   "schemaVersion": 42,
-  "version": 7,
+  "version": 8,
   "editable": false,
   "refresh": "1m",
   "time": {
@@ -594,7 +594,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "thresholds": {
             "mode": "absolute",
@@ -627,7 +627,8 @@
               "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=5%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
               "targetBlank": false
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -2116,7 +2117,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "noValue": "No data",
           "mappings": [
@@ -2740,7 +2741,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMax": 5,
+            "axisLabel": "Waiting requests"
           },
           "min": 0,
           "noValue": "No data"
@@ -2825,7 +2828,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMax": 1,
+            "axisLabel": "Events / min"
           },
           "min": 0,
           "noValue": "No data"
@@ -3298,7 +3303,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No recent sample",
           "decimals": 0,
           "color": {
@@ -3799,7 +3804,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No recent sample",
           "decimals": 0,
           "color": {
@@ -4081,7 +4086,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "color": {
             "mode": "fixed",
@@ -4105,7 +4110,8 @@
               "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=.*&var-request_id=&viewPanel=47",
               "targetBlank": false
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -4156,7 +4162,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "thresholds": {
             "mode": "absolute",
@@ -4189,7 +4195,8 @@
               "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=4%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
               "targetBlank": false
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -4240,7 +4247,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "thresholds": {
             "mode": "absolute",
@@ -4273,7 +4280,8 @@
               "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=5%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
               "targetBlank": false
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -4412,7 +4420,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "decimals": 0,
           "color": {
@@ -4488,7 +4496,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "decimals": 0,
           "color": {
@@ -4564,7 +4572,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "decimals": 0,
           "color": {
@@ -4633,7 +4641,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "decimals": 0,
           "color": {
@@ -4994,9 +5002,9 @@
     },
     {
       "id": 43,
-      "type": "bargauge",
+      "type": "barchart",
       "title": "Backend · Most requested API routes",
-      "description": "Top 10 application routes in the selected period. Route names are also shown in the legend. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+      "description": "Top ten routes by HTTP request count in the selected time range, shown as one horizontal bar per route. Traffic and Route contains controls apply. The count field uses exact whole numbers. Click a bar through its tooltip to inspect the route logs.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5004,7 +5012,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | route != \"\" [$__range])))",
+          "expr": "sort_desc(topk(10, sum by (route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | route != \"\" [$__range]))))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5016,10 +5024,28 @@
           "legendFormat": "{{route}}"
         }
       ],
-      "transformations": [],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "route": 0,
+              "Value #A": 1,
+              "Value": 1
+            },
+            "renameByName": {
+              "Value #A": "Requests",
+              "Value": "Requests"
+            }
+          }
+        }
+      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "min": 0,
           "color": {
             "mode": "fixed",
@@ -5029,31 +5055,49 @@
           "links": [
             {
               "title": "Inspect route HTTP logs",
-              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${__field.labels.route}&var-status_filter=.*&var-request_id=&viewPanel=47",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${__data.fields[\"route\"]}&var-status_filter=.*&var-request_id=&viewPanel=47",
               "targetBlank": false
             }
-          ]
+          ],
+          "decimals": 0,
+          "custom": {
+            "axisPlacement": "auto",
+            "axisLabel": "Requests",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          }
         },
         "overrides": []
       },
       "options": {
-        "displayMode": "basic",
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom",
-          "calcs": []
-        },
         "orientation": "horizontal",
-        "namePlacement": "top",
-        "valueMode": "text",
-        "showUnfilled": false,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
+        "xField": "route",
+        "showValue": "always",
+        "groupWidth": 0.75,
+        "barWidth": 0.85,
+        "barRadius": 0,
+        "stacking": "none",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0,
+        "fullHighlight": false,
+        "legend": {
+          "showLegend": false,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "13.2.1",
@@ -5068,7 +5112,7 @@
       "id": 66,
       "type": "table",
       "title": "Backend · Endpoint summary",
-      "description": "Selected range, grouped by the exact method and route values recorded by Pino. Traffic and Route contains filters apply. Requests, 4xx, 5xx and numeric timing samples are counts. P95 is in milliseconds. Missing timing stays empty. Click a Route to inspect its logs.",
+      "description": "One row per HTTP method and logged route. Five instant Loki tables are joined on the combined method/route key. Shows exact request and error counts, selected-period P95 in milliseconds and numeric timing sample count. Missing timings remain empty. Traffic and Route contains apply. Click a Route to inspect logs.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5076,7 +5120,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "label_replace(sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])), \"measure\", \"Requests\", \"method\", \".*\")",
+          "expr": "sum by (method, route, endpoint) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | label_format endpoint=\"{{.method}} {{.route}}\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range]))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5088,7 +5132,7 @@
         },
         {
           "refId": "B",
-          "expr": "label_replace((sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [$__range])) or (sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0)), \"measure\", \"4xx\", \"method\", \".*\")",
+          "expr": "(sum by (endpoint) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | label_format endpoint=\"{{.method}} {{.route}}\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [$__range])) or (sum by (endpoint) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | label_format endpoint=\"{{.method}} {{.route}}\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5100,7 +5144,7 @@
         },
         {
           "refId": "C",
-          "expr": "label_replace((sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 500 | __error__=\"\" [$__range])) or (sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0)), \"measure\", \"5xx\", \"method\", \".*\")",
+          "expr": "(sum by (endpoint) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | label_format endpoint=\"{{.method}} {{.route}}\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 500 | __error__=\"\" [$__range])) or (sum by (endpoint) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | label_format endpoint=\"{{.method}} {{.route}}\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5112,7 +5156,7 @@
         },
         {
           "refId": "D",
-          "expr": "label_replace(quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | unwrap duration_ms | __error__=\"\" [$__range]) by (method, route), \"measure\", \"P95 (ms)\", \"method\", \".*\")",
+          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | label_format endpoint=\"{{.method}} {{.route}}\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | unwrap duration_ms | __error__=\"\" [$__range]) by (endpoint)",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5124,7 +5168,7 @@
         },
         {
           "refId": "E",
-          "expr": "label_replace(sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | duration_ms >= 0 | __error__=\"\" [$__range])), \"measure\", \"Timing samples\", \"method\", \".*\")",
+          "expr": "sum by (endpoint) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | label_format endpoint=\"{{.method}} {{.route}}\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | duration_ms >= 0 | __error__=\"\" [$__range]))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5137,7 +5181,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "noValue": "—",
           "custom": {
@@ -5207,16 +5251,132 @@
       },
       "transformations": [
         {
-          "id": "labelsToFields",
+          "id": "organize",
+          "filter": {
+            "id": "byRefId",
+            "options": "A"
+          },
           "options": {
-            "mode": "columns",
-            "valueLabel": "measure"
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "endpoint": 0,
+              "method": 1,
+              "route": 2,
+              "Value #A": 3,
+              "Value": 3
+            },
+            "renameByName": {
+              "Value #A": "Requests",
+              "Value": "Requests"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "filter": {
+            "id": "byRefId",
+            "options": "B"
+          },
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "endpoint": 0,
+              "method": 1,
+              "route": 2,
+              "Value #B": 3,
+              "Value": 3
+            },
+            "renameByName": {
+              "Value #B": "4xx",
+              "Value": "4xx"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "filter": {
+            "id": "byRefId",
+            "options": "C"
+          },
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "endpoint": 0,
+              "method": 1,
+              "route": 2,
+              "Value #C": 3,
+              "Value": 3
+            },
+            "renameByName": {
+              "Value #C": "5xx",
+              "Value": "5xx"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "filter": {
+            "id": "byRefId",
+            "options": "D"
+          },
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "endpoint": 0,
+              "method": 1,
+              "route": 2,
+              "Value #D": 3,
+              "Value": 3
+            },
+            "renameByName": {
+              "Value #D": "P95 (ms)",
+              "Value": "P95 (ms)"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "filter": {
+            "id": "byRefId",
+            "options": "E"
+          },
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "endpoint": 0,
+              "method": 1,
+              "route": 2,
+              "Value #E": 3,
+              "Value": 3
+            },
+            "renameByName": {
+              "Value #E": "Timing samples",
+              "Value": "Timing samples"
+            }
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "endpoint",
+            "mode": "outerTabular"
           }
         },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
+              "endpoint": true,
               "Time": true
             },
             "indexByName": {
@@ -5274,7 +5434,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "min": 0,
           "noValue": "No matching logs",
@@ -5363,7 +5523,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "min": 0,
           "noValue": "No matching logs",
@@ -5452,7 +5612,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "min": 0,
           "noValue": "No matching logs",
@@ -5541,7 +5701,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "min": 0,
           "noValue": "No matching logs",
@@ -5630,7 +5790,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "min": 0,
           "noValue": "No matching logs",
@@ -5719,7 +5879,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "decimals": 0,
           "min": 0,
           "noValue": "No matching logs",
@@ -5888,7 +6048,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "noValue": "No matching logs",
           "decimals": 0,
           "color": {
