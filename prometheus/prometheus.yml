@@ -75,3 +75,16 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:9115
+
+  - job_name: supabase
+    scrape_interval: 60s
+    scrape_timeout: 30s
+    scheme: https
+    metrics_path: /customer/v1/privileged/metrics
+    basic_auth:
+      username: username
+      password_file: /etc/prometheus/secrets/supabase-api-key
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/secrets/supabase-targets.json
+        refresh_interval: 60s
