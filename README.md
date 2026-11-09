@@ -10,6 +10,7 @@ DevOps monitoring for the university AI-assisted job portal project.
 - Render backend: HTTP status, latest probe, response time and availability history.
 - Vercel frontend: HTTP status, availability and response time (no host CPU/RAM metrics).
 - Backend application: Pino HTTP requests, 4xx/5xx errors, error rate, P50/P95, routes and searchable logs.
+- Supabase database: scrape/reachability health, CPU/RAM, storage, connection capacity, transactions, cache, PostgREST pool pressure and disk I/O. See [Supabase metrics setup](docs/SUPABASE_METRICS.md).
 - Render log collector: latest successful collection and Node Exporter textfile scrape health.
 - Expandable diagnostics for detailed HTTP logs.
 

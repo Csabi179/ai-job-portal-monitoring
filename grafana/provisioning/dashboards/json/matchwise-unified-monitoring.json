@@ -2,9 +2,9 @@
   "id": null,
   "uid": "matchwise-unified-overview",
   "title": "MatchWise | Unified Monitoring",
-  "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected. Probe freshness and sample counts, optional health-check exclusion, endpoint summary, HTTP log freshness, deployment annotations and log drilldowns.",
+  "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected. Probe freshness and sample counts, optional health-check exclusion, endpoint summary, HTTP log freshness, deployment annotations and log drilldowns. Supabase database resource, connection-capacity, transaction, PostgREST pool and disk I/O monitoring.",
   "schemaVersion": 42,
-  "version": 4,
+  "version": 5,
   "editable": false,
   "refresh": "1m",
   "time": {
@@ -29,7 +29,7 @@
       "description": "High-level view of all currently collected monitoring data.",
       "options": {
         "mode": "markdown",
-        "content": "### MATCHWISE / OPERATIONS CENTER\nOracle Cloud host metrics · Backend HTTP probes every 30 minutes · Frontend HTTP probes every minute · Render API log collection approximately every minute\n\nProbe cards show the latest observation within their freshness window. Read the probe age and sample count alongside availability. Pino timings measure application processing. Empty log results display as **No matching logs**. Query failures appear as panel errors."
+        "content": "### MATCHWISE / OPERATIONS CENTER\nOracle Cloud host metrics · Supabase database metrics every minute · Backend HTTP probes every 30 minutes · Frontend HTTP probes every minute · Render API log collection approximately every minute\n\nProbe cards show the latest observation within their freshness window. Read the probe age and sample count alongside availability. Pino timings measure application processing. Empty log results display as **No matching logs**. Query failures appear as panel errors."
       },
       "gridPos": {
         "x": 0,
@@ -44,14 +44,14 @@
       "title": "Application endpoints and deployment context",
       "options": {
         "mode": "markdown",
-        "content": "**Frontend** [www.matchwise.tech](https://www.matchwise.tech/) · **Backend** [matchwise-backend-monitoring-test.onrender.com](https://matchwise-backend-monitoring-test.onrender.com/)\n\n**Backend source** [emmanuelkyeremeh/job-portal-backend · main](https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main) · **Deployed commit, manually recorded** `${deployed_commit}` · **Auth status, manually recorded** ${auth_status}\n\nUpdate deployment metadata through the dashboard variables through this JSON in Git, in the current values of `deployed_commit` and `auth_status`. Verify the commit in Render Events and change auth status after the team tests it. Add deploy markers using the **Deployments and operations** annotation query. The Request ID and Log status controls filter diagnostics. Traffic and Route contains filter application metrics and diagnostics."
+        "content": "**Frontend** [www.matchwise.tech](https://www.matchwise.tech/) · **Backend** [matchwise-backend-monitoring-test.onrender.com](https://matchwise-backend-monitoring-test.onrender.com/)\n\n**Backend source** [emmanuelkyeremeh/job-portal-backend · main](https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main) · **Deployed commit, manually recorded** `${deployed_commit}` · **Auth status, manually recorded** ${auth_status}\n\nUpdate deployment metadata through the dashboard variables through this JSON in Git, in the current values of `deployed_commit` and `auth_status`. Verify the commit in Render Events and change auth status after the team tests it. Add deploy markers using the **Deployments and operations** annotation query. The Request ID and Log status controls filter diagnostics. Traffic and Route contains filter application metrics and diagnostics.\n\n**Supabase metrics target** `${supabase_instance}` · Resource thresholds are visual indicators. Database connections include internal services. Supabase panels use their own target selector."
       },
       "description": "Endpoints from the monitoring configuration. Deployment and auth metadata are operator-maintained, with no automatic verification.",
       "gridPos": {
         "x": 0,
         "y": 5,
         "w": 24,
-        "h": 6
+        "h": 8
       }
     },
     {
@@ -62,7 +62,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 11,
+        "y": 13,
         "w": 24,
         "h": 1
       }
@@ -140,7 +140,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 12,
+        "y": 14,
         "w": 6,
         "h": 5
       }
@@ -218,7 +218,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 12,
+        "y": 14,
         "w": 6,
         "h": 5
       }
@@ -296,7 +296,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 12,
+        "y": 14,
         "w": 6,
         "h": 5
       }
@@ -363,7 +363,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 12,
+        "y": 14,
         "w": 6,
         "h": 5
       }
@@ -430,7 +430,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 17,
+        "y": 19,
         "w": 6,
         "h": 5
       }
@@ -497,7 +497,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 17,
+        "y": 19,
         "w": 6,
         "h": 5
       }
@@ -564,7 +564,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 17,
+        "y": 19,
         "w": 6,
         "h": 5
       }
@@ -648,7 +648,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 17,
+        "y": 19,
         "w": 6,
         "h": 5
       }
@@ -721,7 +721,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 22,
+        "y": 24,
         "w": 8,
         "h": 4
       }
@@ -794,7 +794,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 22,
+        "y": 24,
         "w": 8,
         "h": 4
       }
@@ -863,7 +863,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 22,
+        "y": 24,
         "w": 8,
         "h": 4
       }
@@ -876,7 +876,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 26,
+        "y": 28,
         "w": 24,
         "h": 1
       }
@@ -930,7 +930,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 27,
+        "y": 29,
         "w": 6,
         "h": 4
       }
@@ -984,7 +984,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 27,
+        "y": 29,
         "w": 6,
         "h": 4
       }
@@ -1038,7 +1038,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 27,
+        "y": 29,
         "w": 6,
         "h": 4
       }
@@ -1092,7 +1092,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 27,
+        "y": 29,
         "w": 6,
         "h": 4
       }
@@ -1163,7 +1163,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 31,
+        "y": 33,
         "w": 12,
         "h": 7
       }
@@ -1234,7 +1234,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 31,
+        "y": 33,
         "w": 12,
         "h": 7
       }
@@ -1305,7 +1305,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 38,
+        "y": 40,
         "w": 12,
         "h": 7
       }
@@ -1386,7 +1386,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 38,
+        "y": 40,
         "w": 12,
         "h": 7
       }
@@ -1467,7 +1467,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 45,
+        "y": 47,
         "w": 12,
         "h": 7
       }
@@ -1559,7 +1559,1468 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 45,
+        "y": 47,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 93,
+      "type": "row",
+      "title": "SUPABASE | Database resources and capacity",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 54,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 75,
+      "type": "stat",
+      "title": "Supabase · Metrics endpoint",
+      "description": "Prometheus scrape status for the selected Supabase target. UP confirms the Metrics API scrape. PostgreSQL reachability is shown separately.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(up{job=\"supabase\",instance=~\"${supabase_instance:regex}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 1,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 55,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 76,
+      "type": "stat",
+      "title": "Supabase · PostgreSQL reachability",
+      "description": "pg_up reports whether the PostgreSQL exporter connected successfully. The card requires a successful Metrics API scrape. Application auth checks are tracked in the authentication section.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(pg_up{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}) and on() (min(up{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 1,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 6,
+        "y": 55,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 77,
+      "type": "stat",
+      "title": "Supabase · Database connection slots used",
+      "description": "Sum of exported PostgreSQL connections across database roles divided by the exported maximum connection limit. Includes Supabase internal service connections. Display thresholds are 70% and 85%.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(connection_stats_connection_count{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}) / (max(max_connections_connection_count{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}) > 0)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 70,
+                "color": "orange"
+              },
+              {
+                "value": 85,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 55,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 78,
+      "type": "stat",
+      "title": "Supabase · Data filesystem used",
+      "description": "Allocated /data filesystem utilization, using space available to unprivileged users. Display thresholds are 80% and 90%. This measures filesystem capacity. Plan storage allowances must be checked separately in Supabase. A missing /data mount remains No data.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(100 * (1 - node_filesystem_avail_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\",mountpoint=\"/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} / (node_filesystem_size_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\",mountpoint=\"/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} > 0)))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 80,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 18,
+        "y": 55,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 79,
+      "type": "stat",
+      "title": "Supabase · CPU utilization",
+      "description": "Non-idle CPU time averaged across database host cores over five minutes. A new scrape target needs multiple samples before a rate can be computed. Display thresholds are 80% and 90%.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",mode=\"idle\"}[5m])))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 80,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 60,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 80,
+      "type": "stat",
+      "title": "Supabase · Memory utilization",
+      "description": "Database host memory usage based on MemAvailable / MemTotal, allowing for reclaimable cache. Display thresholds are 80% and 90%.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 80,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 6,
+        "y": 60,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 81,
+      "type": "stat",
+      "title": "Supabase · Open database connections",
+      "description": "Exported PostgreSQL connection count summed across database roles. Includes internal Supabase services and pooled server connections. This counts database connections, independently of application logins.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(connection_stats_connection_count{job=\"supabase\",instance=~\"${supabase_instance:regex}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 60,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 82,
+      "type": "stat",
+      "title": "Supabase · Database size",
+      "description": "Database size in bytes, summed across exported databases except template0 and template1. Includes database objects such as tables and indexes. WAL and filesystem usage are separate measures.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(pg_database_size_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\",datname!~\"template[01]\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "decimals": 1,
+          "noValue": "No data",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No data",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 18,
+        "y": 60,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 83,
+      "type": "timeseries",
+      "title": "Supabase · CPU and memory history",
+      "description": "Database host CPU and memory utilization for the selected Supabase target.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",mode=\"idle\"}[5m])))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "CPU"
+        },
+        {
+          "refId": "B",
+          "expr": "100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "Memory"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data",
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 65,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 84,
+      "type": "timeseries",
+      "title": "Supabase · Filesystem capacity",
+      "description": "Root and data filesystem usage shown separately. The root filesystem contains operating-system files. The data filesystem holds database storage. Values describe allocated filesystem capacity.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * (1 - node_filesystem_avail_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\",mountpoint=~\"/|/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} / (node_filesystem_size_bytes{job=\"supabase\",instance=~\"${supabase_instance:regex}\",mountpoint=~\"/|/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} > 0))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "{{mountpoint}} · {{device}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data",
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 65,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 85,
+      "type": "timeseries",
+      "title": "Supabase · Connections by database role",
+      "description": "Connection counts by PostgreSQL role, such as authenticator and supabase_auth_admin. Useful for identifying which service consumes connection slots. Roles are database identities.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (username) (connection_stats_connection_count{job=\"supabase\",instance=~\"${supabase_instance:regex}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "{{username}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 72,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 86,
+      "type": "timeseries",
+      "title": "Supabase · Transaction throughput",
+      "description": "Five-minute rates of committed and rolled-back PostgreSQL transactions. Covers database-wide activity, including Supabase services. Rollbacks can be intentional. These counts are distinct from HTTP request outcomes.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m]))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "Committed /s"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m]))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "Rolled back /s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 72,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 87,
+      "type": "timeseries",
+      "title": "Supabase · PostgreSQL buffer cache hit ratio",
+      "description": "Block hits / (block hits + block reads), calculated from five-minute rates. A zero denominator produces no ratio. PostgreSQL buffer cache hits exclude operating-system cache effects. Interpret changes alongside traffic and I/O, especially on a new database.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(rate(pg_stat_database_blks_hit_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m])) / ((sum(rate(pg_stat_database_blks_hit_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m])) + sum(rate(pg_stat_database_blks_read_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m]))) > 0)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "Buffer cache hits"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data",
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 79,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 88,
+      "type": "timeseries",
+      "title": "Supabase · Query temporary-file writes",
+      "description": "Bytes per second written by queries to temporary files, for example when sorts or hashes spill to disk. Sustained growth alongside slow requests can indicate query or memory pressure.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_temp_bytes_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m]))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "Temporary writes /s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 79,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 89,
+      "type": "timeseries",
+      "title": "Supabase · PostgREST connection-pool queue",
+      "description": "Requests waiting for a PostgREST database-pool connection. Relevant because the backend uses supabase-js data queries through PostgREST. This queue is separate from the PostgreSQL global connection limit.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(pgrst_db_pool_waiting{job=\"supabase\",instance=~\"${supabase_instance:regex}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "Waiting requests"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 86,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 90,
+      "type": "timeseries",
+      "title": "Supabase · Deadlocks and Data API pool timeouts",
+      "description": "Five-minute event rates expressed per minute. Deadlocks abort one transaction. Pool timeouts indicate failures while waiting for a Data API database connection. Fractional rates can result from rate estimation.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_deadlocks_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m])) * 60",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "PostgreSQL deadlocks /min"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(pgrst_db_pool_timeouts_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\"}[5m])) * 60",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "PostgREST pool timeouts /min"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 86,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 91,
+      "type": "timeseries",
+      "title": "Supabase · Disk read and write throughput",
+      "description": "Disk throughput shown per device to avoid summing logical and physical layers together. Loop, RAM and removable-style devices are excluded.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (device) (rate(node_disk_read_bytes_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",device!~\"^(loop|ram|sr|fd).*\"}[5m]))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "{{device}} read /s"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (device) (rate(node_disk_written_bytes_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",device!~\"^(loop|ram|sr|fd).*\"}[5m]))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "{{device}} write /s"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 93,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 92,
+      "type": "timeseries",
+      "title": "Supabase · Average disk read and write time",
+      "description": "Average read/write time per completed I/O over five minutes, per device. When no operations complete, the corresponding average has no value. Interpret alongside throughput and application latency.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "1000 * sum by (device) (rate(node_disk_read_time_seconds_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) / (sum by (device) (rate(node_disk_reads_completed_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) > 0)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "{{device}} read"
+        },
+        {
+          "refId": "B",
+          "expr": "1000 * sum by (device) (rate(node_disk_write_time_seconds_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) / (sum by (device) (rate(node_disk_writes_completed_total{job=\"supabase\",instance=~\"${supabase_instance:regex}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) > 0)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": false,
+          "range": true,
+          "legendFormat": "{{device}} write"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No data"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 93,
         "w": 12,
         "h": 7
       }
@@ -1572,7 +3033,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 52,
+        "y": 100,
         "w": 24,
         "h": 1
       }
@@ -1627,7 +3088,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 53,
+        "y": 101,
         "w": 8,
         "h": 4
       }
@@ -1698,7 +3159,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 53,
+        "y": 101,
         "w": 8,
         "h": 4
       }
@@ -1753,7 +3214,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 53,
+        "y": 101,
         "w": 8,
         "h": 4
       }
@@ -1809,7 +3270,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 57,
+        "y": 105,
         "w": 8,
         "h": 4
       }
@@ -1865,7 +3326,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 57,
+        "y": 105,
         "w": 8,
         "h": 4
       }
@@ -1935,7 +3396,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 57,
+        "y": 105,
         "w": 8,
         "h": 4
       }
@@ -2005,7 +3466,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 61,
+        "y": 109,
         "w": 12,
         "h": 7
       }
@@ -2076,7 +3537,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 61,
+        "y": 109,
         "w": 12,
         "h": 7
       }
@@ -2089,7 +3550,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 68,
+        "y": 116,
         "w": 24,
         "h": 1
       }
@@ -2144,7 +3605,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 69,
+        "y": 117,
         "w": 8,
         "h": 4
       }
@@ -2199,7 +3660,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 69,
+        "y": 117,
         "w": 8,
         "h": 4
       }
@@ -2254,7 +3715,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 69,
+        "y": 117,
         "w": 8,
         "h": 4
       }
@@ -2310,7 +3771,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 73,
+        "y": 121,
         "w": 8,
         "h": 4
       }
@@ -2366,7 +3827,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 73,
+        "y": 121,
         "w": 8,
         "h": 4
       }
@@ -2436,7 +3897,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 73,
+        "y": 121,
         "w": 8,
         "h": 4
       }
@@ -2506,7 +3967,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 77,
+        "y": 125,
         "w": 12,
         "h": 7
       }
@@ -2577,7 +4038,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 77,
+        "y": 125,
         "w": 12,
         "h": 7
       }
@@ -2590,7 +4051,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 84,
+        "y": 132,
         "w": 24,
         "h": 1
       }
@@ -2665,7 +4126,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 85,
+        "y": 133,
         "w": 6,
         "h": 5
       }
@@ -2749,7 +4210,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 85,
+        "y": 133,
         "w": 6,
         "h": 5
       }
@@ -2833,7 +4294,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 85,
+        "y": 133,
         "w": 6,
         "h": 5
       }
@@ -2921,7 +4382,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 85,
+        "y": 133,
         "w": 6,
         "h": 5
       }
@@ -2997,7 +4458,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 90,
+        "y": 138,
         "w": 6,
         "h": 4
       }
@@ -3073,7 +4534,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 90,
+        "y": 138,
         "w": 6,
         "h": 4
       }
@@ -3142,7 +4603,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 90,
+        "y": 138,
         "w": 6,
         "h": 4
       }
@@ -3211,7 +4672,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 90,
+        "y": 138,
         "w": 6,
         "h": 4
       }
@@ -3284,7 +4745,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 94,
+        "y": 142,
         "w": 12,
         "h": 7
       }
@@ -3369,7 +4830,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 94,
+        "y": 142,
         "w": 12,
         "h": 7
       }
@@ -3454,7 +4915,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 101,
+        "y": 149,
         "w": 12,
         "h": 7
       }
@@ -3526,7 +4987,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 101,
+        "y": 149,
         "w": 12,
         "h": 7
       }
@@ -3598,7 +5059,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 108,
+        "y": 156,
         "w": 24,
         "h": 6
       }
@@ -3740,7 +5201,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 114,
+        "y": 162,
         "w": 24,
         "h": 9
       },
@@ -3783,7 +5244,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 123,
+        "y": 171,
         "w": 24,
         "h": 1
       }
@@ -3872,7 +5333,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 124,
+        "y": 172,
         "w": 8,
         "h": 5
       }
@@ -3961,7 +5422,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 124,
+        "y": 172,
         "w": 8,
         "h": 5
       }
@@ -4050,7 +5511,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 124,
+        "y": 172,
         "w": 8,
         "h": 5
       }
@@ -4139,7 +5600,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 129,
+        "y": 177,
         "w": 8,
         "h": 5
       }
@@ -4228,7 +5689,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 129,
+        "y": 177,
         "w": 8,
         "h": 5
       }
@@ -4317,7 +5778,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 129,
+        "y": 177,
         "w": 8,
         "h": 5
       }
@@ -4330,7 +5791,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 134,
+        "y": 182,
         "w": 24,
         "h": 1
       }
@@ -4397,7 +5858,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 135,
+        "y": 183,
         "w": 12,
         "h": 4
       }
@@ -4466,7 +5927,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 135,
+        "y": 183,
         "w": 12,
         "h": 4
       }
@@ -4481,7 +5942,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 139,
+        "y": 187,
         "w": 24,
         "h": 4
       }
@@ -4551,7 +6012,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 143,
+        "y": 191,
         "w": 12,
         "h": 7
       }
@@ -4622,7 +6083,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 143,
+        "y": 191,
         "w": 12,
         "h": 7
       }
@@ -4655,7 +6116,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 151,
+            "y": 199,
             "w": 24,
             "h": 9
           },
@@ -4700,7 +6161,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 160,
+            "y": 208,
             "w": 24,
             "h": 9
           },
@@ -4726,7 +6187,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 150,
+        "y": 198,
         "w": 24,
         "h": 1
       }
@@ -4734,6 +6195,32 @@
   ],
   "templating": {
     "list": [
+      {
+        "name": "supabase_instance",
+        "type": "query",
+        "label": "Supabase target",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": {
+          "query": "query_result(up{job=\"supabase\"})",
+          "refId": "StandardVariableQuery"
+        },
+        "definition": "query_result(up{job=\"supabase\"})",
+        "regex": "/instance=\"([^\"]+)\"/",
+        "refresh": 1,
+        "sort": 1,
+        "multi": false,
+        "includeAll": false,
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "text": "uvopvarvelpabhmrqaaw.supabase.co:443",
+          "value": "uvopvarvelpabhmrqaaw.supabase.co:443"
+        },
+        "options": []
+      },
       {
         "name": "request_id",
         "type": "textbox",
