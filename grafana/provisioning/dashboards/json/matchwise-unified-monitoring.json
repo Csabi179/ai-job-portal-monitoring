@@ -2,9 +2,9 @@
   "id": null,
   "uid": "matchwise-unified-overview",
   "title": "MatchWise | Unified Monitoring",
-  "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected.",
+  "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected. Probe freshness and sample counts, optional health-check exclusion, endpoint summary, HTTP log freshness, deployment annotations and log drilldowns.",
   "schemaVersion": 42,
-  "version": 1,
+  "version": 2,
   "editable": false,
   "refresh": "1m",
   "time": {
@@ -29,13 +29,29 @@
       "description": "High-level view of all currently collected monitoring data.",
       "options": {
         "mode": "markdown",
-        "content": "### MATCHWISE / OPERATIONS CENTER\n**Oracle Cloud** · VM CPU, RAM, disk, network and system load  |  **Render** · backend HTTP checks every 30 minutes + Pino application logs  |  **Vercel** · frontend HTTP checks every minute  |  **Log collector** · last successful Render Logs API collection\n\n> **Data coverage:** Host CPU/RAM metrics for the Render and Vercel platforms are **not** collected. Availability panels show the most recently observed probe result, not a continuous availability guarantee. Backend processing time and end-to-end HTTP probe duration are different measurements."
+        "content": "### MATCHWISE / OPERATIONS CENTER\nOracle Cloud host metrics · Backend HTTP probes every 30 minutes · Frontend HTTP probes every minute · Render API log collection approximately every minute\n\nProbe cards show the latest observation within their freshness window. Read the probe age and sample count alongside availability. Pino timings measure application processing. Empty log results display as **No matching logs**. Query failures appear as panel errors."
       },
       "gridPos": {
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 4
+        "h": 5
+      }
+    },
+    {
+      "id": 50,
+      "type": "text",
+      "title": "Application endpoints and deployment context",
+      "options": {
+        "mode": "markdown",
+        "content": "**Frontend** [www.matchwise.tech](https://www.matchwise.tech/) · **Backend** [matchwise-backend-monitoring-test.onrender.com](https://matchwise-backend-monitoring-test.onrender.com/)\n\n**Backend source** [emmanuelkyeremeh/job-portal-backend · main](https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main) · **Deployed commit, manually recorded** `${deployed_commit}` · **Auth status, manually recorded** ${auth_status}\n\nUpdate deployment metadata through the dashboard variables through this JSON in Git, in the current values of `deployed_commit` and `auth_status`. Verify the commit in Render Events and change auth status after the team tests it. Add deploy markers using the **Deployments and operations** annotation query. The Request ID and Log status controls filter diagnostics. Traffic and Route contains filter application metrics and diagnostics."
+      },
+      "description": "Endpoints from the monitoring configuration. Deployment and auth metadata are operator-maintained, with no automatic verification.",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 6
       }
     },
     {
@@ -46,7 +62,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 11,
         "w": 24,
         "h": 1
       }
@@ -124,7 +140,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 5,
+        "y": 12,
         "w": 6,
         "h": 5
       }
@@ -132,8 +148,8 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Render · Latest HTTP probe",
-      "description": "Last observed result of the 30-minute Blackbox HTTP probe; 40-minute freshness window.",
+      "title": "Backend · Latest observed HTTP result",
+      "description": "Last observed result of the 30-minute Blackbox HTTP probe; 40-minute freshness window. See probe age and actual sample counts below. Exporter scrape failures are shown in the availability section.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -153,7 +169,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "N/A",
+          "noValue": "No recent probe",
           "mappings": [
             {
               "type": "value",
@@ -202,7 +218,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 5,
+        "y": 12,
         "w": 6,
         "h": 5
       }
@@ -210,8 +226,8 @@
     {
       "id": 5,
       "type": "stat",
-      "title": "Vercel · Frontend availability",
-      "description": "Last observed result of the 1-minute Blackbox HTTP probe; 5-minute freshness window.",
+      "title": "Frontend · Latest observed HTTP result",
+      "description": "Last observed result of the 1-minute Blackbox HTTP probe; 5-minute freshness window. See probe age and actual sample counts below. Exporter scrape failures are shown in the availability section.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -231,7 +247,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "N/A",
+          "noValue": "No recent probe",
           "mappings": [
             {
               "type": "value",
@@ -280,7 +296,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 5,
+        "y": 12,
         "w": 6,
         "h": 5
       }
@@ -347,7 +363,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 5,
+        "y": 12,
         "w": 6,
         "h": 5
       }
@@ -414,7 +430,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 10,
+        "y": 17,
         "w": 6,
         "h": 5
       }
@@ -481,7 +497,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 10,
+        "y": 17,
         "w": 6,
         "h": 5
       }
@@ -548,7 +564,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 10,
+        "y": 17,
         "w": 6,
         "h": 5
       }
@@ -557,7 +573,7 @@
       "id": 10,
       "type": "stat",
       "title": "Backend · HTTP 5xx errors (selected period)",
-      "description": "HTTP 5xx responses found in Pino application logs within the selected dashboard time range.",
+      "description": "HTTP 5xx responses found in Pino application logs within the selected dashboard time range. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -565,7 +581,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json statusCode=\"statusCode\" | statusCode >= 500 | __error__=\"\" [$__range])) or vector(0)",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 500 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -579,7 +595,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "N/A",
+          "noValue": "No matching logs",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -590,6 +606,98 @@
               {
                 "value": 1,
                 "color": "red"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "links": [
+            {
+              "title": "Inspect matching HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=5%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 18,
+        "y": 17,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 51,
+      "type": "stat",
+      "title": "Backend · Age of last probe",
+      "description": "Age of the latest stored probe sample, found through a 40-minute window. Subquery resolution is one minute.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"})[40m:1m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No recent sample",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds",
+            "fixedColor": "blue"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1800
+              },
+              {
+                "color": "red",
+                "value": 2400
               }
             ]
           }
@@ -612,10 +720,152 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 18,
-        "y": 10,
-        "w": 6,
-        "h": 5
+        "x": 0,
+        "y": 22,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 52,
+      "type": "stat",
+      "title": "Frontend · Age of last probe",
+      "description": "Age of the latest stored frontend probe sample within five minutes.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[5m:30s])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "No recent sample",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds",
+            "fixedColor": "blue"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 120
+              },
+              {
+                "color": "red",
+                "value": 240
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 22,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 64,
+      "type": "stat",
+      "title": "Loki · Newest HTTP event (last hour)",
+      "description": "Most recent original HTTP event timestamp available in Loki within the last hour. No matching logs can mean no traffic or an ingestion issue. Independent of dashboard filters. This is event freshness, not measured ingestion delay.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "1000 * max(max_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\" | event=\"http_request\" | __error__=\"\" | label_format event_epoch=\"{{ __timestamp__ | unixEpoch }}\" | unwrap event_epoch | __error__=\"\" [1h]) by (job))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeFromNow",
+          "noValue": "No matching logs",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 22,
+        "w": 8,
+        "h": 4
       }
     },
     {
@@ -626,7 +876,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 15,
+        "y": 26,
         "w": 24,
         "h": 1
       }
@@ -680,7 +930,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 16,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -734,7 +984,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 16,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -788,7 +1038,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 16,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -842,7 +1092,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 16,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -913,7 +1163,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 31,
         "w": 12,
         "h": 7
       }
@@ -984,7 +1234,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 20,
+        "y": 31,
         "w": 12,
         "h": 7
       }
@@ -997,7 +1247,8 @@
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
-      },      "targets": [
+      },
+      "targets": [
         {
           "refId": "A",
           "expr": "100 * (1 - node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}/node_filesystem_size_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"})",
@@ -1054,7 +1305,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 27,
+        "y": 38,
         "w": 12,
         "h": 7
       }
@@ -1135,7 +1386,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 27,
+        "y": 38,
         "w": 12,
         "h": 7
       }
@@ -1216,7 +1467,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 34,
+        "y": 45,
         "w": 12,
         "h": 7
       }
@@ -1308,7 +1559,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 34,
+        "y": 45,
         "w": 12,
         "h": 7
       }
@@ -1321,7 +1572,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 41,
+        "y": 52,
         "w": 24,
         "h": 1
       }
@@ -1344,7 +1595,8 @@
             "uid": "prometheus"
           },
           "instant": true,
-          "range": false
+          "range": false,
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -1375,7 +1627,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 42,
+        "y": 53,
         "w": 8,
         "h": 4
       }
@@ -1384,7 +1636,7 @@
       "id": 24,
       "type": "stat",
       "title": "Backend · Latest HTTP response time",
-      "description": "Blackbox total HTTP probe time, including potential Render Free cold starts and network latency.",
+      "description": "Blackbox total HTTP probe time, including potential Render Free cold starts and network latency. Display thresholds are 2s and 10s. They are dashboard indicators.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1398,7 +1650,8 @@
             "uid": "prometheus"
           },
           "instant": true,
-          "range": false
+          "range": false,
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -1406,8 +1659,24 @@
           "unit": "s",
           "noValue": "N/A",
           "color": {
-            "mode": "fixed",
-            "fixedColor": "blue"
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
           }
         },
         "overrides": []
@@ -1429,7 +1698,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 42,
+        "y": 53,
         "w": 8,
         "h": 4
       }
@@ -1438,7 +1707,7 @@
       "id": 25,
       "type": "stat",
       "title": "Backend · Successful HTTP probes (%)",
-      "description": "Share of sampled successful backend probes; not a continuous uptime SLA.",
+      "description": "Percentage of successful stored probe samples in the selected range, per URL. Read with the sample-count card. A range with no probe samples has no percentage.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1452,7 +1721,8 @@
             "uid": "prometheus"
           },
           "instant": true,
-          "range": false
+          "range": false,
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -1483,7 +1753,189 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 42,
+        "y": 53,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 57,
+      "type": "stat",
+      "title": "Backend · Last probe time",
+      "description": "Timestamp of the latest stored backend probe sample.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "1000 * max_over_time(timestamp(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"})[40m:1m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "noValue": "No recent sample",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 57,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 53,
+      "type": "stat",
+      "title": "Backend · Actual probe samples",
+      "description": "Counts actual stored probe samples in the selected range, per URL. Display points in a range graph may repeat these samples.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[$__range])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No recent sample",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 57,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 55,
+      "type": "stat",
+      "title": "Backend · Latest exporter scrape",
+      "description": "A value of 1 means Prometheus could scrape the probe exporter. HTTP probe success is shown separately.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No recent sample",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "SCRAPE FAILED",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "SCRAPE OK",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 57,
         "w": 8,
         "h": 4
       }
@@ -1492,7 +1944,7 @@
       "id": 26,
       "type": "timeseries",
       "title": "Render · HTTP response time (30-minute probes)",
-      "description": "HTTP probe duration from the Oracle VM; Render Free cold-start latency may be visible.",
+      "description": "Range evaluation can repeat the latest stored sample at multiple display points. Sampling interval is 30 minutes. Use Actual probe samples for the number of independent measurements.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1505,7 +1957,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Backend probe duration",
+          "legendFormat": "{{instance}}",
           "instant": false,
           "range": true
         }
@@ -1553,7 +2005,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 46,
+        "y": 61,
         "w": 12,
         "h": 7
       }
@@ -1562,7 +2014,7 @@
       "id": 27,
       "type": "timeseries",
       "title": "Render · HTTP probe results (0/1)",
-      "description": "One probe approximately every 30 minutes; discrete probe results are not continuous uptime.",
+      "description": "Range evaluation can repeat the latest stored sample at multiple display points. Sampling interval is 30 minutes. Use Actual probe samples for the number of independent measurements.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1575,7 +2027,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Successful HTTP probe",
+          "legendFormat": "{{instance}}",
           "instant": false,
           "range": true
         }
@@ -1624,7 +2076,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 46,
+        "y": 61,
         "w": 12,
         "h": 7
       }
@@ -1637,7 +2089,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 53,
+        "y": 68,
         "w": 24,
         "h": 1
       }
@@ -1660,7 +2112,8 @@
             "uid": "prometheus"
           },
           "instant": true,
-          "range": false
+          "range": false,
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -1691,7 +2144,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 54,
+        "y": 69,
         "w": 8,
         "h": 4
       }
@@ -1714,7 +2167,8 @@
             "uid": "prometheus"
           },
           "instant": true,
-          "range": false
+          "range": false,
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -1745,7 +2199,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 54,
+        "y": 69,
         "w": 8,
         "h": 4
       }
@@ -1754,7 +2208,7 @@
       "id": 31,
       "type": "stat",
       "title": "Frontend · Successful HTTP probes (%)",
-      "description": "Share of successful one-minute Vercel probes; not browser Real User Monitoring / Web Vitals.",
+      "description": "Percentage of successful stored probe samples in the selected range, per URL. Read with the sample-count card. A range with no probe samples has no percentage.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1768,7 +2222,8 @@
             "uid": "prometheus"
           },
           "instant": true,
-          "range": false
+          "range": false,
+          "legendFormat": "{{instance}}"
         }
       ],
       "fieldConfig": {
@@ -1799,7 +2254,189 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 54,
+        "y": 69,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 58,
+      "type": "stat",
+      "title": "Frontend · Last probe time",
+      "description": "Timestamp of the latest stored frontend probe sample.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "1000 * max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[5m:30s])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "noValue": "No recent sample",
+          "decimals": 1,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 73,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 54,
+      "type": "stat",
+      "title": "Frontend · Actual probe samples",
+      "description": "Counts actual stored frontend probe samples in the selected range, per URL.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[$__range])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No recent sample",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 73,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 56,
+      "type": "stat",
+      "title": "Frontend · Latest exporter scrape",
+      "description": "A value of 1 means Prometheus could scrape the probe exporter.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "last_over_time(up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No recent sample",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "SCRAPE FAILED",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "SCRAPE OK",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 73,
         "w": 8,
         "h": 4
       }
@@ -1821,7 +2458,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Frontend probe duration",
+          "legendFormat": "{{instance}}",
           "instant": false,
           "range": true
         }
@@ -1869,7 +2506,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 58,
+        "y": 77,
         "w": 12,
         "h": 7
       }
@@ -1891,7 +2528,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Successful HTTP probe",
+          "legendFormat": "{{instance}}",
           "instant": false,
           "range": true
         }
@@ -1940,7 +2577,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 58,
+        "y": 77,
         "w": 12,
         "h": 7
       }
@@ -1953,7 +2590,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 65,
+        "y": 84,
         "w": 24,
         "h": 1
       }
@@ -1962,7 +2599,7 @@
       "id": 35,
       "type": "stat",
       "title": "HTTP requests · Selected period",
-      "description": "Count of Pino HTTP request logs during the selected period.",
+      "description": "Count of Pino HTTP request logs during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -1970,7 +2607,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\" | event=\"http_request\" | __error__=\"\" [$__range])) or vector(0)",
+          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range]))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -1984,11 +2621,30 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "N/A",
+          "noValue": "No matching logs",
           "color": {
             "mode": "fixed",
             "fixedColor": "blue"
-          }
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "links": [
+            {
+              "title": "Inspect matching HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=.*&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
         },
         "overrides": []
       },
@@ -1996,7 +2652,8 @@
         "reduceOptions": {
           "values": false,
           "calcs": [
-            "lastNotNull"          ],
+            "lastNotNull"
+          ],
           "fields": ""
         },
         "orientation": "auto",
@@ -2008,7 +2665,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 66,
+        "y": 85,
         "w": 6,
         "h": 5
       }
@@ -2017,7 +2674,7 @@
       "id": 36,
       "type": "stat",
       "title": "HTTP 4xx errors · Selected period",
-      "description": "Client error responses (HTTP 4xx) during the selected period.",
+      "description": "Client error responses (HTTP 4xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2025,7 +2682,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json statusCode=\"statusCode\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [$__range])) or vector(0)",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2039,7 +2696,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "N/A",
+          "noValue": "No matching logs",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2052,7 +2709,26 @@
                 "color": "orange"
               }
             ]
-          }
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "links": [
+            {
+              "title": "Inspect matching HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=4%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
         },
         "overrides": []
       },
@@ -2073,7 +2749,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 66,
+        "y": 85,
         "w": 6,
         "h": 5
       }
@@ -2082,7 +2758,7 @@
       "id": 37,
       "type": "stat",
       "title": "HTTP 5xx errors · Selected period",
-      "description": "Server error responses (HTTP 5xx) during the selected period.",
+      "description": "Server error responses (HTTP 5xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2090,7 +2766,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json statusCode=\"statusCode\" | statusCode >= 500 | __error__=\"\" [$__range])) or vector(0)",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 500 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2104,7 +2780,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "N/A",
+          "noValue": "No matching logs",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2117,7 +2793,26 @@
                 "color": "red"
               }
             ]
-          }
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "links": [
+            {
+              "title": "Inspect matching HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=5%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
         },
         "overrides": []
       },
@@ -2138,7 +2833,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 66,
+        "y": 85,
         "w": 6,
         "h": 5
       }
@@ -2147,7 +2842,7 @@
       "id": 38,
       "type": "stat",
       "title": "HTTP error rate · 4xx + 5xx",
-      "description": "Share of Pino HTTP requests with a 4xx or 5xx response.",
+      "description": "Share of Pino HTTP requests with a 4xx or 5xx response. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2155,7 +2850,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json statusCode=\"statusCode\" | statusCode >= 400 | __error__=\"\" [$__range])) or vector(0)) / (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\" | event=\"http_request\" | __error__=\"\" [$__range])) > 0)) or vector(0)",
+          "expr": "100 * (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 400 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0)) / (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) > 0)",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2169,7 +2864,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "N/A",
+          "noValue": "No matching logs",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2186,7 +2881,26 @@
                 "color": "red"
               }
             ]
-          }
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "links": [
+            {
+              "title": "Inspect matching HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=%5B45%5D%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
         },
         "overrides": []
       },
@@ -2207,16 +2921,16 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 66,
+        "y": 85,
         "w": 6,
         "h": 5
       }
     },
     {
-      "id": 39,
-      "type": "timeseries",
-      "title": "Backend · Requests per minute",
-      "description": "Requests per minute, calculated from a five-minute rolling window.",
+      "id": 60,
+      "type": "stat",
+      "title": "Backend · HTTP 401",
+      "description": "Matching HTTP 401 responses in the selected period. May be an expected authentication rejection. Click to inspect.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2224,7 +2938,297 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\" | event=\"http_request\" | __error__=\"\" [5m])) * 60",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode = 401 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No matching logs",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "links": [
+            {
+              "title": "Inspect matching HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=401&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 90,
+        "w": 6,
+        "h": 4
+      }
+    },
+    {
+      "id": 61,
+      "type": "stat",
+      "title": "Backend · HTTP 404",
+      "description": "Matching HTTP 404 responses in the selected period. Click to inspect.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode = 404 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No matching logs",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "links": [
+            {
+              "title": "Inspect matching HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${route_filter:percentencode}&var-status_filter=404&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 6,
+        "y": 90,
+        "w": 6,
+        "h": 4
+      }
+    },
+    {
+      "id": 62,
+      "type": "stat",
+      "title": "Backend · Health requests",
+      "description": "Health request count in the selected range, independent of Traffic and Route contains filters.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route=~\"(/api/health|/health)\" [$__range]))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No matching logs",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 90,
+        "w": 6,
+        "h": 4
+      }
+    },
+    {
+      "id": 59,
+      "type": "stat",
+      "title": "Backend · Timing samples in last 15m",
+      "description": "Number of matching logs with nonnegative numeric responseTimeMs in the P50/P95 rolling window.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | duration_ms >= 0 | __error__=\"\" [15m]))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No matching logs",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 18,
+        "y": 90,
+        "w": 6,
+        "h": 4
+      }
+    },
+    {
+      "id": 39,
+      "type": "timeseries",
+      "title": "Backend · Requests per minute",
+      "description": "Requests per minute, calculated from a five-minute rolling window. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [5m])) * 60",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2260,7 +3264,8 @@
               "mode": "off"
             }
           },
-          "min": 0
+          "min": 0,
+          "noValue": "No matching logs"
         },
         "overrides": []
       },
@@ -2279,7 +3284,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 71,
+        "y": 94,
         "w": 12,
         "h": 7
       }
@@ -2296,7 +3301,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json statusCode=\"statusCode\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [5m])) or vector(0)) * 60",
+          "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [5m])) * 0)) * 60",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2309,7 +3314,7 @@
         },
         {
           "refId": "B",
-          "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json statusCode=\"statusCode\" | statusCode >= 500 | __error__=\"\" [5m])) or vector(0)) * 60",
+          "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 500 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [5m])) * 0)) * 60",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2364,7 +3369,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 71,
+        "y": 94,
         "w": 12,
         "h": 7
       }
@@ -2373,7 +3378,7 @@
       "id": 41,
       "type": "timeseries",
       "title": "Backend · P50 / P95 application response time",
-      "description": "Pino responseTimeMs measures Express application processing time, not full network response time or Render cold start.",
+      "description": "Pino processing-time percentiles over a rolling 15-minute window, filtered by Traffic and Route contains. Read the timing sample count alongside these values. Very small samples produce unstable percentiles.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2381,7 +3386,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "quantile_over_time(0.50, {job=\"matchwise_backend_render_api\"} | json duration_ms=\"responseTimeMs\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
+          "expr": "quantile_over_time(0.50, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2394,7 +3399,7 @@
         },
         {
           "refId": "B",
-          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json duration_ms=\"responseTimeMs\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
+          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2449,7 +3454,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 78,
+        "y": 101,
         "w": 12,
         "h": 7
       }
@@ -2466,7 +3471,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (statusCode) (count_over_time({job=\"matchwise_backend_render_api\"} | json statusCode=\"statusCode\" | statusCode=~\"[1-5][0-9][0-9]\" | __error__=\"\" [5m]))",
+          "expr": "sum by (statusCode) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode=~\"[1-5][0-9][0-9]\" [5m]))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2521,7 +3526,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 78,
+        "y": 101,
         "w": 12,
         "h": 7
       }
@@ -2530,7 +3535,7 @@
       "id": 43,
       "type": "bargauge",
       "title": "Backend · Most requested API routes",
-      "description": "Top 10 application routes in the selected period. Route names are also shown in the legend.",
+      "description": "Top 10 application routes in the selected period. Route names are also shown in the legend. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2538,7 +3543,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(10, sum by (route) (count_over_time({job=\"matchwise_backend_render_api\"} | json route=\"route\" | route != \"\" | __error__=\"\" [$__range])))",
+          "expr": "topk(10, sum by (route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | route != \"\" [$__range])))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2550,27 +3555,7 @@
           "legendFormat": "{{route}}"
         }
       ],
-      "transformations": [
-        {
-          "id": "rowsToFields",
-          "options": {
-            "mappings": [
-              {
-                "fieldName": "route",
-                "handlerKey": "field.name"
-              },
-              {
-                "fieldName": "Value #A",
-                "handlerKey": "field.value"
-              },
-              {
-                "fieldName": "Time",
-                "handlerKey": "__ignore"
-              }
-            ]
-          }
-        }
-      ],
+      "transformations": [],
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -2578,7 +3563,15 @@
           "color": {
             "mode": "fixed",
             "fixedColor": "blue"
-          }
+          },
+          "noValue": "No matching logs",
+          "links": [
+            {
+              "title": "Inspect route HTTP logs",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${__field.labels.route}&var-status_filter=.*&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
         },
         "overrides": []
       },
@@ -2605,10 +3598,182 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 85,
+        "y": 108,
         "w": 24,
-        "h": 7
+        "h": 6
       }
+    },
+    {
+      "id": 66,
+      "type": "table",
+      "title": "Backend · Endpoint summary",
+      "description": "Selected range, grouped by the exact method and route values recorded by Pino. Traffic and Route contains filters apply. Requests, 4xx, 5xx and numeric timing samples are counts. P95 is in milliseconds. Missing timing stays empty. Click a Route to inspect its logs.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace(sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])), \"measure\", \"Requests\", \"method\", \".*\")",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "B",
+          "expr": "label_replace((sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [$__range])) or (sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0)), \"measure\", \"4xx\", \"method\", \".*\")",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "C",
+          "expr": "label_replace((sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode >= 500 | __error__=\"\" [$__range])) or (sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" [$__range])) * 0)), \"measure\", \"5xx\", \"method\", \".*\")",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "D",
+          "expr": "label_replace(quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | unwrap duration_ms | __error__=\"\" [$__range]) by (method, route), \"measure\", \"P95 (ms)\", \"method\", \".*\")",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        },
+        {
+          "refId": "E",
+          "expr": "label_replace(sum by (method, route) (count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | duration_ms >= 0 | __error__=\"\" [$__range])), \"measure\", \"Timing samples\", \"method\", \".*\")",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "noValue": "—",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Route"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Inspect route logs",
+                    "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=${excluded_route:percentencode}&var-route_filter=${__value.raw}&var-status_filter=.*&var-request_id=&viewPanel=47",
+                    "targetBlank": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "P95 (ms)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "displayName": "Requests",
+            "desc": true
+          }
+        ]
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 114,
+        "w": 24,
+        "h": 9
+      },
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns",
+            "valueLabel": "measure"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "method": 0,
+              "route": 1,
+              "Requests": 2,
+              "4xx": 3,
+              "5xx": 4,
+              "P95 (ms)": 5,
+              "Timing samples": 6
+            },
+            "renameByName": {
+              "method": "Method",
+              "route": "Route"
+            }
+          }
+        }
+      ]
     },
     {
       "id": 44,
@@ -2618,9 +3783,160 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 92,
+        "y": 123,
         "w": 24,
         "h": 1
+      }
+    },
+    {
+      "id": 67,
+      "type": "stat",
+      "title": "Log collector · Time since last success",
+      "description": "Elapsed time since a successful Render Logs API collection. The alert threshold is 300 seconds.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(time() - matchwise_render_collector_last_success_timestamp_seconds)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "noValue": "N/A",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 180,
+                "color": "orange"
+              },
+              {
+                "value": 300,
+                "color": "red"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 124,
+        "w": 12,
+        "h": 4
+      }
+    },
+    {
+      "id": 63,
+      "type": "stat",
+      "title": "Collector · HTTP events in selected range",
+      "description": "Unfiltered HTTP events in Loki for the selected range. Compare with filtered request totals to distinguish filter effects from lack of data.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" [$__range]))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No matching logs",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 124,
+        "w": 12,
+        "h": 4
+      }
+    },
+    {
+      "id": 65,
+      "type": "text",
+      "title": "Reading log collection health",
+      "options": {
+        "mode": "markdown",
+        "content": "A successful collector run confirms that the Render API collection completed. Compare it with the newest HTTP event and the unfiltered event count. A quiet application can have old event timestamps. Request totals with **No matching logs** can also reflect the Traffic or Route contains filters.\n\nLog counters return zero errors only when matching HTTP traffic exists in that interval. Percentiles use a rolling 15-minute window. Query failures remain visible as panel errors."
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 128,
+        "w": 24,
+        "h": 4
       }
     },
     {
@@ -2688,7 +4004,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 93,
+        "y": 132,
         "w": 12,
         "h": 7
       }
@@ -2759,14 +4075,14 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 93,
+        "y": 132,
         "w": 12,
         "h": 7
       }
     },
     {
       "id": 49,
-      "title": "07 · DIAGNOSTICS | Detailed backend logs (click to expand)",
+      "title": "07 · DIAGNOSTICS | Filtered backend logs",
       "type": "row",
       "collapsed": true,
       "panels": [
@@ -2781,7 +4097,7 @@
           "targets": [
             {
               "refId": "A",
-              "expr": "{job=\"matchwise_backend_render_api\"} | json | __error__=\"\" | event=\"http_request\" | reqId=~\".*${request_id:regex}.*\"",
+              "expr": "{job=\"matchwise_backend_render_api\"} | json | __error__=\"\" | event=\"http_request\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode=~\"${status_filter:raw}\" | reqId=~\".*${request_id:regex}.*\"",
               "datasource": {
                 "type": "loki",
                 "uid": "loki"
@@ -2792,7 +4108,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 101,
+            "y": 140,
             "w": 24,
             "h": 9
           },
@@ -2813,7 +4129,7 @@
             "overrides": []
           },
           "pluginVersion": "13.2.1",
-          "description": "Pino HTTP request logs. Enter a Request ID in the dashboard variable to narrow the search."
+          "description": "Traffic, Route contains, Log status and Request ID filters apply. Data links preserve the selected time range."
         },
         {
           "id": 48,
@@ -2826,7 +4142,7 @@
           "targets": [
             {
               "refId": "A",
-              "expr": "{job=\"matchwise_backend_render_api\"} | json | __error__=\"\" | event=\"http_request\" | statusCode >= 400 | reqId=~\".*${request_id:regex}.*\"",
+              "expr": "{job=\"matchwise_backend_render_api\"} | json | __error__=\"\" | event=\"http_request\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode=~\"${status_filter:raw}\" | statusCode >= 400 | reqId=~\".*${request_id:regex}.*\"",
               "datasource": {
                 "type": "loki",
                 "uid": "loki"
@@ -2837,7 +4153,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 110,
+            "y": 149,
             "w": 24,
             "h": 9
           },
@@ -2858,12 +4174,12 @@
             "overrides": []
           },
           "pluginVersion": "13.2.1",
-          "description": "HTTP 4xx/5xx application logs. Enter a Request ID to filter."
+          "description": "Traffic, Route contains, Log status and Request ID filters apply. Data links preserve the selected time range."
         }
       ],
       "gridPos": {
         "x": 0,
-        "y": 100,
+        "y": 139,
         "w": 24,
         "h": 1
       }
@@ -2881,6 +4197,126 @@
           "value": ""
         },
         "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "name": "excluded_route",
+        "type": "custom",
+        "label": "Traffic",
+        "query": "All requests : ^$, Exclude health checks : (/api/health|/health)",
+        "current": {
+          "text": "All requests",
+          "value": "^$"
+        },
+        "options": [
+          {
+            "text": "All requests",
+            "value": "^$",
+            "selected": true
+          },
+          {
+            "text": "Exclude health checks",
+            "value": "(/api/health|/health)",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false,
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "name": "route_filter",
+        "type": "textbox",
+        "label": "Route contains (blank = all)",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "name": "status_filter",
+        "type": "custom",
+        "label": "Log status",
+        "query": "All : .*, 4xx : 4[0-9][0-9], 5xx : 5[0-9][0-9], 401 : 401, 404 : 404",
+        "current": {
+          "text": "All",
+          "value": ".*"
+        },
+        "options": [
+          {
+            "text": "All",
+            "value": ".*",
+            "selected": true
+          },
+          {
+            "text": "4xx",
+            "value": "4[0-9][0-9]",
+            "selected": false
+          },
+          {
+            "text": "5xx",
+            "value": "5[0-9][0-9]",
+            "selected": false
+          },
+          {
+            "text": "401",
+            "value": "401",
+            "selected": false
+          },
+          {
+            "text": "404",
+            "value": "404",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false,
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "name": "deployed_commit",
+        "type": "textbox",
+        "label": "Deployed commit (manual)",
+        "query": "Not recorded",
+        "current": {
+          "text": "Not recorded",
+          "value": "Not recorded"
+        },
+        "hide": 2,
+        "skipUrlSync": false
+      },
+      {
+        "name": "auth_status",
+        "type": "custom",
+        "label": "Auth status (manual)",
+        "query": "Awaiting configuration, Configured - verification pending, Verified by team",
+        "current": {
+          "text": "Awaiting configuration",
+          "value": "Awaiting configuration"
+        },
+        "options": [
+          {
+            "text": "Awaiting configuration",
+            "value": "Awaiting configuration",
+            "selected": true
+          },
+          {
+            "text": "Configured - verification pending",
+            "value": "Configured - verification pending",
+            "selected": false
+          },
+          {
+            "text": "Verified by team",
+            "value": "Verified by team",
+            "selected": false
+          }
+        ],
+        "hide": 2,
         "skipUrlSync": false
       }
     ]
@@ -2904,12 +4340,31 @@
           "uid": "-- Grafana --"
         },
         "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
+        "hide": false,
+        "iconColor": "#5794F2",
+        "name": "Deployments and operations",
         "type": "dashboard"
       }
     ]
   },
-  "links": []
+  "links": [
+    {
+      "title": "Backend source · main",
+      "url": "https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main",
+      "type": "link",
+      "targetBlank": true
+    },
+    {
+      "title": "Monitoring repository",
+      "url": "https://github.com/Csabi179/ai-job-portal-monitoring",
+      "type": "link",
+      "targetBlank": true
+    },
+    {
+      "title": "Render dashboard",
+      "url": "https://dashboard.render.com/",
+      "type": "link",
+      "targetBlank": true
+    }
+  ]
 }
