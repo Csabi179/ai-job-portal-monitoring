@@ -1,0 +1,396 @@
+<mxfile host="app.diagrams.net" agent="Codex" version="26.0.0">
+  <diagram id="matchwise-stack" name="Teljes stack">
+    <mxGraphModel dx="2400" dy="1720" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="browser" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;FELHASZNÁLÓ&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Böngésző&lt;br&gt;Az alkalmazás felülete&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#64748b;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="160" width="260" height="170" />
+        </mxCell>
+        <mxCell id="vercel" value="&lt;b&gt;VERCEL · frontend&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#64748b;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;fontSize=21;verticalAlign=top;align=left;container=1;collapsible=0;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="370" y="130" width="480" height="240" />
+        </mxCell>
+        <mxCell id="spa" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;React webalkalmazás&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;www.matchwise.tech&lt;br&gt;Auth: demo / szimulált belépés*&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="vercel">
+          <mxGeometry as="geometry" x="25" y="75" width="430" height="130" />
+        </mxCell>
+        <mxCell id="render" value="&lt;b&gt;RENDER · backend&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;fontSize=21;verticalAlign=top;align=left;container=1;collapsible=0;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="960" y="130" width="540" height="240" />
+        </mxCell>
+        <mxCell id="backend" value="&lt;div style=&quot;font-size:20px;font-weight:bold;&quot;&gt;Node.js + Express&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;REST API + auth&lt;br&gt;Pino HTTP-naplózás&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="render">
+          <mxGeometry as="geometry" x="25" y="75" width="240" height="130" />
+        </mxCell>
+        <mxCell id="renderlogs" value="&lt;div style=&quot;font-size:20px;font-weight:bold;&quot;&gt;Render Logs API&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Alkalmazásnaplók&lt;br&gt;Pino JSON&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b7791f;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="render">
+          <mxGeometry as="geometry" x="300" y="75" width="215" height="130" />
+        </mxCell>
+        <mxCell id="supabase" value="&lt;b&gt;SUPABASE · kezelt adatbázis&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfdf5;strokeColor=#0f766e;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;fontSize=21;verticalAlign=top;align=left;container=1;collapsible=0;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1620" y="130" width="470" height="240" />
+        </mxCell>
+        <mxCell id="db" value="&lt;div style=&quot;font-size:20px;font-weight:bold;&quot;&gt;Auth + PostgreSQL&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;PostgREST Data API&lt;br&gt;SQL-migrációk&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0f766e;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="supabase">
+          <mxGeometry as="geometry" x="25" y="75" width="220" height="130" />
+        </mxCell>
+        <mxCell id="metricsapi" value="&lt;div style=&quot;font-size:20px;font-weight:bold;&quot;&gt;Metrics API&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;DB + host metrikák&lt;br&gt;HTTPS&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0f766e;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="supabase">
+          <mxGeometry as="geometry" x="260" y="75" width="185" height="130" />
+        </mxCell>
+        <mxCell id="ai" value="&lt;div style=&quot;font-size:19px;font-weight:bold;&quot;&gt;AI-SZOLGÁLTATÓ&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;TERVEZETT&lt;br&gt;Asszisztens / AI API&lt;br&gt;Szolgáltató még&lt;br&gt;nincs kijelölve&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#faf5ff;strokeColor=#8056b3;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;dashed=1;dashPattern=9 6;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2140" y="130" width="240" height="240" />
+        </mxCell>
+        <mxCell id="oracle" value="&lt;b&gt;ORACLE CLOUD VM · Ubuntu · ARM64 · monitoring&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;fontSize=21;verticalAlign=top;align=left;container=1;collapsible=0;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="520" width="2040" height="1030" />
+        </mxCell>
+        <mxCell id="host" value="&lt;b&gt;VM / systemd / helyi fájlok&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1f5f9;strokeColor=#94a3b8;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;fontSize=21;verticalAlign=top;align=left;container=1;collapsible=0;spacingTop=12;" vertex="1" parent="oracle">
+          <mxGeometry as="geometry" x="30" y="80" width="410" height="880" />
+        </mxCell>
+        <mxCell id="linux" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Linux host metrikák&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;CPU · RAM · lemez&lt;br&gt;Hálózat · uptime · load&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0f766e;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="host">
+          <mxGeometry as="geometry" x="30" y="50" width="350" height="140" />
+        </mxCell>
+        <mxCell id="collector" value="&lt;div style=&quot;font-size:20px;font-weight:bold;&quot;&gt;Python naplógyűjtő&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;systemd timer · kb. percenként&lt;br&gt;Render API · szűrés · deduplikálás&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b7791f;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="host">
+          <mxGeometry as="geometry" x="30" y="300" width="350" height="140" />
+        </mxCell>
+        <mxCell id="files" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Helyi fájlok és állapot&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;render-backend.jsonl&lt;br&gt;SQLite dedup + időkurzor&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b7791f;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="host">
+          <mxGeometry as="geometry" x="30" y="570" width="350" height="140" />
+        </mxCell>
+        <mxCell id="private" value="&lt;div style=&quot;font-size:19px;font-weight:bold;&quot;&gt;Privát konfiguráció&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;.env / kulcsok · Gitből kizárva&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#94a3b8;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="host">
+          <mxGeometry as="geometry" x="30" y="770" width="350" height="80" />
+        </mxCell>
+        <mxCell id="docker" value="&lt;b&gt;DOCKER COMPOSE · 6 monitoringkonténer&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#64748b;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;fontSize=21;verticalAlign=top;align=left;container=1;collapsible=0;spacingTop=12;" vertex="1" parent="oracle">
+          <mxGeometry as="geometry" x="490" y="80" width="1500" height="880" />
+        </mxCell>
+        <mxCell id="blackbox" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Blackbox Exporter&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;HTTP-próbák és időmérés&lt;br&gt;Backend: 30 perc · frontend: 60 s&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdfa;strokeColor=#0f766e;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="docker">
+          <mxGeometry as="geometry" x="50" y="50" width="370" height="140" />
+        </mxCell>
+        <mxCell id="prometheus" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Prometheus&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Metrikák gyűjtése + TSDB&lt;br&gt;Node / probe / Supabase&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdfa;strokeColor=#0f766e;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="docker">
+          <mxGeometry as="geometry" x="500" y="50" width="370" height="140" />
+        </mxCell>
+        <mxCell id="grafana" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Grafana + Grafana Alerting&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Dashboardok · lekérdezések&lt;br&gt;9 riasztási szabály · Telegram&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7ed;strokeColor=#d97706;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="docker">
+          <mxGeometry as="geometry" x="1030" y="50" width="410" height="140" />
+        </mxCell>
+        <mxCell id="node" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Node Exporter&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;VM-erőforrások&lt;br&gt;Textfile collector: .prom / heartbeat&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdfa;strokeColor=#0f766e;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="docker">
+          <mxGeometry as="geometry" x="50" y="300" width="370" height="140" />
+        </mxCell>
+        <mxCell id="alloy" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Grafana Alloy&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;JSONL-fájl olvasása&lt;br&gt;Eredeti Render-időbélyeg&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#b7791f;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="docker">
+          <mxGeometry as="geometry" x="50" y="570" width="370" height="140" />
+        </mxCell>
+        <mxCell id="loki" value="&lt;div style=&quot;font-size:21px;font-weight:bold;&quot;&gt;Loki&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Backend HTTP-naplók&lt;br&gt;LogQL · logokból számolt mutatók&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#b7791f;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="docker">
+          <mxGeometry as="geometry" x="500" y="570" width="370" height="140" />
+        </mxCell>
+        <mxCell id="volumes" value="&lt;div style=&quot;font-size:19px;font-weight:bold;&quot;&gt;Docker volume-ok: Prometheus TSDB · Grafana · Loki · Alloy&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="docker">
+          <mxGeometry as="geometry" x="50" y="790" width="1390" height="60" />
+        </mxCell>
+        <mxCell id="telegram" value="&lt;div style=&quot;font-size:19px;font-weight:bold;&quot;&gt;TELEGRAM&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Bot API → saját chat&lt;br&gt;Riasztás / helyreállás&lt;br&gt;Értesítési útvonal beállítva&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff1f2;strokeColor=#c24145;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2140" y="650" width="240" height="240" />
+        </mxCell>
+        <mxCell id="operator" value="&lt;div style=&quot;font-size:19px;font-weight:bold;&quot;&gt;ÜZEMELTETŐ&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Böngésző + SSH-alagút&lt;br&gt;Grafana elérése&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#64748b;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2140" y="1030" width="240" height="190" />
+        </mxCell>
+        <mxCell id="gitnote" value="&lt;div style=&quot;font-size:18px;font-weight:bold;&quot;&gt;GITHUB&lt;/div&gt;&lt;div style=&quot;font-size:17.5px;line-height:1.4;margin-top:12px;&quot;&gt;Backend main → Render&lt;br&gt;Monitoring repo → VM&lt;br&gt;Konfiguráció&lt;br&gt;és dokumentáció&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;fontFamily=Arial;fontSize=18;fontColor=#0f172a;spacing=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2140" y="1320" width="240" height="200" />
+        </mxCell>
+        <mxCell id="web" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2563eb;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.3076923076923077;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="browser" target="spa">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="310" y="245" />
+            <mxPoint as="targetPoint" x="395" y="245" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="frontend-api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#8056b3;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;dashed=1;dashPattern=9 6;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="spa" target="backend">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="825" y="270" />
+            <mxPoint as="targetPoint" x="985" y="270" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="stdout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b7791f;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.6153846153846154;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.6153846153846154;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="backend" target="renderlogs">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1225" y="285" />
+            <mxPoint as="targetPoint" x="1260" y="285" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="db-api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2563eb;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;exitX=1.0;exitY=0.8125;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.8125;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="render" target="supabase">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1500" y="325" />
+            <mxPoint as="targetPoint" x="1620" y="325" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ai-api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#8056b3;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;dashed=1;dashPattern=9 6;exitX=0.9074074074074074;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="render" target="ai">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1450" y="370" />
+            <mxPoint as="targetPoint" x="2260" y="370" />
+            <Array as="points">
+              <mxPoint x="1450" y="445" />
+              <mxPoint x="2260" y="445" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="render-poll" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b7791f;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=0.46511627906976744;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.35714285714285715;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="renderlogs" target="collector">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1360" y="335" />
+            <mxPoint as="targetPoint" x="110" y="950" />
+            <Array as="points">
+              <mxPoint x="1360" y="485" />
+              <mxPoint x="65" y="485" />
+              <mxPoint x="65" y="950" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="probe-front" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;exitX=0.22972972972972974;exitY=0.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.6354166666666666;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="blackbox" target="vercel">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="675" y="650" />
+            <mxPoint as="targetPoint" x="675" y="370" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="probe-back" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;exitX=0.7837837837837838;exitY=0.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.16666666666666666;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="blackbox" target="render">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="880" y="650" />
+            <mxPoint as="targetPoint" x="1050" y="370" />
+            <Array as="points">
+              <mxPoint x="880" y="410" />
+              <mxPoint x="1050" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="supabase-metrics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=0.4864864864864865;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.8378378378378378;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="metricsapi" target="prometheus">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1970" y="335" />
+            <mxPoint as="targetPoint" x="1350" y="650" />
+            <Array as="points">
+              <mxPoint x="1970" y="400" />
+              <mxPoint x="2100" y="400" />
+              <mxPoint x="2100" y="560" />
+              <mxPoint x="1350" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hostmetrics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.25;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="linux" target="node">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="460" y="720" />
+            <mxPoint as="targetPoint" x="590" y="935" />
+            <Array as="points">
+              <mxPoint x="510" y="720" />
+              <mxPoint x="510" y="935" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="heartbeat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.6785714285714286;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.6785714285714286;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="collector" target="node">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="460" y="995" />
+            <mxPoint as="targetPoint" x="590" y="995" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="collector-output" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b7791f;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="collector" target="files">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="285" y="1040" />
+            <mxPoint as="targetPoint" x="285" y="1170" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="file-alloy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b7791f;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="files" target="alloy">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="460" y="1240" />
+            <mxPoint as="targetPoint" x="590" y="1240" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="alloy-loki" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b7791f;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="alloy" target="loki">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="960" y="1240" />
+            <mxPoint as="targetPoint" x="1040" y="1240" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="node-prom" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.40540540540540543;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="node" target="prometheus">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="960" y="970" />
+            <mxPoint as="targetPoint" x="1190" y="790" />
+            <Array as="points">
+              <mxPoint x="1190" y="970" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="probe-prom" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="blackbox" target="prometheus">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="960" y="720" />
+            <mxPoint as="targetPoint" x="1040" y="720" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="prom-grafana" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="prometheus" target="grafana">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1410" y="720" />
+            <mxPoint as="targetPoint" x="1570" y="720" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="loki-grafana" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b7791f;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="loki" target="grafana">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1410" y="1240" />
+            <mxPoint as="targetPoint" x="1775" y="790" />
+            <Array as="points">
+              <mxPoint x="1470" y="1240" />
+              <mxPoint x="1470" y="850" />
+              <mxPoint x="1775" y="850" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="alerts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#c24145;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="grafana" target="telegram">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1980" y="720" />
+            <mxPoint as="targetPoint" x="2140" y="770" />
+            <Array as="points">
+              <mxPoint x="2100" y="720" />
+              <mxPoint x="2100" y="770" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="access" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#64748b;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;exitX=0.0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.8048780487804879;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="operator" target="grafana">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="2140" y="1125" />
+            <mxPoint as="targetPoint" x="1900" y="790" />
+            <Array as="points">
+              <mxPoint x="2070" y="1125" />
+              <mxPoint x="2070" y="820" />
+              <mxPoint x="1900" y="820" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="backend-deploy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#64748b;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=1.0;exitY=0.4;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="gitnote" target="render">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="2380" y="1400" />
+            <mxPoint as="targetPoint" x="1230" y="130" />
+            <Array as="points">
+              <mxPoint x="2390" y="1400" />
+              <mxPoint x="2390" y="105" />
+              <mxPoint x="1230" y="105" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="monitoring-pull" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#64748b;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;exitX=0.0;exitY=0.7;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.6585365853658537;entryY=1.0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="gitnote" target="host">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="2140" y="1460" />
+            <mxPoint as="targetPoint" x="350" y="1480" />
+            <Array as="points">
+              <mxPoint x="2110" y="1460" />
+              <mxPoint x="2110" y="1540" />
+              <mxPoint x="350" y="1540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-app" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2563eb;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;" edge="1" parent="1">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="70" y="1610" />
+            <mxPoint as="targetPoint" x="140" y="1610" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-metrics" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f766e;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;" edge="1" parent="1">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="500" y="1610" />
+            <mxPoint as="targetPoint" x="570" y="1610" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-logs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b7791f;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;" edge="1" parent="1">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1040" y="1610" />
+            <mxPoint as="targetPoint" x="1110" y="1610" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-alerts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#c24145;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;" edge="1" parent="1">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1390" y="1610" />
+            <mxPoint as="targetPoint" x="1460" y="1610" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-future" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#8056b3;strokeWidth=2.5;endArrow=block;endFill=1;jettySize=auto;jumpStyle=arc;jumpSize=8;dashed=1;dashPattern=9 6;" edge="1" parent="1">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1790" y="1610" />
+            <mxPoint as="targetPoint" x="1860" y="1610" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label-0" value="HTTPS" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#2563eb;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="315.775" y="201" width="68.44999999999999" height="33.8" />
+        </mxCell>
+        <mxCell id="label-1" value="REST API&lt;br&gt;TERVEZETT*" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#8056b3;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="846.55" y="216" width="116.89999999999999" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-2" value="Auth + Data API&lt;br&gt;HTTPS" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#2563eb;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1477.325" y="266" width="165.35" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-3" value="AI API · tervezett backendkapcsolat" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#8056b3;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1650.425" y="426" width="359.15" height="33.8" />
+        </mxCell>
+        <mxCell id="label-4" value="Pino JSON · HTTPS · Render API lekérése kb. percenként" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#b7791f;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="378.37" y="466" width="543.26" height="33.8" />
+        </mxCell>
+        <mxCell id="label-5" value="HTTP-próba / válasz · 60 s" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="539.03" y="391" width="271.93999999999994" height="33.8" />
+        </mxCell>
+        <mxCell id="label-6" value="HTTP-próba / válasz&lt;br&gt;30 perc" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="917.945" y="421" width="204.10999999999999" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-7" value="Supabase-metrikák · HTTPS · Prometheus lekéri 60 s-onként" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1438.835" y="541" width="572.3299999999999" height="33.8" />
+        </mxCell>
+        <mxCell id="label-8" value="Host metrikák" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="437.015" y="806" width="145.96999999999997" height="33.8" />
+        </mxCell>
+        <mxCell id="label-9" value=".prom&lt;br&gt;heartbeat" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="471.395" y="981" width="107.21" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-10" value="JSONL + dedup&lt;br&gt;és időkurzor" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#b7791f;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="212.01500000000001" y="1086" width="145.96999999999997" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-11" value="JSONL&lt;br&gt;fájlolvasás" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#b7791f;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="461.705" y="1221" width="126.58999999999999" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-12" value="push" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#b7791f;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="970.62" y="1191" width="58.76" height="33.8" />
+        </mxCell>
+        <mxCell id="label-13" value="VM + heartbeat metrikák · 60 s" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1034.65" y="891" width="310.7" height="33.8" />
+        </mxCell>
+        <mxCell id="label-14" value="Próba-&lt;br&gt;metrikák" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="951.24" y="701" width="97.52" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-15" value="PromQL&lt;br&gt;metrikák" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#0f766e;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1441.24" y="701" width="97.52" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-16" value="LogQL · naplók és HTTP-statisztikák" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#b7791f;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1520.425" y="831" width="359.15" height="33.8" />
+        </mxCell>
+        <mxCell id="label-17" value="Riasztások&lt;br&gt;Bot API" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#c24145;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2011.55" y="666" width="116.89999999999999" height="57.599999999999994" />
+        </mxCell>
+        <mxCell id="label-18" value="SSH-alagút" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2041.55" y="941" width="116.89999999999999" height="33.8" />
+        </mxCell>
+        <mxCell id="label-19" value="Backend main → Render deploy" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1594.34" y="86" width="291.32" height="33.8" />
+        </mxCell>
+        <mxCell id="label-20" value="Monitoring repo → git pull / konfiguráció" style="text;html=1;strokeColor=none;fillColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=17;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1111.355" y="1521" width="417.28999999999996" height="33.8" />
+        </mxCell>
+        <mxCell id="label-21" value="Loopbackra kötött monitoringvégpontok · Grafana elérése SSH-alagúton" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=18;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="900" y="1495" width="717.68" height="35.2" />
+        </mxCell>
+        <mxCell id="label-22" value="MATCHWISE · TELJES STACK ÉS ADATÁRAMLÁS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=32;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="9" width="731.3599999999999" height="54.8" />
+        </mxCell>
+        <mxCell id="label-23" value="Dokumentált állapot: 2026. november 10. · A nyilak adatáramlást vagy feliratozott kérés/válasz kapcsolatot jelölnek." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=19;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="63" width="1276.28" height="36.599999999999994" />
+        </mxCell>
+        <mxCell id="label-24" value="Alkalmazás / API" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=19;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="155" y="1595" width="193.27999999999997" height="36.599999999999994" />
+        </mxCell>
+        <mxCell id="label-25" value="Metrikák / HTTP-próbák" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=19;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="585" y="1595" width="258.26" height="36.599999999999994" />
+        </mxCell>
+        <mxCell id="label-26" value="Naplók" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=19;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1125" y="1595" width="84.97999999999999" height="36.599999999999994" />
+        </mxCell>
+        <mxCell id="label-27" value="Riasztások" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=19;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1475" y="1595" width="128.3" height="36.599999999999994" />
+        </mxCell>
+        <mxCell id="label-28" value="Tervezett kapcsolat" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=19;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1875" y="1595" width="225.76999999999998" height="36.599999999999994" />
+        </mxCell>
+        <mxCell id="label-29" value="* A frontend auth-folyamata a 2026.11.09-i kódellenőrzéskor még szimulált volt. A backend auth API külön tesztelve működött." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=18;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="1640" width="1292.2399999999998" height="35.2" />
+        </mxCell>
+        <mxCell id="label-30" value="A Telegram-útvonal konfigurált; a tervezett AI-szolgáltató és az integráció részletei még nincsenek véglegesítve. A GitHub-doboz a verziókövetési és telepítési forrást jelöli." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontFamily=Arial;fontSize=18;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="1670" width="1815.4999999999998" height="35.2" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

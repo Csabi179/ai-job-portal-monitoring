@@ -34,6 +34,8 @@ Start here: **[Monitoring architecture and operations guide](docs/MONITORING_GUI
 
 Additional documentation:
 
+- [Editable stack and data-flow diagram (draw.io + SVG)](docs/architecture/README.md)
+
 - [Render backend logging and migration runbook](docs/RENDER_LOGGING_RUNBOOK.md)
 - [Installation guide](docs/installation-guide.md)
 - [Monitoring tests](docs/monitoring-tests.md)

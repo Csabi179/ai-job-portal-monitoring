@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1720" viewBox="0 0 2400 1720">
+<rect width="100%" height="100%" fill="white"/>
+<defs>
+<marker id="arrow-b7791f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#b7791f"/></marker>
+<marker id="arrow-8056b3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#8056b3"/></marker>
+<marker id="arrow-2563eb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#2563eb"/></marker>
+<marker id="arrow-c24145" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#c24145"/></marker>
+<marker id="arrow-64748b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#64748b"/></marker>
+<marker id="arrow-0f766e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#0f766e"/></marker>
+</defs>
+<rect x="370" y="130" width="480" height="240" rx="14" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="390" y="164" font-family="Arial, sans-serif" font-size="21" fill="#64748b" text-anchor="start" font-weight="700"><tspan x="390" dy="0">VERCEL · frontend</tspan></text>
+<rect x="960" y="130" width="540" height="240" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<text x="980" y="164" font-family="Arial, sans-serif" font-size="21" fill="#2563eb" text-anchor="start" font-weight="700"><tspan x="980" dy="0">RENDER · backend</tspan></text>
+<rect x="1620" y="130" width="470" height="240" rx="14" fill="#ecfdf5" stroke="#0f766e" stroke-width="2"/>
+<text x="1640" y="164" font-family="Arial, sans-serif" font-size="21" fill="#0f766e" text-anchor="start" font-weight="700"><tspan x="1640" dy="0">SUPABASE · kezelt adatbázis</tspan></text>
+<rect x="50" y="520" width="2040" height="1030" rx="14" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+<text x="70" y="554" font-family="Arial, sans-serif" font-size="21" fill="#475569" text-anchor="start" font-weight="700"><tspan x="70" dy="0">ORACLE CLOUD VM · Ubuntu · ARM64 · monitoring</tspan></text>
+<rect x="80" y="600" width="410" height="880" rx="14" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+<text x="100" y="634" font-family="Arial, sans-serif" font-size="21" fill="#94a3b8" text-anchor="start" font-weight="700"><tspan x="100" dy="0">VM / systemd / helyi fájlok</tspan></text>
+<rect x="540" y="600" width="1500" height="880" rx="14" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+<text x="560" y="634" font-family="Arial, sans-serif" font-size="21" fill="#64748b" text-anchor="start" font-weight="700"><tspan x="560" dy="0">DOCKER COMPOSE · 6 monitoringkonténer</tspan></text>
+<polyline points="310,245 395,245" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="310,245 395,245" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-2563eb)" marker-start="url(#arrow-2563eb)"/>
+<polyline points="825,270 985,270" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="825,270 985,270" fill="none" stroke="#8056b3" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-8056b3)" marker-start="url(#arrow-8056b3)" stroke-dasharray="9 6"/>
+<polyline points="1225,285 1260,285" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1225,285 1260,285" fill="none" stroke="#b7791f" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-b7791f)"/>
+<polyline points="1500,325 1620,325" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1500,325 1620,325" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-2563eb)" marker-start="url(#arrow-2563eb)"/>
+<polyline points="1450,370 1450,445 2260,445 2260,370" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1450,370 1450,445 2260,445 2260,370" fill="none" stroke="#8056b3" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-8056b3)" marker-start="url(#arrow-8056b3)" stroke-dasharray="9 6"/>
+<polyline points="1360,335 1360,485 65,485 65,950 110,950" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1360,335 1360,485 65,485 65,950 110,950" fill="none" stroke="#b7791f" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-b7791f)"/>
+<polyline points="675,650 675,370" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="675,650 675,370" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)" marker-start="url(#arrow-0f766e)"/>
+<polyline points="880,650 880,410 1050,410 1050,370" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="880,650 880,410 1050,410 1050,370" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)" marker-start="url(#arrow-0f766e)"/>
+<polyline points="1970,335 1970,400 2100,400 2100,560 1350,560 1350,650" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1970,335 1970,400 2100,400 2100,560 1350,560 1350,650" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)"/>
+<polyline points="460,720 510,720 510,935 590,935" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="460,720 510,720 510,935 590,935" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)"/>
+<polyline points="460,995 590,995" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="460,995 590,995" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)"/>
+<polyline points="285,1040 285,1170" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="285,1040 285,1170" fill="none" stroke="#b7791f" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-b7791f)"/>
+<polyline points="460,1240 590,1240" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="460,1240 590,1240" fill="none" stroke="#b7791f" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-b7791f)"/>
+<polyline points="960,1240 1040,1240" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="960,1240 1040,1240" fill="none" stroke="#b7791f" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-b7791f)"/>
+<polyline points="960,970 1190,970 1190,790" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="960,970 1190,970 1190,790" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)"/>
+<polyline points="960,720 1040,720" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="960,720 1040,720" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)"/>
+<polyline points="1410,720 1570,720" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1410,720 1570,720" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)" marker-start="url(#arrow-0f766e)"/>
+<polyline points="1410,1240 1470,1240 1470,850 1775,850 1775,790" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1410,1240 1470,1240 1470,850 1775,850 1775,790" fill="none" stroke="#b7791f" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-b7791f)" marker-start="url(#arrow-b7791f)"/>
+<polyline points="1980,720 2100,720 2100,770 2140,770" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1980,720 2100,720 2100,770 2140,770" fill="none" stroke="#c24145" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-c24145)"/>
+<polyline points="2140,1125 2070,1125 2070,820 1900,820 1900,790" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="2140,1125 2070,1125 2070,820 1900,820 1900,790" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-64748b)" marker-start="url(#arrow-64748b)"/>
+<polyline points="2380,1400 2390,1400 2390,105 1230,105 1230,130" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="2380,1400 2390,1400 2390,105 1230,105 1230,130" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-64748b)"/>
+<polyline points="2140,1460 2110,1460 2110,1540 350,1540 350,1480" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="2140,1460 2110,1460 2110,1540 350,1540 350,1480" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-64748b)"/>
+<polyline points="70,1610 140,1610" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="70,1610 140,1610" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-2563eb)"/>
+<polyline points="500,1610 570,1610" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="500,1610 570,1610" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-0f766e)"/>
+<polyline points="1040,1610 1110,1610" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1040,1610 1110,1610" fill="none" stroke="#b7791f" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-b7791f)"/>
+<polyline points="1390,1610 1460,1610" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1390,1610 1460,1610" fill="none" stroke="#c24145" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-c24145)"/>
+<polyline points="1790,1610 1860,1610" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+<polyline points="1790,1610 1860,1610" fill="none" stroke="#8056b3" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arrow-8056b3)" stroke-dasharray="9 6"/>
+<rect x="50" y="160" width="260" height="170" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2" />
+<text x="180.0" y="223.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="180.0" dy="0">FELHASZNÁLÓ</tspan></text>
+<text x="180.0" y="257.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="180.0" dy="0">Böngésző</tspan><tspan x="180.0" dy="24.5">Az alkalmazás felülete</tspan></text>
+<rect x="395" y="205" width="430" height="130" rx="12" fill="#ffffff" stroke="#64748b" stroke-width="2" />
+<text x="610.0" y="248.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="610.0" dy="0">React webalkalmazás</tspan></text>
+<text x="610.0" y="282.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="610.0" dy="0">www.matchwise.tech</tspan><tspan x="610.0" dy="24.5">Auth: demo / szimulált belépés*</tspan></text>
+<rect x="985" y="205" width="240" height="130" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+<text x="1105.0" y="248.0" font-family="Arial, sans-serif" font-size="20" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1105.0" dy="0">Node.js + Express</tspan></text>
+<text x="1105.0" y="282.0" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="1105.0" dy="0">REST API + auth</tspan><tspan x="1105.0" dy="24.5">Pino HTTP-naplózás</tspan></text>
+<rect x="1260" y="205" width="215" height="130" rx="12" fill="#ffffff" stroke="#b7791f" stroke-width="2" />
+<text x="1367.5" y="248.0" font-family="Arial, sans-serif" font-size="20" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1367.5" dy="0">Render Logs API</tspan></text>
+<text x="1367.5" y="282.0" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="1367.5" dy="0">Alkalmazásnaplók</tspan><tspan x="1367.5" dy="24.5">Pino JSON</tspan></text>
+<rect x="1645" y="205" width="220" height="130" rx="12" fill="#ffffff" stroke="#0f766e" stroke-width="2" />
+<text x="1755.0" y="248.0" font-family="Arial, sans-serif" font-size="20" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1755.0" dy="0">Auth + PostgreSQL</tspan></text>
+<text x="1755.0" y="282.0" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="1755.0" dy="0">PostgREST Data API</tspan><tspan x="1755.0" dy="24.5">SQL-migrációk</tspan></text>
+<rect x="1880" y="205" width="185" height="130" rx="12" fill="#ffffff" stroke="#0f766e" stroke-width="2" />
+<text x="1972.5" y="248.0" font-family="Arial, sans-serif" font-size="20" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1972.5" dy="0">Metrics API</tspan></text>
+<text x="1972.5" y="282.0" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="1972.5" dy="0">DB + host metrikák</tspan><tspan x="1972.5" dy="24.5">HTTPS</tspan></text>
+<rect x="2140" y="130" width="240" height="240" rx="12" fill="#faf5ff" stroke="#8056b3" stroke-width="2" stroke-dasharray="9 6"/>
+<text x="2260.0" y="201.5" font-family="Arial, sans-serif" font-size="19" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="2260.0" dy="0">AI-SZOLGÁLTATÓ</tspan></text>
+<text x="2260.0" y="235.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="2260.0" dy="0">TERVEZETT</tspan><tspan x="2260.0" dy="24.5">Asszisztens / AI API</tspan><tspan x="2260.0" dy="24.5">Szolgáltató még</tspan><tspan x="2260.0" dy="24.5">nincs kijelölve</tspan></text>
+<rect x="110" y="650" width="350" height="140" rx="12" fill="#ffffff" stroke="#0f766e" stroke-width="2" />
+<text x="285.0" y="698.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="285.0" dy="0">Linux host metrikák</tspan></text>
+<text x="285.0" y="732.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="285.0" dy="0">CPU · RAM · lemez</tspan><tspan x="285.0" dy="24.5">Hálózat · uptime · load</tspan></text>
+<rect x="110" y="900" width="350" height="140" rx="12" fill="#ffffff" stroke="#b7791f" stroke-width="2" />
+<text x="285.0" y="948.0" font-family="Arial, sans-serif" font-size="20" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="285.0" dy="0">Python naplógyűjtő</tspan></text>
+<text x="285.0" y="982.0" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="285.0" dy="0">systemd timer · kb. percenként</tspan><tspan x="285.0" dy="24.5">Render API · szűrés · deduplikálás</tspan></text>
+<rect x="110" y="1170" width="350" height="140" rx="12" fill="#ffffff" stroke="#b7791f" stroke-width="2" />
+<text x="285.0" y="1218.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="285.0" dy="0">Helyi fájlok és állapot</tspan></text>
+<text x="285.0" y="1252.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="285.0" dy="0">render-backend.jsonl</tspan><tspan x="285.0" dy="24.5">SQLite dedup + időkurzor</tspan></text>
+<rect x="110" y="1370" width="350" height="80" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2" />
+<text x="285.0" y="1400.5" font-family="Arial, sans-serif" font-size="19" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="285.0" dy="0">Privát konfiguráció</tspan></text>
+<text x="285.0" y="1434.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="285.0" dy="0">.env / kulcsok · Gitből kizárva</tspan></text>
+<rect x="590" y="650" width="370" height="140" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="2" />
+<text x="775.0" y="698.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="775.0" dy="0">Blackbox Exporter</tspan></text>
+<text x="775.0" y="732.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="775.0" dy="0">HTTP-próbák és időmérés</tspan><tspan x="775.0" dy="24.5">Backend: 30 perc · frontend: 60 s</tspan></text>
+<rect x="1040" y="650" width="370" height="140" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="2" />
+<text x="1225.0" y="698.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1225.0" dy="0">Prometheus</tspan></text>
+<text x="1225.0" y="732.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="1225.0" dy="0">Metrikák gyűjtése + TSDB</tspan><tspan x="1225.0" dy="24.5">Node / probe / Supabase</tspan></text>
+<rect x="1570" y="650" width="410" height="140" rx="12" fill="#fff7ed" stroke="#d97706" stroke-width="2" />
+<text x="1775.0" y="698.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1775.0" dy="0">Grafana + Grafana Alerting</tspan></text>
+<text x="1775.0" y="732.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="1775.0" dy="0">Dashboardok · lekérdezések</tspan><tspan x="1775.0" dy="24.5">9 riasztási szabály · Telegram</tspan></text>
+<rect x="590" y="900" width="370" height="140" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="2" />
+<text x="775.0" y="948.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="775.0" dy="0">Node Exporter</tspan></text>
+<text x="775.0" y="982.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="775.0" dy="0">VM-erőforrások</tspan><tspan x="775.0" dy="24.5">Textfile collector: .prom / heartbeat</tspan></text>
+<rect x="590" y="1170" width="370" height="140" rx="12" fill="#fffbeb" stroke="#b7791f" stroke-width="2" />
+<text x="775.0" y="1218.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="775.0" dy="0">Grafana Alloy</tspan></text>
+<text x="775.0" y="1252.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="775.0" dy="0">JSONL-fájl olvasása</tspan><tspan x="775.0" dy="24.5">Eredeti Render-időbélyeg</tspan></text>
+<rect x="1040" y="1170" width="370" height="140" rx="12" fill="#fffbeb" stroke="#b7791f" stroke-width="2" />
+<text x="1225.0" y="1218.5" font-family="Arial, sans-serif" font-size="21" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1225.0" dy="0">Loki</tspan></text>
+<text x="1225.0" y="1252.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="1225.0" dy="0">Backend HTTP-naplók</tspan><tspan x="1225.0" dy="24.5">LogQL · logokból számolt mutatók</tspan></text>
+<rect x="590" y="1390" width="1390" height="60" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
+<text x="1285.0" y="1423.5" font-family="Arial, sans-serif" font-size="19" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="1285.0" dy="0">Docker volume-ok: Prometheus TSDB · Grafana · Loki · Alloy</tspan></text>
+<rect x="2140" y="650" width="240" height="240" rx="12" fill="#fff1f2" stroke="#c24145" stroke-width="2" />
+<text x="2260.0" y="734.5" font-family="Arial, sans-serif" font-size="19" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="2260.0" dy="0">TELEGRAM</tspan></text>
+<text x="2260.0" y="768.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="2260.0" dy="0">Bot API → saját chat</tspan><tspan x="2260.0" dy="24.5">Riasztás / helyreállás</tspan><tspan x="2260.0" dy="24.5">Értesítési útvonal beállítva</tspan></text>
+<rect x="2140" y="1030" width="240" height="190" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2" />
+<text x="2260.0" y="1102.5" font-family="Arial, sans-serif" font-size="19" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="2260.0" dy="0">ÜZEMELTETŐ</tspan></text>
+<text x="2260.0" y="1136.5" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="2260.0" dy="0">Böngésző + SSH-alagút</tspan><tspan x="2260.0" dy="24.5">Grafana elérése</tspan></text>
+<rect x="2140" y="1320" width="240" height="200" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" />
+<text x="2260.0" y="1371.0" font-family="Arial, sans-serif" font-size="18" fill="#0f172a" text-anchor="middle" font-weight="700"><tspan x="2260.0" dy="0">GITHUB</tspan></text>
+<text x="2260.0" y="1405.0" font-family="Arial, sans-serif" font-size="17.5" fill="#475569" text-anchor="middle" font-weight="400"><tspan x="2260.0" dy="0">Backend main → Render</tspan><tspan x="2260.0" dy="24.5">Monitoring repo → VM</tspan><tspan x="2260.0" dy="24.5">Konfiguráció</tspan><tspan x="2260.0" dy="24.5">és dokumentáció</tspan></text>
+<rect x="320.9" y="203" width="58.2" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="350" y="220" font-family="Arial, sans-serif" font-size="17" fill="#2563eb" text-anchor="middle" font-weight="400"><tspan x="350" dy="0">HTTPS</tspan></text>
+<rect x="853.8" y="218" width="102.4" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="905" y="235" font-family="Arial, sans-serif" font-size="17" fill="#8056b3" text-anchor="middle" font-weight="400"><tspan x="905" dy="0">REST API</tspan><tspan x="905" dy="23.799999999999997">TERVEZETT*</tspan></text>
+<rect x="1486.7" y="268" width="146.6" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1560" y="285" font-family="Arial, sans-serif" font-size="17" fill="#2563eb" text-anchor="middle" font-weight="400"><tspan x="1560" dy="0">Auth + Data API</tspan><tspan x="1560" dy="23.799999999999997">HTTPS</tspan></text>
+<rect x="1668.3" y="428" width="323.40000000000003" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1830" y="445" font-family="Arial, sans-serif" font-size="17" fill="#8056b3" text-anchor="middle" font-weight="400"><tspan x="1830" dy="0">AI API · tervezett backendkapcsolat</tspan></text>
+<rect x="404.32" y="468" width="491.36" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="650" y="485" font-family="Arial, sans-serif" font-size="17" fill="#b7791f" text-anchor="middle" font-weight="400"><tspan x="650" dy="0">Pino JSON · HTTPS · Render API lekérése kb. percenként</tspan></text>
+<rect x="553.08" y="393" width="243.84" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="675" y="410" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="675" dy="0">HTTP-próba / válasz · 60 s</tspan></text>
+<rect x="929.02" y="423" width="181.96" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1020" y="440" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="1020" dy="0">HTTP-próba / válasz</tspan><tspan x="1020" dy="23.799999999999997">30 perc</tspan></text>
+<rect x="1466.06" y="543" width="517.88" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1725" y="560" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="1725" dy="0">Supabase-metrikák · HTTPS · Prometheus lekéri 60 s-onként</tspan></text>
+<rect x="445.53999999999996" y="808" width="128.92000000000002" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="510" y="825" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="510" dy="0">Host metrikák</tspan></text>
+<rect x="478.22" y="983" width="93.56" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="525" y="1000" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="525" dy="0">.prom</tspan><tspan x="525" dy="23.799999999999997">heartbeat</tspan></text>
+<rect x="220.54" y="1088" width="128.92000000000002" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="285" y="1105" font-family="Arial, sans-serif" font-size="17" fill="#b7791f" text-anchor="middle" font-weight="400"><tspan x="285" dy="0">JSONL + dedup</tspan><tspan x="285" dy="23.799999999999997">és időkurzor</tspan></text>
+<rect x="469.38" y="1223" width="111.24000000000001" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="525" y="1240" font-family="Arial, sans-serif" font-size="17" fill="#b7791f" text-anchor="middle" font-weight="400"><tspan x="525" dy="0">JSONL</tspan><tspan x="525" dy="23.799999999999997">fájlolvasás</tspan></text>
+<rect x="975.32" y="1193" width="49.36" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1000" y="1210" font-family="Arial, sans-serif" font-size="17" fill="#b7791f" text-anchor="middle" font-weight="400"><tspan x="1000" dy="0">push</tspan></text>
+<rect x="1050.4" y="893" width="279.2" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1190" y="910" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="1190" dy="0">VM + heartbeat metrikák · 60 s</tspan></text>
+<rect x="957.64" y="703" width="84.72" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1000" y="720" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="1000" dy="0">Próba-</tspan><tspan x="1000" dy="23.799999999999997">metrikák</tspan></text>
+<rect x="1447.64" y="703" width="84.72" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1490" y="720" font-family="Arial, sans-serif" font-size="17" fill="#0f766e" text-anchor="middle" font-weight="400"><tspan x="1490" dy="0">PromQL</tspan><tspan x="1490" dy="23.799999999999997">metrikák</tspan></text>
+<rect x="1538.3" y="833" width="323.40000000000003" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1700" y="850" font-family="Arial, sans-serif" font-size="17" fill="#b7791f" text-anchor="middle" font-weight="400"><tspan x="1700" dy="0">LogQL · naplók és HTTP-statisztikák</tspan></text>
+<rect x="2018.8" y="668" width="102.4" height="52.599999999999994" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="2070" y="685" font-family="Arial, sans-serif" font-size="17" fill="#c24145" text-anchor="middle" font-weight="400"><tspan x="2070" dy="0">Riasztások</tspan><tspan x="2070" dy="23.799999999999997">Bot API</tspan></text>
+<rect x="2048.8" y="943" width="102.4" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="2100" y="960" font-family="Arial, sans-serif" font-size="17" fill="#64748b" text-anchor="middle" font-weight="400"><tspan x="2100" dy="0">SSH-alagút</tspan></text>
+<rect x="1609.24" y="88" width="261.52" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1740" y="105" font-family="Arial, sans-serif" font-size="17" fill="#64748b" text-anchor="middle" font-weight="400"><tspan x="1740" dy="0">Backend main → Render deploy</tspan></text>
+<rect x="1131.78" y="1523" width="376.44" height="28.799999999999997" rx="4" fill="white" fill-opacity="0.97"/>
+<text x="1320" y="1540" font-family="Arial, sans-serif" font-size="17" fill="#64748b" text-anchor="middle" font-weight="400"><tspan x="1320" dy="0">Monitoring repo → git pull / konfiguráció</tspan></text>
+<text x="900" y="1515" font-family="Arial, sans-serif" font-size="18" fill="#475569" text-anchor="start" font-weight="400"><tspan x="900" dy="0">Loopbackra kötött monitoringvégpontok · Grafana elérése SSH-alagúton</tspan></text>
+<text x="50" y="43" font-family="Arial, sans-serif" font-size="32" fill="#0f172a" text-anchor="start" font-weight="400"><tspan x="50" dy="0">MATCHWISE · TELJES STACK ÉS ADATÁRAMLÁS</tspan></text>
+<text x="50" y="84" font-family="Arial, sans-serif" font-size="19" fill="#475569" text-anchor="start" font-weight="400"><tspan x="50" dy="0">Dokumentált állapot: 2026. november 10. · A nyilak adatáramlást vagy feliratozott kérés/válasz kapcsolatot jelölnek.</tspan></text>
+<text x="155" y="1616" font-family="Arial, sans-serif" font-size="19" fill="#475569" text-anchor="start" font-weight="400"><tspan x="155" dy="0">Alkalmazás / API</tspan></text>
+<text x="585" y="1616" font-family="Arial, sans-serif" font-size="19" fill="#475569" text-anchor="start" font-weight="400"><tspan x="585" dy="0">Metrikák / HTTP-próbák</tspan></text>
+<text x="1125" y="1616" font-family="Arial, sans-serif" font-size="19" fill="#475569" text-anchor="start" font-weight="400"><tspan x="1125" dy="0">Naplók</tspan></text>
+<text x="1475" y="1616" font-family="Arial, sans-serif" font-size="19" fill="#475569" text-anchor="start" font-weight="400"><tspan x="1475" dy="0">Riasztások</tspan></text>
+<text x="1875" y="1616" font-family="Arial, sans-serif" font-size="19" fill="#475569" text-anchor="start" font-weight="400"><tspan x="1875" dy="0">Tervezett kapcsolat</tspan></text>
+<text x="50" y="1660" font-family="Arial, sans-serif" font-size="18" fill="#475569" text-anchor="start" font-weight="400"><tspan x="50" dy="0">* A frontend auth-folyamata a 2026.11.09-i kódellenőrzéskor még szimulált volt. A backend auth API külön tesztelve működött.</tspan></text>
+<text x="50" y="1690" font-family="Arial, sans-serif" font-size="18" fill="#475569" text-anchor="start" font-weight="400"><tspan x="50" dy="0">A Telegram-útvonal konfigurált; a tervezett AI-szolgáltató és az integráció részletei még nincsenek véglegesítve. A GitHub-doboz a verziókövetési és telepítési forrást jelöli.</tspan></text>
+</svg>
