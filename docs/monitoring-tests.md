@@ -245,3 +245,35 @@ Node Exporter exposed `matchwise_render_collector_last_success_timestamp_seconds
 The unified English dashboard displayed Oracle CPU/RAM/disk and host history, Render and Vercel HTTP probes, backend Pino logs and collector monitoring; seven collapsible sections were present. The user confirmed the final translated and query-corrected dashboard worked as intended.
 
 Refer to `docs/MONITORING_GUIDE.md` for the deployed architecture and the exact backend migration procedure.
+
+## TEST-08 — Team backend, new Supabase project and auth log delivery
+
+**Date:** 2026-11-09 · **Result:** PASS for the exercised live flow and two request-ID log correlations.
+
+The existing Render service `matchwise-backend-monitoring-test` was connected to `emmanuelkyeremeh/job-portal-backend` on `main`. The same Render URL and Service ID were retained. The operator configured a newly created Supabase project through Render environment variables. The exact deployed backend commit was not supplied in the shared evidence.
+
+The operator ran the following requests from the Oracle VM against the deployed backend and shared the results.
+
+| Request | Expected and observed HTTP status | Request ID |
+| --- | --- | --- |
+| Register a new test account | 201, token and user returned | `5c0bd609-5350-492a-aea5-900737b2eab3` |
+| Log in with the test account | 200 | `14738520-0087-492b-a4a8-adfc50d1471a` |
+| Fetch /api/me using the issued token | 200 | `72eb5bda-c7ec-4e52-b3b5-c553d90190c2` |
+| Fetch /api/account using the issued token | 200 | `073565b5-9d78-4ab3-bf51-c206aafa7e28` |
+| Log out the current session | 204 | `98cdab42-4793-434e-ac45-1fc8b9a3fe77` |
+| Reuse the logged-out token for /api/me | 401 | `ebd54217-a7d2-419f-8dcf-4dc858bc3e27` |
+
+The live flow exercised Supabase Auth, application user-row reads and the protected-route session check. The post-logout 401 was the expected rejection.
+
+The operator located these matching Pino events in Grafana, confirming delivery through Render Logs API, the Oracle collector, Alloy and Loki.
+
+| UTC event time | Logged method and route | HTTP status | responseTimeMs | Request ID |
+| --- | --- | --- | --- | --- |
+| 2026-11-09T16:22:55.843582935Z | POST /auth/login | 200 | 815 | `14738520-0087-492b-a4a8-adfc50d1471a` |
+| 2026-11-09T16:22:57.78386259Z | GET /me | 401 | 94 | `ebd54217-a7d2-419f-8dcf-4dc858bc3e27` |
+
+The 401 event appeared in both the general HTTP log panel and the filtered HTTP error panel with the same Render log ID. These are two views of one event.
+
+The dashboard auth metadata is manually set to `Verified by team` based on this operator-reported evidence. This records the test outcome at the stated date. The two event correlations establish delivery for these requests. The full SQL comparison and 24-check database verification outputs were not provided, and continuous auth availability and browser frontend integration were not tested in this flow.
+
+The earlier October test entries describe their original test environment. TEST-08 supplies the later team-backend auth and logging verification.
