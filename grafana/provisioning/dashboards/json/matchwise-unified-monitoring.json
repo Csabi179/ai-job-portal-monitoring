@@ -4,7 +4,7 @@
   "title": "MatchWise | Unified Monitoring",
   "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected. Probe freshness and sample counts, optional health-check exclusion, endpoint summary, HTTP log freshness, deployment annotations and log drilldowns.",
   "schemaVersion": 42,
-  "version": 3,
+  "version": 4,
   "editable": false,
   "refresh": "1m",
   "time": {
@@ -3776,6 +3776,553 @@
       ]
     },
     {
+      "id": 68,
+      "type": "row",
+      "title": "AUTHENTICATION | Outcomes in selected period",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 123,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 69,
+      "type": "stat",
+      "title": "Successful logins · 200",
+      "description": "Login completed successfully and returned a token. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | method=\"POST\" | route=~\"(/api)?/auth/login\" | statusCode = 200 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "noValue": "No matching logs",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "green"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Inspect these auth events",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=%5E%24&var-route_filter=%2Fauth%2Flogin&var-status_filter=200&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 124,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 70,
+      "type": "stat",
+      "title": "Rejected logins · 401",
+      "description": "Login was rejected, for example because the credentials were incorrect. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | method=\"POST\" | route=~\"(/api)?/auth/login\" | statusCode = 401 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "noValue": "No matching logs",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "blue"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Inspect these auth events",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=%5E%24&var-route_filter=%2Fauth%2Flogin&var-status_filter=401&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 124,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 71,
+      "type": "stat",
+      "title": "Invalid login data · 400",
+      "description": "Login input was missing or invalid. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | method=\"POST\" | route=~\"(/api)?/auth/login\" | statusCode = 400 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "noValue": "No matching logs",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "blue"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Inspect these auth events",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=%5E%24&var-route_filter=%2Fauth%2Flogin&var-status_filter=400&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 124,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 72,
+      "type": "stat",
+      "title": "Login service errors · 5xx",
+      "description": "Login failed with a server-side or dependency error, including unavailable authentication configuration. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | method=\"POST\" | route=~\"(/api)?/auth/login\" | statusCode >= 500 | statusCode < 600 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "noValue": "No matching logs",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "blue"
+              },
+              {
+                "value": 1,
+                "color": "red"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Inspect these auth events",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=%5E%24&var-route_filter=%2Fauth%2Flogin&var-status_filter=5%5B0-9%5D%5B0-9%5D&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 129,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 73,
+      "type": "stat",
+      "title": "Successful logouts · 204",
+      "description": "The current session was successfully revoked. Counts POST /api/auth/logout (logged as /auth/logout or /api/auth/logout) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | method=\"POST\" | route=~\"(/api)?/auth/logout\" | statusCode = 204 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "noValue": "No matching logs",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "green"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Inspect these auth events",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=%5E%24&var-route_filter=%2Fauth%2Flogout&var-status_filter=204&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 129,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 74,
+      "type": "stat",
+      "title": "Successful registrations · 201",
+      "description": "Registration completed successfully. The current backend also signs the new account in automatically. Counts POST /api/auth/register (logged as /auth/register or /api/auth/register) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | method=\"POST\" | route=~\"(/api)?/auth/register\" | statusCode = 201 | __error__=\"\" [$__range])) or (sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", method=\"method\", route=\"route\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" [$__range])) * 0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "noValue": "No matching logs",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No matching logs",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1,
+                "color": "green"
+              }
+            ]
+          },
+          "links": [
+            {
+              "title": "Inspect these auth events",
+              "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}&var-excluded_route=%5E%24&var-route_filter=%2Fauth%2Fregister&var-status_filter=201&var-request_id=&viewPanel=47",
+              "targetBlank": false
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 129,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
       "id": 44,
       "title": "06 · LOG COLLECTOR | Collection and ingestion health",
       "type": "row",
@@ -3783,7 +4330,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 123,
+        "y": 134,
         "w": 24,
         "h": 1
       }
@@ -3850,7 +4397,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 124,
+        "y": 135,
         "w": 12,
         "h": 4
       }
@@ -3919,7 +4466,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 124,
+        "y": 135,
         "w": 12,
         "h": 4
       }
@@ -3934,7 +4481,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 128,
+        "y": 139,
         "w": 24,
         "h": 4
       }
@@ -4004,7 +4551,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 132,
+        "y": 143,
         "w": 12,
         "h": 7
       }
@@ -4075,7 +4622,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 132,
+        "y": 143,
         "w": 12,
         "h": 7
       }
@@ -4108,7 +4655,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 140,
+            "y": 151,
             "w": 24,
             "h": 9
           },
@@ -4153,7 +4700,7 @@
           ],
           "gridPos": {
             "x": 0,
-            "y": 149,
+            "y": 160,
             "w": 24,
             "h": 9
           },
@@ -4179,7 +4726,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 139,
+        "y": 150,
         "w": 24,
         "h": 1
       }
