@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_render_collector_stale",
-          "title": "MatchWise | Render naplógyűjtő | Megfigyelési hiba",
+          "title": "MatchWise | Render log collector | Monitoring failure",
           "condition": "C",
           "data": [
             {
@@ -91,9 +91,9 @@
           "noDataState": "KeepLast",
           "execErrState": "KeepLast",
           "annotations": {
-            "summary": "MatchWise | Render naplógyűjtő | Megfigyelési hiba",
-            "description": "A collector utolsó sikeres futása több mint 300 másodperces, hiányzik a heartbeat/textfile hibajelző, vagy a textfile feldolgozása hibás. Csak elérhető Node Exporter mellett értékelhető. Az alkalmazás csendje nem hiba; a sikeres futás nem bizonyít Loki-kézbesítést.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#collector"
+            "summary": "MatchWise | Render log collector | Monitoring failure",
+            "description": "Collector success is over 300s old, heartbeat/textfile status is missing, or textfile processing failed. Requires Node Exporter to be up. A quiet application is not a fault.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#collector"
           },
           "labels": {
             "project": "matchwise",

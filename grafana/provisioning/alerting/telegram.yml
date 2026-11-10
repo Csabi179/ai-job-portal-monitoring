@@ -22,9 +22,9 @@ templates:
       MatchWise | {{ .Status }}
       {{ range .Alerts }}
       [{{ .Status }}] {{ if .Annotations.summary }}{{ .Annotations.summary }}{{ else }}{{ .Labels.alertname }}{{ end }}
-      {{ if eq .Status "firing" }}{{ printf "%.200s" .Annotations.description }}{{ else }}A riasztási feltétel megszűnt; az értékelés és a friss mérés ellenőrizendő.{{ end }}
+      {{ if eq .Status "firing" }}{{ printf "%.200s" .Annotations.description }}{{ else }}The alert condition has cleared. Verify evaluation health and fresh measurements.{{ end }}
       {{ end }}
-      Teendők: https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md
+      Runbook: https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md
       {{ end }}
 
 policies:

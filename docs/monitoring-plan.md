@@ -1,5 +1,9 @@
 # MatchWise – monitoringterv és megvalósítási állapot
 
+[English version](monitoring-plan.en.md) · [Dokumentációjegyzék](README.md)
+
+> Kiegészítés, 2026. november 10.: az alábbi magyar szöveg az eredeti dokumentálási állapotot is megőrzi. Azóta az üzemeltető alkalmazta a 12 szabályos konfigurációt, és megérkezett a collector Telegram Firing és Resolved üzenete. A többi szabály egyenkénti kézbesítési tesztje nem történt meg. A későbbi angol üzenetszöveg-frissítés még külön alkalmazandó. Részletek: [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
+
 Dokumentálás: **2026. november 10.** Ez a már megvalósított rendszer visszamenőleges leírása, nem a fejlesztés előtt készült terv. Kiindulási repository: `374f74eab098deccfd408887bbef5db314c83223`. A konfiguráció és a korábban rögzített bizonyítékok ellenőrizhetők; az Oracle VM jelenlegi futó állapotát ezen a napon nem értük el.
 
 ## Cél és felelősség

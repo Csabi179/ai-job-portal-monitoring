@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_backend_down",
-          "title": "MatchWise | Render backend | HTTP-kiesés",
+          "title": "MatchWise | Render backend | HTTP outage",
           "condition": "C",
           "data": [
             {
@@ -91,9 +91,9 @@
           "noDataState": "KeepLast",
           "execErrState": "KeepLast",
           "annotations": {
-            "summary": "MatchWise | Render backend | HTTP-kiesés",
-            "description": "A legutóbbi, 40m-en belüli sikeres scrape HTTP-próbája nem kapott elfogadott 200 választ. A mérés sikeressége és a HTTP-próba eredménye eltérő. Helyreállás csak új sikeres HTTP-próba alapján; hiányzó mérésnél az előző állapot megmarad.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#http"
+            "summary": "MatchWise | Render backend | HTTP outage",
+            "description": "The latest HTTP probe within 40 minutes failed despite a successful scrape. Recovery requires a new successful probe; missing measurements retain the previous state.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#http"
           },
           "labels": {
             "project": "matchwise",
@@ -106,7 +106,7 @@
         },
         {
           "uid": "matchwise_backend_probe_missing",
-          "title": "MatchWise | Render backend | Megfigyelési hiba",
+          "title": "MatchWise | Render backend | Monitoring failure",
           "condition": "C",
           "data": [
             {
@@ -188,9 +188,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Render backend | Megfigyelési hiba",
-            "description": "A legutóbbi up=0, vagy 40m-e nincs up/probe_success mérés. Ez nem bizonyít alkalmazáskiesést. A frissességi ablakon belüli eredmény a legutóbbi mintavételre vonatkozik.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#http"
+            "summary": "MatchWise | Render backend | Monitoring failure",
+            "description": "The latest scrape failed, or up/probe_success data is missing for 40 minutes. Application availability is unknown; this does not prove a backend outage.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#http"
           },
           "labels": {
             "project": "matchwise",

@@ -1,5 +1,9 @@
 # MatchWise stack és adatáramlás
 
+[English version](README.en.md) · [Dokumentációjegyzék](../README.md)
+
+> Kiegészítés, 2026. november 10.: az alábbi magyar szöveg az eredeti dokumentálási állapotot is megőrzi. Azóta az üzemeltető alkalmazta a 12 szabályos konfigurációt, és megérkezett a collector Telegram Firing és Resolved üzenete. A többi szabály egyenkénti kézbesítési tesztje nem történt meg. A későbbi angol üzenetszöveg-frissítés még külön alkalmazandó. Részletek: [TEST-10](../monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
+
 Az ábra a projekt dokumentált, 2026. november 10-i felépítését mutatja. A szolgáltatókon és a VM-en belüli dobozok a tényleges futtatási helyet jelölik; a szaggatott lila elemek tervezett integrációk.
 
 ![MatchWise teljes stack](matchwise-stack.svg)

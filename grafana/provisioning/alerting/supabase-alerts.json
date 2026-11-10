@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_supabase_metrics_unavailable",
-          "title": "MatchWise | Supabase | Megfigyelési hiba",
+          "title": "MatchWise | Supabase | Monitoring failure",
           "condition": "C",
           "data": [
             {
@@ -91,9 +91,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Supabase | Megfigyelési hiba",
-            "description": "A Metrics API scrape sikertelen/hiányzik, vagy 3 perce nincs pg_up állapot. Lehet hitelesítési, hálózati vagy exporterhiba; önmagában nem bizonyít PostgreSQL-kiesést.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#supabase"
+            "summary": "MatchWise | Supabase | Monitoring failure",
+            "description": "Metrics API scrape failed or is missing, or pg_up is missing for 3 minutes. Check credentials, networking and the exporter; this alone does not prove a PostgreSQL outage.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#supabase"
           },
           "labels": {
             "project": "matchwise",
@@ -106,7 +106,7 @@
         },
         {
           "uid": "matchwise_supabase_database_down",
-          "title": "MatchWise | Supabase PostgreSQL | Elérési hiba",
+          "title": "MatchWise | Supabase PostgreSQL | Connectivity failure",
           "condition": "C",
           "data": [
             {
@@ -188,9 +188,9 @@
           "noDataState": "KeepLast",
           "execErrState": "KeepLast",
           "annotations": {
-            "summary": "MatchWise | Supabase PostgreSQL | Elérési hiba",
-            "description": "Sikeres Metrics API scrape mellett pg_up=0: a Supabase exportere nem éri el a PostgreSQL-t. Nem teljes Auth/PostgREST vagy üzleti funkcióteszt. Hiányzó mérésnél az előző állapot megmarad.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#supabase"
+            "summary": "MatchWise | Supabase PostgreSQL | Connectivity failure",
+            "description": "pg_up=0 with a successful Metrics API scrape: the exporter cannot connect to PostgreSQL. Missing measurements retain the previous state. This is not an Auth or PostgREST test.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#supabase"
           },
           "labels": {
             "project": "matchwise",

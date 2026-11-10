@@ -23,7 +23,7 @@ The original dedicated Infrastructure, Application Availability and Backend Logs
 - **Docker Compose:** Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Grafana Alloy.
 - **Render logs:** Pino JSON → Render Logs API → Python systemd collector → deduplicated JSONL → Alloy → Loki.
 - **Metrics:** Node Exporter and Blackbox Exporter → Prometheus → Grafana.
-- **Alerting:** 12 outage/monitoring-failure rules in the repository; existing Telegram routing and resolved notifications retained. Oracle rollout and per-rule delivery tests are pending; see the [alerting plan](docs/alerting-plan.md).
+- **Alerting:** 12 outage/monitoring-failure rules with English notification text; existing Telegram routing and resolved notifications retained. The outage-only rollout and collector Firing/Resolved were verified through operator evidence. Deployment of the later English wording and individual delivery tests for other rules remain pending; see the [alerting plan](docs/alerting-plan.en.md).
 - **Retention:** Prometheus 7 days or 2 GB; logrotate rotates the local JSONL at 20 MB with seven archives. Loki retention is separate.
 
 Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). All monitoring web services are bound to loopback and are intended to be reached through an SSH tunnel.
@@ -34,12 +34,14 @@ Start here: **[Monitoring architecture and operations guide](docs/MONITORING_GUI
 
 Additional documentation:
 
-- [Editable stack and data-flow diagram (draw.io + SVG)](docs/architecture/README.md)
+- [Documentation index / Dokumentációjegyzék (English and Hungarian)](docs/README.md)
 
-- [Render backend logging and migration runbook](docs/RENDER_LOGGING_RUNBOOK.md)
+- [Editable stack and data-flow diagram (draw.io + SVG)](docs/architecture/README.en.md)
+
+- [Render backend logging and migration runbook](docs/RENDER_LOGGING_RUNBOOK.en.md)
 - [Installation guide](docs/installation-guide.md)
 - [Monitoring tests](docs/monitoring-tests.md)
-- [Monitoring plan](docs/monitoring-plan.md)
+- [Monitoring plan](docs/monitoring-plan.en.md)
 - [Outage-only alerting plan, deployment and tests](docs/alerting-plan.md)
 
 Basic operations on Oracle:

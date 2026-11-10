@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_loki_health_unavailable",
-          "title": "MatchWise | Loki | Health-ellenőrzési hiba",
+          "title": "MatchWise | Loki | Health check failure",
           "condition": "C",
           "data": [
             {
@@ -91,9 +91,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Loki | Health-ellenőrzési hiba",
-            "description": "A Loki /ready végpont nem ad 200-at, vagy a mérés sikertelen/hiányzik. Ellenőrizd a Blackbox Exportert is. A health válasz nem bizonyít végponttól végpontig naplókézbesítést.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#logs"
+            "summary": "MatchWise | Loki | Health check failure",
+            "description": "Loki /ready did not return HTTP 200, or its probe scrape failed/is missing. Check Blackbox Exporter too. A healthy endpoint does not prove end-to-end log delivery.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#logs"
           },
           "labels": {
             "project": "matchwise",
@@ -106,7 +106,7 @@
         },
         {
           "uid": "matchwise_alloy_health_unavailable",
-          "title": "MatchWise | Alloy | Health-ellenőrzési hiba",
+          "title": "MatchWise | Alloy | Health check failure",
           "condition": "C",
           "data": [
             {
@@ -188,9 +188,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Alloy | Health-ellenőrzési hiba",
-            "description": "Az Alloy /-/healthy végpont nem ad 200-at, vagy a mérés sikertelen/hiányzik. Ellenőrizd a Blackbox Exportert is. A health válasz nem bizonyít végponttól végpontig naplókézbesítést.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#logs"
+            "summary": "MatchWise | Alloy | Health check failure",
+            "description": "Alloy /-/healthy did not return HTTP 200, or its probe scrape failed/is missing. Check Blackbox Exporter too. A healthy endpoint does not prove end-to-end log delivery.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#logs"
           },
           "labels": {
             "project": "matchwise",

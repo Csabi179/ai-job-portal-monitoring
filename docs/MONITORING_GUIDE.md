@@ -1,5 +1,10 @@
 # MatchWise Monitoring — Architecture and Operations Guide
 
+[Documentation index](README.md) · [English monitoring plan](monitoring-plan.en.md) · [English alerting plan](alerting-plan.en.md)
+
+> November 10 follow-up: the operator supplied successful 12-rule rollout evidence and collector Telegram Firing/Resolved messages. See [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10). Other per-rule tests remain pending. The later English notification update requires deployment.
+
+
 > **Status:** Retrospective documentation updated November 10, 2026. Repository changes are distinct from live Oracle rollout.  
 > **Main dashboard:** **MatchWise | Unified Monitoring** (Grafana UID: **matchwise-unified-overview**).  
 > **Scope:** Oracle Cloud monitoring VM, independently deployed Render backend, Vercel frontend, Supabase, and backend HTTP logs.
@@ -76,7 +81,7 @@ For changes, edit and version the JSON in Git, update the Oracle working tree, a
 
 The repository now contains **12 outage/monitoring-failure rules**. High RAM/disk usage and the old local Grafana test rule are explicitly deleted from the provisioned state. Performance and 4xx remain dashboard diagnostics.
 
-The authoritative [alerting plan](alerting-plan.md) documents exact conditions, pending times, No Data/Error handling, Telegram grouping, deployment, rollback and unexecuted live tests. HTTP/database/collector rules keep their last state when evidence disappears. Separate monitoring rules report telemetry failures. The backend retains 30-minute probing and uses a 40-minute freshness window; one failed completed probe with 2-minute pending now suffices, replacing the earlier two-failure requirement.
+The authoritative [alerting plan](alerting-plan.en.md) documents exact conditions, pending times, No Data/Error handling, Telegram grouping, deployment, rollback and unexecuted live tests. HTTP/database/collector rules keep their last state when evidence disappears. Separate monitoring rules report telemetry failures. The backend retains 30-minute probing and uses a 40-minute freshness window; one failed completed probe with 2-minute pending now suffices, replacing the earlier two-failure requirement.
 
 The existing **AI Job Telegram** contact point and resolved messages are retained. A previous local test delivered Firing/Resolved; this does not verify each new rule. Full Oracle/Grafana failure cannot be reported reliably by the same host.
 
@@ -152,7 +157,7 @@ Safe migration sequence on Oracle:
 
 If the team also deploys a different Vercel frontend URL, update **blackbox_vercel_frontend** in **prometheus/prometheus.yml** separately, preserving **service=matchwise_frontend**. A browser-frontend deployment alone does not supply server CPU/RAM or JavaScript telemetry.
 
-See **docs/RENDER_LOGGING_RUNBOOK.md** for the existing detailed Hungarian logging runbook.
+See **docs/RENDER_LOGGING_RUNBOOK.en.md** for the detailed English logging runbook (Hungarian original preserved).
 
 ## 8. Security, Git and handover
 

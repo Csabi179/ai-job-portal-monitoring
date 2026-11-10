@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_node_exporter_unavailable",
-          "title": "MatchWise | Oracle hostmetrikák | Megfigyelési hiba",
+          "title": "MatchWise | Oracle host metrics | Monitoring failure",
           "condition": "C",
           "data": [
             {
@@ -91,9 +91,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Oracle hostmetrikák | Megfigyelési hiba",
-            "description": "A scrape sikertelen, vagy a várt up idősor hiányzik. Ez a mérési út hibája; nem bizonyít teljes hostkiesést.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#monitoring"
+            "summary": "MatchWise | Oracle host metrics | Monitoring failure",
+            "description": "Node Exporter scrape failed or its expected up series is missing. Host monitoring is unavailable; this does not prove a complete VM outage.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#monitoring"
           },
           "labels": {
             "project": "matchwise",
@@ -106,7 +106,7 @@
         },
         {
           "uid": "ai_job_exporter_down",
-          "title": "MatchWise | Blackbox Exporter | Megfigyelési hiba",
+          "title": "MatchWise | Blackbox Exporter | Monitoring failure",
           "condition": "C",
           "data": [
             {
@@ -188,9 +188,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Blackbox Exporter | Megfigyelési hiba",
-            "description": "A scrape sikertelen, vagy a várt up idősor hiányzik. Ez a mérési út hibája; nem bizonyít teljes hostkiesést.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#monitoring"
+            "summary": "MatchWise | Blackbox Exporter | Monitoring failure",
+            "description": "Blackbox Exporter scrape failed or its expected up series is missing. HTTP monitoring may be affected; this does not prove an application outage.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#monitoring"
           },
           "labels": {
             "project": "matchwise",
@@ -203,7 +203,7 @@
         },
         {
           "uid": "matchwise_prometheus_scrape_unavailable",
-          "title": "MatchWise | Prometheus önellenőrzés | Megfigyelési hiba",
+          "title": "MatchWise | Prometheus self-check | Monitoring failure",
           "condition": "C",
           "data": [
             {
@@ -285,9 +285,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Prometheus önellenőrzés | Megfigyelési hiba",
-            "description": "A scrape sikertelen, vagy a várt up idősor hiányzik. Ez a mérési út hibája; nem bizonyít teljes hostkiesést.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#monitoring"
+            "summary": "MatchWise | Prometheus self-check | Monitoring failure",
+            "description": "Prometheus self-scrape failed or its expected up series is missing. Check the scrape configuration and Prometheus readiness.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#monitoring"
           },
           "labels": {
             "project": "matchwise",

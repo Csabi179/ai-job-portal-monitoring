@@ -1,5 +1,29 @@
 # Monitoring Verification
 
+[Documentation index](README.md)
+
+<a id="test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10"></a>
+## TEST-10 — Oracle rollout and collector Telegram delivery, 2026-11-10
+
+**Result: PASS for the operator-evidenced deployment and this collector Firing/Resolved sequence. Not a complete 12-rule delivery test.** Evidence was supplied by the operator in chat; the assistant did not directly access Oracle.
+
+- Oracle working tree advanced from `a39e5a5f86ca7de2c64d3afb57d4b3ebd1ddefe2` to `665d2d5272143402429e9cffd4cb975e460b1c8a`. Existing untracked dashboard-export/plugin-placeholder files were retained.
+- Compose validation and the Oracle promtool configuration check succeeded. Prometheus was recreated with its persistent volume retained; readiness succeeded after an initial immediate-startup connection refusal.
+- Direct Loki /ready and Alloy /-/healthy responses succeeded. The operator supplied `up=1` and `probe_success=1` for both new local probes.
+- The selected Supabase instance returned `up=1` and `pg_up=1`.
+- Grafana health reported database=ok and version 13.2.1. Logs included finished alert provisioning, rules=12, enabled rule evaluation and a running scheduler. The supplied rule-list screenshot showed all 12 expected provisioned rules with green status and no old capacity/local-test rule.
+- A contact-point Test message was received in Telegram using the new template.
+- The operator followed the controlled collector-timer interruption test and supplied the real `matchwise_render_collector_stale` firing message, then the resolved message after the instructed restoration. Both messages still used the Hungarian notification wording.
+
+**Limits:** exact stop/start, pending, firing and resolved timestamps were not supplied; no measured detection-time SLA is claimed. The final timer activity/service-result command output was not pasted, so receipt of resolved alone is not a separate proof that the timer remains enabled. No other rule was individually fired. Grouping, 4h repeat, query Error and missing-data KeepLast transitions remain untested live. The successful collector test is not an end-to-end Loki delivery test or full-host outage test.
+
+### English notification and documentation update
+
+The later language-only repository update translates all 12 alert titles and summary/description annotations, the shared resolved message and Runbook label/link. UIDs, PromQL, condition chains, pending/evaluation intervals, No Data/Error handling, labels, Telegram destination and notification timing are preserved. Hungarian documents remain with separate English editions and a bilingual index.
+
+Local checks **passed**: comparison against `665d2d5` confirmed unchanged rule logic, UIDs, timing and routing; all 19 JSON/YAML configurations parsed; the four English editions have reciprocal links and valid relative document links; all 12 descriptions are English and below the template's 200-character limit; the existing 37 promtool scenarios passed again. Prometheus syntax validation also passed. English Grafana provisioning and an English Telegram message test are **pending** until the operator supplies evidence. The previously received Hungarian collector messages do not establish delivery of the later English wording.
+
+
 ## TEST-09 — Outage-only alerting configuration, 2026-11-10
 
 **Result: PASS for local static configuration and PromQL evaluation; Oracle rollout and live delivery NOT TESTED.**

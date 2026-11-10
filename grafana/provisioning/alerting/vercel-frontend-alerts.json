@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_frontend_down",
-          "title": "MatchWise | Vercel frontend | HTTP-kiesés",
+          "title": "MatchWise | Vercel frontend | HTTP outage",
           "condition": "C",
           "data": [
             {
@@ -91,9 +91,9 @@
           "noDataState": "KeepLast",
           "execErrState": "KeepLast",
           "annotations": {
-            "summary": "MatchWise | Vercel frontend | HTTP-kiesés",
-            "description": "A legutóbbi, 3m-en belüli sikeres scrape HTTP-próbája nem kapott elfogadott 200 választ. A mérés sikeressége és a HTTP-próba eredménye eltérő. Helyreállás csak új sikeres HTTP-próba alapján; hiányzó mérésnél az előző állapot megmarad.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#http"
+            "summary": "MatchWise | Vercel frontend | HTTP outage",
+            "description": "The latest HTTP probe within 3 minutes failed despite a successful scrape. Recovery requires a new successful probe; missing measurements retain the previous state.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#http"
           },
           "labels": {
             "project": "matchwise",
@@ -106,7 +106,7 @@
         },
         {
           "uid": "matchwise_frontend_probe_missing",
-          "title": "MatchWise | Vercel frontend | Megfigyelési hiba",
+          "title": "MatchWise | Vercel frontend | Monitoring failure",
           "condition": "C",
           "data": [
             {
@@ -188,9 +188,9 @@
           "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise | Vercel frontend | Megfigyelési hiba",
-            "description": "A legutóbbi up=0, vagy 3m-e nincs up/probe_success mérés. Ez nem bizonyít alkalmazáskiesést. A frissességi ablakon belüli eredmény a legutóbbi mintavételre vonatkozik.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#http"
+            "summary": "MatchWise | Vercel frontend | Monitoring failure",
+            "description": "The latest scrape failed, or up/probe_success data is missing for 3 minutes. Application availability is unknown; this does not prove a frontend outage.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#http"
           },
           "labels": {
             "project": "matchwise",
