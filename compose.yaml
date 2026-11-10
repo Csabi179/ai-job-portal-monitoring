@@ -30,6 +30,9 @@ services:
     restart: unless-stopped
     environment:
       GF_SERVER_HTTP_ADDR: "127.0.0.1"
+      GF_SERVER_DOMAIN: ${GRAFANA_PUBLIC_DOMAIN:-localhost}
+      GF_SERVER_ROOT_URL: ${GRAFANA_PUBLIC_URL:-http://localhost:3000/}
+      GF_SECURITY_COOKIE_SECURE: ${GRAFANA_COOKIE_SECURE:-false}
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Missing password}
       GF_USERS_ALLOW_SIGN_UP: "false"
@@ -108,8 +111,24 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Explicit opt-in: docker compose --profile public up -d caddy
+  caddy:
+    image: caddy:2.11.9-alpine
+    container_name: monitoring-caddy
+    profiles: ["public"]
+    network_mode: host
+    restart: unless-stopped
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+    volumes:
+      - ./caddy:/etc/caddy:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging: *logconfig
+
 volumes:
   prometheus_data:
   grafana_data:
   loki_data:
   alloy_data:
+  caddy_data:
+  caddy_config:

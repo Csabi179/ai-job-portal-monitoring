@@ -72,3 +72,16 @@ On November 9, the existing Render service was switched to the team's backend re
 Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. No Render/Vercel host CPU/RAM telemetry or frontend browser-performance data is currently collected. Render availability is sampled every 30 minutes, so the latest UP result is not a continuous-uptime guarantee.
 
 Project target completion/shutdown: no later than **December 15, 2026**.
+
+## Optional HTTPS team access
+
+The default stack still runs six local monitoring services. An opt-in **public**
+Compose profile adds Caddy for https://grafana-r0cecq.duckdns.org/ with individual
+Grafana logins. It does not give teammates SSH access. Deployment and verification
+are pending; pulling the commit does not activate publication.
+
+Follow the [English HTTPS runbook](docs/GRAFANA_HTTPS_ACCESS.en.md) or
+[Hungarian edition](docs/GRAFANA_HTTPS_ACCESS.md) before enabling the profile.
+They document the private environment settings, OCI and host firewall rules,
+certificate storage, team permissions and rollback. Existing dashboard and
+datasource permissions must be configured separately.
