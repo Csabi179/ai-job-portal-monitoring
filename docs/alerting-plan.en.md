@@ -1,5 +1,8 @@
 # MatchWise – alerting plan and Oracle deployment procedure
 
+Exact commands for all 12 rules: [English runbook](alert-rule-tests.en.md) · [Hungarian edition](alert-rule-tests.md). Subsequent Node Exporter Firing/Resolved evidence is recorded in [TEST-11](monitoring-tests.md#test-11-node-exporter-delivery); earlier status statements refer to their original verification stage.
+
+
 [Magyar változat](alerting-plan.md) · [Documentation index](README.md)
 
 Documented on **November 10, 2026**. This is retrospective documentation of the outage-only repository configuration. The original review did not directly access Oracle and initially marked deployment and delivery testing as pending. The October 28 local test is not evidence for all new rules.

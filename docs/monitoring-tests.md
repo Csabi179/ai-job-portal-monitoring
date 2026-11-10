@@ -1,5 +1,30 @@
 # Monitoring Verification
 
+<a id="test-11-node-exporter-delivery"></a>
+## TEST-11 — Node Exporter Firing/Resolved and English delivery, 2026-11-10
+
+**PASS for the operator-provided Node Exporter failure/recovery sequence.** The operator supplied these query responses and Telegram messages after the earlier language update:
+
+| Evidence | Observed value |
+|---|---|
+| `up{job="node_exporter",instance="127.0.0.1:9100"}` at query time 2026-11-10 21:09:04.266 UTC | 0 |
+| Telegram firing | MatchWise / Oracle host metrics / Monitoring failure, English description and English runbook link |
+| Same up selector at query time 2026-11-10 21:15:17.488 UTC | 1 |
+| Telegram resolved | English recovery text: The alert condition has cleared. Verify evaluation health and fresh measurements. |
+
+The timestamps above are the supplied Prometheus query evaluation times, not measured scrape/firing/receipt timestamps. The preceding procedure deliberately stopped and restarted Node Exporter; a full VM outage was not simulated. The operator also reported the English update succeeded. No direct assistant SSH access or exact new live Git HEAD was supplied.
+
+Collector and Node Exporter Firing/Resolved have now been evidenced. The other ten rules have not been individually verified live. This does not prove grouped delivery, 4-hour repeat, missing-data branches or independent-host detection.
+
+## TEST-12 — Manual command runbook and local fixture checks
+
+**Local verification only; no new Oracle test executed.** The [English](alert-rule-tests.en.md) and [Hungarian](alert-rule-tests.md) runbooks document one procedure for every provisioned UID, expected inputs/notifications and restoration commands. Source: `41c3f8d`. The companion helper lives under docs/testing and never invokes Docker/systemd or sends Telegram messages itself.
+
+Local checks passed for all 12 supported fixture modes using Prometheus 3.13.2 promtool syntax validation, one-job-only configuration changes, preserved original instance labels, absence of credentials in replacement jobs, exact-byte restoration and refusal to overwrite concurrent edits. Five local HTTP responses (200/503/pg_up 0/1) were exercised on an ephemeral loopback test port. These checks validate fixture construction, not full Blackbox/Grafana/systemd behavior on Oracle. Both language editions cover all 12 UIDs, and their 30 Bash blocks have identical executable commands. Bash -n syntax checking and relative documentation-link checks passed; Bash -n did not execute the documented commands.
+
+The temporary fixture job replaces normal measurements during a manual test. Synthetic samples must be excluded from real availability interpretation. The backend's original 30-minute interval is restored from its private backup. Run one case at a time, record outcomes separately, and do not mark unexecuted procedures as passed.
+
+
 [Documentation index](README.md)
 
 <a id="test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10"></a>

@@ -7,6 +7,7 @@ Frissítve: 2026. november 10. A magyar eredetik megmaradtak, külön angol vál
 | Document / dokumentum | English | Magyar |
 |---|---|---|
 | Monitoring plan / Monitoringterv | [English](monitoring-plan.en.md) | [Magyar](monitoring-plan.md) |
+| Commands to test all 12 rules / Mind a 12 szabály tesztparancsai | [English](alert-rule-tests.en.md) | [Magyar](alert-rule-tests.md) |
 | Alerting plan and Oracle rollout / Riasztási terv és Oracle-frissítés | [English](alerting-plan.en.md) | [Magyar](alerting-plan.md) |
 | Render logging runbook / Render-naplózási leírás | [English](RENDER_LOGGING_RUNBOOK.en.md) | [Magyar](RENDER_LOGGING_RUNBOOK.md) |
 | Architecture and data flow / Architektúra és adatáramlás | [English](architecture/README.en.md) | [Magyar](architecture/README.md) |

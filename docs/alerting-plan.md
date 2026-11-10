@@ -1,5 +1,8 @@
 # MatchWise – riasztási terv és Oracle-frissítési eljárás
 
+Konkrét tesztparancsok mind a 12 szabályhoz: [magyar útmutató](alert-rule-tests.md) · [English runbook](alert-rule-tests.en.md). Az újabb Node Exporter Firing/Resolved bizonyíték a [TEST-11](monitoring-tests.md#test-11-node-exporter-delivery) bejegyzésben szerepel; a korábbi státuszmondatokat az eredeti ellenőrzési fázis szerint értelmezd.
+
+
 [English version](alerting-plan.en.md) · [Dokumentációjegyzék](README.md)
 
 > Kiegészítés, 2026. november 10.: az alábbi magyar szöveg az eredeti dokumentálási állapotot is megőrzi. Azóta az üzemeltető alkalmazta a 12 szabályos konfigurációt, és megérkezett a collector Telegram Firing és Resolved üzenete. A többi szabály egyenkénti kézbesítési tesztje nem történt meg. A későbbi angol üzenetszöveg-frissítés még külön alkalmazandó. Részletek: [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
