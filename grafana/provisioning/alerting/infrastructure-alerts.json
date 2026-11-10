@@ -8,8 +8,8 @@
       "interval": "1m",
       "rules": [
         {
-          "uid": "ai_job_low_memory",
-          "title": "Oracle - Low Available Memory",
+          "uid": "matchwise_node_exporter_unavailable",
+          "title": "MatchWise | Oracle hostmetrikák | Megfigyelési hiba",
           "condition": "C",
           "data": [
             {
@@ -25,193 +25,7 @@
                   "uid": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "100 * node_memory_MemAvailable_bytes{job=\"node_exporter\"} / node_memory_MemTotal_bytes{job=\"node_exporter\"}",
-                "instant": true,
-                "intervalMs": 1000,
-                "maxDataPoints": 43200,
-                "refId": "A"
-              }
-            },
-            {
-              "refId": "B",
-              "datasourceUid": "__expr__",
-              "model": {
-                "datasource": {
-                  "type": "__expr__",
-                  "uid": "__expr__"
-                },
-                "expression": "A",
-                "reducer": "last",
-                "type": "reduce",
-                "refId": "B",
-                "intervalMs": 1000,
-                "maxDataPoints": 43200
-              }
-            },
-            {
-              "refId": "C",
-              "datasourceUid": "__expr__",
-              "model": {
-                "datasource": {
-                  "type": "__expr__",
-                  "uid": "__expr__"
-                },
-                "expression": "B",
-                "type": "threshold",
-                "conditions": [
-                  {
-                    "evaluator": {
-                      "params": [
-                        10
-                      ],
-                      "type": "lt"
-                    },
-                    "operator": {
-                      "type": "and"
-                    },
-                    "query": {
-                      "params": [
-                        "C"
-                      ]
-                    },
-                    "reducer": {
-                      "params": [],
-                      "type": "last"
-                    },
-                    "type": "query"
-                  }
-                ],
-                "refId": "C",
-                "intervalMs": 1000,
-                "maxDataPoints": 43200
-              }
-            }
-          ],
-          "for": "10m",
-          "noDataState": "NoData",
-          "execErrState": "Error",
-          "annotations": {
-            "summary": "Oracle available RAM is below 10%",
-            "description": "Available system memory has been below 10% for 10 minutes."
-          },
-          "labels": {
-            "severity": "warning",
-            "component": "oracle_infrastructure"
-          },
-          "isPaused": false
-        },
-        {
-          "uid": "ai_job_low_disk",
-          "title": "Oracle - Low Disk Space",
-          "condition": "C",
-          "data": [
-            {
-              "refId": "A",
-              "datasourceUid": "prometheus",
-              "relativeTimeRange": {
-                "from": 300,
-                "to": 0
-              },
-              "model": {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "prometheus"
-                },
-                "editorMode": "code",
-                "expr": "100 * node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"} / node_filesystem_size_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}",
-                "instant": true,
-                "intervalMs": 1000,
-                "maxDataPoints": 43200,
-                "refId": "A"
-              }
-            },
-            {
-              "refId": "B",
-              "datasourceUid": "__expr__",
-              "model": {
-                "datasource": {
-                  "type": "__expr__",
-                  "uid": "__expr__"
-                },
-                "expression": "A",
-                "reducer": "last",
-                "type": "reduce",
-                "refId": "B",
-                "intervalMs": 1000,
-                "maxDataPoints": 43200
-              }
-            },
-            {
-              "refId": "C",
-              "datasourceUid": "__expr__",
-              "model": {
-                "datasource": {
-                  "type": "__expr__",
-                  "uid": "__expr__"
-                },
-                "expression": "B",
-                "type": "threshold",
-                "conditions": [
-                  {
-                    "evaluator": {
-                      "params": [
-                        15
-                      ],
-                      "type": "lt"
-                    },
-                    "operator": {
-                      "type": "and"
-                    },
-                    "query": {
-                      "params": [
-                        "C"
-                      ]
-                    },
-                    "reducer": {
-                      "params": [],
-                      "type": "last"
-                    },
-                    "type": "query"
-                  }
-                ],
-                "refId": "C",
-                "intervalMs": 1000,
-                "maxDataPoints": 43200
-              }
-            }
-          ],
-          "for": "10m",
-          "noDataState": "NoData",
-          "execErrState": "Error",
-          "annotations": {
-            "summary": "Oracle root filesystem has less than 15% free space",
-            "description": "Available space on the root filesystem has been below 15% for 10 minutes."
-          },
-          "labels": {
-            "severity": "warning",
-            "component": "oracle_infrastructure"
-          },
-          "isPaused": false
-        },
-        {
-          "uid": "ai_job_exporter_down",
-          "title": "Oracle - Exporter DOWN",
-          "condition": "C",
-          "data": [
-            {
-              "refId": "A",
-              "datasourceUid": "prometheus",
-              "relativeTimeRange": {
-                "from": 300,
-                "to": 0
-              },
-              "model": {
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "prometheus"
-                },
-                "editorMode": "code",
-                "expr": "1 - up{job=~\"node_exporter|blackbox_exporter\"}",
+                "expr": "1 - (min(up{job=\"node_exporter\"}) or vector(0))",
                 "instant": true,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200,
@@ -274,15 +88,213 @@
             }
           ],
           "for": "3m",
-          "noDataState": "NoData",
+          "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "Monitoring exporter is unavailable",
-            "description": "One of the monitoring exporters has been unreachable for 3 minutes."
+            "summary": "MatchWise | Oracle hostmetrikák | Megfigyelési hiba",
+            "description": "A scrape sikertelen, vagy a várt up idősor hiányzik. Ez a mérési út hibája; nem bizonyít teljes hostkiesést.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#monitoring"
           },
           "labels": {
-            "severity": "warning",
-            "component": "oracle_infrastructure"
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "node_exporter",
+            "category": "monitoring"
+          },
+          "isPaused": false
+        },
+        {
+          "uid": "ai_job_exporter_down",
+          "title": "MatchWise | Blackbox Exporter | Megfigyelési hiba",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "1 - (min(up{job=\"blackbox_exporter\"}) or vector(0))",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "3m",
+          "noDataState": "Alerting",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise | Blackbox Exporter | Megfigyelési hiba",
+            "description": "A scrape sikertelen, vagy a várt up idősor hiányzik. Ez a mérési út hibája; nem bizonyít teljes hostkiesést.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#monitoring"
+          },
+          "labels": {
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "blackbox_exporter",
+            "category": "monitoring"
+          },
+          "isPaused": false
+        },
+        {
+          "uid": "matchwise_prometheus_scrape_unavailable",
+          "title": "MatchWise | Prometheus önellenőrzés | Megfigyelési hiba",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "1 - (min(up{job=\"prometheus\"}) or vector(0))",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "3m",
+          "noDataState": "Alerting",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise | Prometheus önellenőrzés | Megfigyelési hiba",
+            "description": "A scrape sikertelen, vagy a várt up idősor hiányzik. Ez a mérési út hibája; nem bizonyít teljes hostkiesést.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#monitoring"
+          },
+          "labels": {
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "prometheus",
+            "category": "monitoring"
           },
           "isPaused": false
         }

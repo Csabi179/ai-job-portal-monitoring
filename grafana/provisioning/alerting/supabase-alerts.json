@@ -1,0 +1,207 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "supabase-monitoring",
+      "folder": "AI Job Portal",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "matchwise_supabase_metrics_unavailable",
+          "title": "MatchWise | Supabase | Megfigyelési hiba",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "1 - (min(up{job=\"supabase\",instance=\"uvopvarvelpabhmrqaaw.supabase.co:443\"}) or vector(0)) * (max(present_over_time(pg_up{job=\"supabase\",instance=\"uvopvarvelpabhmrqaaw.supabase.co:443\"}[3m])) or vector(0))",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "3m",
+          "noDataState": "Alerting",
+          "execErrState": "Error",
+          "annotations": {
+            "summary": "MatchWise | Supabase | Megfigyelési hiba",
+            "description": "A Metrics API scrape sikertelen/hiányzik, vagy 3 perce nincs pg_up állapot. Lehet hitelesítési, hálózati vagy exporterhiba; önmagában nem bizonyít PostgreSQL-kiesést.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#supabase"
+          },
+          "labels": {
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "supabase",
+            "category": "monitoring"
+          },
+          "isPaused": false
+        },
+        {
+          "uid": "matchwise_supabase_database_down",
+          "title": "MatchWise | Supabase PostgreSQL | Elérési hiba",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "max(1 - last_over_time(pg_up{job=\"supabase\",instance=\"uvopvarvelpabhmrqaaw.supabase.co:443\"}[3m])) and (min(up{job=\"supabase\",instance=\"uvopvarvelpabhmrqaaw.supabase.co:443\"}) == 1)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "annotations": {
+            "summary": "MatchWise | Supabase PostgreSQL | Elérési hiba",
+            "description": "Sikeres Metrics API scrape mellett pg_up=0: a Supabase exportere nem éri el a PostgreSQL-t. Nem teljes Auth/PostgREST vagy üzleti funkcióteszt. Hiányzó mérésnél az előző állapot megmarad.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#supabase"
+          },
+          "labels": {
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "supabase",
+            "category": "availability"
+          },
+          "isPaused": false
+        }
+      ]
+    }
+  ]
+}

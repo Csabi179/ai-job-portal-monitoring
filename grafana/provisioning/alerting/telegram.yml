@@ -10,12 +10,35 @@ contactPoints:
         settings:
           bottoken: $GRAFANA_TELEGRAM_BOT_TOKEN
           chatid: $GRAFANA_TELEGRAM_CHAT_ID
+          parse_mode: None
+          message: |
+            {{ template "matchwise.telegram" . }}
+
+templates:
+  - orgId: 1
+    name: matchwise-telegram
+    template: |
+      {{ define "matchwise.telegram" }}
+      MatchWise | {{ .Status }}
+      {{ range .Alerts }}
+      [{{ .Status }}] {{ if .Annotations.summary }}{{ .Annotations.summary }}{{ else }}{{ .Labels.alertname }}{{ end }}
+      {{ if eq .Status "firing" }}{{ printf "%.200s" .Annotations.description }}{{ else }}A riasztási feltétel megszűnt; az értékelés és a friss mérés ellenőrizendő.{{ end }}
+      {{ end }}
+      Teendők: https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md
+      {{ end }}
 
 policies:
   - orgId: 1
     receiver: AI Job Telegram
-    group_by:
-      - alertname
-    group_wait: 10s
+    group_by: [grafana_folder, category]
+    group_wait: 30s
     group_interval: 5m
     repeat_interval: 4h
+    routes:
+      - receiver: AI Job Telegram
+        object_matchers:
+          - [alertname, '=', DatasourceError]
+        group_by: [alertname, datasource_uid]
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h

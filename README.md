@@ -23,7 +23,7 @@ The original dedicated Infrastructure, Application Availability and Backend Logs
 - **Docker Compose:** Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Grafana Alloy.
 - **Render logs:** Pino JSON → Render Logs API → Python systemd collector → deduplicated JSONL → Alloy → Loki.
 - **Metrics:** Node Exporter and Blackbox Exporter → Prometheus → Grafana.
-- **Alerting:** Nine provisioned rules; notifications routed to the existing Telegram contact point.
+- **Alerting:** 12 outage/monitoring-failure rules in the repository; existing Telegram routing and resolved notifications retained. Oracle rollout and per-rule delivery tests are pending; see the [alerting plan](docs/alerting-plan.md).
 - **Retention:** Prometheus 7 days or 2 GB; logrotate rotates the local JSONL at 20 MB with seven archives. Loki retention is separate.
 
 Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). All monitoring web services are bound to loopback and are intended to be reached through an SSH tunnel.
@@ -40,6 +40,7 @@ Additional documentation:
 - [Installation guide](docs/installation-guide.md)
 - [Monitoring tests](docs/monitoring-tests.md)
 - [Monitoring plan](docs/monitoring-plan.md)
+- [Outage-only alerting plan, deployment and tests](docs/alerting-plan.md)
 
 Basic operations on Oracle:
 
@@ -62,7 +63,7 @@ If `git pull --ff-only` reports a conflict or untracked-file collision, **stop a
 
 ## Backend migration
 
-The current test Render backend can be replaced by the team-hosted backend. Update the private Render API collector credentials/Service ID and the **Render Blackbox probe target URL** separately; keep the stable Loki job and Prometheus service labels. The Pino `http_request` logging format must remain compatible. See the operations guide for the safe sequence.
+On November 9, the existing Render service was switched to the team's backend repository main branch. Its URL and Service ID were retained. Direct auth and log-delivery checks are recorded in the test log. Future service changes require updating the collector and HTTP target separately; see the operations guide. HTTP 200 on the frontend does not establish frontend–backend integration.
 
 ## Security and limits
 

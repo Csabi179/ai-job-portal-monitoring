@@ -1,5 +1,32 @@
 # Monitoring Verification
 
+## TEST-09 — Outage-only alerting configuration, 2026-11-10
+
+**Result: PASS for local static configuration and PromQL evaluation; Oracle rollout and live delivery NOT TESTED.**
+
+Baseline inspected through the GitHub connector: main commit `374f74eab098deccfd408887bbef5db314c83223`. The Git CLI clone could not authenticate; repository files were fetched through the authorized connector. Local changes are in a source snapshot, not a complete local Git checkout. No Oracle SSH session or live Grafana API was used.
+
+The nine baseline rules were reviewed individually. The local Grafana test, low-memory and low-disk rules are explicitly deleted through provisioning. Twelve outage/monitoring-failure rules replace the active set. Existing HTTP and collector UIDs are retained; the old exporter UID now specifically monitors Blackbox, with Node Exporter separate.
+
+| Check | Result | Limit |
+|---|---|---|
+| Alert JSON/YAML parse, unique rule UIDs, evaluation intervals, threshold chain, KeepLast/Error settings | PASS | Local structure, not Grafana import |
+| Explicit deletion of three old rules; no active overlap | PASS | Grafana database deletion awaits provisioning |
+| Telegram variables and resolved flag preserved; grouping/template configuration parsed | PASS | Go template runtime and message delivery require live test |
+| Prometheus 3.13.2 `promtool check config --syntax-only` | PASS | Private Supabase files and Oracle mounts not validated locally |
+| Docker Compose `config --quiet` with explicit dummy Grafana environment values | PASS | No containers started; no secrets used |
+| Actual provisioned PromQL, 37 synthetic scenarios with Prometheus 3.13.2 promtool | PASS | No Grafana pending/Error/KeepLast state machine or scheduler simulation |
+| Oracle deployment, 12 live rule health states, actual Loki/Alloy endpoint responses | NOT TESTED | Operator steps in alerting-plan.md |
+| Per-rule Telegram Firing/Resolved, grouping and 4h repeat | NOT TESTED | Test notification alone is insufficient |
+
+The promtool Windows archive SHA-256 matched its official GitHub release asset digest: `ebd97831d80be097eed54af257816ca7fa93cc67682bdcf94d44057b17cde6ad`.
+
+Reproduction: `python3 scripts/validate-alerting.py --promtool /path/to/promtool` with PyYAML installed. The test reads expressions from provisioning files. It exercises healthy/failing/missing scrapes; HTTP failure versus probe scrape failure; HTTP recovery; sparse backend data at 39 minutes and expiry beyond 40; Supabase API versus database failures; missing pg_up; fresh/frozen/missing collector heartbeat and textfile errors; quiet application; Node Exporter failure; Loki/Alloy health checks.
+
+The simulator explicitly expects **no service-state result** when evidence is missing. Grafana KeepLast preservation must still be verified on the running version. The update adds documented local health endpoints but does not prove full log delivery, VM uptime or independent external outage detection.
+
+Next live test records must include commit, time zone, UID, input, pending/firing/resolved times, Telegram receipt, restoration and final service state. See [the alerting plan](alerting-plan.md) for rollout, test matrix and rollback. Older entries below retain their historical scope.
+
 ## Baseline - 2026-10-28
 
 - Docker hello-world ARM64: PASS

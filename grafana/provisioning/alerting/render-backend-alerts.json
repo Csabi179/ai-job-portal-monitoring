@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_backend_down",
-          "title": "MatchWise Backend DOWN",
+          "title": "MatchWise | Render backend | HTTP-kiesés",
           "condition": "C",
           "data": [
             {
@@ -25,7 +25,7 @@
                   "uid": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "((max((count_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) >= bool 2) * (last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) == bool 0) * (idelta(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) == bool 0))) or vector(0))",
+                "expr": "max(1 - last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) and (min(last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) == 1)",
                 "instant": true,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200,
@@ -88,21 +88,25 @@
             }
           ],
           "for": "2m",
-          "noDataState": "NoData",
-          "execErrState": "Error",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
           "annotations": {
-            "summary": "MatchWise Backend DOWN",
-            "description": "The two most recent backend HTTP checks failed within the last 65 minutes."
+            "summary": "MatchWise | Render backend | HTTP-kiesés",
+            "description": "A legutóbbi, 40m-en belüli sikeres scrape HTTP-próbája nem kapott elfogadott 200 választ. A mérés sikeressége és a HTTP-próba eredménye eltérő. Helyreállás csak új sikeres HTTP-próba alapján; hiányzó mérésnél az előző állapot megmarad.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#http"
           },
           "labels": {
-            "severity": "warning",
-            "component": "matchwise_backend"
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "matchwise_backend",
+            "category": "availability"
           },
           "isPaused": false
         },
         {
           "uid": "matchwise_backend_probe_missing",
-          "title": "MatchWise Backend Monitoring Data Missing",
+          "title": "MatchWise | Render backend | Megfigyelési hiba",
           "condition": "C",
           "data": [
             {
@@ -118,7 +122,7 @@
                   "uid": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "absent_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[65m]) or vector(0)",
+                "expr": "1 - (min(last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) or vector(0)) * (max(present_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) or vector(0))",
                 "instant": true,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200,
@@ -181,15 +185,19 @@
             }
           ],
           "for": "2m",
-          "noDataState": "NoData",
+          "noDataState": "Alerting",
           "execErrState": "Error",
           "annotations": {
-            "summary": "MatchWise Backend Monitoring Data Missing",
-            "description": "No backend probe_success measurements received during the last 65 minutes."
+            "summary": "MatchWise | Render backend | Megfigyelési hiba",
+            "description": "A legutóbbi up=0, vagy 40m-e nincs up/probe_success mérés. Ez nem bizonyít alkalmazáskiesést. A frissességi ablakon belüli eredmény a legutóbbi mintavételre vonatkozik.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#http"
           },
           "labels": {
-            "severity": "warning",
-            "component": "matchwise_backend"
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "matchwise_backend",
+            "category": "monitoring"
           },
           "isPaused": false
         }

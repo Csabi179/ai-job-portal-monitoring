@@ -1,8 +1,8 @@
 # MatchWise Monitoring — Architecture and Operations Guide
 
-> **Status:** University project monitoring environment, October 2026.  
+> **Status:** Retrospective documentation updated November 10, 2026. Repository changes are distinct from live Oracle rollout.  
 > **Main dashboard:** **MatchWise | Unified Monitoring** (Grafana UID: **matchwise-unified-overview**).  
-> **Scope:** Oracle Cloud monitoring VM, independently deployed Render backend, Vercel frontend, and backend HTTP logs.
+> **Scope:** Oracle Cloud monitoring VM, independently deployed Render backend, Vercel frontend, Supabase, and backend HTTP logs.
 
 ## 1. System architecture
 
@@ -38,6 +38,7 @@ The monitoring services are local-only. Access Grafana through an SSH tunnel, ra
 | Render backend availability | blackbox_render_backend / matchwise_backend | Every 30 minutes | The Render Free service may sleep; cold starts can dominate probe duration |
 | Vercel frontend availability | blackbox_vercel_frontend / matchwise_frontend | Every 60 seconds | Verifies the deployed HTTP endpoint, not browser execution or JavaScript errors |
 | HTTP request logs | Loki: job=matchwise_backend_render_api | Collector approximately every minute | Only approved Pino http_request fields; not an application metrics endpoint |
+| Supabase PostgreSQL/Metrics API | up and pg_up plus database/host metrics | Every 60 seconds | Current project uvopvarvelpabhmrqaaw; see SUPABASE_METRICS.md |
 | Collector heartbeat | matchwise_render_collector_last_success_timestamp_seconds | Updated on successful systemd oneshot runs | Measured by Node Exporter and scraped by Prometheus |
 
 Prometheus configuration: **prometheus/prometheus.yml**; HTTP probe modules: **blackbox/blackbox.yml**. The Prometheus TSDB retention configuration is **7 days or 2 GB**. Loki retention is configured separately in **loki/loki-config.yaml**; it is not the same as JSONL log rotation.
@@ -58,12 +59,12 @@ Grafana dashboard provisioning is configured in **grafana/provisioning/dashboard
 
 | Dashboard | UID | Purpose |
 | --- | --- | --- |
-| **MatchWise | Unified Monitoring** | matchwise-unified-overview | Main operations landing page: seven collapsible sections, 42 visualization/text panels |
+| **MatchWise | Unified Monitoring** | matchwise-unified-overview | Main operations landing page, including Supabase and auth counters |
 | **AI Job Portal - Infrastructure Overview** | ai-job-infrastructure | Detailed Oracle host history |
 | **AI Job Portal - Application Availability** | ai-job-availability | Detailed HTTP probe history |
 | **MatchWise | Backend Logs** | matchwise-backend-logs | Deep dive into HTTP logs, status codes, P50/P95 and request IDs |
 
-The unified dashboard sections, in order, are **System Health**, **Oracle Cloud**, **Render**, **Vercel**, **Backend Application**, **Log Collector**, and **Diagnostics**. Diagnostics is collapsed by default; expand it to inspect backend HTTP logs and error logs.
+The unified dashboard covers system health, Oracle, Supabase, Render, Vercel, application/auth logs, collector status and diagnostics. Expand Diagnostics to inspect detailed HTTP logs and errors. Older seven-section/panel-count descriptions are historical.
 
 Dashboard source-of-truth:
 
@@ -73,19 +74,11 @@ For changes, edit and version the JSON in Git, update the Oracle working tree, a
 
 ## 4. Alerting
 
-The Grafana alert rules are provisioned under **grafana/provisioning/alerting/**, and the default notification policy targets **AI Job Telegram**. The setup includes nine rules: one local test rule, three Oracle infrastructure alerts, two Render backend alerts, two Vercel frontend alerts, and one Render log collector alert.
+The repository now contains **12 outage/monitoring-failure rules**. High RAM/disk usage and the old local Grafana test rule are explicitly deleted from the provisioned state. Performance and 4xx remain dashboard diagnostics.
 
-The collector alert is **MatchWise - Render Log Collector Stale**:
+The authoritative [alerting plan](alerting-plan.md) documents exact conditions, pending times, No Data/Error handling, Telegram grouping, deployment, rollback and unexecuted live tests. HTTP/database/collector rules keep their last state when evidence disappears. Separate monitoring rules report telemetry failures. The backend retains 30-minute probing and uses a 40-minute freshness window; one failed completed probe with 2-minute pending now suffices, replacing the earlier two-failure requirement.
 
-- PromQL: **max(time() - matchwise_render_collector_last_success_timestamp_seconds) or vector(1000000)**
-- Threshold: **greater than 300 seconds**
-- Pending: **2 minutes**
-- Evaluation interval: **1 minute**
-- Missing metric: triggers the same threshold through the fallback value.
-
-A rule showing **Normal** proves query/evaluation health, but does not by itself prove a real Telegram firing notification. A previous Telegram test notification was received; do not claim this exact collector rule was independently fired.
-
-Grafana alerting files also use the shared AI Job Telegram contact point with resolved notifications enabled. Keep bot token and chat ID out of Git.
+The existing **AI Job Telegram** contact point and resolved messages are retained. A previous local test delivered Firing/Resolved; this does not verify each new rule. Full Oracle/Grafana failure cannot be reported reliably by the same host.
 
 ## 5. Collector, state, and log rotation
 
@@ -135,9 +128,11 @@ Troubleshooting:
 
 Do not delete SQLite, cursor, logs, or Grafana volumes merely to clear a dashboard problem.
 
-## 7. Switch to the team-hosted Render backend
+## 7. Current backend and future service migration
 
-**Both** the logging collector **and** HTTP availability target need updating. Changing the Render Service ID alone does **not** change the Blackbox Exporter target.
+On November 9, the same Render service was switched to the team backend main branch while retaining URL and Service ID. See TEST-08. The following procedure applies to a future move to a different service, not a required repeat of that completed change.
+
+**Both** the logging collector **and** HTTP availability target need updating for a different service. Changing the Render Service ID alone does **not** change the Blackbox Exporter target.
 
 Prerequisites:
 
@@ -152,7 +147,7 @@ Safe migration sequence on Oracle:
 3. Edit **~/monitoring-private-secrets/render-logs.env**: set **RENDER_OWNER_ID**, **RENDER_SERVICE_ID**, and (if different) **RENDER_PINO_SERVICE**. Keep/replace **RENDER_API_KEY** only as permitted.
 4. Archive and remove the **active cursor** only after taking a backup. Without the cursor, the collector starts from a limited recent window (currently 20 minutes); it does **not** backfill the full Render history.
 5. Run **sudo systemctl start matchwise-render-logs.service**, inspect its exit status and journal, then restart **matchwise-render-logs.timer** only after success.
-6. In **prometheus/prometheus.yml**, replace the **blackbox_render_backend** target URL with the team's actual **/api/health** URL, keeping the **service=matchwise_backend** label. Validate config, then restart/reload Prometheus and confirm the new target.
+6. In **prometheus/prometheus.yml**, replace the **blackbox_render_backend** target URL with the team's actual **/api/health** URL, keeping the **service=matchwise_backend** label. Validate config, then force-recreate Prometheus to refresh single-file bind mounts and confirm the new target. Preserve its data volume.
 7. The Loki **job=matchwise_backend_render_api** selector, collector alert, and unified dashboard remain stable. Both old and new service logs may appear together when a time range spans the transition. The new JSONL records include **renderServiceId**.
 
 If the team also deploys a different Vercel frontend URL, update **blackbox_vercel_frontend** in **prometheus/prometheus.yml** separately, preserving **service=matchwise_frontend**. A browser-frontend deployment alone does not supply server CPU/RAM or JavaScript telemetry.

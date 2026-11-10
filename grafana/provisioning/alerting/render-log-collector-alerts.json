@@ -9,7 +9,7 @@
       "rules": [
         {
           "uid": "matchwise_render_collector_stale",
-          "title": "MatchWise - Render Log Collector Stale",
+          "title": "MatchWise | Render naplógyűjtő | Megfigyelési hiba",
           "condition": "C",
           "data": [
             {
@@ -25,7 +25,7 @@
                   "uid": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "max(time() - matchwise_render_collector_last_success_timestamp_seconds) or vector(1000000)",
+                "expr": "clamp_max((max((time() - matchwise_render_collector_last_success_timestamp_seconds{job=\"node_exporter\"}) > bool 300) or vector(1)) + (max(node_textfile_scrape_error{job=\"node_exporter\"}) or vector(1)), 1) and (min(up{job=\"node_exporter\"}) == 1)",
                 "instant": true,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200,
@@ -62,7 +62,7 @@
                   {
                     "evaluator": {
                       "params": [
-                        300
+                        0.5
                       ],
                       "type": "gt"
                     },
@@ -88,15 +88,19 @@
             }
           ],
           "for": "2m",
-          "noDataState": "Alerting",
-          "execErrState": "Error",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
           "annotations": {
-            "summary": "MatchWise Render log collector is not updating",
-            "description": "No successful Render Logs API collection for over 5 minutes, or the collector metric is missing. Check: systemctl status matchwise-render-logs.timer and journalctl -u matchwise-render-logs.service."
+            "summary": "MatchWise | Render naplógyűjtő | Megfigyelési hiba",
+            "description": "A collector utolsó sikeres futása több mint 300 másodperces, hiányzik a heartbeat/textfile hibajelző, vagy a textfile feldolgozása hibás. Csak elérhető Node Exporter mellett értékelhető. Az alkalmazás csendje nem hiba; a sikeres futás nem bizonyít Loki-kézbesítést.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.md#collector"
           },
           "labels": {
-            "severity": "warning",
-            "component": "render_log_collector"
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "critical",
+            "component": "render_log_collector",
+            "category": "monitoring"
           },
           "isPaused": false
         }

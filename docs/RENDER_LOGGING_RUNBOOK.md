@@ -124,16 +124,20 @@ Prometheus metrika:
     matchwise_render_collector_last_success_timestamp_seconds
 
 Riasztás:
-MatchWise - Render Log Collector Stale
+MatchWise | Render naplógyűjtő | Megfigyelési hiba
 
 A riasztás feltétele:
 az utolsó sikeres lekérdezés óta több mint 300 másodperc
-telt el, további 2 perces pending idővel.
+telt el, további 2 perces pending idővel. A hiányzó heartbeat vagy textfile-hibajelző és a textfile-feldolgozás hibája is feltétel, működő Node Exporter mellett. Node Exporter-hiányra külön szabály figyel; a collector állapota ilyenkor KeepLast. Alkalmazásforgalom hiánya nem riasztás.
+
+A november 10-i szabálykészlet alkalmazása és élő tesztje még szükséges. Részletek: [riasztási terv](alerting-plan.md).
 
 Értesítési cél:
 AI Job Telegram
 
-## Átállás a csapat Render backendjére
+## Átállás a csapat Render backendjére – jövőbeli szolgáltatásváltás
+
+2026. november 9-én a meglévő Render-szolgáltatás a csapat repositoryjának main ágára állt át, változatlan URL-lel és Service ID-val. Ezt nem kell megismételni. Az alábbi lépések másik szolgáltatásra költözésre vonatkoznak; az állapotot rutin frissítéskor ne nullázzuk.
 
 Előfeltételek:
 

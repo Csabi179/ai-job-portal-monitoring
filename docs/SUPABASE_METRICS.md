@@ -102,3 +102,7 @@ Source references
 - [Supabase metric exposition examples](https://github.com/supabase/supabase-grafana/blob/main/metrics.md)
 - [Supabase dashboard reference](https://github.com/supabase/supabase-grafana/blob/main/dashboard.json)
 - [PostgreSQL cumulative statistics](https://www.postgresql.org/docs/17/monitoring-stats.html)
+
+## Outage alerting update — November 10, 2026
+
+The repository adds separate Metrics API/telemetry and PostgreSQL reachability rules, pinned to `uvopvarvelpabhmrqaaw.supabase.co:443`. Successful scrape plus pg_up=0 means exporter-to-database connectivity failure; a failed API scrape alone does not establish database failure. Missing pg_up is a telemetry issue. Neither capacity nor latency creates an alert. See the [alerting plan](alerting-plan.md) for conditions, deployment and live tests still required. Change both alert selectors when intentionally changing project.
