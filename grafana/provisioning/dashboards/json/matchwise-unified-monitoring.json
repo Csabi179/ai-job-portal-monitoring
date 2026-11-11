@@ -44,9 +44,9 @@
       "title": "Application endpoints and verification",
       "options": {
         "mode": "markdown",
-        "content": "**Frontend** [www.matchwise.tech](https://www.matchwise.tech/) · **Backend** [matchwise-backend-monitoring-test.onrender.com](https://matchwise-backend-monitoring-test.onrender.com/)\n\n**Backend source** [emmanuelkyeremeh/job-portal-backend · main](https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main) · **Latest recorded auth test** Passed on 2026-11-09 — registration, login, account access and logout. [Test record](https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/monitoring-tests.md#test-08--team-backend-new-supabase-project-and-auth-log-delivery)\n\n**Supabase metrics target** `${supabase_instance}` · Use **Traffic** and **Route contains** for application metrics, and **Request ID** and **Log status** for diagnostics. The six authentication counters use the selected time range independently of these filters."
+        "content": "**Frontend** [www.matchwise.tech](https://www.matchwise.tech/) · **Backend** [matchwise-backend-monitoring-test.onrender.com](https://matchwise-backend-monitoring-test.onrender.com/)\n\n**Backend source** [emmanuelkyeremeh/job-portal-backend · main](https://github.com/emmanuelkyeremeh/job-portal-backend/tree/main)\n\n**Supabase metrics target** `${supabase_instance}` · Use **Traffic** and **Route contains** for application metrics, and **Request ID** and **Log status** for diagnostics. The six authentication counters use the selected time range independently of these filters."
       },
-      "description": "Application endpoints, backend source and the dated operator-verified auth test. The displayed auth result records a completed test.",
+      "description": "Application endpoints, backend source and Supabase metrics target.",
       "gridPos": {
         "x": 0,
         "y": 5,
