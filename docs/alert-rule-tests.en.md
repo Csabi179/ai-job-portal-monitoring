@@ -1,5 +1,8 @@
 # Manual tests for all 12 Grafana alert rules
 
+**Current applicability:** the conditions below still match the 12 provisioned rules; HTTP targets and pending times are unchanged. Normal Grafana access uses HTTPS and Telegram delivery targets the team group. Collector and Node Exporter live tests are evidenced; procedures for the other ten rules do not mean those tests were executed. See [current state and evidence](monitoring-tests.md).
+
+
 [Magyar változat](alert-rule-tests.md) · [Documentation index](README.md)
 
 Local fixture helper: [docs/testing/alert-rule-test-helper.py](testing/alert-rule-test-helper.py).

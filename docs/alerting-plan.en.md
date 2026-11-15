@@ -1,13 +1,10 @@
 # MatchWise – alerting plan and Oracle deployment procedure
 
-Exact commands for all 12 rules: [English runbook](alert-rule-tests.en.md) · [Hungarian edition](alert-rule-tests.md). Subsequent Node Exporter Firing/Resolved evidence is recorded in [TEST-11](monitoring-tests.md#test-11-node-exporter-delivery); earlier status statements refer to their original verification stage.
-
-
 [Magyar változat](alerting-plan.md) · [Documentation index](README.md)
 
-Documented on **November 10, 2026**. This is retrospective documentation of the outage-only repository configuration. The original review did not directly access Oracle and initially marked deployment and delivery testing as pending. The October 28 local test is not evidence for all new rules.
+**Current documented state (reviewed November 16, 2026):** six base monitoring services plus Caddy in the public profile; HTTPS Grafana login and operator-confirmed Viewer access to Unified Monitoring; 12 English outage/monitoring-failure rules; Telegram destination is the team group. Collector and Node Exporter Firing/Resolved were evidenced; the other ten rules have not been individually verified live. See [verification records](monitoring-tests.md).
 
-**Subsequent operator verification:** commit `665d2d5` was applied to Oracle. Readiness checks and Loki/Alloy/Supabase measurements succeeded; Grafana reported 12 rules and the supplied rule-list screenshot showed green states. A Telegram contact-point test and a controlled collector Firing → Resolved sequence were received. The other 11 rules, Error/KeepLast edge cases, grouping and 4h repetition have not been individually verified live. The English notification update requires its own deployment and channel test. See [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
+Exact commands for all 12 rules: [English](alert-rule-tests.en.md) · [Hungarian](alert-rule-tests.md).
 
 ## Purpose and decisions
 
@@ -141,7 +138,9 @@ Check direct health GETs and Blackbox availability, container logs, Alloy compon
 
 The operator runs these commands. Earlier deployment was verified through user-supplied output, not direct assistant SSH access. Preserve .env, collector state and named volumes.
 
-### English notification update only
+### Applying a future notification-text update
+
+The English wording is already deployed and evidenced in TEST-11. The commands below are reusable for a later text/provisioning update; no repeat deployment is needed merely to translate the existing messages.
 
 The outage rules and new Prometheus probes were already applied at `665d2d5`. For the later language-only update, inspect the working tree, pull and validate, then recreate **Grafana only**:
 
@@ -218,7 +217,7 @@ curl -fsS http://127.0.0.1:3000/api/health
 sudo docker compose logs --since=10m grafana
 ```
 
-Restarting can affect evaluation state/pending timing. Persistent volumes remain. Through the SSH tunnel, check Alert rules:
+Restarting can affect evaluation state/pending timing. Persistent volumes remain. Using the HTTPS Grafana URL, check Alert rules:
 
 - 12 active provisioned rules; the three deleted UIDs are absent.
 - Expected UIDs; no old or manually created duplicate rules.
@@ -233,7 +232,7 @@ Use a test environment or an agreed short maintenance window for deliberate fail
 
 | Scenario | Expected result | Status |
 |---|---|---|
-| Contact-point test and template preview | Telegram message; channel test only | Hungarian test received November 10; English update test pending |
+| Contact-point test and template preview | Telegram message; channel test only | English delivery evidenced in TEST-11; operator-confirmed team-group switch in TEST-13 |
 | Successful frontend/backend HTTP, even 22s | No outage alert | Success condition tested in local PromQL; no separate live induced-latency test |
 | HTTP failure with up=1 | HTTP outage pending → firing | Local PromQL tested; live test pending |
 | up=0 or missing probe_success | Monitoring failure; no evidence-free service recovery | Local PromQL tested; live KeepLast test pending |

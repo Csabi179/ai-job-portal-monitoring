@@ -95,7 +95,7 @@ Displayed warning/critical thresholds are 80/90 percent for CPU, memory and data
 
 Rates use five-minute windows. Cache-hit ratio and disk latency leave zero-denominator cases empty. No missing Supabase metric is replaced with zero. Device I/O is shown per device rather than aggregated across potentially overlapping block-device layers.
 
-Metric names were checked against the operator's inventory. Label conventions and calculation meanings were cross-checked with Supabase's example metric exposition and PostgreSQL's monitoring documentation. Live evaluation and visual acceptance of the new panels still require the Oracle Grafana environment.
+Metric names were checked against the operator's inventory. Label conventions and calculation meanings were cross-checked with Supabase's example metric exposition and PostgreSQL's monitoring documentation. The operator later supplied up=1 and pg_up=1 and confirmed the working Unified Monitoring dashboard. This does not establish independent validation of every resource formula under load; check panel units, labels and query health during operations. See [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
 
 Source references
 

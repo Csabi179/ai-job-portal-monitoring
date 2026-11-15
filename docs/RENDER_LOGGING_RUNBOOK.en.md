@@ -2,7 +2,7 @@
 
 [Magyar változat](RENDER_LOGGING_RUNBOOK.md) · [Documentation index](README.md)
 
-English edition: November 10, 2026. This translates the Hungarian runbook and records the subsequent deployment evidence separately from its earlier status statements.
+Reviewed November 16, 2026. English notifications and team-group routing are deployed according to recorded operator evidence; historical tests are kept in the test log.
 
 ## Overview
 
@@ -69,9 +69,9 @@ English alert title: **MatchWise | Render log collector | Monitoring failure**; 
 
 The rule detects more than 300 seconds since the last successful request, followed by 2 minutes pending. Missing heartbeat/textfile status or a textfile processing error is also a condition, provided Node Exporter is available. Node Exporter absence has its own rule; the collector retains its last state. Absence of application traffic is not an alert condition.
 
-Notification destination: **AI Job Telegram**.
+Notification destination: **AI Job Telegram** contact point → the team Telegram group selected by the private `GRAFANA_TELEGRAM_CHAT_ID`.
 
-The earlier Hungarian runbook stated deployment/live testing was pending. **Subsequent November 10 evidence:** the operator deployed the outage rules and received both Firing and Resolved collector notifications after the controlled timer interruption. This proves that one alert's delivery path, not all 12. The English wording update requires a new deployment/channel test. See [alerting plan](alerting-plan.en.md) and [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
+Collector and Node Exporter Firing/Resolved delivery are evidenced, including English Node Exporter notifications. The operator confirmed the team-group switch. These do not verify all 12 rules individually. See [the alerting plan](alerting-plan.en.md), [TEST-11](monitoring-tests.md#test-11-node-exporter-delivery) and [TEST-13](monitoring-tests.md#test-13-telegram-group-delivery).
 
 ## Moving to another team Render service
 
@@ -151,7 +151,7 @@ The Loki job label and dashboards can remain unchanged if the new backend uses c
 
 - Keep the Render API key outside the repository.
 - Do not commit private keys or real logs.
-- Grafana and monitoring APIs listen on loopback.
+- Grafana and internal monitoring APIs listen on loopback; authenticated team access reaches Grafana through Caddy HTTPS.
 - Earlier public syslog ingress is not enabled.
 - Collection uses HTTPS.
 - The Python collector stores only allowlisted Pino fields.
@@ -175,3 +175,11 @@ The production collector is exclusively `scripts/render-logs-poll.py`, started t
 Repository: `Csabi179/ai-job-portal-monitoring`.
 
 GitHub stores configurations, dashboards, alert rules and documentation. Real logs, SQLite databases and secret keys are not repository content.
+
+## Render API read-timeout handling
+
+The Python API request timeout is 30 seconds. A failed run does not refresh the success metric; the systemd timer tries again later. November 11 journal output showed repeated read timeouts followed by successful collection and heartbeat refresh ([TEST-15](monitoring-tests.md#test-15-collector-timeout-recovery)). A fast unauthenticated HTTP 401 proves API reachability, not authenticated log retrieval. Do not automatically increase the alert threshold or delete SQLite/cursor state.
+
+## CV and AI logs
+
+The existing collector retains only the configured service's `http_request` events and allowlisted fields. A new endpoint's HTTP events require no collector change if the deployed backend keeps the logging format. Separate AI events do not pass the current filter. Available data and limitations for the profile feature are in [the monitoring plan](monitoring-plan.en.md#cv-and-ai-monitoring-preparation).

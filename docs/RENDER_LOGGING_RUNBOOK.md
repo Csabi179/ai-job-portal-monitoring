@@ -2,7 +2,7 @@
 
 [English version](RENDER_LOGGING_RUNBOOK.en.md) · [Dokumentációjegyzék](README.md)
 
-> Kiegészítés, 2026. november 10.: az alábbi magyar szöveg az eredeti dokumentálási állapotot is megőrzi. Azóta az üzemeltető alkalmazta a 12 szabályos konfigurációt, és megérkezett a collector Telegram Firing és Resolved üzenete. A többi szabály egyenkénti kézbesítési tesztje nem történt meg. A későbbi angol üzenetszöveg-frissítés még külön alkalmazandó. Részletek: [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
+> Állapot: a collector és a Node Exporter Firing/Resolved kézbesítése igazolt, az üzenetek angolok és a csapat Telegram-csoportjába érkeznek. A többi tíz szabály egyenkénti élő tesztje nincs igazolva; részletek a [tesztnaplóban](monitoring-tests.md).
 
 ## Áttekintés
 
@@ -128,16 +128,16 @@ Prometheus metrika:
     matchwise_render_collector_last_success_timestamp_seconds
 
 Riasztás:
-MatchWise | Render naplógyűjtő | Megfigyelési hiba
+MatchWise | Render log collector | Monitoring failure
 
 A riasztás feltétele:
 az utolsó sikeres lekérdezés óta több mint 300 másodperc
 telt el, további 2 perces pending idővel. A hiányzó heartbeat vagy textfile-hibajelző és a textfile-feldolgozás hibája is feltétel, működő Node Exporter mellett. Node Exporter-hiányra külön szabály figyel; a collector állapota ilyenkor KeepLast. Alkalmazásforgalom hiánya nem riasztás.
 
-A november 10-i szabálykészlet alkalmazása és élő tesztje még szükséges. Részletek: [riasztási terv](alerting-plan.md).
+A 12 szabály betöltése és a collector Firing/Resolved tesztje igazolt. Az angol kézbesítést a Node Exporter tesztje is igazolja; a Telegram-csoportos átállást az üzemeltető visszaigazolta. Részletek: [riasztási terv](alerting-plan.md), [TEST-11](monitoring-tests.md#test-11-node-exporter-delivery) és [TEST-13](monitoring-tests.md#test-13-telegram-group-delivery).
 
 Értesítési cél:
-AI Job Telegram
+AI Job Telegram contact point → a csapat Telegram-csoportja, a privát GRAFANA_TELEGRAM_CHAT_ID szerint.
 
 ## Átállás a csapat Render backendjére – jövőbeli szolgáltatásváltás
 
@@ -280,3 +280,11 @@ riasztási szabályok és dokumentáció található.
 
 A valódi naplók, SQLite-adatbázisok és
 titkos kulcsok nem részei a repositorynak.
+
+## Render API-időtúllépés kezelése
+
+A Python API-kérés timeoutja 30 másodperc. Sikertelen futás nem frissíti a sikeres futás metrikáját; a systemd timer később újra próbálkozik. A november 11-i naplóban ismételt read timeout után sikeres gyűjtés és heartbeat-frissítés látható ([TEST-15](monitoring-tests.md#test-15-collector-timeout-recovery)). A gyors, token nélküli HTTP 401 csak az API elérését igazolja, a hitelesített naplólekérést nem. Ne növeld automatikusan a küszöböt, és ne töröld a SQLite/kurzor állapotot.
+
+## CV és AI naplók
+
+A meglévő collector kizárólag a konfigurált service `http_request` eseményeit és engedélyezett mezőit gyűjti. Az új végpont HTTP-naplója külön collectormódosítás nélkül használható, ha az éles backend ugyanazt a naplóformátumot adja. Külön AI-események nem jutnak át a jelenlegi szűrésen. A tervezett profilfunkció elérhető adatai és korlátai: [monitoringterv](monitoring-plan.md#cv-és-ai-megfigyelésének-előkészítése).

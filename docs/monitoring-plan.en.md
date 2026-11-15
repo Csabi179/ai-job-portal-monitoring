@@ -1,110 +1,108 @@
-# MatchWise – monitoring plan and implementation status
+# MatchWise monitoring plan
 
 [Magyar változat](monitoring-plan.md) · [Documentation index](README.md)
 
-Documented on **November 10, 2026**. This is a retrospective description of an implemented system, not a plan written before development. The initial review used repository commit `374f74eab098deccfd408887bbef5db314c83223`. Configuration and previously recorded evidence were available; the assistant did not directly access the running Oracle VM during that review.
-
-**Subsequent operator verification, November 10:** commit `665d2d5` was applied on Oracle. The operator supplied successful readiness and metric checks, Grafana provisioning logs for 12 rules, and a screenshot showing all 12 provisioned rules with green status. A Telegram contact-point test and the collector rule's Firing and Resolved notifications were received. This does not establish individual delivery for the other 11 rules. The later English notification update still requires deployment and a message test. See [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
-
 ## Purpose and responsibilities
 
-Monitor the services of the university MatchWise job portal, the Oracle host, and monitoring itself. The operator is responsible for Render hosting, Oracle monitoring, log collection, dashboards, alerts and documentation. The team develops the business backend and frontend.
+Monitoring follows the Oracle host, Render backend, Vercel frontend, Supabase and log collection. The operator manages Render hosting, Oracle monitoring, log collection, dashboards, alerting and documentation. The team's application and database owners manage business features and database migrations.
 
-The dashboard also displays performance and capacity. Active notifications cover only outages and monitoring failures; see the [alerting plan](alerting-plan.en.md).
+Dashboards also show performance and capacity. Active notifications cover outages or monitoring failures only; exact conditions are in the [alerting plan](alerting-plan.en.md).
 
 ## Components and deployment locations
 
-| Location | Component | Role |
+| Location | Component | Purpose |
 |---|---|---|
-| Oracle Cloud | Ubuntu 24.04 ARM64 VM; previously documented as 2 OCPU / 12 GB RAM | Monitoring host |
-| Oracle Docker Compose | Prometheus 3.13.2; Grafana 13.2.1 | Metric storage; dashboards and Grafana Alerting |
-| Oracle Docker Compose | Node Exporter 1.11.1; Blackbox Exporter 0.28.0 | Host metrics/textfile; HTTP probes |
-| Oracle Docker Compose | Loki 3.7.9; Alloy 1.21.2 | Log storage; file ingestion and forwarding |
-| Oracle systemd | Python collector and logrotate, each with a service/timer pair | Render Logs API collection and JSONL rotation |
-| Render Free | `matchwise-backend-monitoring-test.onrender.com` | Team backend on the existing Render service |
-| Vercel | `https://www.matchwise.tech/` | Frontend |
-| Supabase | `uvopvarvelpabhmrqaaw` | PostgreSQL, Auth, PostgREST, Metrics API |
-| Telegram | AI Job Telegram | Firing and recovery notifications |
+| Oracle Cloud | Ubuntu ARM64 VM, 2 OCPU / 12 GB RAM | Monitoring host |
+| Docker Compose | Prometheus 3.13.2; Grafana 13.2.1 | Metrics, dashboards and Grafana Alerting |
+| Docker Compose | Node Exporter 1.11.1; Blackbox Exporter 0.28.0 | Host/textfile metrics and HTTP probes |
+| Docker Compose | Loki 3.7.9; Alloy 1.21.2 | Log storage and forwarding |
+| Docker Compose, public profile | Caddy 2.11.9 | Public HTTPS access to local Grafana |
+| Oracle systemd | Python collector and logrotate, with service/timer pairs | Render Logs API collection and JSONL rotation |
+| Render | matchwise-backend-monitoring-test.onrender.com | Team backend; main auto-deployment configured by the operator |
+| Vercel | https://www.matchwise.tech/ | Frontend |
+| Supabase | uvopvarvelpabhmrqaaw | PostgreSQL, Auth, PostgREST and Metrics API |
+| Telegram | AI Job Telegram contact point | English Firing and Resolved messages to the team group |
 | GitHub | Csabi179/ai-job-portal-monitoring | Configuration and documentation history |
 
-Render Service ID: `srv-dbh7b1nb9u1s73e6hpbg`. Its name is historical: November 9 evidence records the team's backend main branch running on that same service. The exact deployed backend commit was not supplied. The local backend source snapshot is dated November 9; this documentation task did not recheck the backend repository's current main branch.
+Compose selects six services by default; the deployed HTTPS path also requires Caddy from the public profile. Render Service ID: `srv-dbh7b1nb9u1s73e6hpbg`. Verify the exact deployed backend commit separately; source availability does not prove deployment.
 
-Editable architecture diagram: [draw.io and SVG](architecture/README.en.md). The diagram's planned AI provider and full frontend–backend connection are not treated as implemented without new deployment evidence.
+Editable architecture: [draw.io and SVG](architecture/README.en.md).
 
-## Data sources and paths
+## Data sources and flows
 
-1. Node Exporter → Prometheus → Grafana: CPU, memory, disk, network, load, uptime and textfile health.
-2. Blackbox → Prometheus → Grafana: backend `/api/health`, frontend home page, and the new Loki `/ready` and Alloy `/-/healthy` checks.
-3. Supabase Metrics API → Prometheus → Grafana: scrape health, `pg_up`, database/host metrics and PostgREST pool metrics.
-4. Pino JSON stdout → Render Logs API → Python collector → deduplicated JSONL → Alloy → Loki → Grafana.
-5. Successful systemd oneshot → heartbeat textfile → Node Exporter → Prometheus → Grafana Alerting → Telegram.
+1. Linux → Node Exporter → Prometheus → Grafana: CPU, memory, disk, network, load and uptime.
+2. Blackbox → Prometheus → Grafana: backend `/api/health`, frontend home page, Loki `/ready` and Alloy `/-/healthy`.
+3. Supabase Metrics API → Prometheus → Grafana: scrape health, `pg_up`, database, host and PostgREST metrics.
+4. Pino stdout → Render Logs API → Python collector → deduplicated JSONL → Alloy → Loki → Grafana.
+5. Successful collector run → heartbeat textfile → Node Exporter → Prometheus → Grafana Alerting.
+6. Browser → HTTPS → Caddy → Grafana authentication and permissions.
+7. Grafana Alerting → Telegram Bot API → the team's Telegram group.
 
-The collector filters by `event=http_request` and the configured `service`. Important fields include reqId, method, route, statusCode and responseTimeMs, plus Render timestamps and identifiers. Alloy uses the original Render event time. Auth routes often appear without the /api prefix. Passwords, tokens, Authorization headers, CV contents and request bodies must not enter the log stream.
+The collector retains only the configured service's `http_request` events and allowlisted fields: level, event, reqId, method, route, statusCode, responseTimeMs and errorCode, with Render identifiers and timestamps. Alloy uses the original Render event time. Routes are often templates without /api; bodies, CV contents, passwords and tokens are not collected fields.
 
-## Frequencies and windows
+## Collection cadence and windows
 
-| Data | Frequency / window |
+| Data | Frequency or window |
 |---|---|
 | Node Exporter, Blackbox self-metrics, Prometheus self-scrape | 60 s |
 | Backend HTTP | 30 minutes; scrape timeout 110 s; prober timeout 100 s |
 | Frontend HTTP | 60 s; scrape timeout 15 s; prober timeout 10 s |
-| Supabase | 60 s; scrape timeout 30 s; file discovery refresh 60 s |
-| New Loki/Alloy HTTP health probes | 60 s; scrape timeout 15 s |
+| Supabase | 60 s; scrape timeout 30 s; file discovery 60 s |
+| Loki and Alloy health probes | 60 s; scrape timeout 15 s |
 | Collector | OnBootSec=2min; OnUnitInactiveSec=1min; AccuracySec=10s |
 | Grafana rule evaluation | 1 minute |
-| Backend alert freshness | 40 minutes; pending 2 minutes |
-| Frontend alert freshness | 3 minutes; pending 2 minutes |
+| Backend HTTP alert freshness | 40 minutes; pending 2 minutes |
+| Frontend HTTP alert freshness | 3 minutes; pending 2 minutes |
 | Dashboard status cards | Backend 40 minutes; frontend 5 minutes |
 | Rolling Pino P50/P95 | 15 minutes; endpoint-table P95 uses the full selected period |
-| Dashboard refresh | Unified dashboard 1 minute; provisioning file scan 30 s |
+| Unified dashboard refresh; provisioning file scan | 1 minute; 30 s |
 
-Collector scheduling is relative to the end of the previous run, not an exact wall-clock minute. A successful API request with no new events also refreshes its heartbeat. This does not prove delivery to Loki.
+The collector is scheduled relative to the previous run's completion. The timer tries again after a failed API request, but the Python program has no internal automatic HTTP retry. Successful empty collection can refresh the heartbeat; this alone does not prove Loki delivery.
 
-## Dashboards and interpretation
+## Dashboards and alerting
 
-Main view: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overview`, repository version 8. Datasource UIDs: `prometheus`, `loki`. It covers host, Supabase, backend, frontend, Pino, authentication, collector and diagnostics. The three detailed Infrastructure, Application Availability and Backend Logs dashboards remain available. Earlier panel counts are historical, not a verified inventory of the current dashboard.
+Main dashboard: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overview`, repository version 8. Two introductory panels and 82 panels in nine groups make **84 panels**. Datasource UIDs: `prometheus`, `loki`.
 
-CPU/RAM/disk, response times, P95 and 4xx remain diagnostic information. The six auth counters track successful/rejected/invalid login, login 5xx, logout and registration. They cannot determine the number of active users or sessions. Registration may also sign in the new account automatically.
+Three specialist dashboards remain for operator use: Infrastructure Overview, Application Availability and Backend Logs. The six authentication counters show login, logout and registration outcomes, not active-user/session counts. The static latest-auth-test note was removed from the introductory panel; its evidence remains in the test log.
 
-The proportion of successful samples is not guaranteed continuous uptime. One stored sample can appear at multiple graph points. Pino time is not the full external HTTP duration. Health traffic can distort aggregate application error rates and percentiles. Zero errors and missing logs are different states. The frontend dashboard's 5-minute window and alert's 3-minute window intentionally differ: alerting detects missing measurements earlier.
+The **12 rules** are grouped into infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2) and vercel-frontend-monitoring (2). CPU/RAM/disk, P95, general 4xx and a quiet application are not active alert conditions.
 
-## Storage, retention and access
+Telegram messages are English. Contact point UID: `ai_job_telegram`; the private Oracle `GRAFANA_TELEGRAM_CHAT_ID` selects the team group. Group wait 30 s, group interval 5 minutes, repeat interval 4 hours; resolved messages are enabled.
 
-- Prometheus: configured for 7 days or 2 GB, whichever limit is reached first.
-- Loki: configured for 168 hours with compactor retention enabled; independent of JSONL rotation.
-- JSONL: `~/ai-job-monitoring/test-logs/render-backend.jsonl`; hourly size check, 20 MB threshold, up to seven uncompressed archives.
-- Persistent named volumes: prometheus_data, grafana_data, loki_data and alloy_data. Persistence alone is not a backup.
-- SQLite and cursor: `~/monitoring-private-state/`; preserve them during routine updates.
-- Secrets: Git-ignored `.env` and `~/monitoring-private-secrets/`; never print key values or include them in commits.
-- Supabase password/target files: prepared by the helper and mounted read-only into Prometheus.
-- Host networking with loopback management endpoints; Grafana access through SSH tunneling. Changing the VM .env does not change Render Environment values.
+## Storage and access
 
-Retention settings are configuration targets. Actual disk use, retention execution and recoverability need separate verification.
+- Prometheus: 7 days or 2 GB, whichever limit is reached first, configured in `prometheus/prometheus.yml`.
+- Loki: 168 hours with compactor retention enabled.
+- JSONL: `~/ai-job-monitoring/test-logs/render-backend.jsonl`; hourly size checks, 20 MB threshold and up to seven uncompressed archives.
+- Named volumes: prometheus_data, grafana_data, loki_data, alloy_data, caddy_data and caddy_config.
+- SQLite and cursor: `~/monitoring-private-state/`; preserve during updates.
+- Secrets: Git-ignored `.env` and `~/monitoring-private-secrets/`; Supabase private files use a read-only Prometheus mount.
+- Public URL: **https://grafana-r0cecq.duckdns.org/** through Caddy on TCP 80/443; Grafana port 3000 and internal monitoring endpoints remain on loopback.
+- The team's shared Viewer account has dashboard access only to Unified Monitoring and no Grafana Admin rights; it receives no Oracle or SSH access.
+- Users and ACLs are stored in Grafana's database; dashboard JSON does not automatically configure them.
+- Dashboard permissions do not isolate datasource data: a Viewer can issue other queries to accessible datasources.
+- Secure cookies require the HTTPS URL for browser login; SSH shell and local health queries remain available.
 
-## Evidence and status
+Procedure and rollback: [HTTPS access](GRAFANA_HTTPS_ACCESS.en.md). Persistent storage is not a backup; actual retention and recoverability require separate verification.
 
-Detailed records: [monitoring-tests.md](monitoring-tests.md).
+## CV and AI monitoring preparation
 
-| Area | Recorded evidence | Limit |
-|---|---|---|
-| Monitoring baseline | October 28 endpoint/container tests | Earlier four-service stage |
-| Telegram baseline | October 28 local test Firing and Resolved | Not delivery testing for all new rules |
-| Log path, deduplication, rotation | October 30 tests; 120 unique synthetic messages | Not a general no-data-loss guarantee |
-| Auth and log correlation | November 9 register/login/me/account/logout, expected 401 and two reqIds in Loki | Not frontend integration or continuous business testing |
-| Supabase | November 9 HTTP 200, UP target with no lastError; November 10 up=1 and pg_up=1 | A point-in-time scrape/exporter observation |
-| Outage rules | November 10 local validation and 37 PromQL scenarios; operator-provided 12-rule deployment evidence | Not individual delivery testing for every rule |
-| Collector delivery | November 10 controlled timer interruption, Telegram Firing and Resolved | Measured notification timestamps and final timer/service output were not supplied |
+The main source archive supplied on November 15 contained CV upload and Cloudinary storage. A separate `feat-ajsp-4-cv-profile` branch implements profile generation using Cloudflare Workers AI `@cf/openai/gpt-oss-20b`.
 
-## Limitations and planned improvements
+The operator preconfigured `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` on Render. These are not Oracle monitoring settings; the database owner handles the required Supabase migration. This monitoring repository does not establish the merge or production deployment state.
 
-The local Grafana cannot reliably notify when its process or the entire Oracle VM fails. Independent monitoring on another infrastructure is required. This is **planned**, not deployed protection. Do not expose internal monitoring ports for this purpose. An external heartbeat service or VM could detect a missing outbound heartbeat and use a separate notification path.
+Without backend changes, `/cv/upload` and `/cv/:id/profile` HTTP counts, status codes, total processing duration and reqId can be used. Separate AI duration, token usage and precise provider-error classification are unavailable; profile HTTP 503 does not establish a Cloudflare outage. No dedicated AI panel or AI alert is deployed.
 
-Backend sampling every 30 minutes can miss short outages; probes are not increased to keep the service awake. A healthy endpoint is not a full business-function test. Frontend HTTP 200 does not establish browser behavior or backend integration. The earlier demo-login observation is date-specific and was not rechecked here. Render/Vercel host CPU/RAM, browser errors/Web Vitals and tracing are not collected.
+## Verification and limitations
 
-Collector health, Loki health and actual log delivery are three distinct questions. A quiet application does not trigger a missing-log alert. Local health endpoints cannot detect every ingestion/forwarding problem. An independent synthetic log-path test could be a future improvement.
+The [test log](monitoring-tests.md) separates dated measurements from operator confirmations. Recorded evidence covers 12-rule provisioning, collector and Node Exporter Firing/Resolved delivery, English notifications, HTTPS login, operator-confirmed Viewer access and the Telegram group switch. Individual live tests for the other ten rules, 4-hour repetition and full infrastructure restoration are not established.
+
+Thirty-minute backend sampling can miss short outages; HTTP 200 is not a full business/browser test. Render/Vercel host CPU/RAM, browser errors, Web Vitals and tracing are not collected. The 12 rules do not separately cover the complete public Caddy/DNS/TLS path.
+
+The local Grafana cannot reliably notify during complete Oracle VM or Grafana failure; independent external checking is a future improvement. Collector success, Loki health and real log delivery are separate states. Missing data does not automatically mean zero errors or UP.
 
 ## Operations and change tracking
 
-The repository is the configuration source of truth. Change → local validation → GitHub commit → VM `git pull --ff-only` → apply per container → verify live behavior and record evidence. Do not use `reset --hard` to bypass conflicts. Do not delete volumes or collector state during routine updates.
+Configuration change → validation → GitHub commit → Oracle `git pull --ff-only` → apply the affected service → verify behavior. Do not bypass conflicts with `reset --hard`; do not delete volumes, SQLite or cursor state during routine maintenance.
 
-Single-file bind mounts can require recreation of Prometheus and, when its configuration changes, Alloy. The outage-rule deployment affected Prometheus and Grafana; the later English-only notification update requires Grafana provisioning only. Exact deployment/rollback: [alerting plan](alerting-plan.en.md#deployment). The previously documented project shutdown/completion target is no later than December 15, 2026.
+Single-file bind-mount changes can require container recreation. Grafana scans dashboard JSON every 30 seconds; changed environment values require Grafana recreation. Oracle `.env` changes do not alter Render Environment settings. Planned project completion/shutdown: no later than December 15, 2026.

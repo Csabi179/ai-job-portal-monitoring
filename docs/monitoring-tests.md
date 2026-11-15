@@ -1,5 +1,44 @@
 # Monitoring Verification
 
+## Current documented state — reviewed November 16, 2026
+
+- Six base monitoring services plus deployed Caddy in the public profile; authenticated Grafana HTTPS access and operator-confirmed Viewer use of Unified Monitoring.
+- Twelve provisioned English rules; collector and Node Exporter Firing/Resolved were evidenced. The other ten rules and 4-hour repetition were not individually verified live.
+- Telegram destination changed from private chat to the team group, confirmed by the operator (TEST-13).
+- The introductory dashboard's static latest-auth-test note was removed; TEST-08 remains the dated auth evidence.
+- CV/Cloudflare preparation is source/configuration evidence, not proof of merge, deployment or live AI monitoring.
+- Historical records below retain their original dates/statuses. A pending or old nine-rule statement inside an older test is not the present deployment state.
+
+<a id="test-14-https-viewer-access"></a>
+## TEST-14 — Grafana HTTPS and Viewer access, 2026-11-11
+
+**Result: deployment output plus operator confirmation.** Caddy configuration validation passed. Supplied OCI screenshots showed stateful TCP 80/443 ingress; iptables output showed their ACCEPT rules before REJECT. Caddy and Grafana started; logs reported successful certificate acquisition for grafana-r0cecq.duckdns.org. HTTPS Grafana health returned database=ok, version 13.2.1. The operator confirmed successful external browser login.
+
+The operator removed the folder-wide Viewer grant and direct Viewer grants on the other three dashboards, retaining Viewer access on Unified Monitoring. The supplied account screenshot showed organization Viewer and Grafana Admin No; the operator confirmed the requested access test worked. This used a shared team account, not individual teammate accounts. Account credentials are deliberately omitted.
+
+**Limits:** exact forbidden-URL responses and a dedicated Grafana Live test were not supplied. Firewall persistence across a reboot, per-datasource isolation and full disaster recovery were not verified. Users/ACLs are Grafana database state, not enforced by dashboard JSON.
+
+<a id="test-15-collector-timeout-recovery"></a>
+## TEST-15 — Render Logs API timeout and automatic recovery, 2026-11-11
+
+**Result: successful recovery observed in supplied journal and metrics.** Repeated authenticated Logs API requests failed with read timeouts at the collector's 30-second request timeout. The timer remained active. Heartbeat age was 599.636 seconds while node_textfile_scrape_error=0.
+
+An unauthenticated API reachability request returned HTTP 401 in 0.194216 seconds; this is reachability evidence, not an authenticated retrieval test. At 00:37:57 UTC the journal reported two pages fetched, 156 new Pino logs written, no new 4xx/5xx logs, collection through 00:37:34.735933Z, successful completion and success-metric update. A later Prometheus query showed heartbeat age 72.713 seconds.
+
+**Limits:** the underlying cause of the upstream delay was not established. No new collector code/timeout/threshold change was made, and no later resolved Telegram message was supplied for this particular incident.
+
+<a id="test-16-cv-ai-preparation"></a>
+## TEST-16 — CV/AI source review and Render preparation, 2026-11-15
+
+**Result: source inspection and operator-confirmed environment preparation only.** The supplied main archive contained authenticated CV upload, PDF/DOCX text extraction and Cloudinary file storage. The separate feat-ajsp-4-cv-profile archive contained profile extraction through Cloudflare Workers AI @cf/openai/gpt-oss-20b, using CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN with a 25-second AI-request timeout. It also contained the save_cv_profile SQL migration.
+
+The operator reported adding both variables to Render. No values are recorded here. Existing collection allows only http_request events; endpoint counts/statuses, total request duration and reqId can be used if the deployed code emits the same format. Separate AI duration, token usage and detailed provider errors are unavailable. No AI panel or alert was added.
+
+**Limits:** no live AI call or CV upload was executed during this review; merge, deployment, frontend integration and application of the Supabase migration are not established by this record. The later main/merge state was not independently established during the documentation review.
+
+## Historical verification records
+
+
 <a id="test-13-telegram-group-delivery"></a>
 ## TEST-13 — Telegram team-group destination, 2026-11-15
 
@@ -362,6 +401,6 @@ The operator located these matching Pino events in Grafana, confirming delivery 
 
 The 401 event appeared in both the general HTTP log panel and the filtered HTTP error panel with the same Render log ID. These are two views of one event.
 
-The dashboard auth metadata is manually set to `Verified by team` based on this operator-reported evidence. This records the test outcome at the stated date. The two event correlations establish delivery for these requests. The full SQL comparison and 24-check database verification outputs were not provided, and continuous auth availability and browser frontend integration were not tested in this flow.
+At the time of this test, the dashboard auth metadata was manually set to `Verified by team` based on this operator-reported evidence; the later introductory latest-auth-test note has since been removed from the dashboard. This records the test outcome at the stated date. The two event correlations establish delivery for these requests. The full SQL comparison and 24-check database verification outputs were not provided, and continuous auth availability and browser frontend integration were not tested in this flow.
 
 The earlier October test entries describe their original test environment. TEST-08 supplies the later team-backend auth and logging verification.

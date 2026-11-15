@@ -2,9 +2,9 @@
 
 [Magyar változat](GRAFANA_HTTPS_ACCESS.md) · [Documentation index](README.md)
 
-Prepared **November 11, 2026**. This procedure exposes the Grafana web application with individual Grafana logins. It gives teammates no Oracle account, SSH key or shell access. Network publication and restricting users to one dashboard are separate configuration tasks.
+Reviewed **November 16, 2026**. Public URL: **https://grafana-r0cecq.duckdns.org/**. The operator supplied successful Caddy certificate acquisition and Grafana HTTPS health output, confirmed external browser login, then confirmed Viewer access after restricting dashboard permissions. See [TEST-14](monitoring-tests.md#test-14-https-viewer-access).
 
-Planned URL: **https://grafana-r0cecq.duckdns.org/**. Operator output resolved it to IPv4 `130.162.254.233`, showed no listeners on ports 80/443, an INPUT REJECT at rule 5, and active netfilter-persistent. These are dated prechecks, not proof of the deployment below.
+The current team access uses a shared Viewer account, not individual teammate accounts. It grants dashboard access only to Unified Monitoring, with no Grafana Admin, Oracle account, SSH key or shell access. The procedure below documents setup/recovery; it is not a pending rollout or an instruction to repeat completed firewall changes.
 
 ## Architecture
 
@@ -120,7 +120,17 @@ sudo ss -ltnp '( sport = :80 or sport = :443 or sport = :3000 or sport = :2019 )
 
 Expect successful local/HTTPS Grafana health, HTTP redirection to HTTPS, login HTTP 200, and loopback-only listeners for 3000/2019. Also open the URL from outside the Oracle VM: a request to the VM's own public address is not sufficient proof of external access. Do not use curl -k as final TLS validation.
 
-Create individual password-based Viewer accounts. Configure the selected folder/dashboard permissions and inherited Viewer grants separately: HTTPS alone does not limit users to one dashboard. Basic Viewer datasource-query rights do not enforce per-panel data isolation either. Do not share the administrator account or an SSH key. Log in as a Viewer to verify intended dashboard visibility, inability to edit, and Grafana Live behavior.
+For future per-person access, create individual password-based Viewer accounts. Configure the selected folder/dashboard permissions and inherited Viewer grants separately: HTTPS alone does not limit users to one dashboard. Basic Viewer datasource-query rights do not enforce per-panel data isolation either. Do not share the administrator account or an SSH key. Log in as a Viewer to verify intended dashboard visibility, inability to edit, and Grafana Live behavior.
+
+### Current folder and dashboard permissions
+
+- In **AI Job Portal → Manage permissions**, remove the folder-wide **Viewer → View** grant; keep Admin and the intended Editor grant.
+- On **MatchWise | Unified Monitoring → Settings → Permissions**, retain its direct **Viewer → View** grant.
+- Remove direct Viewer grants from **Application Availability**, **Infrastructure Overview** and **Backend Logs**. A higher inherited permission cannot be denied on a child dashboard.
+- The current team account has organization role **Viewer**, with **Grafana Admin: No**. Individual accounts can be introduced later.
+- Permission changes are separate from saving dashboard content. The top dashboard Save can be blocked by file provisioning; reload the permissions page to verify the ACL change persisted instead of exporting or duplicating the dashboard.
+- Users and ACLs persist in **grafana_data**, not in the provisioned dashboard JSON. Recheck/restore them after a fresh deployment or database restore.
+- Test from a separate Viewer session: Unified Monitoring loads, the other dashboards are denied even by direct URL, and editing is unavailable. Dashboard visibility does not restrict Viewer queries to the displayed panels' datasource data.
 
 ## Troubleshooting and rollback
 
@@ -161,7 +171,7 @@ Withdraw only the two newly added OCI ingress rules as well. Do not blindly rest
 
 ## Verification status and references
 
-Local checks: default Compose still selects six services; the public profile parses; the official 2.11.9 Caddy executable validated the Caddyfile. The official-images manifest confirms ARM64 support. **Oracle deployment, firewall changes, certificate issuance and browser login are not yet verified.**
+Local checks validated the six-service default, public profile and Caddyfile. Operator output additionally confirmed DNS, OCI TCP 80/443 rules, host ACCEPT rules before REJECT, Caddy/Grafana startup, successful certificate acquisition and HTTPS health. The operator confirmed external browser login and Viewer operation. Firewall persistence after reboot, Grafana Live-specific behavior and a complete recovery were not separately evidenced. See TEST-14.
 
 - [Caddy HTTPS](https://caddyserver.com/docs/automatic-https)
 - [Caddy reverse proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)

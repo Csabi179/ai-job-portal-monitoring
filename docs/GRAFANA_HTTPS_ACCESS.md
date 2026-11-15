@@ -2,9 +2,9 @@
 
 [English version](GRAFANA_HTTPS_ACCESS.en.md) · [Dokumentációjegyzék](README.md)
 
-Előkészítve: **2026. november 11.** Ez az eljárás a Grafanát teszi böngészőből, saját Grafana-fiókkal elérhetővé. Nem ad Oracle-fiókot, SSH-kulcsot vagy parancssori hozzáférést a csapattársaknak. A hálózati közzététel és az egyetlen dashboardra szűkített Grafana-jogosultság két külön beállítás.
+Felülvizsgálva: **2026. november 16.** Üzemelő cím: **https://grafana-r0cecq.duckdns.org/**. Az üzemeltető sikeres Caddy-tanúsítványigénylési és Grafana HTTPS-health kimenetet adott, visszaigazolta a külső böngészős bejelentkezést, majd a dashboardjogok szűkítése utáni Viewer-hozzáférés működését. Részletek: [TEST-14](monitoring-tests.md#test-14-https-viewer-access).
 
-Tervezett cím: **https://grafana-r0cecq.duckdns.org/**. Az üzemeltető DNS-kimenete `130.162.254.233` IPv4-címet adott; a 80/443 porton nem volt hallgató szolgáltatás. Az INPUT lánc 5. szabálya REJECT volt, a netfilter-persistent aktív. Ezek dátumhoz kötött előellenőrzések, nem bizonyítják az alábbi telepítés sikerét.
+A csapat jelenleg közös Viewer-fiókot használ, nem személyenként külön fiókot. Dashboardjogot csak a Unified Monitoringhoz kap, Grafana Admin, Oracle-fiók, SSH-kulcs és shellhozzáférés nélkül. Az alábbi eljárás a beállítást és helyreállítást dokumentálja, nem függőben lévő telepítés vagy a már elvégzett tűzfalmódosítások megismétlésének kérése.
 
 ## Felépítés
 
@@ -120,7 +120,17 @@ sudo ss -ltnp '( sport = :80 or sport = :443 or sport = :3000 or sport = :2019 )
 
 Várt: helyi és HTTPS Grafana health sikeres; HTTP átirányítás HTTPS-re; login 200; 3000 és 2019 loopbacken. Külön, nem az Oracle gépről is nyisd meg a címet: a VM saját publikus IP-jére indított ellenőrzés önmagában nem bizonyít külső elérést. Ne használd a curl -k opciót végső TLS-bizonyítéknak.
 
-Ezután hozz létre saját jelszavas Viewer-fiókokat a csapattársaknak. A kijelölt dashboard/mappa engedélyeit és az örökölt Viewer-jogokat külön állítsd be; a HTTPS önmagában nem korlátozza a hozzáférést egyetlen dashboardra. Az alap Viewer adatforrás-lekérdezési jogosultsága sem panelenkénti adatelkülönítés. Adminfiókot vagy SSH-kulcsot nem kell átadni. Egy Viewer böngészős bejelentkezésével ellenőrizd a kívánt láthatóságot, a szerkesztés tiltását és a Grafana Live kapcsolatot.
+Későbbi személyenkénti hozzáféréshez hozz létre külön jelszavas Viewer-fiókokat a csapattársaknak. A kijelölt dashboard/mappa engedélyeit és az örökölt Viewer-jogokat külön állítsd be; a HTTPS önmagában nem korlátozza a hozzáférést egyetlen dashboardra. Az alap Viewer adatforrás-lekérdezési jogosultsága sem panelenkénti adatelkülönítés. Adminfiókot vagy SSH-kulcsot nem kell átadni. Egy Viewer böngészős bejelentkezésével ellenőrizd a kívánt láthatóságot, a szerkesztés tiltását és a Grafana Live kapcsolatot.
+
+### Jelenlegi mappa és dashboardjogok
+
+- Az **AI Job Portal → Manage permissions** nézetben a mappaszintű **Viewer → View** jogot el kell távolítani; az Admin és a kívánt Editor-jog megmarad.
+- A **MatchWise | Unified Monitoring → Settings → Permissions** nézetben a közvetlen **Viewer → View** jog megmarad.
+- Az **Application Availability**, **Infrastructure Overview** és **Backend Logs** közvetlen Viewer-jogait el kell távolítani; az örökölt magasabb jogosultság nem tiltható le a gyermek dashboardon.
+- A csapat jelenlegi fiókjának szervezeti szerepe **Viewer**, a **Grafana Admin: No**; személyenkénti fiókok később vezethetők be.
+- A jogosultságmódosítás külön művelet a dashboard tartalmának mentésétől. A felső Save gombot a fájlprovisioning letilthatja; a jogosultságoldal újratöltésével ellenőrizd a változás megmaradását, ne exportálj vagy duplikálj emiatt dashboardot.
+- A felhasználók és ACL-ek a **grafana_data** adatbázisában tárolódnak, nem a provisionált dashboard-JSON-ban; új telepítés vagy adatbázis-visszaállítás után külön ellenőrizendők.
+- Külön Viewer-munkamenetből ellenőrizd: a Unified Monitoring betölt, a többi dashboard közvetlen URL-lel sem érhető el és nincs szerkesztési jog. A dashboardláthatóság nem korlátozza az adatforrás-lekérdezéseket a megjelenített panelek adataira.
 
 ## Hibakeresés és visszaállítás
 
@@ -161,7 +171,7 @@ Az OCI-ben is csak a most hozzáadott két ingress szabályt vond vissza. Ne tö
 
 ## Állapot és források
 
-Helyi ellenőrzés: alap Compose továbbra is hat szolgáltatást aktivál, a public profil érvényes; a hivatalos 2.11.9 Caddy validálta a Caddyfile-t. Az image ARM64 támogatása az official-images leírásban ellenőrizve. **Oracle-telepítés, portnyitás, tanúsítványigénylés és böngészős bejelentkezés még nem igazolt.**
+A helyi ellenőrzések validálták a hat szolgáltatásos alapkonfigurációt, a public profilt és a Caddyfile-t. Az üzemeltető kimenete igazolta a DNS-t, az OCI TCP 80/443 szabályokat, a REJECT előtti host ACCEPT szabályokat, a Caddy/Grafana indulást, a tanúsítvány kiállítását és a HTTPS-health választ. A külső böngészős bejelentkezést és a Viewer működését visszaigazolta. Újraindítás utáni tűzfalszabály-megőrzés, külön Grafana Live-teszt és teljes helyreállítás nem volt külön igazolva. Lásd TEST-14.
 
 - [Caddy HTTPS](https://caddyserver.com/docs/automatic-https)
 - [Caddy reverse proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)

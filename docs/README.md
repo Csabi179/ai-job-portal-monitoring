@@ -1,8 +1,8 @@
 # MatchWise documentation / dokumentáció
 
-Updated November 10, 2026. Hungarian originals are preserved; their full English editions are listed below. Existing English guides are shared rather than duplicated. Both editions retain historical evidence and distinguish later operator verification from tests still pending.
+Updated November 16, 2026. The guides describe current repository configuration and operator-confirmed deployment; dated test records preserve what was actually checked. Hungarian originals and English editions are listed below.
 
-Frissítve: 2026. november 10. A magyar eredetik megmaradtak, külön angol változattal. A már angol dokumentumokat nem duplikáljuk. A történeti megállapításokat a későbbi ellenőrzésektől külön kezeljük.
+Frissítve: 2026. november 16. Az útmutatók a jelenlegi konfigurációt és az üzemeltető által visszaigazolt telepítést írják le; a dátumozott tesztnapló az elvégzett ellenőrzéseket őrzi.
 
 | Document / dokumentum | English | Magyar |
 |---|---|---|
@@ -17,8 +17,8 @@ Frissítve: 2026. november 10. A magyar eredetik megmaradtak, külön angol vál
 | Supabase metrics | [Existing English guide](SUPABASE_METRICS.md) | — |
 | Verification and test evidence | [Shared English test log](monitoring-tests.md) | — |
 
-The architecture guide's draw.io/SVG assets retain their original Hungarian labels as a dated diagram snapshot. The English architecture document explains every component, connection and notation. The original diagram's nine-rule label is historical; the current active set has 12 rules.
+The editable draw.io/SVG architecture uses Hungarian labels and is accompanied by an English guide. It includes Caddy HTTPS access, the Telegram team group, 12 alert rules and the identified AI provider as an unverified deployment path.
 
-Telegram notifications, alert titles and descriptions are English after deploying the language update. Rule UIDs, queries, thresholds, pending times and routing are unchanged. The English [alerting runbook](alerting-plan.en.md#deployment) includes the Grafana-only update steps.
+English Telegram delivery is evidenced by the Node Exporter test; the operator later confirmed the team-group destination. Rule UIDs, conditions and timing remain unchanged. See [TEST-11](monitoring-tests.md#test-11-node-exporter-delivery), [TEST-13](monitoring-tests.md#test-13-telegram-group-delivery), and the [alerting runbook](alerting-plan.en.md#deployment).
 
 **Translation maintenance:** when changing a paired document, update both language editions, including commands, selectors, timing values and evidence status. Preserve stable rule UIDs and test references. Never infer new successful tests from a translation. Update this index when adding another Hungarian document and its English edition.

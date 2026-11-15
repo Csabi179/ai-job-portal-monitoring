@@ -1,109 +1,108 @@
-# MatchWise – monitoringterv és megvalósítási állapot
+# MatchWise monitoringterv
 
 [English version](monitoring-plan.en.md) · [Dokumentációjegyzék](README.md)
 
-> Kiegészítés, 2026. november 10.: az alábbi magyar szöveg az eredeti dokumentálási állapotot is megőrzi. Azóta az üzemeltető alkalmazta a 12 szabályos konfigurációt, és megérkezett a collector Telegram Firing és Resolved üzenete. A többi szabály egyenkénti kézbesítési tesztje nem történt meg. A későbbi angol üzenetszöveg-frissítés még külön alkalmazandó. Részletek: [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
-
-Dokumentálás: **2026. november 10.** Ez a már megvalósított rendszer visszamenőleges leírása, nem a fejlesztés előtt készült terv. Kiindulási repository: `374f74eab098deccfd408887bbef5db314c83223`. A konfiguráció és a korábban rögzített bizonyítékok ellenőrizhetők; az Oracle VM jelenlegi futó állapotát ezen a napon nem értük el.
-
 ## Cél és felelősség
 
-Az egyetemi MatchWise állásportál szolgáltatásainak, az Oracle hostnak és a megfigyelés működésének követése. Az üzemeltető feladata a Render-hostolás, az Oracle monitoring, a naplógyűjtés, dashboardok, riasztások és dokumentáció. Az üzleti backendfunkciókat és a frontendet a csapat fejleszti.
+A monitoring az Oracle host, a Render backend, a Vercel frontend, a Supabase és a naplógyűjtés állapotát követi. Az üzemeltető felel a Render-hostolásért, az Oracle monitoringért, a naplógyűjtésért, a dashboardokért, a riasztásokért és a dokumentációért. Az alkalmazás üzleti funkcióit és az adatbázis-migrációkat a csapat felelősei kezelik.
 
-A dashboardon teljesítmény és kapacitás is látható. Az aktív értesítések kizárólag kiesést vagy a megfigyelés hibáját jelzik; részletek a [riasztási tervben](alerting-plan.md).
+A dashboard teljesítményt és kapacitást is megjelenít. Aktív értesítés kizárólag kieséshez vagy megfigyelési hibához tartozik; a pontos feltételeket a [riasztási terv](alerting-plan.md) tartalmazza.
 
-## Komponensek és helyük
+## Komponensek és elhelyezés
 
-| Hely | Komponens | Szerep |
+| Hely | Komponens | Feladat |
 |---|---|---|
-| Oracle Cloud | Ubuntu 24.04 ARM64 VM; korábban dokumentált 2 OCPU / 12 GB RAM | Monitoringhost |
-| Oracle Docker Compose | Prometheus 3.13.2; Grafana 13.2.1 | Metrikák tárolása; dashboard és Grafana Alerting |
-| Oracle Docker Compose | Node Exporter 1.11.1; Blackbox Exporter 0.28.0 | Hostmetrikák/textfile; HTTP-próbák |
-| Oracle Docker Compose | Loki 3.7.9; Alloy 1.21.2 | Naplótárolás; fájlbeolvasás és továbbítás |
-| Oracle systemd | Python collector és logrotate, saját service/timer párokkal | Render Logs API gyűjtés és JSONL-forgatás |
-| Render Free | `matchwise-backend-monitoring-test.onrender.com` | A csapat backendje ugyanazon korábbi szolgáltatáson |
-| Vercel | `https://www.matchwise.tech/` | Frontend |
-| Supabase | `uvopvarvelpabhmrqaaw` | PostgreSQL, Auth, PostgREST, Metrics API |
-| Telegram | AI Job Telegram | Riasztási és helyreállási értesítés |
-| GitHub | Csabi179/ai-job-portal-monitoring | Konfiguráció és dokumentáció változáskövetése |
+| Oracle Cloud | Ubuntu ARM64 VM, 2 OCPU / 12 GB RAM | Monitoringhost |
+| Docker Compose | Prometheus 3.13.2; Grafana 13.2.1 | Metrikatárolás, dashboardok és Grafana Alerting |
+| Docker Compose | Node Exporter 1.11.1; Blackbox Exporter 0.28.0 | Host- és textfile-metrikák, HTTP-próbák |
+| Docker Compose | Loki 3.7.9; Alloy 1.21.2 | Naplótárolás és továbbítás |
+| Docker Compose, public profil | Caddy 2.11.9 | Nyilvános HTTPS-elérés a helyi Grafanához |
+| Oracle systemd | Python collector és logrotate, service/timer párokkal | Render Logs API gyűjtés és JSONL-forgatás |
+| Render | matchwise-backend-monitoring-test.onrender.com | A csapat backendje, a main ág automatikus telepítésével az üzemeltető beállítása szerint |
+| Vercel | https://www.matchwise.tech/ | Frontend |
+| Supabase | uvopvarvelpabhmrqaaw | PostgreSQL, Auth, PostgREST és Metrics API |
+| Telegram | AI Job Telegram contact point | Angol Firing és Resolved üzenetek a csapat csoportjába |
+| GitHub | Csabi179/ai-job-portal-monitoring | Konfigurációk és dokumentáció verziókezelése |
 
-Render Service ID: `srv-dbh7b1nb9u1s73e6hpbg`. A szolgáltatás neve történeti; a november 9-i bizonyíték szerint a csapat backendjének main ágát futtatja. A pontos akkor telepített backendcommit nem ismert. A helyi backendforrásmásolat november 9-i; e dokumentálási feladat nem ellenőrizte újra a backendmain tartalmát.
+A Compose alapból hat szolgáltatást választ ki; az üzemelő HTTPS-eléréshez a public profil Caddy-szolgáltatása is szükséges. Render Service ID: `srv-dbh7b1nb9u1s73e6hpbg`. A pontos éles backendcommit külön ellenőrizendő; a forráskód állapota nem bizonyít telepítést.
 
-Az architektúra szerkeszthető ábrája: [draw.io és SVG](architecture/README.md). Az AI-szolgáltató és a teljes frontend–backend kapcsolat ábrabeli tervezett jelölését új telepítési bizonyíték nélkül nem tekintjük megvalósultnak.
+Szerkeszthető architektúra: [draw.io és SVG](architecture/README.md).
 
-## Adatforrások és adatút
+## Adatforrások és adatfolyamok
 
-1. Node Exporter → Prometheus → Grafana: CPU, memória, lemez, hálózat, terhelés, uptime, textfile állapot.
-2. Blackbox → Prometheus → Grafana: backend `/api/health`, frontend főoldal; az új konfigurációban Loki `/ready` és Alloy `/-/healthy`.
-3. Supabase Metrics API → Prometheus → Grafana: scrape állapot, `pg_up`, adatbázis- és hostmetrikák, PostgREST pool.
-4. Pino JSON stdout → Render Logs API → Python collector → deduplikált JSONL → Alloy → Loki → Grafana.
-5. Sikeres systemd oneshot → heartbeat textfile → Node Exporter → Prometheus → Grafana Alerting → Telegram.
+1. Linux → Node Exporter → Prometheus → Grafana: CPU, memória, lemez, hálózat, terhelés és uptime.
+2. Blackbox → Prometheus → Grafana: backend `/api/health`, frontend főoldal, Loki `/ready` és Alloy `/-/healthy`.
+3. Supabase Metrics API → Prometheus → Grafana: scrape-állapot, `pg_up`, adatbázis-, host- és PostgREST-metrikák.
+4. Pino stdout → Render Logs API → Python collector → deduplikált JSONL → Alloy → Loki → Grafana.
+5. Sikeres collector-futás → heartbeat textfile → Node Exporter → Prometheus → Grafana Alerting.
+6. Böngésző → HTTPS → Caddy → Grafana bejelentkezés és jogosultság-ellenőrzés.
+7. Grafana Alerting → Telegram Bot API → a csapat Telegram-csoportja.
 
-A collector `event=http_request` és a konfigurált `service` alapján szűr. Fontos mezők: reqId, method, route, statusCode, responseTimeMs; hozzáadott Render-időbélyeg és azonosítók. Alloy az eredeti Render-időt használja. Az auth útvonalak gyakran /api előtag nélkül szerepelnek a naplóban. Jelszó, token, Authorization fejléc, CV és kérésbody nem kerülhet a naplóba.
+A collector csak a konfigurált service `http_request` eseményeit és az engedélyezett mezőket tartja meg: level, event, reqId, method, route, statusCode, responseTimeMs és errorCode, kiegészítve Render-azonosítókkal és időbélyeggel. Az Alloy az eredeti Render-eseményidőt használja. A route mező gyakran /api előtag nélküli sablon; kérésbody, CV-tartalom, jelszó és token nem része a gyűjtött mezőknek.
 
-## Gyakoriság és időablakok
+## Mérési ütem és időablakok
 
-| Adat | Gyakoriság / ablak |
+| Adat | Gyakoriság vagy ablak |
 |---|---|
 | Node Exporter, Blackbox saját metrikák, Prometheus önscrape | 60 s |
 | Backend HTTP | 30 perc; scrape timeout 110 s; prober timeout 100 s |
 | Frontend HTTP | 60 s; scrape timeout 15 s; prober timeout 10 s |
-| Supabase | 60 s; scrape timeout 30 s; file discovery frissítés 60 s |
-| Új Loki/Alloy HTTP health-próbák | 60 s; scrape timeout 15 s |
+| Supabase | 60 s; scrape timeout 30 s; file discovery 60 s |
+| Loki és Alloy health-próbák | 60 s; scrape timeout 15 s |
 | Collector | OnBootSec=2min; OnUnitInactiveSec=1min; AccuracySec=10s |
 | Grafana szabályértékelés | 1 perc |
-| Új backendriasztás frissessége | 40 perc; pending 2 perc |
-| Új frontendriasztás frissessége | 3 perc; pending 2 perc |
+| Backend HTTP-riasztások frissessége | 40 perc; pending 2 perc |
+| Frontend HTTP-riasztások frissessége | 3 perc; pending 2 perc |
 | Dashboard állapotkártyák | Backend 40 perc; frontend 5 perc |
-| Pino gördülő P50/P95 | 15 perc; végponttáblázat P95 a teljes kiválasztott időből |
-| Dashboardadatok frissítése | Unified dashboard 1 perc; provisioning fájlfigyelés 30 s |
+| Gördülő Pino P50/P95 | 15 perc; végponttáblázat P95 a teljes kiválasztott időből |
+| Unified dashboard frissítése; provisioning fájlfigyelés | 1 perc; 30 s |
 
-A collector gyakorisága futásvéghez kötött, nem pontos faliórai perc. Sikeres üres API-lekérés is frissíti a heartbeatet. Ez nem bizonyít Loki-kézbesítést.
+A collector az előző futás befejezése után ütemeződik; sikertelen API-kérés után a timer újra próbálkozik, de a Python-programon belül nincs automatikus HTTP-retry. Sikeres, üres gyűjtés is frissítheti a heartbeatet; ez önmagában nem igazolja a Loki-kézbesítést.
 
-## Dashboardok és értelmezés
+## Dashboardok és riasztások
 
-Fő nézet: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overview`, repositorybeli verzió 8. Adatforrás-UID: `prometheus`, `loki`. Host-, Supabase-, backend-, frontend-, Pino-, auth-, collector- és diagnosztikai nézetek. Megmarad a három részletes Infrastructure, Application Availability és Backend Logs dashboard. A korábbi panelszámok történetiek, nem a jelenlegi nézet ellenőrzött leltárai.
+Fő dashboard: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overview`, repositorybeli verzió 8. Két bevezető panel és kilenc csoport 82 panelje összesen **84 panelt** alkot. Adatforrás-UID: `prometheus`, `loki`.
 
-A CPU/RAM/lemez, a válaszidők, P95 és 4xx továbbra is diagnosztikai adatok. A hat auth-számláló sikeres/elutasított/hibás login, login 5xx, logout és regisztráció eseményét követi; aktív felhasználó vagy munkamenet nem számolható belőlük. A regisztráció automatikusan be is léptethet.
+A három részletes dashboard megmarad üzemeltetési használatra: Infrastructure Overview, Application Availability és Backend Logs. A hat auth-számláló login-, logout- és regisztrációs eredményeket mutat; nem aktív felhasználók vagy munkamenetek számát. A legutóbbi auth-teszt statikus szövegét eltávolítottuk a bevezető panelből; a teszteredmény a tesztnaplóban marad.
 
-A minták sikeraránya nem garantált folyamatos uptime. Egy tárolt minta több grafikonpontban is megjelenhet. A Pino-idő nem teljes külső HTTP-idő. A health-forgalom torzíthatja az alkalmazásfunkciók összesített hibaarányát és percentiliseit. Nulla hiba és hiányzó napló eltérő állapot. A dashboard frontendkártyájának 5 perces és a riasztás 3 perces frissessége tudatos eltérés: a riasztás hamarabb jelzi a mérés hiányát.
+A **12 szabály** csoportjai: infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2), vercel-frontend-monitoring (2). CPU/RAM/lemez, P95, általános 4xx és a csendes alkalmazás nem aktív riasztási ok.
 
-## Tárolás, megőrzés, hozzáférés
+A Telegram-üzenetek angol nyelvűek. A contact point UID-ja `ai_job_telegram`; a célcsoportot a privát Oracle `GRAFANA_TELEGRAM_CHAT_ID` választja ki. Group wait 30 s, group interval 5 perc, repeat interval 4 óra; a Resolved értesítés engedélyezett.
 
-- Prometheus: konfigurált 7 nap vagy 2 GB, a korábban elért korlát szerint.
-- Loki: konfigurált 168 óra, compactor retention bekapcsolva; nem azonos a JSONL-forgatással.
-- JSONL: `~/ai-job-monitoring/test-logs/render-backend.jsonl`; óránkénti méretellenőrzés, 20 MB küszöb, legfeljebb hét tömörítetlen archívum.
-- Tartós named volume: prometheus_data, grafana_data, loki_data, alloy_data. A tartós tárolás nem önmagában biztonsági mentés.
-- SQLite és kurzor: `~/monitoring-private-state/`; rutinszerű frissítéskor megőrzendő.
-- Titkok: gitből kizárt `.env`, `~/monitoring-private-secrets/`; kulcsértékek nem kerülhetnek parancskimenetbe vagy commitba.
-- Supabase privát password/target fájl: a helper által előállítva, read-only Prometheus mount.
-- Host network, loopback management végpontok; Grafana SSH-alagúton. A VM .env módosítása nem módosítja a Render Environment értékeit.
+## Tárolás és hozzáférés
 
-A megőrzési értékek konfigurációs célok; a tényleges lemezhasználatot, megőrzési ciklust és visszaállíthatóságot külön kell mérni.
+- Prometheus: a `prometheus/prometheus.yml` szerint 7 nap vagy 2 GB, a korábban elért korlát alapján.
+- Loki: 168 óra, engedélyezett compactor retentionnel.
+- JSONL: `~/ai-job-monitoring/test-logs/render-backend.jsonl`; óránkénti méretellenőrzés, 20 MB küszöb és legfeljebb hét tömörítetlen archívum.
+- Named volume-ok: prometheus_data, grafana_data, loki_data, alloy_data, caddy_data és caddy_config.
+- SQLite és kurzor: `~/monitoring-private-state/`; frissítéskor megőrzendők.
+- Titkok: Gitből kizárt `.env` és `~/monitoring-private-secrets/`; a Supabase privát fájljai read-only Prometheus mounton érhetők el.
+- Nyilvános cím: **https://grafana-r0cecq.duckdns.org/**, Caddyn át, TCP 80/443 használatával; a Grafana 3000-es és a belső monitoringportok loopbacken maradnak.
+- A csapat közös Viewer-fiókja csak a Unified Monitoring dashboardhoz kap dashboardjogot, Grafana Admin nélkül; Oracle- vagy SSH-hozzáférést nem kap.
+- Az ACL-ek és a felhasználók a Grafana adatbázisában tárolódnak, a dashboard-JSON nem állítja be őket automatikusan.
+- A dashboardjogosultság nem adatforrás-szintű elkülönítés: a Viewer az elérhető adatforrásokon más lekérdezéseket is futtathat.
+- Secure cookie mellett böngészős bejelentkezéshez a HTTPS-címet kell használni; az SSH shell és a helyi health-lekérdezés továbbra is elérhető.
 
-## Bizonyítékok és állapot
+Eljárás és visszaállítás: [HTTPS-hozzáférés](GRAFANA_HTTPS_ACCESS.md). A tartós tárolás nem helyettesíti a biztonsági mentést; a tényleges megőrzést és visszaállíthatóságot külön kell ellenőrizni.
 
-Részletes dátumok: [monitoring-tests.md](monitoring-tests.md).
+## CV és AI megfigyelésének előkészítése
 
-| Terület | Rögzített bizonyíték | Korlát |
-|---|---|---|
-| Alap monitoring | Október 28-i endpoint- és konténertesztek | Korábbi négyszolgáltatásos állapot |
-| Telegram | Október 28-i helyi tesztszabály Firing és Resolved | Nem az összes új szabály kézbesítési tesztje |
-| Naplóút, deduplikáció, rotáció | Október 30-i tesztek; 120 egyedi szintetikus üzenet | Nem általános adatvesztésmentesség |
-| Auth és naplókorreláció | November 9-i regisztráció/login/me/account/logout és várt 401; két reqId Lokiban | Nem frontendintegráció és nem folyamatos üzleti teszt |
-| Supabase | November 9-i HTTP 200, UP célpont, lastError nélkül | Nem november 10-i élő állapot |
-| Új kiesésriasztások | November 10-i helyi konfiguráció- és PromQL-tesztek | VM-provisioning és élő Telegram még tesztelendő |
+A november 15-én átadott main forrásmásolat CV-feltöltést és Cloudinary-tárolást tartalmazott. A külön `feat-ajsp-4-cv-profile` branch Cloudflare Workers AI `@cf/openai/gpt-oss-20b` használatával profilkészítést valósít meg.
 
-## Korlátok és tervezett fejlesztések
+Az üzemeltető a `CLOUDFLARE_ACCOUNT_ID` és `CLOUDFLARE_API_TOKEN` változókat Renderen előre beállította. Ez nem Oracle-monitoringkonfiguráció; a szükséges Supabase-migrációért az adatbázis felelőse felel. A merge és az éles telepítés állapotát a monitoringrepo nem igazolja.
 
-A teljes Oracle VM vagy Grafana kiesésekor a helyi Grafana nem képes megbízható értesítésre. Független, másik infrastruktúrán futó ellenőrzés szükséges; ez jelenleg **tervezett**, nem telepített védelem. Ne nyissuk meg emiatt a belső monitoringportokat. Egy külső VM/heartbeat szolgáltatás elmaradó, kifelé küldött heartbeatet és külön értesítési utat használhat.
+Backendmódosítás nélkül a `/cv/upload` és `/cv/:id/profile` HTTP-kérésszáma, státuszkódja, teljes feldolgozási ideje és reqId-ja használható. Külön AI-időtartam, tokenhasználat és pontos szolgáltatói hibatípus nem áll rendelkezésre; a profilvégpont 503-as válasza nem bizonyít Cloudflare-kiesést. Külön AI-panel vagy AI-riasztás még nincs.
 
-A backend 30 perces mintavétele kihagyhat rövid kiesést; nem tartjuk ébren sűrűbb lekéréssel. A health sikere nem teljes üzleti funkcióteszt. A frontend HTTP 200 nem bizonyít böngészős működést vagy API-kapcsolatot. A korábbi demo-login megfigyelés dátumhoz kötött, most nem ellenőriztük újra. Render/Vercel host CPU/RAM, browser hibák/Web Vitals és tracing nincsenek gyűjtve.
+## Ellenőrzések és korlátok
 
-A collector elérhetősége, a Loki health és a valódi naplókézbesítés három külön kérdés. Egy csendes alkalmazásra nem indítunk naplóhiány-riasztást. A helyi health-próbák sem detektálnak minden beolvasási/továbbítási hibát. Független szintetikus naplóút-teszt későbbi fejlesztés lehet.
+A [tesztnapló](monitoring-tests.md) külön rögzíti a dátumhoz kötött méréseket és az üzemeltetői visszajelzéseket. Igazolt a 12 szabály betöltése, a collector és Node Exporter Firing/Resolved kézbesítése, az angol értesítés, a HTTPS-bejelentkezés, a Viewer-hozzáférés működésének visszajelzése és a Telegram-csoportos átállás. A többi tíz szabály egyenkénti élő tesztje, a 4 órás ismétlés és a teljes infrastruktúra-helyreállítás nincs igazolva.
+
+A backend 30 perces mintavétele kihagyhat rövid kiesést; az HTTP 200 nem teljes üzleti vagy böngészős funkcióteszt. Render/Vercel host CPU/RAM, böngészős hibák, Web Vitals és tracing nincsenek gyűjtve. A 12 szabály nem ellenőrzi külön a nyilvános Caddy/DNS/TLS útvonal egészét.
+
+A teljes Oracle VM vagy Grafana kiesésekor a helyi Grafana nem tud megbízhatóan értesíteni; független külső ellenőrzés későbbi fejlesztés. Collector-siker, Loki-health és tényleges naplókézbesítés külön állapot. A hiányzó adat nem automatikusan nulla hiba vagy UP.
 
 ## Üzemeltetés és változáskövetés
 
-Repository a konfiguráció elsődleges forrása. Módosítás → helyi validálás → GitHub-commit → VM `git pull --ff-only` → konténerenkénti alkalmazás → élő ellenőrzés és bizonyíték rögzítése. Konfliktus esetén nincs `reset --hard`; volume vagy collectorállapot nem törölhető rutinszerűen.
+Konfigurációmódosítás → validálás → GitHub-commit → Oracle `git pull --ff-only` → az érintett szolgáltatás alkalmazása → működés ellenőrzése. Konfliktust nem oldunk meg `reset --hard` paranccsal; volume-ot, SQLite-ot vagy kurzort nem törlünk rutinszerűen.
 
-Az egyedi fájl-bind mount miatt Prometheus és szükség esetén Alloy konfigurációjához konténer-újralétrehozás kellhet. A mostani változás Prometheust és Grafanát érinti. Pontos alkalmazás és rollback: [riasztási terv](alerting-plan.md#alkalmazas). Projektlezárási cél a korábbi dokumentáció szerint legkésőbb 2026. december 15.
+Az egyedi fájl-bind mount módosítása konténer-újralétrehozást igényelhet. A dashboard-JSON-t a Grafana 30 másodpercenként figyeli; a környezeti változók módosításához Grafana-újralétrehozás kell. Az Oracle `.env` nem módosítja a Render Environment értékeit. Tervezett projektlezárás: legkésőbb 2026. december 15.

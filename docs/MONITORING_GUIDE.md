@@ -2,16 +2,15 @@
 
 [Documentation index](README.md) · [English monitoring plan](monitoring-plan.en.md) · [English alerting plan](alerting-plan.en.md)
 
-> November 10 follow-up: the operator supplied successful 12-rule rollout evidence and collector Telegram Firing/Resolved messages. See [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10). Other per-rule tests remain pending. The later English notification update requires deployment.
 
 
-> **Status:** Retrospective documentation updated November 10, 2026. Repository changes are distinct from live Oracle rollout.  
+> **Status:** Reviewed November 16, 2026 against repository configuration and operator evidence; this review does not provide a new live Oracle audit.
 > **Main dashboard:** **MatchWise | Unified Monitoring** (Grafana UID: **matchwise-unified-overview**).  
 > **Scope:** Oracle Cloud monitoring VM, independently deployed Render backend, Vercel frontend, Supabase, and backend HTTP logs.
 
 ## 1. System architecture
 
-The monitoring stack runs on an Oracle Cloud Always Free Ubuntu 24.04 ARM64 VM (2 OCPU / 12 GB RAM). Docker Compose manages six containers:
+The monitoring stack runs on an Oracle Cloud Always Free Ubuntu 24.04 ARM64 VM (2 OCPU / 12 GB RAM). Docker Compose defines six base monitoring containers plus Caddy in the deployed `public` profile:
 
 | Component | Version in Compose | Role | Listener |
 | --- | --- | --- | --- |
@@ -21,6 +20,7 @@ The monitoring stack runs on an Oracle Cloud Always Free Ubuntu 24.04 ARM64 VM (
 | Blackbox Exporter | 0.28.0 | HTTP probing of local, Render, and Vercel URLs | 127.0.0.1:9115 |
 | Loki | 3.7.9 | Structured application log storage and LogQL | 127.0.0.1:3100 |
 | Grafana Alloy | 1.21.2 | Read local JSONL/syslog and forward logs to Loki | 127.0.0.1:12345 (management) |
+| Caddy (public profile) | 2.11.9 | HTTPS reverse proxy to local Grafana | TCP 80/443; admin 127.0.0.1:2019 |
 
 Monitoring dashboards use three data paths:
 
@@ -32,7 +32,7 @@ A fourth path watches the log collection process:
 
 **systemd successful collector run → Node Exporter textfile → Prometheus → Grafana alerting → Telegram.**
 
-The monitoring services are local-only. Access Grafana through an SSH tunnel, rather than opening port 3000 on the internet. For an SSH host you are authorized to access, forward local port 3000 to remote 127.0.0.1:3000.
+Internal monitoring endpoints remain on loopback. The deployed team URL is **https://grafana-r0cecq.duckdns.org/** through Caddy, with Grafana login and secure cookies. The shared Viewer account has dashboard access only to Unified Monitoring and no Grafana Admin rights. Users/ACLs live in Grafana's persistent database and are not configured by the dashboard JSON. Dashboard visibility does not isolate datasource-query access. SSH is retained for the operator, not granted to teammates. See the [HTTPS runbook](GRAFANA_HTTPS_ACCESS.en.md) and [TEST-14](monitoring-tests.md#test-14-https-viewer-access).
 
 ## 2. Data sources, collection rates and limits
 
@@ -64,12 +64,12 @@ Grafana dashboard provisioning is configured in **grafana/provisioning/dashboard
 
 | Dashboard | UID | Purpose |
 | --- | --- | --- |
-| **MatchWise | Unified Monitoring** | matchwise-unified-overview | Main operations landing page, including Supabase and auth counters |
+| **MatchWise \| Unified Monitoring** | matchwise-unified-overview | Main operations landing page, including Supabase and auth counters |
 | **AI Job Portal - Infrastructure Overview** | ai-job-infrastructure | Detailed Oracle host history |
 | **AI Job Portal - Application Availability** | ai-job-availability | Detailed HTTP probe history |
-| **MatchWise | Backend Logs** | matchwise-backend-logs | Deep dive into HTTP logs, status codes, P50/P95 and request IDs |
+| **MatchWise \| Backend Logs** | matchwise-backend-logs | Deep dive into HTTP logs, status codes, P50/P95 and request IDs |
 
-The unified dashboard covers system health, Oracle, Supabase, Render, Vercel, application/auth logs, collector status and diagnostics. Expand Diagnostics to inspect detailed HTTP logs and errors. Older seven-section/panel-count descriptions are historical.
+The unified dashboard covers system health, Oracle, Supabase, Render, Vercel, application/auth logs, collector status and diagnostics. Expand Diagnostics to inspect detailed HTTP logs and errors. The current JSON contains 84 panels, including two introductory panels and 82 panels within nine groups.
 
 Dashboard source-of-truth:
 
@@ -83,7 +83,7 @@ The repository now contains **12 outage/monitoring-failure rules**. High RAM/dis
 
 The authoritative [alerting plan](alerting-plan.en.md) documents exact conditions, pending times, No Data/Error handling, Telegram grouping, deployment, rollback and unexecuted live tests. HTTP/database/collector rules keep their last state when evidence disappears. Separate monitoring rules report telemetry failures. The backend retains 30-minute probing and uses a 40-minute freshness window; one failed completed probe with 2-minute pending now suffices, replacing the earlier two-failure requirement.
 
-The existing **AI Job Telegram** contact point and resolved messages are retained. A previous local test delivered Firing/Resolved; this does not verify each new rule. Full Oracle/Grafana failure cannot be reported reliably by the same host.
+The **AI Job Telegram** contact point sends English Firing/Resolved messages to the team group selected by the private `GRAFANA_TELEGRAM_CHAT_ID`. Collector and Node Exporter Firing/Resolved are evidenced; the other ten rules have not been individually verified live. The group switch was operator-confirmed (TEST-13). Full Oracle/Grafana failure cannot be reported reliably by the same host.
 
 ## 5. Collector, state, and log rotation
 
@@ -106,7 +106,7 @@ Run these on the Oracle VM from the monitoring repository:
 
     cd ~/ai-job-monitoring
     sudo docker compose config --quiet
-    sudo docker compose ps
+    sudo docker compose --profile public ps
     sudo systemctl list-timers --all | grep matchwise-render
     sudo systemctl show matchwise-render-logs.service -p Result -p ExecMainStatus
     sudo journalctl -u matchwise-render-logs.service -n 30 --no-pager
@@ -114,7 +114,7 @@ Run these on the Oracle VM from the monitoring repository:
 Check local health and telemetry without printing secrets:
 
     curl -fsS http://127.0.0.1:3000/api/health
-    curl -fsS http://127.0.0.1:12345/-/ready
+    curl -fsS http://127.0.0.1:12345/-/healthy
     curl -fsS http://127.0.0.1:9100/metrics | grep -E '^(matchwise_render_collector_last_success_timestamp_seconds|node_textfile_scrape_error)'
     curl -fsSG http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=max(time() - matchwise_render_collector_last_success_timestamp_seconds)'
 
@@ -123,6 +123,7 @@ Troubleshooting:
 | Symptom | Check |
 | --- | --- |
 | Collector 401/403 | Render API token permissions, workspace/service membership; never paste tokens into logs or chat |
+| Collector read timeout | Inspect journal and API response timing; the timer retries on subsequent runs, without an internal HTTP retry. TEST-15 records automatic recovery; do not reset cursor/SQLite. |
 | Collector 429/5xx | Render rate limiting or API availability; inspect the last systemd result and journal |
 | Collector success but no new Pino logs | No application traffic, wrong Render service, or missing structured logging |
 | Collector alert fired | Check successful-run age, systemd timer/service, API credentials and Node Exporter metric |
@@ -143,7 +144,7 @@ Prerequisites:
 
 1. The team backend is deployed, its Render **Service ID**, **Workspace/Owner ID**, health endpoint URL and API access are known.
 2. The running team backend emits compatible Pino JSON **http_request** entries (service identifier, reqId, route, statusCode, responseTimeMs).
-3. The Render API key grants authorized log access to the team's deployment. The logging branch may still require review/merge/deployment.
+3. The Render API key grants authorized log access to the intended deployment. Compatible logging must be verified for any replacement backend; existing team-backend delivery is recorded in TEST-08.
 
 Safe migration sequence on Oracle:
 
@@ -162,10 +163,9 @@ See **docs/RENDER_LOGGING_RUNBOOK.en.md** for the detailed English logging runbo
 ## 8. Security, Git and handover
 
 - Keep **.env**, Render API keys, Telegram bot token/chat ID, TLS keys, real JSONL logs, archives, SQLite and cursor files outside Git.
-- Grafana/Prometheus/Loki/Alloy management listeners are bound to loopback on Oracle. Use SSH tunneling for operator access.
+- Grafana/Prometheus/Loki/Alloy management listeners remain on loopback; Caddy provides authenticated public Grafana HTTPS access. Browser login uses HTTPS because secure cookies are enabled.
 - Earlier experimental public syslog ingress was closed; the supported Render logging integration now pulls from Render Logs API via HTTPS.
 - Render collector logs intentionally include a restricted Pino field allowlist; no bearer tokens, request bodies or raw URLs should be recorded.
-- No infrastructure change should stop the independently running Ollama process.
 - Keep existing three specialist dashboards as fallbacks while adopting Unified Monitoring for daily use.
 
 To sync changes committed directly to GitHub on Oracle:
@@ -183,4 +183,8 @@ Verified in the project: Oracle and HTTP availability measurements, Pino structu
 
 Limitations: coarse 30-minute Render HTTP probing; Render Free sleeping; frontend HTTP-only probing; lack of Render/Vercel CPU/RAM and browser performance telemetry; collector API pagination cap; no automatic retry inside the Python collector; log rotation is not a proof of perfect delivery; Grafana/Prometheus outages reduce monitoring visibility.
 
-For installation, test history and background planning, see **docs/installation-guide.md**, **docs/monitoring-tests.md**, and **docs/monitoring-plan.md**.
+For installation, test history and monitoring planning, see **docs/installation-guide.md**, **docs/monitoring-tests.md**, and **docs/monitoring-plan.md**.
+
+## 10. CV and AI preparation
+
+The operator supplied November 15 main and CV-profile feature-branch source archives. The feature uses Cloudinary storage and Cloudflare Workers AI, with the two Cloudflare variables preconfigured on Render. Merge/deployment and the required Supabase migration are not verified by this repository. Without backend changes, existing HTTP logs provide endpoint counts/statuses and total processing duration, not separate AI latency or token usage. No dedicated AI panel or rule is configured. See [the monitoring plan](monitoring-plan.en.md#cv-and-ai-monitoring-preparation).

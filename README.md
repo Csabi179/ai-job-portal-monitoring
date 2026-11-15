@@ -20,13 +20,13 @@ The original dedicated Infrastructure, Application Availability and Backend Logs
 
 ## Stack and ingestion
 
-- **Docker Compose:** Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Grafana Alloy.
+- **Docker Compose:** six base services (Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Alloy), plus deployed Caddy in the opt-in `public` profile.
 - **Render logs:** Pino JSON → Render Logs API → Python systemd collector → deduplicated JSONL → Alloy → Loki.
 - **Metrics:** Node Exporter and Blackbox Exporter → Prometheus → Grafana.
-- **Alerting:** 12 outage/monitoring-failure rules with English notification text; existing Telegram routing and resolved notifications retained. The outage-only rollout and collector Firing/Resolved were verified through operator evidence. Deployment of the later English wording and individual delivery tests for other rules remain pending; see the [alerting plan](docs/alerting-plan.en.md).
+- **Alerting:** 12 English outage/monitoring-failure rules, with Firing/Resolved notifications sent to the team's Telegram group. Collector and Node Exporter delivery were verified; the other ten rules have not been individually fired live. See the [alerting plan](docs/alerting-plan.en.md).
 - **Retention:** Prometheus 7 days or 2 GB; logrotate rotates the local JSONL at 20 MB with seven archives. Loki retention is separate.
 
-Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). All monitoring web services are bound to loopback and are intended to be reached through an SSH tunnel.
+Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). Internal monitoring web services bind to loopback. Team access uses Caddy HTTPS at https://grafana-r0cecq.duckdns.org/ with Grafana authentication; no Oracle or SSH access is granted to teammates.
 
 ## Installation and operations
 
@@ -42,7 +42,7 @@ Additional documentation:
 - [Installation guide](docs/installation-guide.md)
 - [Monitoring tests](docs/monitoring-tests.md)
 - [Monitoring plan](docs/monitoring-plan.en.md)
-- [Outage-only alerting plan, deployment and tests](docs/alerting-plan.md)
+- [Outage-only alerting plan, deployment and tests](docs/alerting-plan.en.md)
 
 Basic operations on Oracle:
 
@@ -73,15 +73,14 @@ Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite 
 
 Project target completion/shutdown: no later than **December 15, 2026**.
 
-## Optional HTTPS team access
+## HTTPS team access
 
-The default stack still runs six local monitoring services. An opt-in **public**
-Compose profile adds Caddy for https://grafana-r0cecq.duckdns.org/ with individual
-Grafana logins. It does not give teammates SSH access. Deployment and verification
-are pending; pulling the commit does not activate publication.
+Caddy is deployed from the **public** Compose profile. The operator supplied successful certificate/health output and confirmed external browser login. The shared Viewer account has dashboard access only to **MatchWise | Unified Monitoring**, with no Grafana Admin rights. The other three dashboards remain for operator use. See [TEST-14](docs/monitoring-tests.md#test-14-https-viewer-access).
 
-Follow the [English HTTPS runbook](docs/GRAFANA_HTTPS_ACCESS.en.md) or
-[Hungarian edition](docs/GRAFANA_HTTPS_ACCESS.md) before enabling the profile.
-They document the private environment settings, OCI and host firewall rules,
-certificate storage, team permissions and rollback. Existing dashboard and
-datasource permissions must be configured separately.
+Users and folder/dashboard permissions live in the Grafana database and must be restored or configured separately from dashboard JSON. Viewer datasource-query access is broader than dashboard visibility; this is not datasource-level isolation.
+
+Use the [English HTTPS runbook](docs/GRAFANA_HTTPS_ACCESS.en.md) or [Hungarian edition](docs/GRAFANA_HTTPS_ACCESS.md) for repeatable setup and rollback. The private Oracle .env holds public URL/secure-cookie and Telegram group settings; real values are not committed. Use `sudo docker compose --profile public ps` to include Caddy in status checks.
+
+## CV and AI preparation
+
+The operator reviewed November 15 main/feature-branch source archives and preconfigured the two Cloudflare variables on Render. The feature uses Cloudinary CV storage and Cloudflare Workers AI for profile extraction. This is preparation, not evidence that the feature is merged or deployed. Existing HTTP logs can show endpoint counts, statuses and total processing duration; separate AI latency, token usage and provider-specific errors are unavailable. No dedicated AI panels or rules have been added. See the [monitoring plan](docs/monitoring-plan.en.md#cv-and-ai-monitoring-preparation).

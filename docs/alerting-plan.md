@@ -1,13 +1,10 @@
 # MatchWise – riasztási terv és Oracle-frissítési eljárás
 
-Konkrét tesztparancsok mind a 12 szabályhoz: [magyar útmutató](alert-rule-tests.md) · [English runbook](alert-rule-tests.en.md). Az újabb Node Exporter Firing/Resolved bizonyíték a [TEST-11](monitoring-tests.md#test-11-node-exporter-delivery) bejegyzésben szerepel; a korábbi státuszmondatokat az eredeti ellenőrzési fázis szerint értelmezd.
-
-
 [English version](alerting-plan.en.md) · [Dokumentációjegyzék](README.md)
 
-> Kiegészítés, 2026. november 10.: az alábbi magyar szöveg az eredeti dokumentálási állapotot is megőrzi. Azóta az üzemeltető alkalmazta a 12 szabályos konfigurációt, és megérkezett a collector Telegram Firing és Resolved üzenete. A többi szabály egyenkénti kézbesítési tesztje nem történt meg. A későbbi angol üzenetszöveg-frissítés még külön alkalmazandó. Részletek: [TEST-10](monitoring-tests.md#test-10--oracle-rollout-and-collector-telegram-delivery-2026-11-10).
+**Jelenlegi dokumentált állapot (ellenőrzés: 2026. november 16.):** hat alap monitoring szolgáltatás és a public profil Caddy-szolgáltatása; működő HTTPS-bejelentkezés és üzemeltető által visszaigazolt Viewer-hozzáférés a Unified Monitoringhoz; 12 angol kiesési/megfigyelési szabály; Telegram-cél a csapat csoportja. A collector és a Node Exporter Firing/Resolved tesztje igazolt, a többi tíz szabály egyenkénti élő tesztje nem. Részletek: [tesztnapló](monitoring-tests.md).
 
-Dokumentálás: **2026. november 10.** Visszamenőleges dokumentáció és az új repositorykonfiguráció terve. A VM-re alkalmazás és a 12 új szabály Telegram-kézbesítése még nincs igazolva. Az október 28-i helyi teszt Firing/Resolved bizonyítéka nem az összes szabály tesztje.
+Konkrét tesztparancsok mind a 12 szabályhoz: [magyar](alert-rule-tests.md) · [English](alert-rule-tests.en.md).
 
 ## Cél és döntések
 
@@ -199,7 +196,7 @@ curl -fsS http://127.0.0.1:3000/api/health
 sudo docker compose logs --since=10m grafana
 ```
 
-A restart a Grafana értékelési állapotát/pending idejét befolyásolhatja. A volume megmarad. SSH-alagút után a Grafana Alert rules nézetben ellenőrizd:
+A restart a Grafana értékelési állapotát/pending idejét befolyásolhatja. A volume megmarad. A HTTPS-címen megnyitott Grafana Alert rules nézetben ellenőrizd:
 
 - 12 aktív, provisionált szabály; a három törölt UID nincs jelen.
 - A fennmaradó szabályok UID-ja az elvárt; nincs régi vagy kézzel létrehozott párhuzamos szabály.
@@ -210,17 +207,17 @@ A provisionált fájlok nem kezelik automatikusan az ismeretlen kézi szabályok
 
 ### 5. Teszt és bizonyíték
 
-Az alábbi forgatókönyveket tervezett tesztként hajtsd végre, külön tesztkörnyezetben vagy egyeztetett rövid karbantartási ablakban. A health/szolgáltatás szándékos leállítása ne érintse véletlenül az alkalmazás adatait.
+Az alábbi táblázat az elvégzett és a még tervezett teszteket külön jelöli; új tesztet külön tesztkörnyezetben vagy egyeztetett rövid karbantartási ablakban. A health/szolgáltatás szándékos leállítása ne érintse véletlenül az alkalmazás adatait.
 
 | Forgatókönyv | Várt eredmény | Állapot |
 |---|---|---|
-| Contact point teszt és sablon firing/resolved előnézet | Telegram üzenet; csak csatornateszt | Tervezett |
+| Contact point teszt és sablon firing/resolved előnézet | Telegram üzenet; csak csatornateszt | Angol kézbesítés TEST-11; csoportos átállás TEST-13; külön resolved-előnézet nem igazolt |
 | Frontend/backend sikeres, akár 22s HTTP 200 | Nincs kiesésriasztás | PromQL szinten siker tesztelt; élő új szabály még nem |
 | HTTP failure, up=1 | Csak HTTP-kiesés pending → firing | Helyi PromQL tesztelt; élő teszt tervezett |
 | up=0 vagy probe_success eltűnik | Monitoringhiba; szolgáltatásállapot nem oldódik fel bizonyíték nélkül | Helyi PromQL tesztelt; KeepLast élő teszt tervezett |
 | Backend utolsó minta 39m, majd >40m | 39m-nél még értékelhető; utána mérési hiba | Helyi PromQL tesztelt |
 | Supabase API-hiba / pg_up=0 / hiányzó pg_up | Külön monitoringhiba és DB-elérési hiba | Helyi PromQL tesztelt; ne állíts le DB-t rutintesztként |
-| Collector timer megállítása, folyó oneshot megvárása | Heartbeat elavul; firing, majd új siker után resolved | Helyi PromQL tesztelt; élő teszt tervezett |
+| Collector timer megállítása, folyó oneshot megvárása | Heartbeat elavul; firing, majd új siker után resolved | Firing/Resolved igazolt: TEST-10; pontos időmérés nélkül |
 | Nincs alkalmazásforgalom, collector továbbra is sikeres | Nincs collector-riasztás | Helyi PromQL tesztelt |
 | Loki/Alloy ellenőrzött health-hiba, majd helyreállás | Firing és resolved, mérési hibától megkülönböztetve | Élő teszt tervezett |
 | Prometheus elérhetetlen, Grafana működik | Csoportos DatasourceError; nincs hamis szolgáltatás-helyreállás | Élő teszt tervezett |

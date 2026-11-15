@@ -26,14 +26,16 @@ def edge(id, source,target,points,kind, text=(),at=None,both=False):
 
 box('browser',50,160,260,170,'FELHASZNÁLÓ',['Böngésző','Az alkalmazás felülete'],fill='#f8fafc',stroke='#64748b')
 box('vercel',370,130,480,240,'VERCEL · frontend',group=True,fill='#f1f5f9',stroke='#64748b')
-box('spa',395,205,430,130,'React webalkalmazás',['www.matchwise.tech','Auth: demo / szimulált belépés*'],parent='vercel',stroke='#64748b')
+box('spa',395,205,430,130,'React webalkalmazás',['www.matchwise.tech','Böngészős integráció: külön teszt*'],parent='vercel',stroke='#64748b')
 box('render',960,130,540,240,'RENDER · backend',group=True,fill='#eff6ff',stroke=C['app'])
 box('backend',985,205,240,130,'Node.js + Express',['REST API + auth','Pino HTTP-naplózás'],parent='render',stroke=C['app'],size=20)
 box('renderlogs',1260,205,215,130,'Render Logs API',['Alkalmazásnaplók','Pino JSON'],parent='render',stroke=C['logs'],size=20)
 box('supabase',1620,130,470,240,'SUPABASE · kezelt adatbázis',group=True,fill='#ecfdf5',stroke=C['metrics'])
 box('db',1645,205,220,130,'Auth + PostgreSQL',['PostgREST Data API','SQL-migrációk'],parent='supabase',stroke=C['metrics'],size=20)
 box('metricsapi',1880,205,185,130,'Metrics API',['DB + host metrikák','HTTPS'],parent='supabase',stroke=C['metrics'],size=20)
-box('ai',2140,130,240,240,'AI-SZOLGÁLTATÓ',['TERVEZETT','Asszisztens / AI API','Szolgáltató még','nincs kijelölve'],fill='#faf5ff',stroke=C['future'],dashed=True,size=19)
+box('ai',2140,130,240,240,'CLOUDFLARE AI',['Workers AI · gpt-oss-20b','CV → profil · feature branch','Élesítés nem igazolt'],fill='#faf5ff',stroke=C['future'],dashed=True,size=19)
+
+box('cloudinary',2140,450,240,160,'CLOUDINARY',['CV-fájltárolás','Backendforrásban szerepel'],fill='#eff6ff',stroke=C['app'],size=19)
 
 box('oracle',50,520,2040,1030,'ORACLE CLOUD VM · Ubuntu · ARM64 · monitoring',group=True,fill='#f8fafc',stroke='#475569')
 box('host',80,600,410,880,'VM / systemd / helyi fájlok',parent='oracle',group=True,fill='#f1f5f9',stroke='#94a3b8')
@@ -42,24 +44,27 @@ box('collector',110,900,350,140,'Python naplógyűjtő',['systemd timer · kb. p
 box('files',110,1170,350,140,'Helyi fájlok és állapot',['render-backend.jsonl','SQLite dedup + időkurzor'],parent='host',stroke=C['logs'])
 box('private',110,1370,350,80,'Privát konfiguráció',['.env / kulcsok · Gitből kizárva'],parent='host',stroke='#94a3b8',size=19)
 
-box('docker',540,600,1500,880,'DOCKER COMPOSE · 6 monitoringkonténer',parent='oracle',group=True,fill='#ffffff',stroke='#64748b')
+box('docker',540,600,1500,880,'DOCKER COMPOSE · 6 alap + Caddy (public profil)',parent='oracle',group=True,fill='#ffffff',stroke='#64748b')
 box('blackbox',590,650,370,140,'Blackbox Exporter',['HTTP-próbák és időmérés','Backend: 30 perc · frontend: 60 s'],parent='docker',fill='#f0fdfa',stroke=C['metrics'])
 box('prometheus',1040,650,370,140,'Prometheus',['Metrikák gyűjtése + TSDB','Node / probe / Supabase'],parent='docker',fill='#f0fdfa',stroke=C['metrics'])
-box('grafana',1570,650,410,140,'Grafana + Grafana Alerting',['Dashboardok · lekérdezések','9 riasztási szabály · Telegram'],parent='docker',fill='#fff7ed',stroke='#d97706')
+box('grafana',1570,650,410,140,'Grafana + Grafana Alerting',['Dashboardok · lekérdezések','12 riasztási szabály · Telegram'],parent='docker',fill='#fff7ed',stroke='#d97706')
 box('node',590,900,370,140,'Node Exporter',['VM-erőforrások','Textfile collector: .prom / heartbeat'],parent='docker',fill='#f0fdfa',stroke=C['metrics'])
 box('alloy',590,1170,370,140,'Grafana Alloy',['JSONL-fájl olvasása','Eredeti Render-időbélyeg'],parent='docker',fill='#fffbeb',stroke=C['logs'])
 box('loki',1040,1170,370,140,'Loki',['Backend HTTP-naplók','LogQL · logokból számolt mutatók'],parent='docker',fill='#fffbeb',stroke=C['logs'])
-box('volumes',590,1390,1390,60,'Docker volume-ok: Prometheus TSDB · Grafana · Loki · Alloy',parent='docker',fill='#f8fafc',stroke='#cbd5e1',size=19)
+box('caddy',1570,1010,410,140,'Caddy · HTTPS reverse proxy',['TCP 80/443 → helyi Grafana','TLS-tanúsítvány · secure cookie'],parent='docker',fill='#f8fafc',stroke=C['access'],size=20)
+box('volumes',590,1390,1390,60,'Docker volume-ok: Prometheus TSDB · Grafana · Loki · Alloy · Caddy',parent='docker',fill='#f8fafc',stroke='#cbd5e1',size=19)
 
-box('telegram',2140,650,240,240,'TELEGRAM',['Bot API → saját chat','Riasztás / helyreállás','Értesítési útvonal beállítva'],fill='#fff1f2',stroke=C['alerts'],size=19)
-box('operator',2140,1030,240,190,'ÜZEMELTETŐ',['Böngésző + SSH-alagút','Grafana elérése'],fill='#f8fafc',stroke=C['access'],size=19)
+box('telegram',2140,650,240,240,'TELEGRAM',['Bot API → csapatcsoport','Riasztás / helyreállás','Értesítési útvonal beállítva'],fill='#fff1f2',stroke=C['alerts'],size=19)
+box('operator',2140,1030,240,190,'CSAPATHOZZÁFÉRÉS',['HTTPS + Grafana login','Viewer · Unified Monitoring'],fill='#f8fafc',stroke=C['access'],size=19)
 box('gitnote',2140,1320,240,200,'GITHUB',['Backend main → Render','Monitoring repo → VM','Konfiguráció','és dokumentáció'],fill='#f8fafc',stroke='#94a3b8',size=18)
 
 edge('web','browser','spa',[(310,245),(395,245)],'app',['HTTPS'],(350,220),both=True)
-edge('frontend-api','spa','backend',[(825,270),(985,270)],'future',['REST API','TERVEZETT*'],(905,235),both=True)
+edge('frontend-api','spa','backend',[(825,270),(985,270)],'future',['REST API','KÜLÖN TESZT*'],(905,235),both=True)
 edge('stdout','backend','renderlogs',[(1225,285),(1260,285)],'logs')
 edge('db-api','render','supabase',[(1500,325),(1620,325)],'app',['Auth + Data API','HTTPS'],(1560,285),both=True)
-edge('ai-api','render','ai',[(1450,370),(1450,445),(2260,445),(2260,370)],'future',['AI API · tervezett backendkapcsolat'],(1830,445),both=True)
+edge('ai-api','render','ai',[(1450,370),(1450,445),(2260,445),(2260,370)],'future',['AI API · feature branch, élesítés nem igazolt'],(1830,445),both=True)
+
+edge('cv-storage','render','cloudinary',[(1500,350),(1580,350),(1580,480),(2140,480)],'app',['CV fájltárolás · backendforrás'],(1830,480),both=True)
 
 edge('render-poll','renderlogs','collector',[(1360,335),(1360,485),(65,485),(65,950),(110,950)],'logs',
      ['Pino JSON · HTTPS · Render API lekérése kb. percenként'],(650,485))
@@ -78,19 +83,20 @@ edge('probe-prom','blackbox','prometheus',[(960,720),(1040,720)],'metrics',['Pr�
 edge('prom-grafana','prometheus','grafana',[(1410,720),(1570,720)],'metrics',['PromQL','metrikák'],(1490,720),both=True)
 edge('loki-grafana','loki','grafana',[(1410,1240),(1470,1240),(1470,850),(1775,850),(1775,790)],'logs',['LogQL · naplók és HTTP-statisztikák'],(1700,850),both=True)
 edge('alerts','grafana','telegram',[(1980,720),(2100,720),(2100,770),(2140,770)],'alerts',['Riasztások','Bot API'],(2070,685))
-edge('access','operator','grafana',[(2140,1125),(2070,1125),(2070,820),(1900,820),(1900,790)],'access',['SSH-alagút'],(2100,960),both=True)
+edge('access','operator','caddy',[(2140,1125),(2070,1125),(2070,1080),(1980,1080)],'access',['HTTPS'],(2060,1045),both=True)
+edge('caddy-grafana','caddy','grafana',[(1940,1010),(1940,790)],'access',['127.0.0.1:3000'],(1855,950),both=True)
 edge('backend-deploy','gitnote','render',[(2380,1400),(2390,1400),(2390,105),(1230,105),(1230,130)],'access',['Backend main → Render deploy'],(1740,105))
 edge('monitoring-pull','gitnote','host',[(2140,1460),(2110,1460),(2110,1540),(350,1540),(350,1480)],'access',['Monitoring repo → git pull / konfiguráció'],(1320,1540))
 
-label(900,1515,['Loopbackra kötött monitoringvégpontok · Grafana elérése SSH-alagúton'],size=18,anchor='start',bg=False)
+label(900,1515,['Belső monitoringvégpontok: loopback · Grafana: Caddy HTTPS · Üzemeltetés: SSH'],size=18,anchor='start',bg=False)
 label(50,43,['MATCHWISE · TELJES STACK ÉS ADATÁRAMLÁS'],size=32,color='#0f172a',anchor='start',bg=False)
-label(50,84,['Dokumentált állapot: 2026. november 10. · A nyilak adatáramlást vagy feliratozott kérés/válasz kapcsolatot jelölnek.'],size=19,anchor='start',bg=False)
+label(50,84,['Dokumentált állapot: 2026. november 16. · Üzemeltetői visszajelzés és verziózott konfiguráció alapján.'],size=19,anchor='start',bg=False)
 
 for x,kind,name in [(70,'app','Alkalmazás / API'),(500,'metrics','Metrikák / HTTP-próbák'),(1040,'logs','Naplók'),(1390,'alerts','Riasztások'),(1790,'future','Tervezett kapcsolat')]:
     edges.append(dict(id='legend-'+kind,source=None,target=None,points=[(x,1610),(x+70,1610)],color=C[kind],dashed=kind=='future',both=False))
     label(x+85,1616,[name],size=19,anchor='start',bg=False)
-label(50,1660,['* A frontend auth-folyamata a 2026.11.09-i kódellenőrzéskor még szimulált volt. A backend auth API külön tesztelve működött.'],size=18,anchor='start',bg=False)
-label(50,1690,['A Telegram-útvonal konfigurált; a tervezett AI-szolgáltató és az integráció részletei még nincsenek véglegesítve. A GitHub-doboz a verziókövetési és telepítési forrást jelöli.'],size=18,anchor='start',bg=False)
+label(50,1660,['* A frontend HTTP-elérése nem böngészős integrációs teszt. A backend auth API külön tesztelve működött.'],size=18,anchor='start',bg=False)
+label(50,1690,['Telegram: csapatcsoport. AI: Cloudflare feature branch; éles állapot külön ellenőrizendő. A GitHub a verziókövetési és telepítési forrás.'],size=18,anchor='start',bg=False)
 
 def e(s): return html.escape(str(s),quote=True)
 
