@@ -75,7 +75,7 @@ Node Exporter failure means host monitoring has failed; it does not establish co
 
 ## Telegram, grouping and recovery
 
-Contact point remains **AI Job Telegram**, UID `ai_job_telegram`. Bot token/chat ID remain environment variables with the existing destination. `disableResolveMessage=false`.
+Contact point remains **AI Job Telegram**, UID `ai_job_telegram`. Bot token/chat ID remain environment variables. On November 15, 2026, the operator reported switching the destination from a private conversation to the team's Telegram group. `disableResolveMessage=false`.
 
 The notification language is English, including the 12 rule titles, summary/description annotations and recovery text. The template lists each event's firing/resolved state, summary and at most 200 description characters, followed by a shared English runbook link. The current descriptions are complete sentences shorter than 200 characters. Plain text (`parse_mode: None`) reduces formatting-related Telegram failures. Large groups may still be truncated by Telegram's 4096-character limit.
 
@@ -84,6 +84,30 @@ Normal grouping: `grafana_folder, category`, keeping availability and monitoring
 There is no automatic dependency inhibition. One Blackbox failure can trigger several monitoring rules, grouped into one notification. An already-active HTTP outage can remain active during a telemetry failure to avoid false recovery. Investigate shared Blackbox/Prometheus causes first.
 
 A new successful HTTP probe clears the HTTP condition. Backend recovery can wait for the next 30-minute probe, followed by evaluation and notification grouping. A monitoring alert's resolution means measurement has recovered, not necessarily the application. Each event has its own state in the notification. There is no additional keep-firing period.
+
+
+### Telegram group as the notification destination
+
+The bot stays the same; `GRAFANA_TELEGRAM_CHAT_ID` in the private Oracle `.env` selects the destination group. Keep `GRAFANA_TELEGRAM_BOT_TOKEN` set to the existing bot token. Neither real value nor the `.env` file is versioned. Provisioning already reads these variables, so changing the destination requires no rule or YAML changes.
+
+1. Add the bot to the destination group and allow it to send messages.
+2. Send `/start@<bot_username>` in the group using the actual bot username. No reply is required: the Grafana notification bot has no command-response program.
+3. Find the group's `chat.id` in the Telegram Bot API `getUpdates` response, checking `chat.title` and `chat.type` to identify the intended group. Do not expose the bot token in shared URLs or output.
+4. In `~/ai-job-monitoring/.env`, replace only `GRAFANA_TELEGRAM_CHAT_ID` with the group ID, preserving its negative sign.
+5. Apply the change:
+
+```bash
+cd ~/ai-job-monitoring
+sudo docker compose config --quiet
+sudo docker compose up -d --no-deps --force-recreate grafana
+curl -fsS http://127.0.0.1:3000/api/health
+```
+
+Grafana restarts briefly; no other service restart is required. If the immediate health check fails, retry after startup. Do not share full `docker compose config` output because it can contain secrets.
+
+As a Grafana administrator, select **Alerting → Contact points → AI Job Telegram → Test → Send test notification** and verify receipt in the destination group. This checks channel delivery, not all 12 rules' firing/resolved behavior. The group replaces the private destination; it does not add a second private delivery. To roll back, restore the previous privately retained chat ID, then repeat application and testing.
+
+[TEST-13](monitoring-tests.md#test-13-telegram-group-delivery) records the operator-reported successful switch. API reference: [Telegram getUpdates](https://core.telegram.org/bots/api#getupdates).
 
 ## Troubleshooting
 

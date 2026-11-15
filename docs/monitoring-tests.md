@@ -1,5 +1,17 @@
 # Monitoring Verification
 
+<a id="test-13-telegram-group-delivery"></a>
+## TEST-13 — Telegram team-group destination, 2026-11-15
+
+**Result: operator-reported successful switch to group delivery.** The operator created a Telegram group, added the existing bot and reported success after following the group chat-ID lookup, private environment update, Grafana recreation and contact-point test procedure. No direct Oracle or Telegram access was used by the assistant to verify these actions.
+
+The destination is now the team group instead of the previous private conversation. The existing contact point `AI Job Telegram` (UID `ai_job_telegram`) reads `GRAFANA_TELEGRAM_CHAT_ID` and `GRAFANA_TELEGRAM_BOT_TOKEN` from the private Oracle environment. No bot token, actual chat ID or real `.env` is committed.
+
+**Limits:** no timestamped API/test output or group-delivery screenshot was supplied. This records the operator's success confirmation, not a new induced firing/resolved test for any rule. Rule conditions, UIDs, resolved-message setting and notification grouping/timing are unchanged.
+
+Repeatable procedure: [English](alerting-plan.en.md#telegram-group-as-the-notification-destination) · [Hungarian](alerting-plan.md#telegram-csoport-mint-értesítési-cél).
+
+
 <a id="test-11-node-exporter-delivery"></a>
 ## TEST-11 — Node Exporter Firing/Resolved and English delivery, 2026-11-10
 

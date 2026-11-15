@@ -75,13 +75,37 @@ A Node Exporter kiesése a hostmegfigyelés kiesése; teljes VM-kiesést ebből 
 
 ## Telegram, csoportosítás és helyreállás
 
-Megmaradó contact point: **AI Job Telegram**, UID `ai_job_telegram`. Token/chat ID környezeti változóban, a meglévő címzéssel. `disableResolveMessage=false`. A sablon felsorolja az eseményenkénti firing/resolved állapotot, a szabály összefoglalóját és rövid, legfeljebb 200 karakteres hibaleírását; közös teendőhivatkozással. Plain text (`parse_mode: None`) csökkenti a Telegram formázásból eredő kézbesítési hibáit. A 4096 karakteres Telegram-korlát miatt a nagy csoportok üzenete rövidülhet.
+Megmaradó contact point: **AI Job Telegram**, UID `ai_job_telegram`. Token/chat ID környezeti változóban. A 2026-11-15-i üzemeltetői visszajelzés szerint a cél a csapat Telegram-csoportja a korábbi privát beszélgetés helyett. `disableResolveMessage=false`. A sablon felsorolja az eseményenkénti firing/resolved állapotot, a szabály összefoglalóját és rövid, legfeljebb 200 karakteres hibaleírását; közös teendőhivatkozással. Plain text (`parse_mode: None`) csökkenti a Telegram formázásból eredő kézbesítési hibáit. A 4096 karakteres Telegram-korlát miatt a nagy csoportok üzenete rövidülhet.
 
 Normál csoportkulcs: `grafana_folder, category`; külön availability és monitoring csoport. DatasourceError: `alertname, datasource_uid`. Group wait 30s, group interval 5m, repeat 4h. A 4h ismétlés a tartósan fennálló, változatlan csoportra vonatkozik; csoportváltozás előbb is küldhet üzenetet.
 
 Nincs automatikus függőségi elnyomás. Egy Blackbox-hibához több monitoringriasztás tartozhat; ezek egy csoportosított üzenetben jelennek meg. Egy már aktív HTTP-kiesés mérési hiba alatt is megmaradhat: ez tudatosan nem hamis helyreállás. A közös hibát először a Blackbox/Prometheus irányából kell vizsgálni.
 
 HTTP-helyreállást új sikeres próba vált ki. Backend esetén ez akár a következő 30 perces próbáig késhet, utána értékelés és értesítési csoportvárakozás következik. A monitoringriasztás feloldása a mérés működésének helyreállása, nem automatikusan az alkalmazásé. Üzenetben mindkét állapot olvasható. Nincs külön keep-firing idő.
+
+
+### Telegram-csoport mint értesítési cél
+
+A bot változatlan; a célcsoportot a privát Oracle `.env` fájl `GRAFANA_TELEGRAM_CHAT_ID` értéke választja ki. A `GRAFANA_TELEGRAM_BOT_TOKEN` marad a meglévő bot tokenje. A valódi értékeket és a `.env` fájlt nem verziózzuk. A provisioning már ezeket a változókat használja, ezért a címzéshez nem kell szabályt vagy YAML-fájlt átírni.
+
+1. Add hozzá a botot a célcsoporthoz, és engedélyezd számára az üzenetküldést.
+2. Küldd el a csoportban a `/start@<bot_felhasznaloneve>` parancsot a valódi botnévvel. Válasz nem szükséges: a Grafana értesítési botnak nincs parancsokra válaszoló programja.
+3. A Telegram Bot API `getUpdates` válaszában keresd a célcsoport `chat.id` mezőjét, a `chat.title` és `chat.type` alapján ellenőrizve a csoportot. A bot tokenjét ne tedd megosztott URL-be vagy kimenetbe.
+4. A `~/ai-job-monitoring/.env` fájlban csak a `GRAFANA_TELEGRAM_CHAT_ID` értékét cseréld a csoport azonosítójára; a negatív előjelet is őrizd meg.
+5. Alkalmazd a módosítást:
+
+```bash
+cd ~/ai-job-monitoring
+sudo docker compose config --quiet
+sudo docker compose up -d --no-deps --force-recreate grafana
+curl -fsS http://127.0.0.1:3000/api/health
+```
+
+A Grafana röviden újraindul; a többi szolgáltatást nem kell újraindítani. Azonnali health-hiba esetén az indulás után ismételd meg az ellenőrzést. Teljes `docker compose config` kimenetet ne ossz meg, mert titkokat tartalmazhat.
+
+Grafanában adminnal: **Alerting → Contact points → AI Job Telegram → Test → Send test notification**. Ellenőrizd, hogy a teszt a célcsoportba érkezik. Ez a csatornát ellenőrzi, nem mind a 12 szabály firing/resolved működését. Az átállítás a privát cél helyett a csoportot használja; nem hoz létre második privát kézbesítést. A visszaállításhoz a korábbi, privát helyen megőrzött chat ID-t állítsd vissza és ismételd meg az alkalmazást és a tesztet.
+
+A sikeres átállítás üzemeltetői visszajelzését a [TEST-13](monitoring-tests.md#test-13-telegram-group-delivery) rögzíti. API-leírás: [Telegram getUpdates](https://core.telegram.org/bots/api#getupdates).
 
 ## Hibakeresés
 
