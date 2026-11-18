@@ -93,8 +93,7 @@
           "annotations": {
             "summary": "MatchWise | Render backend | High CPU usage",
             "description": "CPU remains above 80% of the Render CPU limit for 5 minutes with fresh valid resource data.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md",
-            "__dashboardUid__": "matchwise-service-comparison"
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md"
           },
           "labels": {
             "project": "matchwise",
@@ -245,8 +244,7 @@
           "annotations": {
             "summary": "MatchWise | Render backend | HTTP 5xx burst",
             "description": "At least 5 logged non-health HTTP 5xx responses in a rolling 5-minute window, sustained for 2 minutes. Check backend errors and dependencies.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md",
-            "__dashboardUid__": "matchwise-service-comparison"
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md"
           },
           "labels": {
             "project": "matchwise",
@@ -397,8 +395,7 @@
           "annotations": {
             "summary": "MatchWise | Render backend | Rejected login burst",
             "description": "At least 10 logged POST login HTTP 401 responses in a rolling 5-minute window, sustained for 2 minutes. This is a signal to investigate, not proof of an attack.",
-            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md",
-            "__dashboardUid__": "matchwise-service-comparison"
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md"
           },
           "labels": {
             "project": "matchwise",
