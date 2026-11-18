@@ -142,3 +142,9 @@ Local checks passed: sixteen-rule UID/annotation/reference/cycle checks, 35-pane
 Helyi szerkezeti, Python-szintaxis- és hét Python-teszt és a telepítési parancsok Bash-szintaxisellenőrzése sikeres. A teljes frissített promtool-csomag és az új Loki-lekérdezések éles ellenőrzése még hátravan. Telepítési sikert és valódi 404-riasztást még nem állítunk.
 
 Sources: [Render free instances](https://render.com/docs/free), [Loki metric queries and offset](https://grafana.com/docs/loki/latest/query/metric_queries/).
+
+## Oracle preflight confirmed / Oracle-ellenőrzés igazolt
+
+Operator output from the staged snapshot /tmp/matchwise-security-update.3fTDyq confirms valid Prometheus configuration, PASS for twelve rules and 38 PromQL scenarios, successful source queries for all four security rules, and successful (empty) results for all Loki dashboard queries. This is a successful read-only preflight, not proof of deployment. Next: back up and apply the seven files, recreate Blackbox/Prometheus and load Grafana rules.
+
+A felhasználó kimenete igazolta az érvényes konfigurációt és mind a 38 tesztesetet. A négy security-szabály lekérdezése sikeres; a Loki-panelek üres, de hibamentes választ adtak. Az éles telepítés és a percenkénti mintavétel ellenőrzése még hátravan.
