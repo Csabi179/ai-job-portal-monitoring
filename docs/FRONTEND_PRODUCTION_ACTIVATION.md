@@ -145,3 +145,23 @@ A régi gh pr checks --json és az esetleg verziófüggő --match-head-commit
 használata megszűnt. A normál GitHub merge-védelem megmarad, nincs admin/force.
 A PR-műveletek ideiglenes könyvtárból futnak, nem a módosított monitoring checkoutból.
 A javított Bash-szintaxis ellenőrzése sikeres; tényleges merge még nincs visszaigazolva.
+
+## Frontend merge és az utána indult CI/deploy sikeres – 2026-11-19
+
+A felhasználó REST merge-kimenete merged=true, SHA:
+86fc6ff74ce1819e77749be899de598bf54b6577.
+A kapcsolt GitHub-eszköz ezt [PR #11](https://github.com/ernoking/job-portal-frontend/pull/11)
+merged állapotával és a main aktuális HEAD-jével külön igazolta.
+A tesztelt e48661e forrás a merge elődje; e48661e -> 86fc6ff összehasonlításban
+0 változott fájl szerepel. A frontendkód tartalma megegyezik a teszteltével.
+[Main CI 44423094254](https://github.com/ernoking/job-portal-frontend/actions/runs/44423094254): completed/success.
+Az új merge-commit Vercel státusza success, Deployment has completed.
+[Deployment státusz céloldala](https://vercel.com/ai-job-portal1/matchwise/6Q6jnND9uuawRBNkGnedCZujnu89).
+
+A két környezeti változó beállítását és a deployt a felhasználó korábban jelezte.
+A Vercel-projekt konkrét beállításait közvetlenül nem olvastuk ki.
+Következő ellenőrzés: az éles https://www.matchwise.tech oldalt újratöltve,
+valódi automatikus /matchwise-telemetry/v1 POST 204, nem üres normál API-adatok,
+majd Prometheus/Grafana frissülés. Ez még nincs visszaigazolva.
+A merge és a Vercel success önmagában nem éles böngészős adatküldési bizonyíték.
+A monitoring feat/service-comparison ága továbbra sem lett main-be olvasztva.
