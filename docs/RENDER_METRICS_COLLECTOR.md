@@ -64,3 +64,46 @@ A második próba cpu: HTTP 400 hibát adott. A kérésből eltávolítottuk a k
 A gyűjtő éles próbája sikeres. A meglévő kulcs működik; a friss adat feldolgozása igazolt. A következő lépés az egyszeri .prom fájlírás és a Node Exporter ellenőrzése. Az automatikus futtatás még nincs telepítve.
 
 Run the same transient systemd command with --write --output /home/ubuntu/monitoring-exporter-metrics/matchwise_render_resources.prom appended after the Python script. Then inspect http://127.0.0.1:9100/metrics for matchwise_render_ metrics and node_textfile_scrape_error. This writes a real metrics file but does not schedule collection. A one-time file becomes stale; it must not be treated as current indefinitely.
+
+## Scheduled collection / Rendszeres gyűjtés
+
+Operator verified successful file publication and Node Exporter ingestion on 2026-11-18: collection_success=1, CPU 0.14497778%, RAM 17.7024848991%, node_textfile_scrape_error=0. Prometheus ingestion remains to be checked.
+
+The new timer runs two minutes after the previous run finishes. It makes four Render API requests per run. It does not call the backend application endpoint. Source samples must still be at most five minutes old. The root-owned installed script under /usr/local/lib/matchwise allows this feature to be tested without switching the live repository checkout. Update that installed copy when updating the collector. The service uses the existing environment file. No Docker restart is required. Timer/service validation on Oracle is still pending.
+
+Az időzítő az előző futás befejezése után két perccel indít új gyűjtést, futásonként négy API-kéréssel. A telepített program külön könyvtárba kerül, így nem kell átváltani az éles repó ágát. Későbbi programfrissítésnél ezt a példányt is frissíteni kell. A Node Exporter beolvasása igazolt; a Prometheus és az időzítő ellenőrzése még hátravan.
+
+Run each command in order; stop if one fails. / A parancsokat sorrendben futtasd; hiba esetén állj meg.
+
+```bash
+cd ~/ai-job-monitoring
+git fetch origin feat/service-comparison
+git show FETCH_HEAD:scripts/render-metrics-poll.py > /tmp/matchwise-render-metrics-poll.py
+git show FETCH_HEAD:systemd/matchwise-render-metrics.service > /tmp/matchwise-render-metrics.service
+git show FETCH_HEAD:systemd/matchwise-render-metrics.timer > /tmp/matchwise-render-metrics.timer
+
+sudo install -d -m 755 /usr/local/lib/matchwise
+sudo install -m 644 /tmp/matchwise-render-metrics-poll.py /usr/local/lib/matchwise/render-metrics-poll.py
+sudo install -m 644 /tmp/matchwise-render-metrics.service /etc/systemd/system/matchwise-render-metrics.service
+sudo install -m 644 /tmp/matchwise-render-metrics.timer /etc/systemd/system/matchwise-render-metrics.timer
+sudo systemd-analyze verify /etc/systemd/system/matchwise-render-metrics.service /etc/systemd/system/matchwise-render-metrics.timer
+sudo systemctl daemon-reload
+sudo systemctl start matchwise-render-metrics.service
+sudo systemctl enable --now matchwise-render-metrics.timer
+systemctl list-timers matchwise-render-metrics.timer --no-pager
+curl -fsSG http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=matchwise_render_metrics_collection_success'
+```
+
+Wait for the next Prometheus scrape (about one minute) if the query result is initially empty. Expect value 1 and a scheduled next timer run. Do not share environment file contents.
+
+Ha a Prometheus eredménye kezdetben üres, körülbelül egy perc múlva ismételd a lekérdezést. A várt érték 1, az időzítőnél pedig látszódjon a következő futás.
+
+Rollback / Visszaállítás:
+
+```bash
+sudo systemctl disable --now matchwise-render-metrics.timer
+sudo systemctl stop matchwise-render-metrics.service
+sudo rm -f /home/ubuntu/monitoring-exporter-metrics/matchwise_render_resources.prom
+```
+
+This removes only the new resource metrics file. Existing log collector metrics remain. Failure diagnosis: sudo journalctl -u matchwise-render-metrics.service -n 30 --no-pager.
