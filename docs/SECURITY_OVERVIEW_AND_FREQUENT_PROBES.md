@@ -154,3 +154,20 @@ A felhasználó kimenete igazolta az érvényes konfigurációt és mind a 38 te
 Operator supplied post-apply output: Grafana /api/health returned database=ok, version=13.2.1. Both blackbox_render_backend and blackbox_vercel_frontend targets report scrapeInterval=1m, scrapeTimeout=15s and health=up. Backend probe_success=1 at query timestamp 1795025266.993. This verifies active target configuration and a successful current HTTP probe; a long-term no-sleep guarantee is not claimed. New security panel rendering, four-rule group health and an actual 404 threshold trigger remain to be verified. No main merge was performed.
 
 A frissítés utáni kimenet szerint a Grafana működik, a backend és a frontend targetje is 1m/15s beállítású és up állapotú. A backend probe_success=1. A percenkénti beállítás és a sikeres HTTP-próba igazolt; a hosszú távú elalvásmentesség nem garantált. Az új panelek megjelenése, a security csoport négy szabályának health értéke és a valódi 404-próba még ellenőrzendő. Main összevonás nem történt.
+
+## Panel confirmation and real 404 test / Panelek és valódi 404-próba
+
+Operator confirmed all requested panels appeared after rollout. Individual four-rule Health values were not separately supplied. Next controlled test uses scripts/test-backend-404-once.py: at most twenty sequential GET requests to a unique, intentionally nonexistent path on the fixed MatchWise backend. It follows no redirects, uses no credentials, stops on unexpected status/network failure, limits request duration and never retries. These are real logs and may trigger the permanent security rule. Do not repeatedly rerun the script if an alert is delayed; first inspect log collection and rule health.
+
+Az üzemeltető visszaigazolta a panelek megjelenését. A következő próba legfeljebb húsz egymás utáni GET-kérést küld egy nem létező tesztútvonalra. Nem használ hitelesítést, nem követ átirányítást, váratlan válasznál leáll, nem próbálkozik újra. Ez valódi naplókon át a valódi 404-riasztást teszteli. Késő értesítés miatt ne futtasd ismételten; előbb a collectort és a szabály health értékét ellenőrizd.
+
+```bash
+cd ~/ai-job-monitoring
+git fetch origin feat/service-comparison
+git show FETCH_HEAD:scripts/test-backend-404-once.py > /tmp/matchwise-test-backend-404-once.py
+python3 /tmp/matchwise-test-backend-404-once.py
+```
+
+Expect twenty HTTP 404 results, then allow collection/evaluation/pending/grouping. A brief event burst can sustain the rolling count for two minutes without new requests. After those events leave the five-minute window, a successful evaluation clears the condition and Telegram may send resolved after grouping. Original event time is used, so unusually late ingestion can shorten the remaining alert window. Record firing and resolved separately; no live success is claimed for this test yet.
+
+Húsz 404 választ várunk. Utána a begyűjtés, értékelés, kétperces pending és Telegram-csoportosítás idejét is hagyd lefutni. Újabb kérés nélkül is fennmaradhat a feltétel. Az események ötperces ablakból kikerülése után sikeres értékelés feloldja a feltételt. A firing és resolved külön rögzítendő; ennek a próbának a sikere még nincs igazolva.
