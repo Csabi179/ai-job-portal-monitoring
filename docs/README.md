@@ -1,11 +1,14 @@
 # MatchWise documentation / dokumentáció
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 Updated November 18, 2026. The guides describe current repository configuration and operator-confirmed deployment; dated test records preserve what was actually checked. Hungarian originals and English editions are listed below.
 
 Frissítve: 2026. november 18. Az útmutatók a jelenlegi konfigurációt és az üzemeltető által visszaigazolt telepítést írják le; a dátumozott tesztnapló az elvégzett ellenőrzéseket őrzi.
 
 | Document / dokumentum | English | Magyar |
 |---|---|---|
+| Security overview and one-minute backend probes / Biztonsági panelek és percenkénti backend | [HU/EN](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) | [HU/EN](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) |
 | Render CPU/RAM collector / Render erőforrásgyűjtő | [HU/EN](RENDER_METRICS_COLLECTOR.md) | [HU/EN](RENDER_METRICS_COLLECTOR.md) |
 | Service comparison dashboard / Összehasonlító dashboard | [HU/EN](SERVICE_COMPARISON_DASHBOARD.md) | [HU/EN](SERVICE_COMPARISON_DASHBOARD.md) |
 | Three new alert rules and timing / Három új szabály és időzítés | [HU/EN](SERVICE_COMPARISON_ALERTS.md) | [HU/EN](SERVICE_COMPARISON_ALERTS.md) |

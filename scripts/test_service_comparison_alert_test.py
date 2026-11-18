@@ -23,7 +23,7 @@ class Tests(unittest.TestCase):
         self.assertEqual((start, end), (1120, 1840))
         originals = {r["uid"]: r for g in self.source["groups"] for r in g["rules"]}
         for rule in result["groups"][0]["rules"]:
-            original = next(r for r in originals.values() if m.IDS[r["uid"]] == rule["uid"])
+            original = next(r for r in originals.values() if r["uid"] in m.IDS and m.IDS[r["uid"]] == rule["uid"])
             self.assertEqual(rule["for"], original["for"])
             self.assertTrue(rule["title"].startswith("TEST | "))
             self.assertEqual(rule["labels"]["category"], "security_test")

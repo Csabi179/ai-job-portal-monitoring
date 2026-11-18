@@ -10,6 +10,13 @@
 - Work is versioned on feat/service-comparison and deployed by file copies. No main merge or exact live checkout HEAD is established.
 - Historical records retain their original scope/dates. CV/AI preparation is not proof of production deployment.
 
+<a id="test-22-security-update-preflight"></a>
+## TEST-22 — Security overview and one-minute backend preparation, 2026-11-18
+
+**Local checks only; live validation pending.** Branch configuration now adds a guarded 404 burst rule (sixteen permanent rules), eight security panels (35 comparison panels) and 60s/15s/10s backend cadence/timeouts with three-minute freshness. All alert UIDs, dashboard/panel annotation pairs, expression references/cycles, panel IDs and grid layout checked. Four query-checker tests passed for required telemetry, empty dashboard logs, safe HTTP diagnostics and bounded log query endpoints. Python syntax checked. The three existing synthetic-helper tests also passed with the expanded source rule set (seven Python tests total), and rollout command Bash syntax passed.
+
+The original twelve-rule PromQL scenario suite was updated for backend recent/expired success and failure cases. It must be rerun with Oracle's deployed-version promtool; no successful rerun is claimed locally. New Loki queries, including offset baseline, require live read-only validation. No deployment success or actual 404 trigger has been supplied. [Staging and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 <a id="test-17-render-resource-collection"></a>
 ## TEST-17 — Render resource collection and scheduling, 2026-11-18
 

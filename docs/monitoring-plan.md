@@ -1,5 +1,7 @@
 # MatchWise monitoringterv
 
+> **Új, még nem telepített frissítés (2026-11-18):** a fejlesztési ág 16 állandó szabályt, 35 Service Comparison panelt és percenkénti backendpróbát tartalmaz (60s/15s/10s, 3 perces frissesség). A korábban igazolt éles állapot 15 szabályos; az új frissítés éles ellenőrzése és telepítése még hátravan. [Ellenőrzés és alkalmazás](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 [English version](monitoring-plan.en.md) · [Dokumentációjegyzék](README.md)
 
 ## Cél és felelősség
@@ -46,16 +48,16 @@ A collector csak a konfigurált service `http_request` eseményeit és az enged�
 | Adat | Gyakoriság vagy ablak |
 |---|---|
 | Node Exporter, Blackbox saját metrikák, Prometheus önscrape | 60 s |
-| Backend HTTP | 30 perc; scrape timeout 110 s; prober timeout 100 s |
+| Backend HTTP | 60 s; scrape timeout 15 s; prober timeout 10 s |
 | Frontend HTTP | 60 s; scrape timeout 15 s; prober timeout 10 s |
 | Supabase | 60 s; scrape timeout 30 s; file discovery 60 s |
 | Loki és Alloy health-próbák | 60 s; scrape timeout 15 s |
 | Naplócollector | OnBootSec=2min; OnUnitInactiveSec=1min; AccuracySec=10s |
 | Render erőforrásgyűjtő | OnBootSec=2min; OnUnitInactiveSec=2min; AccuracySec=5s; futásonként 4 API-kérés |
 | Grafana szabályértékelés | 1 perc |
-| Backend HTTP-riasztások frissessége | 40 perc; pending 2 perc |
+| Backend HTTP-riasztások frissessége | 3 perc; pending 2 perc |
 | Frontend HTTP-riasztások frissessége | 3 perc; pending 2 perc |
-| Dashboard állapotkártyák | Backend 40 perc; frontend 5 perc a Unified, 3 perc a Service Comparison dashboardon |
+| Dashboard állapotkártyák | Backend 3 perc; frontend 5 perc a Unified, 3 perc a Service Comparison dashboardon |
 | Gördülő Pino P50/P95 | 15 perc; végponttáblázat P95 a teljes kiválasztott időből |
 | Unified dashboard frissítése; provisioning fájlfigyelés | 1 perc; 30 s |
 
@@ -67,7 +69,7 @@ Fő dashboard: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overvi
 
 A három részletes dashboard megmarad üzemeltetési használatra: Infrastructure Overview, Application Availability és Backend Logs. A hat auth-számláló login-, logout- és regisztrációs eredményeket mutat; nem aktív felhasználók vagy munkamenetek számát. A legutóbbi auth-teszt statikus szövegét eltávolítottuk a bevezető panelből; a teszteredmény a tesztnaplóban marad.
 
-A korábbi **12 kiesési/monitoring-szabály** csoportjai: infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2), vercel-frontend-monitoring (2). Ehhez a service-comparison-security csoport 3 szabálya csatlakozik: Render CPU >80% 5 percig, legalább 5 nem health 5xx/5 perc 2 perces kivárással, illetve legalább 10 POST login 401/5 perc 2 perces kivárással. Összesen **15 állandó szabály**. RAM/lemez, P95, általános 4xx és a csendes alkalmazás továbbra sem aktív riasztási ok.
+A korábbi **12 kiesési/monitoring-szabály** csoportjai: infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2), vercel-frontend-monitoring (2). Ehhez a service-comparison-security csoport 3 szabálya csatlakozik: Render CPU >80% 5 percig, legalább 5 nem health 5xx/5 perc 2 perces kivárással, illetve legalább 10 POST login 401/5 perc 2 perces kivárással. A 404-bővítéssel a fejlesztési ágban **16 állandó szabály** szerepel; az új szabály még telepítésre vár. RAM/lemez, P95, általános 4xx és a csendes alkalmazás továbbra sem aktív riasztási ok.
 
 Új dashboard: **MatchWise · Service Comparison**. A működés, frissességi feltételek és korlátok a [dashboardleírásban](SERVICE_COMPARISON_DASHBOARD.md), a gördülő ablak példája a [riasztásleírásban](SERVICE_COMPARISON_ALERTS.md) található.
 
@@ -101,7 +103,7 @@ Backendmódosítás nélkül a `/cv/upload` és `/cv/:id/profile` HTTP-kéréssz
 
 A [tesztnapló](monitoring-tests.md) külön rögzíti a dátumhoz kötött méréseket és az üzemeltetői visszajelzéseket. Igazolt a 12 szabály betöltése, a collector és Node Exporter Firing/Resolved kézbesítése, az angol értesítés, a HTTPS-bejelentkezés, a Viewer-hozzáférés működésének visszajelzése és a Telegram-csoportos átállás. November 18-án a három új szabály szintetikus Firing/Resolved tesztje és a tesztszabályok eltávolítása igazolt; a valódi login-szabályt az üzemeltető 10 hibás bejelentkezéssel is kipróbálta. A másik tíz eredeti szabály egyenkénti élő tesztje, a 4 órás ismétlés és a teljes infrastruktúra-helyreállítás nincs igazolva.
 
-A backend 30 perces mintavétele kihagyhat rövid kiesést; az HTTP 200 nem teljes üzleti vagy böngészős funkcióteszt. Render CPU/RAM már gyűjtött; Vercel host CPU/RAM, böngészős hibák, Web Vitals és tracing nincsenek gyűjtve. A 15 szabály nem ellenőrzi külön a nyilvános Caddy/DNS/TLS útvonal egészét.
+A backend tervezett percenkénti mintavétele is kihagyhat egy percnél rövidebb kiesést; az HTTP 200 nem teljes üzleti vagy böngészős funkcióteszt. Render CPU/RAM már gyűjtött; Vercel host CPU/RAM, böngészős hibák, Web Vitals és tracing nincsenek gyűjtve. A 16 szabály sem ellenőrzi külön a nyilvános Caddy/DNS/TLS útvonal egészét.
 
 A teljes Oracle VM vagy Grafana kiesésekor a helyi Grafana nem tud megbízhatóan értesíteni; független külső ellenőrzés későbbi fejlesztés. Collector-siker, Loki-health és tényleges naplókézbesítés külön állapot. A hiányzó adat nem automatikusan nulla hiba vagy UP.
 

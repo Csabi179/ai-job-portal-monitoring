@@ -22,7 +22,7 @@ def main():
     for path in sorted((ROOT / 'grafana/provisioning/alerting').iterdir()):
         doc = yaml.safe_load(path.read_text(encoding='utf-8'))
         assert doc['apiVersion'] == 1, path
-        # A locally deployed demo is separate from the 15 permanent rules.
+        # A locally deployed demo is separate from the 16 permanent rules.
         if path.name == 'service-comparison-test.json':
             allowed = {'mw_test_cpu_flow', 'mw_test_5xx_flow', 'mw_test_login_flow'}
             for item in doc.get('deleteRules', []):
@@ -51,8 +51,8 @@ def main():
                 assert rule['labels']['category'] in ('monitoring', 'availability', 'security'), uid
                 assert rule['data'][-1]['model']['conditions'][0]['evaluator'] == {'params': [0.5], 'type': 'gt'}, uid
                 rules[uid] = rule
-    assert len(rules) == 15, len(rules)
-    security_uids = {'matchwise_backend_cpu_high', 'matchwise_backend_5xx_burst', 'matchwise_backend_login_burst'}
+    assert len(rules) == 16, len(rules)
+    security_uids = {'matchwise_backend_cpu_high', 'matchwise_backend_5xx_burst', 'matchwise_backend_login_burst', 'matchwise_backend_404_burst'}
     assert security_uids <= rules.keys()
     for uid in security_uids:
         assert rules[uid]['labels']['category'] == 'security'
@@ -70,8 +70,13 @@ def main():
     assert receiver['settings']['parse_mode'] == 'None'
     prom = yaml.safe_load((ROOT / 'prometheus/prometheus.yml').read_text(encoding='utf-8'))
     jobs = {job['job_name']: job for job in prom['scrape_configs']}
-    assert jobs['blackbox_render_backend']['scrape_interval'] == '30m'
-    assert jobs['blackbox_render_backend']['scrape_timeout'] == '110s'
+    assert jobs['blackbox_render_backend']['scrape_interval'] == '60s'
+    assert jobs['blackbox_render_backend']['scrape_timeout'] == '15s'
+    assert jobs['blackbox_vercel_frontend']['scrape_interval'] == '60s'
+    assert jobs['blackbox_vercel_frontend']['scrape_timeout'] == '15s'
+    blackbox = yaml.safe_load((ROOT / 'blackbox/blackbox.yml').read_text(encoding='utf-8'))
+    assert blackbox['modules']['http_render_2xx']['timeout'] == '10s'
+    assert blackbox['modules']['http_2xx']['timeout'] == '10s'
     assert jobs['supabase']['basic_auth']['password_file'] == '/etc/prometheus/secrets/supabase-api-key'
     assert len(jobs['blackbox_monitoring_components']['static_configs']) == 2
 
@@ -102,13 +107,9 @@ def main():
         case(prefix + ' HTTP recovery', {u: '1 1', p: '0 1'}, {down: 0, missing: 0})
         case(prefix + ' scrape failure is not HTTP failure', {u: '1 0', p: '0 stale'}, {down: None, missing: 1})
         case(prefix + ' scrape succeeds without probe metric', {u: '1 1'}, {down: None, missing: 1})
-        if prefix == 'backend':
-            case('backend old success expires', {u: '1', p: '1'}, {down: None, missing: 1}, '41m')
-            case('backend old failure expires without recovery', {u: '1', p: '0'}, {down: None, missing: 1}, '41m')
-            case('backend retains sparse sample at 39 minutes', {u: '1', p: '0'}, {down: 1, missing: 0}, '39m')
-            case('backend second scrape fails', {u: '1 ' + '_ ' * 29 + '0', p: '1 ' + '_ ' * 29 + 'stale'}, {down: None, missing: 1}, '31m')
-        else:
-            case('frontend expired sample', {u: '1', p: '0'}, {down: None, missing: 1}, '4m')
+        case(prefix + ' fresh sparse failure at two minutes', {u: '1', p: '0'}, {down: 1, missing: 0}, '2m')
+        case(prefix + ' expired success is unknown', {u: '1', p: '1'}, {down: None, missing: 1}, '4m')
+        case(prefix + ' expired failure does not falsely recover', {u: '1', p: '0'}, {down: None, missing: 1}, '4m')
 
     sb = '{job="supabase",instance="uvopvarvelpabhmrqaaw.supabase.co:443"}'
     sm, sd = 'matchwise_supabase_metrics_unavailable', 'matchwise_supabase_database_down'

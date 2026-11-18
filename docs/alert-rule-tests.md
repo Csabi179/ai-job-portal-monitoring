@@ -1,5 +1,7 @@
 # A 12 Grafana-riasztás kézi tesztelése
 
+> **Új, még nem telepített frissítés (2026-11-18):** a fejlesztési ág 16 állandó szabályt, 35 Service Comparison panelt és percenkénti backendpróbát tartalmaz (60s/15s/10s, 3 perces frissesség). A korábban igazolt éles állapot 15 szabályos; az új frissítés éles ellenőrzése és telepítése még hátravan. [Ellenőrzés és alkalmazás](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 **Hatókör:** ez az eredeti 12 szabály tesztleírása. A jelenlegi készlet 15 állandó szabály; az új három külön [tesztleírásban](SERVICE_COMPARISON_ALERT_TEST.md) és [tesztnaplóban](monitoring-tests.md#test-20-synthetic-security-alert-cycle) szerepel.
 
 **Jelenlegi alkalmazás:** az alábbi szabálylogika továbbra is az eredeti 12 provisionált szabályhoz tartozik; a HTTP-célok és a kivárási idők nem változtak. A Grafana normál elérése HTTPS-en történik, a Telegram-cél a csapat csoportja. A collector és Node Exporter élő tesztje igazolt; a többi tíz szabály tesztelési eljárása nem jelent elvégzett tesztet. Lásd [aktuális állapot és tesztek](monitoring-tests.md).
@@ -100,7 +102,7 @@ restore_prom() {
 }
 ```
 
-A módosított scrape-ok ideiglenesen **60s** gyakoriságúak, az eredeti instance/service címkéket megtartva. Backend HTTP-tesztnél kizárólag a helyi teszt-URL kap sűrűbb lekérést, nem a Render szolgáltatás. Az eredeti példánycímke megtartása szükséges, különben egy más címkéjű hibás minta 40 percig bent maradhatna a szolgáltatásszabály ablakában. Supabase-helyettesítésnél a helper kihagy minden Basic Auth/secret/file_sd beállítást: kulcsot nem küld a tesztszervernek.
+A fixture scrape-ok **60s** gyakoriságúak, a most előkészített éles backend/frontendsűrűséggel egyezően, az eredeti instance/service címkéket megtartva. Backend HTTP-tesztnél kizárólag a helyi teszt-URL kap sűrűbb lekérést, nem a Render szolgáltatás. Az eredeti példánycímke megtartása szükséges, különben egy más címkéjű hibás minta 3 percig bent maradhatna a szolgáltatásszabály ablakában. Supabase-helyettesítésnél a helper kihagy minden Basic Auth/secret/file_sd beállítást: kulcsot nem küld a tesztszervernek.
 
 Általában 60–90s után jelenik meg az új minta; utána pending és értékelés következik. Új értesítési csoportnál 30s, meglévő csoport változásánál akár 5m plusz várakozás lehet. A lent megadott 2–5m becslésekhez ez hozzáadódhat. Minden tesztnél ellenőrizd a Grafana Pending/Firing/Normal állapotát és a megfelelő Telegram firing/resolved üzenetet. Nem szükséges az ismétlési 4 órát kivárni.
 
@@ -165,8 +167,8 @@ pq 'up{job="prometheus"}'
 ```bash
 inject backend-http-fail
 # 60–90s után:
-pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
-pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
+pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
+pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
 ```
 
 **Várt:** `up=1`, `probe_success=0`; 2m pending után `MatchWise | Render backend | HTTP outage` firing. A backend monitoringhiba-szabály nem ettől az állapottól riaszt. A tényleges Render szolgáltatást nem állítjuk le.
@@ -174,7 +176,7 @@ pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwis
 ```bash
 inject backend-http-ok
 # 60–90s után:
-pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
+pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
 # Várd meg a Normal/resolved állapotot, azután:
 restore_prom
 ```
@@ -186,7 +188,7 @@ restore_prom
 ```bash
 inject backend-scrape-fail
 # 60–90s után:
-pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
+pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
 ```
 
 **Várt:** `up=0`; 2m pending után `MatchWise | Render backend | Monitoring failure` firing. Ez scrape-hiba, nem igazolt HTTP-kiesés; a HTTP-szabály KeepLast marad.
@@ -197,7 +199,7 @@ inject backend-http-ok
 restore_prom
 ```
 
-**Hiányzó adatos ág, opcionális külön teszt:** `inject backend-absent`, majd `pq 'absent_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[40m])'`. A még meglévő minta miatt eleinte üres az eredmény; 40m-nél régebbi utolsó mintánál 1, majd 2m pending után firing várható. Teljes idő kb. 42–44m + csoportvárakozás. Ne rövidítsd le a szabály 40m ablakát a teszt kedvéért. Visszaállítás: `inject backend-http-ok`, resolved után `restore_prom`.
+**Hiányzó adatos ág, opcionális külön teszt:** `inject backend-absent`, majd `pq 'absent_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[3m])'`. A még meglévő minta miatt eleinte üres az eredmény; 3m-nél régebbi utolsó mintánál 1, majd 2m pending után firing várható. Teljes idő kb. 5–7m + csoportvárakozás. Ne rövidítsd le a szabály 3m ablakát a teszt kedvéért. Visszaállítás: `inject backend-http-ok`, resolved után `restore_prom`.
 
 ## 6. Vercel frontend HTTP — matchwise_frontend_down
 

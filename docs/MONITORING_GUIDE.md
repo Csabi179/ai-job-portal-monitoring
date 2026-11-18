@@ -1,5 +1,7 @@
 # MatchWise Monitoring — Architecture and Operations Guide
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 [Documentation index](README.md) · [English monitoring plan](monitoring-plan.en.md) · [English alerting plan](alerting-plan.en.md)
 
 
@@ -181,7 +183,7 @@ To sync changes committed directly to GitHub on Oracle:
 
 Verified in the project: Oracle and HTTP availability measurements, Pino structured logs, Render Logs API collection, SQLite duplicate suppression, local file ingestion by Alloy, Grafana dashboard visualizations, Telegram test notification, and a healthy collector alert provisioned in Grafana.
 
-Limitations: coarse 30-minute Render HTTP probing; Render Free sleeping; frontend HTTP-only probing; lack of Vercel CPU/RAM and browser performance telemetry; collector API pagination cap; no automatic retry inside the Python collector; log rotation is not a proof of perfect delivery; Grafana/Prometheus outages reduce monitoring visibility.
+Limitations: previously coarse 30-minute Render HTTP probing (one-minute replacement pending); Render Free sleeping; frontend HTTP-only probing; lack of Vercel CPU/RAM and browser performance telemetry; collector API pagination cap; no automatic retry inside the Python collector; log rotation is not a proof of perfect delivery; Grafana/Prometheus outages reduce monitoring visibility.
 
 For installation, test history and monitoring planning, see **docs/installation-guide.md**, **docs/monitoring-tests.md**, and **docs/monitoring-plan.md**.
 

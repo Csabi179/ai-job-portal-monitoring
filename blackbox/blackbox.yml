@@ -9,7 +9,7 @@ modules:
 
   http_render_2xx:
     prober: http
-    timeout: 100s
+    timeout: 10s
     http:
       method: GET
       valid_status_codes: [200]

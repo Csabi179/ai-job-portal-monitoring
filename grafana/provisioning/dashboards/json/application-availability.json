@@ -215,7 +215,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -289,7 +289,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_http_status_code{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_http_status_code{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -344,7 +344,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_duration_seconds{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_duration_seconds{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -399,7 +399,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"

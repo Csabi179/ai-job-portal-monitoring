@@ -39,8 +39,8 @@ scrape_configs:
         replacement: 127.0.0.1:9115
 
   - job_name: blackbox_render_backend
-    scrape_interval: 30m
-    scrape_timeout: 110s
+    scrape_interval: 60s
+    scrape_timeout: 15s
     metrics_path: /probe
     params:
       module: [http_render_2xx]

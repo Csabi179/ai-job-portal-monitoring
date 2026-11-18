@@ -1,5 +1,7 @@
 # Manual tests for all 12 Grafana alert rules
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 **Scope:** this runbook covers the original twelve rules. The current set has fifteen permanent rules; the three additions have a separate [test runbook](SERVICE_COMPARISON_ALERT_TEST.md) and [test record](monitoring-tests.md#test-20-synthetic-security-alert-cycle).
 
 **Current applicability:** the conditions below still match the original 12 provisioned rules; HTTP targets and pending times are unchanged. Normal Grafana access uses HTTPS and Telegram delivery targets the team group. Collector and Node Exporter live tests are evidenced; procedures for the other ten rules do not mean those tests were executed. See [current state and evidence](monitoring-tests.md).
@@ -100,7 +102,7 @@ restore_prom() {
 }
 ```
 
-Modified scrapes temporarily run every **60s** while preserving original instance/service labels. Backend HTTP tests increase only requests to the local fixture, not to Render. Preserving the original instance label avoids leaving a separately labelled failed sample in the rule's 40-minute window. Supabase fixtures omit all Basic Auth, secret and file_sd settings; no key is sent to the fixture server.
+Fixture scrapes run every **60s**, matching the pending live backend/frontend cadence while preserving original instance/service labels. Backend HTTP fixture tests send requests only to the local fixture, not to Render. Preserving the original instance label avoids leaving a separately labelled failed sample in the rule's three-minute window. Supabase fixtures omit all Basic Auth, secret and file_sd settings; no key is sent to the fixture server.
 
 New samples usually appear after 60–90s, followed by pending and evaluation. Allow 30s additional group wait for a new group or up to 5m for changes to an existing group. Add grouping delay to the approximate 2–5m timings below. For every test inspect Grafana Pending/Firing/Normal and the matching Telegram firing/resolved event. You do not need to wait the 4-hour repeat interval.
 
@@ -165,8 +167,8 @@ pq 'up{job="prometheus"}'
 ```bash
 inject backend-http-fail
 # After 60–90s:
-pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
-pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
+pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
+pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
 ```
 
 **Expected:** up=1, probe_success=0; after 2m pending, `MatchWise | Render backend | HTTP outage` fires. This state should not trigger the backend monitoring-failure rule. The real Render backend is not stopped.
@@ -174,7 +176,7 @@ pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwis
 ```bash
 inject backend-http-ok
 # After 60–90s:
-pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
+pq 'last_over_time(probe_success{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
 # Wait for Normal/resolved, then:
 restore_prom
 ```
@@ -186,7 +188,7 @@ restore_prom
 ```bash
 inject backend-scrape-fail
 # After 60–90s:
-pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[40m])'
+pq 'last_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[3m])'
 ```
 
 **Expected:** up=0; after 2m pending, `MatchWise | Render backend | Monitoring failure` fires. This is a scrape failure, not a proven HTTP outage; the HTTP rule uses KeepLast.
@@ -197,7 +199,7 @@ inject backend-http-ok
 restore_prom
 ```
 
-**Optional missing-data branch:** run `inject backend-absent`, then `pq 'absent_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[40m])'`. Initially the result is empty because an old sample remains. Once the last sample is older than 40m, the result is 1 and the rule fires after another 2m pending: roughly 42–44m plus grouping. Do not shorten the rule's 40m window. Recover with `inject backend-http-ok`, wait for resolved, then `restore_prom`.
+**Optional missing-data branch:** run `inject backend-absent`, then `pq 'absent_over_time(up{job="blackbox_render_backend",service="matchwise_backend"}[3m])'`. Initially the result is empty because an old sample remains. Once the last sample is older than 3m, the result is 1 and the rule fires after another 2m pending: roughly 5–7m plus grouping. Do not shorten the rule's 3m window. Recover with `inject backend-http-ok`, wait for resolved, then `restore_prom`.
 
 ## 6. Vercel frontend HTTP — matchwise_frontend_down
 

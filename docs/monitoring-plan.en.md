@@ -1,5 +1,7 @@
 # MatchWise monitoring plan
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 [Magyar változat](monitoring-plan.md) · [Documentation index](README.md)
 
 ## Purpose and responsibilities
@@ -46,16 +48,16 @@ The collector retains only the configured service's `http_request` events and al
 | Data | Frequency or window |
 |---|---|
 | Node Exporter, Blackbox self-metrics, Prometheus self-scrape | 60 s |
-| Backend HTTP | 30 minutes; scrape timeout 110 s; prober timeout 100 s |
+| Backend HTTP | 60 s; scrape timeout 15 s; prober timeout 10 s |
 | Frontend HTTP | 60 s; scrape timeout 15 s; prober timeout 10 s |
 | Supabase | 60 s; scrape timeout 30 s; file discovery 60 s |
 | Loki and Alloy health probes | 60 s; scrape timeout 15 s |
 | Log collector | OnBootSec=2min; OnUnitInactiveSec=1min; AccuracySec=10s |
 | Render resource collector | OnBootSec=2min; OnUnitInactiveSec=2min; AccuracySec=5s; four API requests per run |
 | Grafana rule evaluation | 1 minute |
-| Backend HTTP alert freshness | 40 minutes; pending 2 minutes |
+| Backend HTTP alert freshness | 3 minutes; pending 2 minutes |
 | Frontend HTTP alert freshness | 3 minutes; pending 2 minutes |
-| Dashboard status cards | Backend 40 minutes; frontend 5 minutes in Unified, 3 minutes in Service Comparison |
+| Dashboard status cards | Backend 3 minutes; frontend 5 minutes in Unified, 3 minutes in Service Comparison |
 | Rolling Pino P50/P95 | 15 minutes; endpoint-table P95 uses the full selected period |
 | Unified dashboard refresh; provisioning file scan | 1 minute; 30 s |
 
@@ -67,7 +69,7 @@ Main dashboard: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overv
 
 Three specialist dashboards remain for operator use: Infrastructure Overview, Application Availability and Backend Logs. The six authentication counters show login, logout and registration outcomes, not active-user/session counts. The static latest-auth-test note was removed from the introductory panel; its evidence remains in the test log.
 
-The original **12 outage/monitoring rules** are grouped into infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2) and vercel-frontend-monitoring (2). The service-comparison-security group adds three rules: Render CPU >80% for 5 minutes, at least five non-health 5xx/5 minutes with a 2-minute pending period, and at least ten POST login 401/5 minutes with a 2-minute pending period. Total: **15 permanent rules**. RAM/disk, P95, general 4xx and a quiet application are still not active alert conditions.
+The original **12 outage/monitoring rules** are grouped into infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2) and vercel-frontend-monitoring (2). The service-comparison-security group adds three rules: Render CPU >80% for 5 minutes, at least five non-health 5xx/5 minutes with a 2-minute pending period, and at least ten POST login 401/5 minutes with a 2-minute pending period. The 404 addition brings branch configuration to **16 permanent rules**; rollout of the new rule is pending. RAM/disk, P95, general 4xx and a quiet application are still not active alert conditions.
 
 New dashboard: **MatchWise · Service Comparison**. See the [dashboard guide](SERVICE_COMPARISON_DASHBOARD.md) for freshness and comparison limits, and the [alert guide](SERVICE_COMPARISON_ALERTS.md) for the rolling-window example.
 
@@ -101,7 +103,7 @@ Without backend changes, `/cv/upload` and `/cv/:id/profile` HTTP counts, status 
 
 The [test log](monitoring-tests.md) separates dated measurements from operator confirmations. Recorded evidence covers 12-rule provisioning, collector and Node Exporter Firing/Resolved delivery, English notifications, HTTPS login, operator-confirmed Viewer access and the Telegram group switch. On November 18, all three new synthetic Firing/Resolved tests and cleanup were confirmed; the operator also tested the real login rule with ten failed logins. Individual live tests for the other ten original rules, 4-hour repetition and full infrastructure restoration are not established.
 
-Thirty-minute backend sampling can miss short outages; HTTP 200 is not a full business/browser test. Render CPU/RAM is now collected; Vercel host CPU/RAM, browser errors, Web Vitals and tracing are not collected. The 15 rules do not separately cover the complete public Caddy/DNS/TLS path.
+The pending one-minute backend sampling can still miss sub-minute outages; HTTP 200 is not a full business/browser test. Render CPU/RAM is now collected; Vercel host CPU/RAM, browser errors, Web Vitals and tracing are not collected. The 16 rules do not separately cover the complete public Caddy/DNS/TLS path.
 
 The local Grafana cannot reliably notify during complete Oracle VM or Grafana failure; independent external checking is a future improvement. Collector success, Loki health and real log delivery are separate states. Missing data does not automatically mean zero errors or UP.
 

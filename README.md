@@ -1,5 +1,7 @@
 # MatchWise — AI Job Portal Monitoring
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](docs/SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 DevOps monitoring for the university AI-assisted job portal project.
 
 ## Main dashboard
@@ -22,7 +24,7 @@ The original dedicated Infrastructure, Application Availability and Backend Logs
 
 **MatchWise · Service Comparison** (UID `matchwise-service-comparison`) places Render, Supabase, Vercel and Oracle side by side. Render CPU/RAM are collected through its Metrics API by a separate Python/systemd collector; Vercel host CPU/RAM are not collected.
 
-Three new rules cover high Render CPU (>80% for 5 minutes), at least five non-health 5xx responses in five minutes (2-minute pending), and at least ten rejected POST logins in five minutes (2-minute pending). The login counter covers all users together. Existing events can keep the rolling-window condition true without further failed attempts.
+The first three added rules cover high Render CPU (>80% for 5 minutes), at least five non-health 5xx responses in five minutes (2-minute pending), and at least ten rejected POST logins in five minutes (2-minute pending). The login counter covers all users together. Existing events can keep the rolling-window condition true without further failed attempts.
 
 - [Resource collector and installation (HU/EN)](docs/RENDER_METRICS_COLLECTOR.md)
 - [Comparison dashboard (HU/EN)](docs/SERVICE_COMPARISON_DASHBOARD.md)
@@ -37,7 +39,7 @@ November 18 evidence: resource ingestion/timer and dashboard confirmed; all thre
 - **Docker Compose:** six base services (Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Alloy), plus deployed Caddy in the opt-in `public` profile.
 - **Render logs:** Pino JSON → Render Logs API → Python systemd collector → deduplicated JSONL → Alloy → Loki.
 - **Metrics:** Node Exporter and Blackbox Exporter → Prometheus → Grafana.
-- **Alerting:** 15 permanent English rules: 12 outage/monitoring-failure rules plus three backend resource/security signals, with Firing/Resolved notifications sent to the team's Telegram group. Collector and Node Exporter delivery were verified; the other ten rules have not been individually fired live. See the [alerting plan](docs/alerting-plan.en.md).
+- **Alerting:** 16 permanent English rules in branch configuration: 12 outage/monitoring-failure rules plus four backend resource/security signals, with Firing/Resolved notifications sent to the team's Telegram group. Collector and Node Exporter delivery were verified; the other ten rules have not been individually fired live. See the [alerting plan](docs/alerting-plan.en.md).
 - **Retention:** Prometheus 7 days or 2 GB; logrotate rotates the local JSONL at 20 MB with seven archives. Loki retention is separate.
 
 Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). Internal monitoring web services bind to loopback. Team access uses Caddy HTTPS at https://grafana-r0cecq.duckdns.org/ with Grafana authentication; no Oracle or SSH access is granted to teammates.
@@ -83,7 +85,7 @@ On November 9, the existing Render service was switched to the team's backend re
 
 ## Security and limits
 
-Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. Render CPU/RAM telemetry is collected through its Metrics API. Vercel host CPU/RAM and frontend browser-performance data are not collected. Render availability is sampled every 30 minutes, so the latest UP result is not a continuous-uptime guarantee.
+Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. Render CPU/RAM telemetry is collected through its Metrics API. Vercel host CPU/RAM and frontend browser-performance data are not collected. The pending update samples Render availability every minute, so the latest UP result is not a continuous-uptime guarantee.
 
 Project target completion/shutdown: no later than **December 15, 2026**.
 
@@ -98,3 +100,5 @@ Use the [English HTTPS runbook](docs/GRAFANA_HTTPS_ACCESS.en.md) or [Hungarian e
 ## CV and AI preparation
 
 The operator reviewed November 15 main/feature-branch source archives and preconfigured the two Cloudflare variables on Render. The feature uses Cloudinary CV storage and Cloudflare Workers AI for profile extraction. This is preparation, not evidence that the feature is merged or deployed. Existing HTTP logs can show endpoint counts, statuses and total processing duration; separate AI latency, token usage and provider-specific errors are unavailable. No dedicated AI panels or rules have been added. See the [monitoring plan](docs/monitoring-plan.en.md#cv-and-ai-monitoring-preparation).
+
+Security additions and the new cadence are described in [Security overview and frequent probes](docs/SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md). The existing three synthetic tests remain a dated fifteen-rule deployment test; the new 404 rule and cadence still need rollout verification.

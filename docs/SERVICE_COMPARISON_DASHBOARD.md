@@ -1,5 +1,7 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 ## Magyar
 
 Név: MatchWise · Service Comparison. Mappa: AI Job Portal. URL: /d/matchwise-service-comparison.
@@ -9,7 +11,7 @@ Az egymás melletti CPU- és memóriapanelek 0–100%-os skálát használnak. M
 
 A Render használati panel csak sikeres gyűjtés, négy percnél frissebb gyűjtési kísérlet, öt percnél frissebb forrásminta, elérhető Node Exporter és hibamentes textfile-beolvasás mellett mutat értéket. Hiányzó adatnál rés marad. Frontend CPU/RAM: Not collected. Az elérhetőségi sor eltérő ellenőrzéseket jelöl: backend/frontend HTTP-próba, Supabase adatbázis-kapcsolat, Oracle metrikalekérés.
 
-A backend forgalma, hibái, válaszideje és hibanaplói a közös időablakban láthatók, health kérések nélkül. A többi szolgáltatás naplóit jelenleg nem gyűjtjük. Üres backend naplópanel lehet forgalomhiány vagy hiányzó napló; ellenőrizd a collector korát. Backend HTTP-próba: 30 percenként, legfeljebb 40 perces eredménnyel. Frontend: legfeljebb 3 perces eredmény.
+A backend forgalma, hibái, válaszideje és hibanaplói a közös időablakban láthatók, health kérések nélkül. A többi szolgáltatás naplóit jelenleg nem gyűjtjük. Üres backend naplópanel lehet forgalomhiány vagy hiányzó napló; ellenőrizd a collector korát. A frissítésben backend HTTP-próba: percenként, legfeljebb 3 perces eredménnyel. Frontend: legfeljebb 3 perces eredmény.
 
 Éles bizonyíték: a felhasználó kimenete alapján a Render időzítő aktív és a Prometheus collection_success=1 értéket tárol (2026-11-18). A dashboard helyi szerkezetellenőrzése sikeres; a felhasználó képei az éles megjelenést és a látható panelek adatait is igazolják. Riasztásokat ez a dashboard nem telepít.
 
@@ -22,7 +24,7 @@ CPU and memory panels use the same 0–100% scale. Each percentage uses the serv
 
 Render usage is shown only when collection succeeds, the attempt is under four minutes old, the source is under five minutes old, Node Exporter is available and textfile reading has no errors. Missing data leaves a gap. Frontend CPU/RAM says Not collected. The status row uses different checks: HTTP probes for backend/frontend, database connectivity for Supabase, metrics collection for Oracle.
 
-Backend traffic, errors, response times and error logs use the same time range and exclude health requests. Logs from other services are not collected here. An empty backend log panel can mean no traffic or missing logs; check collector age. Backend probes run every 30 minutes and results are used for up to 40 minutes. Frontend results are used for up to three minutes.
+Backend traffic, errors, response times and error logs use the same time range and exclude health requests. Logs from other services are not collected here. An empty backend log panel can mean no traffic or missing logs; check collector age. In the pending update, backend probes run every minute and results are used for up to three minutes. Frontend results are used for up to three minutes.
 
 Live evidence: operator output confirms the Render timer is active and Prometheus stores collection_success=1 on 2026-11-18. Dashboard structure checks passed: JSON parsing, unique panel IDs, no grid overlaps and resolved filters. Operator screenshots confirm live display and visible panel data. This dashboard does not install alerts.
 
@@ -53,3 +55,7 @@ Ha egy panel lekérdezési hibát jelez, a panel címét és a hiba szövegét k
 Operator screenshots confirm the four-column layout, Render/Supabase/Oracle resources, Vercel Not collected cards, statuses, ages and backend log context. No independent Viewer-account check was supplied for this new dashboard. Existing Viewer access to Unified Monitoring does not automatically grant access here.
 
 A négyoszlopos elrendezés és a látható adatok a felhasználó képeivel igazoltak. Az új dashboard Viewer-fiókos ellenőrzése nem történt meg; a Unified Monitoring meglévő jogosultsága ezt nem adja meg automatikusan.
+
+## Security panels / Biztonsági panelek
+
+The pending revision adds eight panels, bringing this dashboard to 35 panels: 401/403/404/429 count cards, rates, traffic comparison and security logs. [Interpretation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md). / A frissítés nyolc új panellel összesen 35 panelt tartalmaz; az éles megjelenés ellenőrzése még hátravan.

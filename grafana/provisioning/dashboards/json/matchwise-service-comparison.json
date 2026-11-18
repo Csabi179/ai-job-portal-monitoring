@@ -2,7 +2,7 @@
   "uid": "matchwise-service-comparison",
   "title": "MatchWise · Service Comparison",
   "schemaVersion": 42,
-  "version": 1,
+  "version": 2,
   "editable": false,
   "tags": [
     "matchwise",
@@ -124,8 +124,8 @@
     {
       "id": 6,
       "type": "stat",
-      "title": "Backend · HTTP result (up to 40m old)",
-      "description": "1 = last probe passed, 0 = failed, no data = unknown. Probe every 30 minutes.",
+      "title": "Backend · HTTP result (last 3m)",
+      "description": "1 = latest HTTP probe passed, 0 = failed, no data = unknown. Probe every minute; 10-second prober timeout and 3-minute freshness.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -133,7 +133,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1541,12 +1541,528 @@
       }
     },
     {
+      "id": 28,
+      "type": "text",
+      "title": "Security overview · Backend",
+      "gridPos": {
+        "x": 0,
+        "y": 47,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Counts cover the last 5 minutes and exclude health checks. 401 = unauthenticated request, 403 = access refused, 404 = not found, 429 = rate limit response. Counts are across all users; no IP/account attribution. A missing result can mean no matching traffic or missing logs. A 429 panel does not prove rate limiting exists. These are investigation signals, not proof of attacks."
+      }
+    },
+    {
+      "id": 29,
+      "type": "stat",
+      "title": "Backend · HTTP 401 (last 5m)",
+      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "No matching logs",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 51,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 30,
+      "type": "stat",
+      "title": "Backend · HTTP 403 (last 5m)",
+      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "No matching logs",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 6,
+        "y": 51,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 31,
+      "type": "stat",
+      "title": "Backend · HTTP 404 (last 5m)",
+      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "No matching logs",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 51,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 32,
+      "type": "stat",
+      "title": "Backend · HTTP 429 (last 5m)",
+      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "No matching logs",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 18,
+        "y": 51,
+        "w": 6,
+        "h": 5
+      }
+    },
+    {
+      "id": 33,
+      "type": "timeseries",
+      "title": "Backend · 401 / 403 / 404 / 429 per minute",
+      "description": "Five-minute rolling rates, with non-health HTTP traffic as the zero fallback. Same data as the count cards, expressed per minute.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+          "legendFormat": "HTTP 401/min",
+          "queryType": "range",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+          "legendFormat": "HTTP 403/min",
+          "queryType": "range",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "C",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+          "legendFormat": "HTTP 404/min",
+          "queryType": "range",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "D",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+          "legendFormat": "HTTP 429/min",
+          "queryType": "range",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No matching logs"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 56,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 34,
+      "type": "timeseries",
+      "title": "Backend · Traffic change (health excluded)",
+      "description": "Current five-minute request rate vs the preceding 30-minute average, ending five minutes ago. Both lines are requests/minute. No automatic traffic-spike alert is enabled; low-volume baselines can exaggerate relative changes.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "range",
+          "legendFormat": "Current 5m average",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [30m] offset 5m))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [30m] offset 5m))) * 0)) * 60",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "queryType": "range",
+          "legendFormat": "Previous 30m average (offset 5m)",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No matching logs"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 56,
+        "w": 12,
+        "h": 7
+      }
+    },
+    {
+      "id": 36,
+      "title": "Backend · Security response logs",
+      "type": "logs",
+      "gridPos": {
+        "x": 0,
+        "y": 63,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode=~\"401|403|404|429\" | __error__=\"\"",
+          "queryType": "range",
+          "editorMode": "code"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "description": "Logged 401/403/404/429 HTTP events, excluding health checks. Original route can be unmatched. No client IP/user attribution."
+    },
+    {
       "id": 27,
       "title": "Backend · HTTP error logs",
       "type": "logs",
       "gridPos": {
         "x": 0,
-        "y": 47,
+        "y": 71,
         "w": 24,
         "h": 9
       },

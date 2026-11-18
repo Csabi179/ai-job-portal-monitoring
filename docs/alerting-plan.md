@@ -1,5 +1,7 @@
 # MatchWise – riasztási terv és Oracle-frissítési eljárás
 
+> **Új, még nem telepített frissítés (2026-11-18):** a fejlesztési ág 16 állandó szabályt, 35 Service Comparison panelt és percenkénti backendpróbát tartalmaz (60s/15s/10s, 3 perces frissesség). A korábban igazolt éles állapot 15 szabályos; az új frissítés éles ellenőrzése és telepítése még hátravan. [Ellenőrzés és alkalmazás](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 [English version](alerting-plan.en.md) · [Dokumentációjegyzék](README.md)
 
 **Jelenlegi dokumentált állapot (2026. november 18.):** 15 állandó szabály: 12 kiesési/megfigyelési és 3 backend-erőforrás/biztonsági jelzés. Render CPU/RAM-gyűjtés és Service Comparison dashboard telepítve. A három új szabály szintetikus Firing/Resolved Telegram-köre képekkel igazolt; a tesztszabályok eltávolítását és a valódi, 10 hibás loginos próbát az üzemeltető visszaigazolta. Az eredeti collector/Node Exporter kézbesítési bizonyíték megmarad; a többi tíz eredeti szabály teljes éles tesztje nincs igazolva. [Tesztnapló](monitoring-tests.md).
@@ -19,12 +21,12 @@ Kiesési és megfigyelési riasztások mellett három új backendjelzés aktív.
 | Oracle – Low Disk Space / ai_job_low_disk | Törlés | Kapacitás, nem kiesés |
 | Oracle – Exporter DOWN / ai_job_exporter_down | Módosítás | A meglévő UID most a Blackbox Exportert figyeli; Node Exporter és Prometheus külön, hiányzó sorral együtt |
 | MatchWise Backend DOWN / matchwise_backend_down | Módosítás | A legutóbbi friss próba hibája; nincs hiányzó-adatból képzett nulla |
-| Backend Monitoring Data Missing / matchwise_backend_probe_missing | Módosítás | 40 perces frissesség és a legutóbbi scrape hibája |
+| Backend Monitoring Data Missing / matchwise_backend_probe_missing | Módosítás | 3 perces frissesség és a legutóbbi scrape hibája |
 | MatchWise Frontend DOWN / matchwise_frontend_down | Módosítás | Friss HTTP-hiba, scrape-hibától megkülönböztetve |
 | Frontend Monitoring Data Missing / matchwise_frontend_probe_missing | Módosítás | 3 perces frissesség és scrape-hiba |
 | Render Log Collector Stale / matchwise_render_collector_stale | Módosítás | Heartbeat és textfile-feldolgozás; Node Exporter elérhetőségével feltételesen |
 
-A kiindulási backend- és frontendszabály két legutóbbi sikertelen próbát követelt; a backend akár további fél órát várt. Az új szabály egyetlen, a teljes 100 másodperces prober timeout után is sikertelen backendpróbát jelez, 2 perces pendinggel. A 30 perces próbaintervallum változatlan. A 22 másodperces, HTTP 200-zal sikeres hidegindítás nem riasztási ok.
+A kiindulási backend- és frontendszabály két legutóbbi sikertelen próbát követelt; a backend akár további fél órát várt. A korábbi frissítés 100 másodperces timeoutot és 30 perces intervallumot használt. A most előkészített változat percenként, 10 másodperces timeouttal mér, 2 perces pending mellett. Emiatt a 10 másodpercnél hosszabb hidegindítás már sikertelen próbát eredményezhet.
 
 A kivett három UID explicit `deleteRules` bejegyzésben szerepel: önmagában a fájl eltávolítása nem törölné a Grafanában tárolt szabályt. A korábbi kiesési/monitoring-készlet **12 szabály**, az új hárommal együtt **15 állandó szabály**; minden csoport értékelése **1 perc**.
 
@@ -49,8 +51,8 @@ A szabályok `A` PromQL-kifejezése, `B=last(A)` redukciója és `C: B > 0.5` k�
 | matchwise_node_exporter_unavailable | `1 - (min(up{job="node_exporter"}) or vector(0)) > 0.5` | 3m | Sikertelen scrape után kb. 3–5m; eltávolított sor esetén lookback/staleness is számít |
 | ai_job_exporter_down | Ugyanez `job="blackbox_exporter"` mellett | 3m | Kb. 3–5m scrape-hibánál |
 | matchwise_prometheus_scrape_unavailable | Ugyanez `job="prometheus"` mellett | 3m | Önscrape-hiba; a Prometheus teljes elérhetetlenségét DatasourceError jelzi |
-| matchwise_backend_down | `max(1-last_over_time(probe_success[40m]))`, csak ha a megfelelő legutóbbi `up[40m]=1` | 2m | Kb. 2–35m a kiesés kezdetétől, a következő próbától és timeouttól függően |
-| matchwise_backend_probe_missing | `1-(min(last_over_time(up[40m])) or vector(0))*(max(present_over_time(probe_success[40m])) or vector(0))` | 2m | Sikertelen scrape után kb. 2–4m; teljes mintahiány kb. 42–44m az utolsó mintától |
+| matchwise_backend_down | `max(1-last_over_time(probe_success[3m]))`, csak ha a megfelelő legutóbbi `up[3m]=1` | 2m | Kb. 2–4m a kiesés kezdetétől, a következő próbától és timeouttól függően |
+| matchwise_backend_probe_missing | `1-(min(last_over_time(up[3m])) or vector(0))*(max(present_over_time(probe_success[3m])) or vector(0))` | 2m | Sikertelen scrape után kb. 2–4m; teljes mintahiány kb. 5–7m az utolsó mintától |
 | matchwise_frontend_down | Backendhez hasonló, `[3m]` ablakkal és frontend job/service címkével | 2m | Kb. 2–4m, plusz a HTTP-próba ideje |
 | matchwise_frontend_probe_missing | Backendhez hasonló, `[3m]` ablakkal | 2m | Scrape-hiba kb. 2–4m; adatelmaradás kb. 5–7m az utolsó mintától |
 | matchwise_supabase_metrics_unavailable | `up` hiányzik/0, vagy 3m-en belül nincs `pg_up` | 3m | API-hiba kb. 3–5m; pg_up hiánynál kb. 6–8m |
@@ -65,7 +67,7 @@ A késések becslések, nem SLA-k: scrape-fázis, prober futási idő, staleness
 
 ### Fontos állapotkülönbségek
 
-`up=1, probe_success=0`: a Blackbox scrape működik, de a HTTP-próba sikertelen. `up=0`: a scrape nem működik; ebből nem tudjuk, hogy a célalkalmazás él-e. A backend 40 perces range ablaka szükséges, mert a 30 perces scrape gyakran kívül esik az instant lookbacken. Nem számolunk új próbának grafikonon megismételt értéket.
+`up=1, probe_success=0`: a Blackbox scrape működik, de a HTTP-próba sikertelen. `up=0`: a scrape nem működik; ebből nem tudjuk, hogy a célalkalmazás él-e. A backend a percenkénti méréshez igazított 3 perces frissességi ablakot használja. Nem számolunk új próbának grafikonon megismételt értéket.
 
 `up{job="supabase"}=0`: Metrics API/hitelesítési/hálózati hiba lehetséges. `pg_up=0` sikeres scrape mellett: az exporter nem tud PostgreSQL-hez kapcsolódni. Ez exporteri elérési hiba, nem független adatbázis-bizonyíték. A `pg_up` a meglévő dashboardban és a dokumentált metrikakészletben szerepel.
 
@@ -90,7 +92,7 @@ Normál csoportkulcs: `grafana_folder, category`; külön availability, monitori
 
 Nincs automatikus függőségi elnyomás. Egy Blackbox-hibához több monitoringriasztás tartozhat; ezek egy csoportosított üzenetben jelennek meg. Egy már aktív HTTP-kiesés mérési hiba alatt is megmaradhat: ez tudatosan nem hamis helyreállás. A közös hibát először a Blackbox/Prometheus irányából kell vizsgálni.
 
-HTTP-helyreállást új sikeres próba vált ki. Backend esetén ez akár a következő 30 perces próbáig késhet, utána értékelés és értesítési csoportvárakozás következik. A monitoringriasztás feloldása a mérés működésének helyreállása, nem automatikusan az alkalmazásé. Üzenetben mindkét állapot olvasható. Nincs külön keep-firing idő.
+HTTP-helyreállást új sikeres próba vált ki. Backend esetén ez a következő percenkénti próbáig késhet, utána értékelés és értesítési csoportvárakozás következik. A monitoringriasztás feloldása a mérés működésének helyreállása, nem automatikusan az alkalmazásé. Üzenetben mindkét állapot olvasható. Nincs külön keep-firing idő.
 
 
 ### Telegram-csoport mint értesítési cél
@@ -212,7 +214,7 @@ A restart a Grafana értékelési állapotát/pending idejét befolyásolhatja. 
 
 - 12 aktív, provisionált szabály; a három törölt UID nincs jelen.
 - A fennmaradó szabályok UID-ja az elvárt; nincs régi vagy kézzel létrehozott párhuzamos szabály.
-- Query Health rendben; No Data/Error nem elfedett; a backendnél van 40 percen belüli mérés.
+- Query Health rendben; No Data/Error nem elfedett; a backendnél van 3 percen belüli mérés.
 - Contact point és policy címzése megmaradt; resolve üzenet engedélyezett; sablon előnézet működik.
 
 A provisionált fájlok nem kezelik automatikusan az ismeretlen kézi szabályokat. Ha ilyet találsz, dokumentáld és külön kezeld.
@@ -227,7 +229,7 @@ Az alábbi táblázat az elvégzett és a még tervezett teszteket külön jelö
 | Frontend/backend sikeres, akár 22s HTTP 200 | Nincs kiesésriasztás | PromQL szinten siker tesztelt; élő új szabály még nem |
 | HTTP failure, up=1 | Csak HTTP-kiesés pending → firing | Helyi PromQL tesztelt; élő teszt tervezett |
 | up=0 vagy probe_success eltűnik | Monitoringhiba; szolgáltatásállapot nem oldódik fel bizonyíték nélkül | Helyi PromQL tesztelt; KeepLast élő teszt tervezett |
-| Backend utolsó minta 39m, majd >40m | 39m-nél még értékelhető; utána mérési hiba | Helyi PromQL tesztelt |
+| Backend utolsó minta 2m, majd >3m | 2m-nél még értékelhető; utána mérési hiba | Helyi PromQL tesztelt |
 | Supabase API-hiba / pg_up=0 / hiányzó pg_up | Külön monitoringhiba és DB-elérési hiba | Helyi PromQL tesztelt; ne állíts le DB-t rutintesztként |
 | Collector timer megállítása, folyó oneshot megvárása | Heartbeat elavul; firing, majd új siker után resolved | Firing/Resolved igazolt: TEST-10; pontos időmérés nélkül |
 | Nincs alkalmazásforgalom, collector továbbra is sikeres | Nincs collector-riasztás | Helyi PromQL tesztelt |
@@ -300,3 +302,7 @@ promtool check config --syntax-only prometheus/prometheus.yml
 ```
 
 A --syntax-only nem ellenőrzi a privát jelszófájlt és file_sd tartalmat; ezért az Oracle-n teljes promtool check is kell. A tesztszkript közvetlenül a provisionált A-kifejezéseket használja, és sem külső szolgáltatást, sem Telegramot nem hív.
+
+## Backend percenként és negyedik security-szabály
+
+A módosított backendkiesési és monitoringhiba-szabályok legfeljebb 3 perces mérési adatot fogadnak el, a 2 perces pending megmarad. Scrape 60s, scrape-timeout 15s, prober-timeout 10s. A korábbi félórás/40 perces beállítások a régi telepítés részei; a frissítés aktuális feltételei és telepítési sorrendje a [külön leírásban](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) található. Új UID: matchwise_backend_404_burst, legalább 20 nem health 404 az előző 5 percben, 2 perces pendinggel. Az új készlet 16 állandó szabály; éles telepítése még nincs igazolva.

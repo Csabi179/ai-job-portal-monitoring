@@ -1,5 +1,7 @@
 # MatchWise – alerting plan and Oracle deployment procedure
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 [Magyar változat](alerting-plan.md) · [Documentation index](README.md)
 
 **Current documented state (November 18, 2026):** 15 permanent rules: 12 outage/monitoring rules plus three backend resource/security signals. Render CPU/RAM collection and the Service Comparison dashboard are deployed. Screenshots prove synthetic Firing/Resolved Telegram delivery for all three new rules; the operator confirmed cleanup and a real ten-failed-login test. Earlier collector/Node Exporter delivery evidence remains; the other ten original rules have not been fully tested live. See [test records](monitoring-tests.md).
@@ -19,12 +21,12 @@ Outage and monitoring alerts are joined by three backend signals. High Render CP
 | Oracle – Low Disk Space / ai_job_low_disk | Delete | Capacity, not an outage |
 | Oracle – Exporter DOWN / ai_job_exporter_down | Modify | Existing UID now monitors Blackbox; Node Exporter and Prometheus have separate missing-series-aware rules |
 | MatchWise Backend DOWN / matchwise_backend_down | Modify | Latest fresh probe failure; missing data is not replaced by a healthy zero |
-| Backend Monitoring Data Missing / matchwise_backend_probe_missing | Modify | 40-minute freshness and latest scrape failure |
+| Backend Monitoring Data Missing / matchwise_backend_probe_missing | Modify | 3-minute freshness and latest scrape failure |
 | MatchWise Frontend DOWN / matchwise_frontend_down | Modify | Fresh HTTP failure, distinct from scrape failure |
 | Frontend Monitoring Data Missing / matchwise_frontend_probe_missing | Modify | 3-minute freshness and scrape failure |
 | Render Log Collector Stale / matchwise_render_collector_stale | Modify | Heartbeat/textfile processing, conditional on Node Exporter availability |
 
-The original backend/frontend rules required the latest two probes to fail; this could add another 30 minutes for the backend. The replacement reports one unsuccessful completed backend probe, allowing its full 100-second prober timeout and then 2 minutes pending. Probes still run every 30 minutes. A 22-second cold start that ends in HTTP 200 is not an alert condition.
+The original backend/frontend rules required the latest two probes to fail; this could add another 30 minutes for the backend. The earlier replacement used a 100-second timeout and thirty-minute interval. The pending update probes every minute with a ten-second timeout and two minutes pending. A cold start longer than ten seconds can therefore fail a probe.
 
 The three removed UIDs appear explicitly under `deleteRules`: deleting a provisioning file alone would not delete the stored rule. The earlier outage/monitoring set contains **12 rules**; with the three additions there are **15 permanent rules**, evaluated **every minute**.
 
@@ -49,8 +51,8 @@ The actual `A` PromQL expressions, `B=last(A)` reductions and `C: B > 0.5` thres
 | matchwise_node_exporter_unavailable | `1 - (min(up{job="node_exporter"}) or vector(0)) > 0.5` | 3m | About 3–5m after scrape failure; removed series also depend on lookback/staleness |
 | ai_job_exporter_down | Same for `job="blackbox_exporter"` | 3m | About 3–5m for scrape failure |
 | matchwise_prometheus_scrape_unavailable | Same for `job="prometheus"` | 3m | Self-scrape failure; complete Prometheus unavailability is reported through DatasourceError |
-| matchwise_backend_down | `max(1-last_over_time(probe_success[40m]))`, only when the corresponding latest `up[40m]=1` | 2m | About 2–35m from outage onset, depending on the next probe and timeout |
-| matchwise_backend_probe_missing | `1-(min(last_over_time(up[40m])) or vector(0))*(max(present_over_time(probe_success[40m])) or vector(0))` | 2m | About 2–4m after scrape failure; complete sample absence about 42–44m after the last sample |
+| matchwise_backend_down | `max(1-last_over_time(probe_success[3m]))`, only when the corresponding latest `up[3m]=1` | 2m | About 2–4m from outage onset, depending on the next probe and timeout |
+| matchwise_backend_probe_missing | `1-(min(last_over_time(up[3m])) or vector(0))*(max(present_over_time(probe_success[3m])) or vector(0))` | 2m | About 2–4m after scrape failure; complete sample absence about 5–7m after the last sample |
 | matchwise_frontend_down | Same pattern as backend, with a `[3m]` window and frontend job/service | 2m | About 2–4m plus HTTP probe duration |
 | matchwise_frontend_probe_missing | Same monitoring pattern, with `[3m]` | 2m | Scrape failure about 2–4m; missing data about 5–7m after the last sample |
 | matchwise_supabase_metrics_unavailable | `up` absent/0, or no `pg_up` within 3m | 3m | API failure about 3–5m; missing pg_up about 6–8m |
@@ -65,7 +67,7 @@ These are estimates, not SLAs. Scrape phase, prober runtime, staleness and Grafa
 
 ### Important distinctions
 
-`up=1, probe_success=0`: the Blackbox scrape works but the HTTP probe failed. `up=0`: scraping failed; target application availability is unknown. The backend needs a 40-minute range because a 30-minute scrape often falls outside instant lookback. Repeated graph values are not additional probes.
+`up=1, probe_success=0`: the Blackbox scrape works but the HTTP probe failed. `up=0`: scraping failed; target application availability is unknown. The backend now uses a three-minute freshness range for its pending one-minute sampling cadence. Repeated graph values are not additional probes.
 
 `up{job="supabase"}=0`: a Metrics API, authentication or network problem is possible. `pg_up=0` with successful scraping means the exporter cannot connect to PostgreSQL. This is exporter-to-database connectivity evidence, not an independent database test. The existing dashboard and documented metric inventory include pg_up.
 
@@ -92,7 +94,7 @@ Normal grouping: `grafana_folder, category`, keeping availability, monitoring an
 
 There is no automatic dependency inhibition. One Blackbox failure can trigger several monitoring rules, grouped into one notification. An already-active HTTP outage can remain active during a telemetry failure to avoid false recovery. Investigate shared Blackbox/Prometheus causes first.
 
-A new successful HTTP probe clears the HTTP condition. Backend recovery can wait for the next 30-minute probe, followed by evaluation and notification grouping. A monitoring alert's resolution means measurement has recovered, not necessarily the application. Each event has its own state in the notification. There is no additional keep-firing period.
+A new successful HTTP probe clears the HTTP condition. Backend recovery can wait for the next one-minute probe, followed by evaluation and notification grouping. A monitoring alert's resolution means measurement has recovered, not necessarily the application. Each event has its own state in the notification. There is no additional keep-firing period.
 
 
 ### Telegram group as the notification destination
@@ -233,7 +235,7 @@ Restarting can affect evaluation state/pending timing. Persistent volumes remain
 
 - 12 active provisioned rules; the three deleted UIDs are absent.
 - Expected UIDs; no old or manually created duplicate rules.
-- Query Health is good; No Data/Error is not hidden; backend data is less than 40 minutes old.
+- Query Health is good; No Data/Error is not hidden; backend data is less than three minutes old.
 - Contact-point/policy destination is preserved; resolved messages are enabled; template preview works.
 
 Provisioning files do not automatically manage unknown manual rules. Record and handle any such rules separately.
@@ -248,7 +250,7 @@ Use a test environment or an agreed short maintenance window for deliberate fail
 | Successful frontend/backend HTTP, even 22s | No outage alert | Success condition tested in local PromQL; no separate live induced-latency test |
 | HTTP failure with up=1 | HTTP outage pending → firing | Local PromQL tested; live test pending |
 | up=0 or missing probe_success | Monitoring failure; no evidence-free service recovery | Local PromQL tested; live KeepLast test pending |
-| Backend sample at 39m, then older than 40m | Valid at 39m, then monitoring failure | Local PromQL tested |
+| Backend sample at 2m, then older than 3m | Valid at 2m, then monitoring failure | Local PromQL tested |
 | Supabase API error / pg_up=0 / missing pg_up | Distinct monitoring and DB connectivity failures | Local PromQL tested; do not stop the database for a routine test |
 | Stop collector timer, allow current oneshot to finish | Stale heartbeat → firing; new success → resolved | Operator supplied both Telegram notifications November 10; exact elapsed times not measured |
 | No application traffic, successful collection | No collector alert | Local PromQL tested |
@@ -331,3 +333,7 @@ promtool check config --syntax-only prometheus/prometheus.yml
 ```
 
 Syntax-only checking does not validate private password files or file_sd contents; use a full check on Oracle. The test script reads the actual provisioned A expressions and contacts neither external services nor Telegram.
+
+## One-minute backend and a fourth security rule
+
+Updated backend outage and monitoring-failure rules accept samples from the last three minutes and keep the two-minute pending period. Scrape 60s, scrape timeout 15s, prober timeout 10s. The old thirty-/forty-minute settings belong to the earlier rollout; [current update instructions](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) define the new values and deployment order. New UID: matchwise_backend_404_burst, at least twenty non-health 404 responses in five minutes with a two-minute pending period. The new set has sixteen permanent rules; live rollout is not yet established.

@@ -25,7 +25,7 @@
                   "uid": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "max(1 - last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) and (min(last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) == 1)",
+                "expr": "max(1 - last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and (min(last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) == 1)",
                 "instant": true,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200,
@@ -92,7 +92,7 @@
           "execErrState": "KeepLast",
           "annotations": {
             "summary": "MatchWise | Render backend | HTTP outage",
-            "description": "The latest HTTP probe within 40 minutes failed despite a successful scrape. Recovery requires a new successful probe; missing measurements retain the previous state.",
+            "description": "The latest HTTP probe within 3 minutes failed despite a successful scrape. Recovery requires a new successful probe; missing measurements retain the previous state.",
             "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#http"
           },
           "labels": {
@@ -122,7 +122,7 @@
                   "uid": "prometheus"
                 },
                 "editorMode": "code",
-                "expr": "1 - (min(last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) or vector(0)) * (max(present_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])) or vector(0))",
+                "expr": "1 - (min(last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) or vector(0)) * (max(present_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) or vector(0))",
                 "instant": true,
                 "intervalMs": 1000,
                 "maxDataPoints": 43200,
@@ -189,7 +189,7 @@
           "execErrState": "Error",
           "annotations": {
             "summary": "MatchWise | Render backend | Monitoring failure",
-            "description": "The latest scrape failed, or up/probe_success data is missing for 40 minutes. Application availability is unknown; this does not prove a backend outage.",
+            "description": "The latest scrape failed, or up/probe_success data is missing for 3 minutes. Application availability is unknown; this does not prove a backend outage.",
             "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/main/docs/alerting-plan.en.md#http"
           },
           "labels": {

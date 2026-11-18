@@ -1,5 +1,7 @@
 # Monitoring Installation Guide
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 ## November 18 feature deployment
 
 Render CPU/RAM needs a separate systemd service/timer and installed Python copy outside the repository. Follow [resource collector installation](RENDER_METRICS_COLLECTOR.md), [comparison dashboard installation](SERVICE_COMPARISON_DASHBOARD.md) and [new alert provisioning](SERVICE_COMPARISON_ALERTS.md) after the base stack. Restore/check private environment files and Grafana ACLs separately. A Git checkout alone does not update /usr/local/lib/matchwise/render-metrics-poll.py. Temporary TEST rules are not permanent configuration; follow [explicit cleanup](SERVICE_COMPARISON_ALERT_TEST.md#cleanup--eltávolítás).

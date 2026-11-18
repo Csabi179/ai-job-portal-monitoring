@@ -4,7 +4,7 @@
   "title": "MatchWise | Unified Monitoring",
   "description": "Unified monitoring for Oracle Cloud infrastructure, Render backend availability, Vercel frontend availability, Pino HTTP application logs, and Render log collector health. Render and Vercel host CPU/RAM metrics are not collected. Probe freshness and sample counts, optional health-check exclusion, endpoint summary, HTTP log freshness, deployment annotations and log drilldowns. Supabase database resource, connection-capacity, transaction, PostgREST pool and disk I/O monitoring.",
   "schemaVersion": 42,
-  "version": 8,
+  "version": 9,
   "editable": false,
   "refresh": "1m",
   "time": {
@@ -29,7 +29,7 @@
       "description": "High-level view of all currently collected monitoring data.",
       "options": {
         "mode": "markdown",
-        "content": "### MATCHWISE / OPERATIONS CENTER\nOracle Cloud host metrics · Supabase database metrics every minute · Backend HTTP probes every 30 minutes · Frontend HTTP probes every minute · Render API log collection approximately every minute\n\nProbe cards show the latest observation within their freshness window. Read the probe age and sample count alongside availability. Pino timings measure application processing. Empty log results display as **No matching logs**. Query failures appear as panel errors."
+        "content": "### MATCHWISE / OPERATIONS CENTER\nOracle Cloud host metrics · Supabase database metrics every minute · Backend HTTP probes every minute · Frontend HTTP probes every minute · Render API log collection approximately every minute\n\nProbe cards show the latest observation within their freshness window. Read the probe age and sample count alongside availability. Pino timings measure application processing. Empty log results display as **No matching logs**. Query failures appear as panel errors."
       },
       "gridPos": {
         "x": 0,
@@ -149,7 +149,7 @@
       "id": 4,
       "type": "stat",
       "title": "Backend · Latest observed HTTP result",
-      "description": "Last observed result of the 30-minute Blackbox HTTP probe; 40-minute freshness window. See probe age and actual sample counts below. Exporter scrape failures are shown in the availability section.",
+      "description": "Last observed result of the one-minute Blackbox HTTP probe; 3-minute freshness window. See probe age and actual sample counts below. Exporter scrape failures are shown in the availability section.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -157,7 +157,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -658,7 +658,7 @@
       "id": 51,
       "type": "stat",
       "title": "Backend · Age of last probe",
-      "description": "Age of the latest stored probe sample, found through a 40-minute window. Subquery resolution is one minute.",
+      "description": "Age of the latest stored probe sample, found through a 3-minute window. Subquery resolution is one minute.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -666,7 +666,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"})[40m:1m])",
+          "expr": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"})[3m:30s])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -3047,7 +3047,7 @@
       "id": 23,
       "type": "stat",
       "title": "Backend · Latest HTTP status code",
-      "description": "HTTP status code of the most recent Render backend probe (every 30 minutes).",
+      "description": "HTTP status code of the most recent Render backend probe (every minute).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3055,7 +3055,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_http_status_code{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_http_status_code{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -3110,7 +3110,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_duration_seconds{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(probe_duration_seconds{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -3236,7 +3236,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "1000 * max_over_time(timestamp(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"})[40m:1m])",
+          "expr": "1000 * max_over_time(timestamp(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"})[3m:30s])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -3348,7 +3348,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[40m])",
+          "expr": "last_over_time(up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -3409,8 +3409,8 @@
     {
       "id": 26,
       "type": "timeseries",
-      "title": "Render · HTTP response time (30-minute probes)",
-      "description": "Range evaluation can repeat the latest stored sample at multiple display points. Sampling interval is 30 minutes. Use Actual probe samples for the number of independent measurements.",
+      "title": "Render · HTTP response time (one-minute probes)",
+      "description": "Range evaluation can repeat the latest stored sample at multiple display points. Sampling interval is one minute. Use Actual probe samples for the number of independent measurements.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3480,7 +3480,7 @@
       "id": 27,
       "type": "timeseries",
       "title": "Render · HTTP probe results (0/1)",
-      "description": "Range evaluation can repeat the latest stored sample at multiple display points. Sampling interval is 30 minutes. Use Actual probe samples for the number of independent measurements.",
+      "description": "Range evaluation can repeat the latest stored sample at multiple display points. Sampling interval is one minute. Use Actual probe samples for the number of independent measurements.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6435,7 +6435,7 @@
         "name": "status_filter",
         "type": "custom",
         "label": "Log status",
-        "query": "All : .*, 4xx : 4[0-9][0-9], 5xx : 5[0-9][0-9], 401 : 401, 404 : 404",
+        "query": "All : .*, 4xx : 4[0-9][0-9], 5xx : 5[0-9][0-9], 401 : 401, 404 : 404, 403 : 403, 429 : 429",
         "current": {
           "text": "All",
           "value": ".*"
@@ -6464,6 +6464,16 @@
           {
             "text": "404",
             "value": "404",
+            "selected": false
+          },
+          {
+            "text": "403",
+            "value": "403",
+            "selected": false
+          },
+          {
+            "text": "429",
+            "value": "429",
             "selected": false
           }
         ],

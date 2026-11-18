@@ -1,5 +1,7 @@
 # Service comparison implementation / Megvalósítási állapot
 
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+
 Updated / Frissítve: 2026-11-18.
 Repository: Csabi179/ai-job-portal-monitoring.
 Branch / Ág: feat/service-comparison.
@@ -53,3 +55,7 @@ Az Oracle-telepítés ellenőrzött fájlmásolásokkal történt a fejlesztési
 - Main merge, final pull request review and exact current live checkout HEAD are not established. / Main merge, végső PR-ellenőrzés és az éles checkout pontos HEAD-je nincs igazolva.
 
 No secrets or raw application logs are recorded in these guides. / Titkos értékek és nyers alkalmazásnaplók nem kerültek a dokumentációba.
+
+## Next requested revision / Következő kért módosítás
+
+Implemented on the same branch: eight security panels, guarded 404 burst rule, one-minute backend cadence, shorter timeout and three-minute freshness across rules/dashboards. Full updated promtool suite and live Loki checks are the next operator step. No merge is planned now, as requested. / Ugyanazon az ágon elkészült a nyolc biztonsági panel, a 404-riasztás és a percenkénti backend-próba. Következő lépés a frissített tesztcsomag és lekérdezések Oracle-ellenőrzése. Összevonás most nincs tervben.
