@@ -1,0 +1,11 @@
+[Unit]
+Description=Collect MatchWise Render resource metrics every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=2min
+AccuracySec=5s
+Unit=matchwise-render-metrics.service
+
+[Install]
+WantedBy=timers.target
