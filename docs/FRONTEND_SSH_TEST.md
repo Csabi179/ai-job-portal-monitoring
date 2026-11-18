@@ -2,7 +2,7 @@
 
 Állapot: a Vite-indítás, az SSH-alagúton történő oldalbetöltés és az ismétlődő automatikus telemetriaküldés felhasználói kimenettel/képpel igazolt.
 A tényleges API-forgalom mérése és a frontend Grafana-görbék megjelenése igazolt.
-A backend összehasonlító görbéi még nem látszanak; ennek oka diagnosztika alatt.
+A backend útvonalszűrésének javítása után a backendgörbék és a három Supabase-közös grafikon is megjelent; képpel igazolva.
 A felhasználó megerősítette, hogy SSH-val csatlakozik az Oracle-ra.
 Nincs main merge és nincs új nyilvános fejlesztői port.
 
@@ -178,3 +178,31 @@ commitolása/pusholása a frontend feat/frontend-api-traffic ágára, majd a
 Vite/SSH-alagút leállítása és az ideiglenes localhost CORS drop-in eltávolítása.
 Ezek még nincsenek visszaigazolva. A fogadó újraindításakor a memóriabeli
 számlálók nullázódnak, a korábbi Prometheus-adatok megmaradnak.
+
+## Frontend tesztkonfiguráció és útmutató push igazolva – 2026-11-18
+
+A felhasználó Oracle-kimenete igazolja az e48661e frontendcommitot:
+vite.monitoring-test.config.mjs és docs/SSH_MONITORING_TEST.md,
+feat/frontend-api-traffic ágon. Lint: 0 figyelmeztetés, 0 hiba (71 fájl).
+A push sikeres, d180f6f -> e48661e.
+A kapcsolt GitHub-eszköz által igazolt teljes SHA:
+e48661ef58be096bf1ff970368432ebd16e5e9ca.
+[GitHub CI run 44413623454](https://github.com/ernoking/job-portal-frontend/actions/runs/44413623454): completed/success.
+A Vercel commitstatus is success (Deployment has completed); ebből nem
+állítunk hozzáférhető preview-t vagy éles telemetriaaktiválást.
+
+A szükséges frontendkód és a külön tesztconfig/útmutató most már a frontend
+fejlesztési ágán is verziózott. A monitoringkód és dokumentáció a
+feat/service-comparison ágon van. Main merge nem történt.
+
+Következő, még nem igazolt leállítási lépés: Ctrl+C a Vite-terminálban és az
+SSH-alagút termináljában. Az Oracle-on kizárólag a telepített
+/etc/systemd/system/matchwise-frontend-traffic.service.d/50-local-browser-test.conf
+fájlt távolítjuk el, ha tartalma megegyezik a verziózott teszt-drop-innel.
+Nem töröljük a teljes drop-in könyvtárat és nem módosítunk sudoers-t.
+Daemon-reload és receiver restart után helyi OPTIONS-próbák:
+www.matchwise.tech -> 204, localhost:5173 -> 403; health -> ok.
+Az 5173-as Vite-porton nem maradhat listener. A receiver számlálói nullázódnak,
+de a korábbi Prometheus-minták megmaradnak. A leállított teszt frontendgörbéinek
+kiürülése/vége elvárt, nem kiesésriasztás. A backend és Supabase meglévő
+megfigyelése tovább fut; éles Vercel-aktiválás külön lépés.
