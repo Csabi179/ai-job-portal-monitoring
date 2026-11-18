@@ -56,3 +56,11 @@ Az első Oracle-próba HTTP-hibával végződött, de a státuszkód még nem is
 The second Oracle run returned cpu: HTTP 400. Removed explicit startTime/endTime parameters to match the successful probe. The collector now uses the API default time window and still rejects samples older than five minutes. Four local tests passed. Live confirmation is pending; the exact rejected parameter is not yet proven.
 
 A második próba cpu: HTTP 400 hibát adott. A kérésből eltávolítottuk a külön megadott időablakot, így a korábban sikeres próba kérését használjuk. Az ötperces frissességellenőrzés megmarad. Négy helyi teszt sikeres; az éles megerősítés még hátravan. A konkrét elutasított paraméter még nem bizonyított.
+
+## Successful Oracle dry run / Sikeres Oracle-próba
+
+2026-11-18: operator confirmed exit status 0 and collection_success=1 after removing explicit time-window parameters. CPU 0.14924444%, memory 17.7024848991%. Source timestamp 1795015320, collection timestamp 1795015346.67 (about 27 seconds old). Existing environment credentials worked. This validates API collection and calculation, not yet textfile ingestion or scheduled collection.
+
+A gyűjtő éles próbája sikeres. A meglévő kulcs működik; a friss adat feldolgozása igazolt. A következő lépés az egyszeri .prom fájlírás és a Node Exporter ellenőrzése. Az automatikus futtatás még nincs telepítve.
+
+Run the same transient systemd command with --write --output /home/ubuntu/monitoring-exporter-metrics/matchwise_render_resources.prom appended after the Python script. Then inspect http://127.0.0.1:9100/metrics for matchwise_render_ metrics and node_textfile_scrape_error. This writes a real metrics file but does not schedule collection. A one-time file becomes stale; it must not be treated as current indefinitely.
