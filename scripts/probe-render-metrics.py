@@ -15,14 +15,16 @@ class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
-def summary(value, depth=0):
+def summary(value, depth=0, field=None):
     if depth > 6:
         return "<depth limit>"
     if isinstance(value, dict):
-        return {str(k): summary(v, depth + 1) for k, v in list(value.items())[:16]}
+        return {str(k): summary(v, depth + 1, str(k)) for k, v in list(value.items())[:16]}
     if isinstance(value, list):
         return {"count": len(value), "last_item": summary(value[-1], depth + 1) if value else None}
     if isinstance(value, str):
+        if field in {"unit", "field"} and re.fullmatch(r"[A-Za-z][A-Za-z0-9 _/%.-]{0,63}", value):
+            return value
         # Keep dates and numeric strings only. Identifiers and other text are hidden.
         if re.fullmatch(r"\d{4}-\d{2}-\d{2}T[0-9:.+Z-]+", value):
             return value
