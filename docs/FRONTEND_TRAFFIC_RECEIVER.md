@@ -444,3 +444,21 @@ Részletek: [dashboard](SERVICE_COMPARISON_DASHBOARD.md#frontendforgalmi-bővít
 A védett preview hiánya továbbra is fennáll; a frontendmérés kikapcsolt,
 main merge nincs. A további automatikus frontendteszthez a Vercel-projekt
 kezelőjének preview-hozzáférést vagy más engedélyezett telepítést kell biztosítania.
+
+## Új dashboard-lekérdezések Oracle-próbája sikeres – 2026-11-18
+
+A felhasználó a cef1f2d83d166339f2963c69e475f20b6168bdfd verzió
+csak olvasó ellenőrzésének kimenetét adta vissza. Mind a kilenc
+Prometheus/Loki lekérdezés success eredményű, a segéd Preflight PASS.
+A 38/39/40 stat panelek lekérdezése egy-egy idősorral tért vissza.
+A 41/42 forgalmi/latenciapanelek hat lekérdezése üres.
+Ez nem lekérdezési hiba. A frontendmérés kikapcsolt; a backend üres
+API-naplóeredménye önmagában nem igazol nulla forgalmat vagy hibátlan collectort.
+A lekérdezéspróba nem Grafana-megjelenítési vagy frontend-aktiválási bizonyíték.
+
+A repóban a dashboard provider updateIntervalSeconds értéke 30,
+az allowUiUpdates false; a betöltési út /etc/grafana/provisioning/dashboards/json.
+Következő lépés: Grafana bind mount ellenőrzése, az élő dashboard teljes mentése,
+a meglévő panelek és metadata összehasonlítása a megőrzött alappal,
+majd csak a Service Comparison JSON fájl telepítése. Eltérés esetén megállunk.
+Nincs Grafana-újraindítás vagy main merge; a vizuális ellenőrzés még hátravan.
