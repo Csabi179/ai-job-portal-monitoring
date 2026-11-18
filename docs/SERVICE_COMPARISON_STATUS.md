@@ -1,6 +1,6 @@
 # Forgalmi összehasonlítás – aktuális állapot
 
-Frissítve: 2026-11-18. Az első közös grafikonos változat tesztje és az ideiglenes teszt lezárása sikeres.
+Frissítve: 2026-11-19. Az első közös grafikonos változat tesztje és az ideiglenes teszt lezárása sikeres.
 
 ## Mi működik tartósan az Oracle-on?
 
@@ -75,3 +75,15 @@ Részletes bizonyítékok és eljárások:
 [dashboard](SERVICE_COMPARISON_DASHBOARD.md),
 [SSH-teszt](FRONTEND_SSH_TEST.md),
 [Supabase](SUPABASE_METRICS.md).
+
+## Éles forrás előkészítése – 2026-11-19
+
+A felhasználó most külön engedélyezte a frontend feat/frontend-api-traffic -> main
+összevonást. A monitoring feat/service-comparison ág továbbra sem vonható össze.
+A kapcsolt GitHub-eszköz PR-létrehozására 403 érkezett, ezért az Oracle GitHub CLI-hez
+készült rögzített SHA-kat, readiness-t és CI-t ellenőrző merge-segéd.
+A script helyi Bash-szintaxisellenőrzése sikeres; a tényleges Oracle-futás,
+PR-létrehozás és merge még nincs igazolva. Részletek:
+[Production activation](FRONTEND_PRODUCTION_ACTIVATION.md).
+A két Production-változó mellett új Production build szükséges;
+a változók mentése önmagában nem írja át a már kiadott frontend JavaScriptjét.

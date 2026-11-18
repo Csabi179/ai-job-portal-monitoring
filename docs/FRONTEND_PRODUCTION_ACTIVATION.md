@@ -1,6 +1,6 @@
 # Az éles frontendmérés bekapcsolása
 
-Állapot: végrehajtható átadási leírás; élesítés nem történt.
+Állapot (2026-11-19): a frontend main összevonása külön felhasználói engedélyt kapott; a végrehajtás és production build még nincs igazolva. A monitoringág továbbra is külön marad.
 A fogadó, HTTPS, Prometheus és a 45 paneles dashboard működik az Oracle-on.
 Az SSH/Vite teszt lezárva; a localhost CORS-engedély visszavonva.
 
@@ -41,9 +41,11 @@ amely production változókkal újraépül. Ez önmagában nem Git main merge.
 A konkrét deploymentet, a projektet és a www.matchwise.tech production domaint
 a kezelőnek azonosítania kell; a production branch jelenlegi beállítása nincs nálunk igazolva.
 
-Nem futtatunk automatikus main merge-t vagy production promote parancsot.
-A felhasználónak nincs Vercel-hozzáférése, ezért ez a lépés projektkezelői
-közreműködést igényel. A monitoringrepó fejlesztési ágát ehhez nem kell mainbe olvasztani.
+A felhasználó 2026-11-19-én kifejezetten engedélyezte kizárólag a frontend
+feat/frontend-api-traffic ág main-be összevonását. A monitoringág nem vonható össze.
+A frontend PR/merge az Oracle-on működő GitHub CLI-vel készíthető elő;
+a kapcsolt GitHub-eszköz PR-létrehozása 403 Resource not accessible by integration hibát adott.
+A Vercel Production-változókat továbbra is a projekt kezelője állítja be.
 
 ## Ellenőrzés és visszaállítás
 
@@ -66,3 +68,33 @@ A dashboard és a backend/Supabase megfigyelés ettől megmaradhat.
 Források:
 [Vercel environment variables](https://vercel.com/docs/environment-variables/managing-environment-variables),
 [Preview -> Production](https://vercel.com/docs/deployments/promote-preview-to-production).
+
+## Minden egyéb előkészítése az env-beállítás előtt – 2026-11-19
+
+Ellenőrzött frontend main: 50d1058a035fe8cfb14ce291c923ab77c31f20cb.
+Ellenőrzött feature HEAD: e48661ef58be096bf1ff970368432ebd16e5e9ca.
+A feature 2 committal előrébb van, 0 committal lemaradva; 12 érintett fájl,
+kizárólag mérőkód, tesztek, CI-kiegészítés, tesztkonfiguráció és dokumentáció.
+Az összehasonlításkor nem volt nyitott PR. A feature CI már sikeres volt.
+
+A scripts/merge-tested-frontend.sh --merge az Oracle-on futtatandó, nem helyben:
+1. receiver health, Prometheus up/receiver_up és production-Origin HTTPS/CORS ellenőrzése;
+2. a konkrét head/base SHA ellenőrzése;
+3. PR létrehozása vagy a már létező megfelelő PR használata, pontos leírással;
+4. a PR checkek kivárása;
+5. normál merge, --match-head-commit védelemmel;
+6. a main tartalmazza-e a tesztelt forrást: ancestry ellenőrzés.
+
+Nincs admin/force/auto-merge vagy ágak törlése. Nem váltja át a helyi monitoring
+checkoutot, és nem merge-eli a monitoringágat. A script Bash-szintaxisa ellenőrzött;
+tényleges PR/merge végrehajtás még nincs igazolva. A default frontendkapcsoló
+marad false, a Production-változók felülírják új buildkor.
+
+A forrás main-re kerülése automatikus Vercel-deployt indíthat. A merge/deploy után
+külön ellenőrizzük, hogy a Production környezetben a megfelelő forrás fut-e;
+a projekt production branch beállítása még nincs közvetlenül igazolva.
+Amikor a kezelő beállította a két Production-változót, új Production build kell.
+Ezt a Vercel Redeploy-val vagy a megerősített production Git-ág új commitjával
+lehet indítani. Az env mentésétől a korábbi statikus JS nem frissül magától.
+Ha a kezelő csak a változókat állítja be, a buildindítás a következő közös lépés;
+Nem állítjuk, hogy változómentés önmagában azonnal aktiválja a mérést.
