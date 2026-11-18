@@ -191,3 +191,25 @@ a telepítőscriptet helyben nem hajtottuk végre, Oracle-futás még hátravan.
 A validálás/reload a [Caddy CLI](https://caddyserver.com/docs/command-line),
 a külön útvonal és a Grafana fallback a
 [handle](https://caddyserver.com/docs/caddyfile/directives/handle) dokumentációját követi.
+
+## Caddy rollout elakadás: sudo-ellenőrzés – 2026-11-18
+
+A felhasználó kimenete alapján a Git fetch sikeres: a fejlesztési ág
+09c8d705 commitig letöltve. Az SSH-kulcs passphrase kérése és a sudo
+ubuntu-jelszókérése két külön hitelesítés. A segéd a korai sudo -v
+ellenőrzésnél állt meg, három hibás próbálkozással; ebben a futásban nem
+jutott el Caddyfile-módosításig vagy reloadig. A korábban telepített fogadó
+állapotát ez a sikertelen futás nem módosította.
+
+A sudo -v szabályfüggően akkor is kérhet jelszót, ha egyes konkrét parancsok
+NOPASSWD joggal rendelkeznek (verifypw). Ez lehetséges magyarázat, az Oracle
+konkrét sudo-szabályai még nincsenek igazolva.
+A segédből eltávolítottuk a sudo -v lépést, és minden tényleges sudo-hívás
+sudo -n formában fut: jelszókérés helyett jogosultsághiánynál megáll.
+Ez nem ad új jogosultságot és nem módosít sudoers-beállítást.
+A javított Bash-szintaxis ellenőrzése sikeres, Oracle-újrafuttatás még nem történt.
+Következő csak olvasó diagnosztika: sudo -n -l, majd
+sudo -n systemctl is-active matchwise-frontend-traffic.service.
+Hiba esetén is a teljes kimenetet kell értékelni; jelszót nem kérünk be.
+
+Forrás: [sudoers – verifypw](https://github.com/sudo-project/sudo/blob/main/docs/sudoers.man.in).
