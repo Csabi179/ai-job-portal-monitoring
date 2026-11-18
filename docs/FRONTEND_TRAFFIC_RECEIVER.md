@@ -1,6 +1,7 @@
 # Frontendforgalom – fogadó és biztonságos bevezetés
 
-Állapot: elkészült, helyben tesztelt fejlesztési kód; nincs Oracle-ra telepítve.
+Állapot: a fogadó Oracle-ra telepítve, a felhasználó kimenetével igazolva.
+A Caddy HTTPS-útvonal és a Prometheus bekötése még hátravan.
 Nincs új dashboard vagy riasztás telepítve. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
@@ -16,7 +17,11 @@ Ezért nincs git switch, pull, reset vagy a teljes konfiguráció felülírása.
 A sudo-val kiolvasott Caddyfile a grafana-r0cecq.duckdns.org host minden
 kérését a 127.0.0.1:3000 címre továbbítja. A docker socket a felhasználó
 számára sudo nélkül nem hozzáférhető; a további dockerparancsok sudo-val futnak.
-A Caddyfile gazdagépen lévő tényleges forrásútvonala még ellenőrzendő.
+A felhasználó docker inspect kimenete igazolta a Caddy bind mountját:
+/home/ubuntu/ai-job-monitoring/caddy -> /etc/caddy.
+A Prometheus konfigurációja:
+/home/ubuntu/ai-job-monitoring/prometheus/prometheus.yml -> /etc/prometheus/prometheus.yml.
+A fogadó telepítése előtt a 9121-es port szabad volt.
 
 A frontendnél a felhasználó szerint automatikus deploy van.
 A frontend GitHub-kapcsolat olvas, de az ág létrehozását 403
@@ -149,5 +154,40 @@ A HTTP-teszt a helyi sandbox socketkorlátja miatt engedélyezett,
 sandboxon kívüli futtatásban sikerült; nem az Oracle-t érte el.
 A környezetben npm nincs, ezért teljes Vite build és oxlint nem futott.
 A patch a CI-ba beilleszti a frontendtesztet; CI-siker még nem igazolt.
-Caddy-validálás, systemd-indítás, Oracle/Prometheus-integráció, frontenddeploy,
-böngészős CORS és teljes lánc még nincs igazolva.
+A systemd-indítás és az Oracle helyi health/metrics elérése a felhasználó
+kimenetével igazolt. A Caddy-validálás/reload, Prometheus-integráció,
+frontenddeploy, böngészős CORS és teljes lánc még nincs igazolva.
+
+## Oracle fogadótelepítés igazolva – 2026-11-18
+
+A felhasználó a 1060584f6f0e6e40769e3db4ed06f6d0ace3baaf commitból
+kivett fájlokkal telepített, ágváltás/pull nélkül. A 6 Python-teszt az
+Oracle-on is sikeres (0,541 s). A systemd-szolgáltatás enabled és active (running),
+ExecStart: /usr/bin/python3 /usr/local/lib/matchwise/frontend-traffic-receiver.py.
+Indulás: 2026-11-18 21:40:12 Europe/Budapest (20:40:12 UTC).
+A helyi /health válasza ok; a /metrics receiver_up=1 értéket és nulla
+csomagszámlálókat mutat. Ez még nem frontendforgalom- vagy HTTPS-igazolás.
+
+## Következő lépés: csak a Caddy útvonal
+
+A scripts/enable-frontend-traffic-caddy.sh a rögzített 1060584 commitból
+használja az ellenőrzött alapot és az új Caddyfile-példát.
+A tényleges mountot és a host hálózati módot ellenőrzi. Eltérő alapnál megáll;
+az alapváltozat és a már bekötött célváltozat is elfogadott.
+Mentés: /home/ubuntu/monitoring-backups/frontend-traffic-caddy.XXXXXX.
+Validálás után caddy reload, majd helyi HTTPS a valódi domainnel és certtel:
+engedélyezett Origin OPTIONS=204 és megfelelő CORS fejléc,
+tiltott Origin OPTIONS=403, hibás csomag POST=400, Grafana database=ok.
+A hibás POST egy elutasított csomagot ad hozzá; üzleti forgalmat nem generál.
+Sikertelen ellenőrzésnél a script megpróbálja visszamásolni és újratölteni
+a mentett konfigurációt; a mentés helyét kiírja. A visszaállítás sikerét
+valódi hibaszituációban még nem teszteltük.
+Nem módosítja a Prometheust, a frontendkonfigurációt vagy a Git checkout ágát.
+
+A segéd Bash-szintaxisellenőrzése sikeres. Az ellenőrzés a Windows Bash
+sandboxkorlátozása miatt engedélyezett, sandboxon kívüli futtatásban történt;
+a telepítőscriptet helyben nem hajtottuk végre, Oracle-futás még hátravan.
+
+A validálás/reload a [Caddy CLI](https://caddyserver.com/docs/command-line),
+a külön útvonal és a Grafana fallback a
+[handle](https://caddyserver.com/docs/caddyfile/directives/handle) dokumentációját követi.
