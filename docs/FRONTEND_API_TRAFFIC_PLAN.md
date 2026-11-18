@@ -6,7 +6,7 @@ Monitoringág: feat/service-comparison. Main összevonás nincs.
 
 ## Ellenőrzött kiindulás
 
-A felhasználó szerint minden szolgáltatás ingyenes csomagban van, nincs közvetlen Vercel-hozzáférése, a frontend forrását módosíthatja. Az éles telepítés módja még nem igazolt.
+A felhasználó szerint minden szolgáltatás ingyenes csomagban van, nincs közvetlen Vercel-hozzáférése, a frontend forrását módosíthatja. A felhasználó megerősítette, hogy a frontendnél automatikus deploy működik. A deployt indító ágak és a fejlesztési ág preview telepítése még nincs igazolva.
 
 A kapcsolt GitHub-eszközzel ellenőrzött forrás:
 - ernoking/job-portal-frontend, main, src/api/http.js:
@@ -50,8 +50,10 @@ a fetch válaszfejlécig tartó ideje és a törzs beolvasásáig tartó idő
 különböző fogalmak. A fetch-hiba nem bizonyít backendhibát;
 hálózati hiba vagy megszakítás is lehet.
 
-Javaslat: összesítés körülbelül 30 másodpercenként; lap háttérbe
-kerülésekor egy további, korlátozott méretű küldési kísérlet.
+Felhasználói követelmény: az összesítések időzített küldése 60 másodpercenként
+(1 perc) történjen, böngészőlaponként. Nincs külön háttérbe kerüléskor
+indított küldés. A böngésző háttérben késleltetheti az időzítőt;
+ez nem garantált, pontos falióra szerinti percenkénti kézbesítés.
 A küldés nem blokkolhatja az üzleti kéréseket.
 Nincs korlátlan sor vagy korlátlan újrapróbálkozás.
 Ha van újraküldés, batchazonosítóval és korlátozott idejű
@@ -91,7 +93,8 @@ eltérő időablak vagy gyűjtési késés. Az eltérés önmagában nem támad�
 
 ## Következő lépések
 
-1. Igazolni, ki és hogyan telepítheti a frontend fejlesztési ágát.
+1. Automatikus frontenddeploy visszaigazolva; ellenőrizni, mely ágak
+   indítanak éles vagy preview telepítést. Main összevonást nem végzünk.
 2. Oracle-on csak olvasással ellenőrizni az aktuális Git-állapotot,
    élő Caddy-konfigurációt és elérési korlátozásokat.
 3. Ezek alapján megírni a kis fogadót és frontendkiegészítést,
