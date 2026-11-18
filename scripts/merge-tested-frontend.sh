@@ -54,6 +54,7 @@ if [[ "$actual_base" != "$expected_base" ]]; then
 fi
 
 work="$(mktemp -d /tmp/matchwise-production-pr.XXXXXX)"
+cd "$work"
 cat > "$work/pr-body.md" <<'PRBODY'
 Adds browser-side API traffic aggregates for comparing frontend activity with Render backend logs and Supabase workload. The shared request helper records starts, HTTP responses, network failures and response-header timing, then sends bounded batches every 60 seconds to the Oracle receiver. Reporting remains disabled by default and requires explicit build configuration.
 
@@ -87,9 +88,9 @@ if [[ -z "$pr" ]]; then
 fi
 [[ "$pr" =~ ^[0-9]+$ ]] || fail 'Could not identify the frontend PR.'
 
-pr_head="$(gh pr view "$pr" --repo "$repo" --json headRefOid --jq '.headRefOid')"
-pr_base="$(gh pr view "$pr" --repo "$repo" --json baseRefName --jq '.baseRefName')"
-draft="$(gh pr view "$pr" --repo "$repo" --json isDraft --jq '.isDraft')"
+pr_head="$(gh api "repos/$repo/pulls/$pr" --jq '.head.sha')"
+pr_base="$(gh api "repos/$repo/pulls/$pr" --jq '.base.ref')"
+draft="$(gh api "repos/$repo/pulls/$pr" --jq '.draft')"
 [[ "$pr_head" == "$expected_head" && "$pr_base" == main && "$draft" == false ]] \
   || fail 'PR head/base/draft state differs from the reviewed release.'
 printf 'Frontend PR: https://github.com/%s/pull/%s\n' "$repo" "$pr"
@@ -97,7 +98,7 @@ printf 'Frontend PR: https://github.com/%s/pull/%s\n' "$repo" "$pr"
 # Allow newly-created PR checks to register, then wait for all reported checks.
 registered=false
 for attempt in 1 2 3 4 5 6; do
-  count="$(gh pr checks "$pr" --repo "$repo" --json name --jq 'length')" || true
+  count="$(gh api "repos/$repo/commits/$expected_head/check-runs" --jq '.total_count')"
   if [[ "$count" =~ ^[0-9]+$ && "$count" -gt 0 ]]; then registered=true; break; fi
   sleep 5
 done
@@ -109,9 +110,19 @@ ci_success="$(gh api "repos/$repo/commits/$expected_head/check-runs" --jq '[.che
 actual_base="$(gh api "repos/$repo/branches/main" --jq '.commit.sha')"
 [[ "$actual_base" == "$expected_base" ]] || fail 'Main moved during CI; repeat review before merging.'
 
-# Normal PR merge only: no --admin, --auto, force push or branch deletion.
-gh pr merge "$pr" --repo "$repo" --merge --match-head-commit "$expected_head"
-gh pr view "$pr" --repo "$repo" --json state,mergedAt,mergeCommit,url
+# Normal REST PR merge with a head-SHA precondition; no administrative bypass.
+gh api --method PUT "repos/$repo/pulls/$pr/merge" \
+  -f sha="$expected_head" -f merge_method=merge > "$work/merge-result.json"
+python3 - "$work/merge-result.json" <<'PY'
+import json
+from pathlib import Path
+import sys
+result = json.loads(Path(sys.argv[1]).read_text())
+if result.get('merged') is not True:
+    raise SystemExit('GitHub did not confirm the merge.')
+print(json.dumps(result, indent=2))
+PY
+gh api "repos/$repo/pulls/$pr" --jq '{state,merged,merged_at,merge_commit_sha,html_url}'
 
 main_sha="$(gh api "repos/$repo/branches/main" --jq '.commit.sha')"
 comparison="$(gh api "repos/$repo/compare/$expected_head...$main_sha" --jq '.status')"
