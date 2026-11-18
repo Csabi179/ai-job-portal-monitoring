@@ -1,7 +1,7 @@
 # Frontendforgalom – fogadó és biztonságos bevezetés
 
 Állapot: a fogadó Oracle-ra telepítve, a felhasználó kimenetével igazolva.
-A Caddy HTTPS-útvonal és a Prometheus bekötése még hátravan.
+A Caddy HTTPS-útvonalának helyi ellenőrzése sikeres; a Prometheus bekötése még hátravan.
 Nincs új dashboard vagy riasztás telepítve. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
@@ -213,3 +213,46 @@ sudo -n systemctl is-active matchwise-frontend-traffic.service.
 Hiba esetén is a teljes kimenetet kell értékelni; jelszót nem kérünk be.
 
 Forrás: [sudoers – verifypw](https://github.com/sudo-project/sudo/blob/main/docs/sudoers.man.in).
+
+## Caddy HTTPS-próba sikeres, CR-sorhiba javítva – 2026-11-18
+
+A felhasználó visszaadta a javított sudo -n segéd kimenetét:
+Valid configuration, Grafana database=ok, PASS a 204/403 CORS- és 400 POST-próbákkal.
+Mentés: /home/ubuntu/monitoring-backups/frontend-traffic-caddy.drfoPx.
+A próbák helyi HTTPS-en, --resolve használatával futottak: ez nem teljes,
+külső böngészős elérésigazolás és nem igazolt frontenddeploy.
+
+A PASS után a 107. sorban egy külön CR karakter command not found hibát okozott.
+A Git-fájl lekérése igazolta az egyetlen fölösleges CR karaktert a végén.
+Ezt eltávolítottuk. A successful=true beállítás már a hibás sor előtt megtörtént,
+így a script visszaállítást nem indított; a sikeres Caddy-bekötést nem kell
+emiatt újrafuttatni. A Caddy behúzásra vonatkozó figyelmeztetése nem validálási hiba.
+
+## Következő lépés: Prometheus
+
+A scripts/connect-frontend-traffic-prometheus.py --self-test három helyi
+tesztje sikeres: eredeti kommentek/beállítások megőrzése, eltérő behúzás,
+már létező feladat vagy nem támogatott elrendezés biztonságos elutasítása.
+A script Oracle-futtatása és a Prometheusba történő adatbeérkezés még hátravan.
+
+A --apply ellenőrzi a bind mountot, a host hálózatot és a fogadó állapotát.
+A meglévő élő prometheus.yml tartalmába egy új frontend_traffic feladatot szúr,
+60s/10s időzítéssel, 127.0.0.1:9121 címmel. Az eredeti tartalmat nem cseréli le
+a repóban lévő teljes konfigurációra. Nem használ új Python-függőséget.
+A támogatott block-style scrape_configs elrendezéstől eltérő esetben megáll.
+A már létező frontend_traffic feladatnál nem illeszt be duplikátumot.
+
+Mentés és jelölt konfiguráció a /home/ubuntu/monitoring-backups alá kerül,
+privát könyvtárba és 0600 jogosultságú fájlokba; a konfigurációt nem írja ki.
+A konténerben, az eredeti konfiguráció könyvtárában promtool check config fut,
+így a titkos fájlokra és relatív hivatkozásokra is ellenőriz.
+A gazdagépfájl inódját megtartja a Docker egyfájlos bind mountja miatt.
+Újratöltés SIGHUP-pal történik, nem szükséges a web lifecycle endpoint megnyitása.
+Forrás: [Prometheus újratöltés](https://prometheus.io/docs/prometheus/latest/configuration/configuration/).
+
+A script legfeljebb 90 másodpercig vár az első scrape-re. Sikerhez kell:
+az előző feladatok jelenléte, a frontend_traffic target up állapota,
+a megfelelő scrape URL és a frontend_telemetry_receiver_up=1 lekérdezhető minta.
+Hiba esetén megpróbálja visszaírni és újratölteni a mentett konfigurációt;
+a tényleges visszaállítást hibaszituációban még nem teszteltük.
+Caddy-, frontend- és riasztásmódosítás ebben a lépésben nincs.
