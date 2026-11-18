@@ -22,7 +22,7 @@ Egyszerű összehasonlító dashboard a meglévő rendszerre építve. A Render 
 
 ## Current operator step / Jelenlegi felhasználói lépés
 
-Install the new alert provisioning file using [SERVICE_COMPARISON_ALERTS.md](SERVICE_COMPARISON_ALERTS.md), restart Grafana and verify all three rules have healthy evaluation. / Telepítsd az új szabályfájlt, indítsd újra a Grafanát, majd ellenőrizd a három szabály állapotát és health értékét.
+Run the controlled test in [SERVICE_COMPARISON_ALERT_TEST.md](SERVICE_COMPARISON_ALERT_TEST.md). Observe Pending/Firing/Normal and Telegram firing/resolved, then explicitly delete test rules. / Futtasd a kontrollált tesztet, ellenőrizd az állapotváltásokat és értesítéseket, majd töröld a tesztszabályokat.
 
 ## Evidence / Ellenőrzés
 
@@ -33,3 +33,5 @@ Collector: four local test methods passed. Dashboard structure checks passed. Th
 A gyűjtés és a dashboard éles működése a felhasználó kimenetével és képeivel igazolt. Viewer hozzáférés és az új riasztások éles működése még nincs ellenőrizve. A fő ág változatlan; a munka a fejlesztési ágon található.
 
 2026-11-18 live query evidence: CPU A=0; 5xx A=0,D=1; login A=0,D=1. All five datasource queries succeeded. Grafana expressions and Telegram delivery are not yet verified.
+
+2026-11-18: startup incident confirmed and corrected (incomplete optional dashboard annotation). User reports corrected Grafana is working; separate rule-health evidence remains to be recorded. Timed synthetic test generator and bilingual runbook implemented; three local tests passed. Live demonstration and cleanup pending.
