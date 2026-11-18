@@ -46,10 +46,10 @@ A fogadó szolgáltatás és a monitoring ettől tovább működik.
 ## Mi nincs még élesítve vagy igazolva?
 
 **A www.matchwise.tech éles frontendjén az automatikus mérés nincs bekapcsolva.**
-A forrásbeli trafficConfig.js enabled=false és üres endpoint értékű;
+A forrásbeli trafficConfig.js alapértéke enabled=false és üres endpoint;
 a teszt a Vite-folyamat környezeti változóival működött, amelyeket nem írtunk .env fájlba.
 Az éles aktiváláshoz külön engedélyezett frontendkonfiguráció és éles deploy szükséges,
-a projekt kezelőjével egyeztetve. Main merge egyik repóban sem történt.
+a projekt kezelőjével egyeztetve. A frontend main merge 2026-11-19-én külön engedélyt kapott és megtörtént; a monitoringág külön maradt.
 
 Nincs automatikus összetett eltérésriasztás, DDoS-/terheléses igazolás vagy általános
 rendellenesség-felismerési bizonyíték. Az új panelek Viewer-hozzáférése nincs külön igazolva.
@@ -87,3 +87,23 @@ PR-létrehozás és merge még nincs igazolva. Részletek:
 [Production activation](FRONTEND_PRODUCTION_ACTIVATION.md).
 A két Production-változó mellett új Production build szükséges;
 a változók mentése önmagában nem írja át a már kiadott frontend JavaScriptjét.
+
+## Frontend merge és az utána indult CI/deploy sikeres – 2026-11-19
+
+A felhasználó REST merge-kimenete merged=true, SHA:
+86fc6ff74ce1819e77749be899de598bf54b6577.
+A kapcsolt GitHub-eszköz ezt [PR #11](https://github.com/ernoking/job-portal-frontend/pull/11)
+merged állapotával és a main aktuális HEAD-jével külön igazolta.
+A tesztelt e48661e forrás a merge elődje; e48661e -> 86fc6ff összehasonlításban
+0 változott fájl szerepel. A frontendkód tartalma megegyezik a teszteltével.
+[Main CI 44423094254](https://github.com/ernoking/job-portal-frontend/actions/runs/44423094254): completed/success.
+Az új merge-commit Vercel státusza success, Deployment has completed.
+[Deployment státusz céloldala](https://vercel.com/ai-job-portal1/matchwise/6Q6jnND9uuawRBNkGnedCZujnu89).
+
+A két környezeti változó beállítását és a deployt a felhasználó korábban jelezte.
+A Vercel-projekt konkrét beállításait közvetlenül nem olvastuk ki.
+Következő ellenőrzés: az éles https://www.matchwise.tech oldalt újratöltve,
+valódi automatikus /matchwise-telemetry/v1 POST 204, nem üres normál API-adatok,
+majd Prometheus/Grafana frissülés. Ez még nincs visszaigazolva.
+A merge és a Vercel success önmagában nem éles böngészős adatküldési bizonyíték.
+A monitoring feat/service-comparison ága továbbra sem lett main-be olvasztva.
