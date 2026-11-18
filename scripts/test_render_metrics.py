@@ -2,6 +2,8 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch, Mock
+from urllib.error import HTTPError
 from datetime import datetime, timezone
 
 spec = importlib.util.spec_from_file_location('collector', Path(__file__).with_name('render-metrics-poll.py'))
@@ -18,6 +20,17 @@ def fixture():
     return payloads
 
 class Tests(unittest.TestCase):
+    def test_http_error_diagnostics_hide_sensitive_details(self):
+        for status in (400, 401, 403, 429, 500):
+            with self.subTest(status=status):
+                opener = Mock()
+                opener.open.side_effect = HTTPError('https://example.test/secret', status, 'secret response', {}, None)
+                with patch.object(m, 'build_opener', return_value=opener):
+                    with self.assertRaises(m.MetricsHTTPError) as caught:
+                        m.collect('secret-key', 'srv-test')
+                self.assertEqual(m.failure_message(caught.exception), f'cpu: HTTP {status} (response body hidden)')
+        self.assertEqual(m.failure_message(ValueError('secret')), 'ValueError')
+
     def test_ratios(self):
         out = m.calculate(fixture(), 'srv-test', NOW)
         self.assertAlmostEqual(out['matchwise_render_cpu_utilization_percent'], .1632)
