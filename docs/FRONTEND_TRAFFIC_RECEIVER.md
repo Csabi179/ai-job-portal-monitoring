@@ -3,9 +3,11 @@
 Állapot: a fogadó Oracle-ra telepítve, a felhasználó kimenetével igazolva.
 A Caddy HTTPS-útvonalának helyi ellenőrzése és a fogadó Prometheus-bekötése sikeres.
 A frontendkód az Oracle fejlesztési ágán alkalmazva, tesztelve és GitHubra pusholva.
-A GitHub CI és a Vercel deploy státusza sikeres. Az aktiválás és a valódi
-böngészős mérés még hátravan.
-Nincs új dashboard vagy riasztás telepítve. Main összevonás nincs.
+A GitHub CI és a Vercel deploy státusza sikeres; a védett preview-hoz nincs hozzáférés.
+A 41 paneles dashboard telepítése és megjelenése igazolt.
+Az SSH-s tesztfrontend betöltődik és automatikusan ismételt, 204-es telemetriacsomagokat küld.
+Az üzleti API-kérések mérése, a forgalmi görbék és az éles frontendaktiválás még hátravan.
+Új riasztást nem adtunk hozzá. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
 
@@ -488,3 +490,13 @@ A fejlesztési ág vite.config.js fájlját ellenőriztük: /api -> http://local
 Ez az Oracle-on a Grafana címe lenne, így a jelenlegi dev konfigurációt
 változtatás nélkül ott nem használjuk. A tesztkonfigurációnak a Render API-ra
 kell továbbítania. A teszt nem helyettesíti az éles frontendtelepítést.
+
+## SSH-s automatikus frontendküldés igazolva – 2026-11-18
+
+A Vite v8.3.4 ready (127.0.0.1:5173) kimenetet a felhasználó visszaadta,
+és megerősítette a helyi böngészős oldalbetöltést az SSH-alagúton.
+A Network-kép négy, apiTraffic.js által indított POST-ot mutat 204 válasszal.
+Az ismétlődő automatikus fogadás igazolt; a csomagok starts/results tartalma,
+a normál API-hívások és a forgalmi grafikonok még ellenőrizendők.
+Ez a külön Oracle/Vite tesztút, nem a Vercel éles frontendtelepítése.
+Részletek: [SSH-teszt](FRONTEND_SSH_TEST.md).
