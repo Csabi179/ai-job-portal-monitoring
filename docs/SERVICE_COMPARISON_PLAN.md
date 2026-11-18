@@ -13,7 +13,7 @@ Egyszerű összehasonlító dashboard a meglévő rendszerre építve. A Render 
 ## Steps / Lépések
 
 1. DONE: baseline and branch created; implementation plan versioned.
-2. IN PROGRESS: read-only Render metrics API probe. CPU, memory and capacity limits; verify account access and actual payload. No live access verified yet.
+2. IN PROGRESS: read-only Render metrics API probe. CPU, memory and capacity limits; verify account access and actual payload. Operator verified HTTP 200 and nonempty samples for all four endpoints on November 18. Unit verification pending.
 3. TODO: Python metrics collector, atomic textfile output, source timestamp and collection health, systemd timer; tests for errors/stale data.
 4. TODO: Service Comparison dashboard with aligned time axes, same units for comparable data, explicit freshness and backend logs. Vercel CPU/memory shown as not collected.
 5. TODO: backend CPU, backend 5xx and failed-login rules. Thresholds are initial examples, not measured service objectives. Exclude health traffic; require valid telemetry; document recovery and notification routing.
@@ -28,6 +28,12 @@ Futtasd a scripts/probe-render-metrics.py ellenőrzőt az Oracle gépen. A szolg
 
 ## Evidence / Ellenőrzés
 
-Official API references checked: https://api-docs.render.com/reference/get-cpu and https://api-docs.render.com/reference/get-memory. Account-specific permission, response format and metric units remain unverified. No CPU percentage formula or live alert is deployed in this phase.
+Official API references checked: https://api-docs.render.com/reference/get-cpu and https://api-docs.render.com/reference/get-memory. Operator output confirms access and the list/labels/unit/values response structure. Units remain unverified because the initial probe hid unit strings. No CPU percentage formula or live alert is deployed in this phase.
 
-Az API-leírás ellenőrzött; a saját fiók hozzáférése, a válasz szerkezete és a mértékegységek élőben még nem igazoltak. Ebben a fázisban nem telepítünk új riasztást.
+Az API-leírás ellenőrzött; a saját fiók hozzáférése és a válasz szerkezete a felhasználó kimenetével igazolt. A mértékegységek ellenőrzéséhez a javított program egyszeri újrafuttatása szükséges. Ebben a fázisban nem telepítünk új riasztást.
+
+## API probe evidence 2026-11-18 / API-ellenőrzés
+
+Operator supplied four HTTP 200 responses, each containing one series and 61 samples. Latest reported sample time: 2026-11-18T15:08:00Z. Raw values: CPU 0.00028793333; CPU limit 0.15; memory 95039490; memory limit 536870900. These are raw API numbers, not yet validated units or derived percentages. No credentials recorded. The revised probe preserves unit names and label field names while hiding identifier values. Local unit-visibility and redaction checks passed; revised live output pending.
+
+Mind a négy API-lekérés sikeres: egy-egy idősor, 61 mintával. A számok nyers API-értékek, a mértékegységet még ellenőrizzük. A javított program helyi ellenőrzése sikeres. Következő lépés: egyszeri újrafuttatás, utána a metrikagyűjtő megírása.
