@@ -32,10 +32,18 @@ def main():
                 assert rule['execErrState'] == ('KeepLast' if rule['noDataState'] == 'KeepLast' else 'Error'), uid
                 assert rule['noDataState'] in ('Alerting', 'KeepLast'), uid
                 assert rule['condition'] == 'C', uid
-                assert rule['labels']['category'] in ('monitoring', 'availability'), uid
+                assert rule['labels']['category'] in ('monitoring', 'availability', 'security'), uid
                 assert rule['data'][-1]['model']['conditions'][0]['evaluator'] == {'params': [0.5], 'type': 'gt'}, uid
                 rules[uid] = rule
-    assert len(rules) == 12, len(rules)
+    assert len(rules) == 15, len(rules)
+    security_uids = {'matchwise_backend_cpu_high', 'matchwise_backend_5xx_burst', 'matchwise_backend_login_burst'}
+    assert security_uids <= rules.keys()
+    for uid in security_uids:
+        assert rules[uid]['labels']['category'] == 'security'
+        assert rules[uid]['noDataState'] == 'KeepLast'
+    # The original promtool suite covers the 12 infrastructure/availability rules.
+    # New cross-datasource rules require check-service-comparison-queries.py and Grafana evaluation.
+    rules = {uid: rule for uid, rule in rules.items() if uid not in security_uids}
     assert deleted == {'ai_job_test_endpoint_down', 'ai_job_low_memory', 'ai_job_low_disk'}
     assert not deleted.intersection(rules)
     policy = yaml.safe_load((ROOT / 'grafana/provisioning/alerting/telegram.yml').read_text(encoding='utf-8'))
