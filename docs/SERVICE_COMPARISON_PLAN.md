@@ -15,19 +15,19 @@ Egyszerű összehasonlító dashboard a meglévő rendszerre építve. A Render 
 1. DONE: baseline and branch created; implementation plan versioned.
 2. DONE: operator confirmed four nonempty API responses and units (cpu / bytes) on November 18.
 3. DONE: collector, textfile ingestion, systemd timer and Prometheus ingestion verified by operator.
-4. IN PROGRESS: Service Comparison dashboard and bilingual installation guide implemented. Structure checks passed; live display/query and Viewer checks pending.
-5. TODO: backend CPU, backend 5xx and failed-login rules. Thresholds are initial examples, not measured service objectives. Exclude health traffic; require valid telemetry; document recovery and notification routing.
+4. IN PROGRESS: operator screenshots confirm dashboard rendering and visible data; Viewer access check pending.
+5. IN PROGRESS: three guarded rules implemented (CPU >80% for 5m, >=5 5xx/5m for 2m, >=10 login401/5m for 2m). Structure checked; live queries, provisioning and notification tests pending.
 6. TODO: bilingual install/rollback instructions; update documentation index, monitoring and alerting plans; verify Viewer access to the new dashboard.
 7. TODO: live Oracle rollout and controlled alert checks; record evidence separately from local tests. Review pull request before main integration.
 
 ## Current operator step / Jelenlegi felhasználói lépés
 
-Install the dashboard using [SERVICE_COMPARISON_DASHBOARD.md](SERVICE_COMPARISON_DASHBOARD.md), then check its panels in Grafana. / Telepítsd a dashboardot a leírás szerint, majd ellenőrizd a Grafanában.
+Run the read-only preflight in [SERVICE_COMPARISON_ALERTS.md](SERVICE_COMPARISON_ALERTS.md). Rules are versioned but not installed on Oracle. / Futtasd a csak olvasó lekérdezéspróbát; a szabályok még nincsenek telepítve az Oracle gépen.
 
 ## Evidence / Ellenőrzés
 
-2026-11-18 operator output: all four endpoints HTTP 200, one series and 61 samples each. Source timestamp 2026-11-18T15:12:00Z. CPU 0.0002448 / limit 0.15, both unit cpu. Memory 95039490 / limit 536870900, both bytes. Derived usage: CPU 0.1632% of limit, memory 17.7025% of limit.
+2026-11-18: operator confirmed Render API access/units, successful collector calculation, atomic .prom publication, Node Exporter ingestion, active timer and Prometheus collection_success=1. Screenshots confirm the comparison dashboard renders with resource data, status panels, log context and explicit Vercel resource gaps. Viewer access remains unverified.
 
-Local tests: three test methods passed, including nine invalid-input subcases and atomic file replacement. These are synthetic tests; actual resource/instance label matching and source freshness still need the Oracle dry run. No new dashboard or alert is deployed.
+Collector: four local test methods passed. Dashboard structure checks passed. Three new alert rule structures and references checked; actual PromQL/LogQL, Grafana expressions and delivery still require live verification. Existing promtool suite not rerun here (tools unavailable).
 
-Mind a négy végpont használható mintát és mértékegységet adott. A helyi tesztek sikeresek, de az éles gyűjtőpróba még hátravan. Új dashboard és riasztás még nincs telepítve.
+A gyűjtés és a dashboard éles működése a felhasználó kimenetével és képeivel igazolt. Viewer hozzáférés és az új riasztások éles működése még nincs ellenőrizve. A fő ág változatlan; a munka a fejlesztési ágon található.
