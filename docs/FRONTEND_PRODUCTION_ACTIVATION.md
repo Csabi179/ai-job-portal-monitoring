@@ -98,3 +98,25 @@ Ezt a Vercel Redeploy-val vagy a megerősített production Git-ág új commitjá
 lehet indítani. Az env mentésétől a korábbi statikus JS nem frissül magától.
 Ha a kezelő csak a változókat állítja be, a buildindítás a következő közös lépés;
 Nem állítjuk, hogy változómentés önmagában azonnal aktiválja a mérést.
+
+## Új main commit ellenőrizve, env/deploy felhasználó által visszajelezve – 2026-11-19
+
+A felhasználó jelzi, hogy a két változó beállítása és deploy megtörtént.
+Az Oracle-segéd receiver/Prometheus és production-Origin HTTPS/CORS readiness
+ellenőrzése sikeres volt, majd a megváltozott main miatt megállt; PR/merge nem történt.
+
+A kapcsolt GitHub-eszközzel ellenőrzött frontend main most
+475cc291ae2187048ab588a51c1b4cc69b732e36; feature változatlanul
+e48661ef58be096bf1ff970368432ebd16e5e9ca. Nyitott PR nincs.
+A régi 50d1058a -> 475cc291 összehasonlítás 1 új commitot és 0 változott fájlt
+mutat; a forrásfa SHA-ja mindkettőn b9653bbfbb35cba13c3a98b7a773f58f01fbd340.
+A feature a main-hez képest 2 committal előrébb és 1-gyel lemaradva van;
+a mérőkód fájljai még nem szerepelnek main-ben.
+Az új main forrástartalma felülvizsgálva, ezért a segéd expected_base értéke
+475cc291-re frissítve. A head/base és CI védelem megmaradt; monitoring merge nincs.
+
+Nem állítjuk, hogy a Vercelben ténylegesen melyik forrás/környezet épült:
+nincs közvetlen Vercel-hozzáférés. A konfiguráció/deploy felhasználói visszajelzés,
+az éles böngészős telemetria még ellenőrizendő.
+Az új merge után a CI/deployment és a www.matchwise.tech automatikus
+204-es POST-jai, a csomagok tartalma és a Grafana frissessége lesz az ellenőrzés.
