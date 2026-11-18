@@ -1,6 +1,7 @@
 # Teljes frontendteszt SSH-alagúton
 
-Állapot: előkészített tesztút; Oracle/Vite/böngészős futás még nincs igazolva.
+Állapot: a Vite-indítás, az SSH-alagúton történő oldalbetöltés és az ismétlődő automatikus telemetriaküldés felhasználói kimenettel/képpel igazolt.
+A tényleges API-forgalom mérése és a forgalmi grafikonok ellenőrzése még hátravan.
 A felhasználó megerősítette, hogy SSH-val csatlakozik az Oracle-ra.
 Nincs main merge és nincs új nyilvános fejlesztői port.
 
@@ -28,7 +29,7 @@ A Vite-konfiguráció megtartja az alap React plugint, de a /api proxyt a Render
 A szokásos vite.config.js az Oracle-on a Grafana 3000-es portjára vinne API-hívásokat.
 A tesztconfig csak 127.0.0.1:5173 címen figyel, strictPort-tal;
 allowedHosts: localhost és 127.0.0.1. Nem lesz allowedHosts=true vagy 0.0.0.0.
-A Node-szintaxisellenőrzés helyben sikeres; a tényleges Vite-indítás még hátravan.
+A Node-szintaxisellenőrzés helyben sikeres. A felhasználó Vite v8.3.4 ready üzenetet és 127.0.0.1:5173 helyi címet adott vissza.
 
 ## Indítás Oracle-on
 
@@ -85,3 +86,18 @@ addig is a monitoringrepóban verziózott. Éles frontendaktiválás külön lé
 
 Források: [Vite server options](https://vite.dev/config/server-options),
 [OpenSSH -L](https://man.openbsd.org/ssh#L).
+
+## Ismétlődő automatikus küldés igazolva – 2026-11-18
+
+A felhasználó megerősítette, hogy az alkalmazás a saját böngészőjében,
+SSH-alagúton betöltődött. A Network-kép négy POST kérést mutat a
+fogadó grafana-r0cecq.duckdns.org /matchwise-telemetry/v1 végpontjához,
+mind a négy 204 állapottal; initiator: apiTraffic.js (fetch).
+Ez az automatikus, ismétlődő küldést és a fogadást igazolja.
+A pontos kérések közötti 60 másodperces távolságot a képből külön nem mérjük ki;
+a periódus a kódban 60 000 ms és egységteszttel ellenőrzött.
+A kép a csomagtörzseket nem mutatja, ezért ebből nem állítunk valódi
+üzleti API-eseményeket, sikeres álláslistát vagy új Prometheus-forgalmi mintákat.
+Következő próba: normál álláslista-/részletmegnyitás, következő csomag starts/results
+listáinak ellenőrzése, majd Prometheus/Grafana. Nem küldünk szándékos hibasorozatot.
+Az SSH-s teszt nem éles Vercel frontendtelepítés. Main összevonás nincs.
