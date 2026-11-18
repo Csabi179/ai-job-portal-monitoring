@@ -42,3 +42,11 @@ From scripts: python3 -m unittest -v test_render_metrics.py
 Three test methods passed: percentage calculation, nine invalid-input cases, and atomic file replacement. No live API access was used in these tests. Automatic collection, dashboard integration and alerts follow after the Oracle test.
 
 Három tesztmetódus sikeres: százalékszámítás, kilenc hibás bemenet és atomikus fájlcsere. Ezek nem éles API-tesztek. Az Oracle-próba után következik az időzítő, a dashboard és a riasztások.
+
+## Oracle dry-run status / Oracle-próba állapota
+
+2026-11-18: the first collector dry run failed with HTTPError. The status code was not recorded, so the cause is not yet known. The earlier interactive probe succeeded; the collector uses the existing environment file and adds time-window parameters. Either difference needs investigation. Do not change credentials based on this result alone.
+
+The collector now reports only the endpoint name and HTTP status code. Response bodies, headers and credentials remain hidden. Four local tests pass, including safe diagnostics for HTTP 400, 401, 403, 429 and 500. Repeat the one-time command above to obtain the status. Automatic rollout remains pending.
+
+Az első Oracle-próba HTTP-hibával végződött, de a státuszkód még nem ismert. A korábbi sikeres próba kézzel bekért kulcsot használt, a gyűjtő pedig a meglévő környezeti fájlból olvas, és időablakot is megad. A hiba oka még nincs igazolva. A javított üzenet megmutatja a végpontot és a HTTP-kódot, titkos adatot nem ír ki. A négy helyi teszt sikeres. Következő lépés a fenti egyszeri próba megismétlése; az automatikus telepítés még vár.
