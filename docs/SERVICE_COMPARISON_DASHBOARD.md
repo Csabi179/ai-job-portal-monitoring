@@ -171,3 +171,23 @@ a korábbi 41 panel változatlan. Python-szintaxisellenőrzés sikeres.
 Oracle-preflight: check-frontend-comparison-queries.py dashboard.json --include-database.
 Ez a dashboard alapértelmezett Supabase-instance változóját helyettesíti a tesztben.
 Az új DB-metrikák aktuális adata, az élő lekérdezések és a Grafana-megjelenés még ellenőrizendő.
+
+## Backend–Supabase lekérdezéspróba Oracle-on sikeres – 2026-11-18
+
+A felhasználó a d980911c38e1a916dbffe5340dbf4613c6a7a2d8 változat
+--include-database preflight kimenetét adta vissza: mind a 15 lekérdezés OK,
+Preflight PASS. A 44 B és 45 B tranzakciós, 45 A Render CPU és
+46 B PostgREST queue lekérdezés egy-egy idősorral tért vissza.
+Ez az új metrikák lekérdezhetőségét igazolja, a queue konkrét értékét
+(a segéd csak idősorszámot ír ki) és minden terhelési helyzetet nem.
+A pillanatnyi ötperces ablakban a backend API-/P95-lekérdezések üresek,
+a frontend P95/átlag is üres, miközben frontend indítás-/válaszrátasor létezik.
+Ez nem hibás lekérdezés és nem bizonyít nulla backendforgalmat.
+A korábbi képen a backend görbék már igazoltan megjelentek.
+A helper általános üreseredmény-üzenete nem minden adatforrásra nézve okmegállapítás.
+
+Következő lépés a 45 paneles JSON telepítése mentéssel és az élő 41 paneles
+594564ac5d7297f5814ac68daeb84f17a379682f alaphoz hasonlítással.
+Ismeretlen helyi eltérésnél megállunk. Nincs Grafana-újraindítás,
+main merge, új riasztás vagy éles frontendaktiválás. A négy új panel
+vizuális ellenőrzése még hátravan.
