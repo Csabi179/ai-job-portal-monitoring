@@ -2,7 +2,7 @@
   "uid": "matchwise-service-comparison",
   "title": "MatchWise · Service Comparison",
   "schemaVersion": 42,
-  "version": 2,
+  "version": 3,
   "editable": false,
   "tags": [
     "matchwise",
@@ -2084,6 +2084,418 @@
         "wrapLogMessage": true,
         "sortOrder": "Descending",
         "enableLogDetails": true
+      }
+    },
+    {
+      "id": 37,
+      "type": "text",
+      "title": "Frontend–backend traffic comparison · measurement coverage",
+      "gridPos": {
+        "x": 0,
+        "y": 80,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Forgalmi összehasonlítás\nA frontend a mérőkódot futtató böngészők API-hívásait mutatja; a backend a naplózott kéréseket. Eltérés nem bizonyít támadást. **Hiányzó frontendadat nem nulla forgalom.** Az üres kézi tesztcsomag a fogadási utat igazolja, nem az automatikus mérés aktiválását. A grafikonok beérkezési ütemet mutatnak; az újraküldés és a háttérbe tett lap késést okozhat."
+      }
+    },
+    {
+      "id": 38,
+      "type": "stat",
+      "title": "Frontend telemetry · Receiver scrape",
+      "description": "A Prometheus eléri-e a fogadót. Nem bizonyít aktív böngészőoldali küldést.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(up{job=\"frontend_traffic\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "N/A",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 84,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 39,
+      "type": "stat",
+      "title": "Frontend telemetry · Last packet age",
+      "description": "Másodperc az utolsó elfogadott csomag óta, a kézi üres próbát is beleértve. Nyitott lap hiányában az életjel elmaradhat; ez önmagában nem kiesés.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"})) and on() (max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) > 0) and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "noValue": "No received packet / no scrape",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 84,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 40,
+      "type": "stat",
+      "title": "Frontend telemetry · Accepted packets",
+      "description": "Elfogadott, deduplikált csomagok a fogadó indulása óta. Nem API-kérésszám és nem felhasználószám; az üres kézi tesztcsomagot is tartalmazza.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(frontend_telemetry_batches_total{job=\"frontend_traffic\"}) and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "decimals": 0,
+          "noValue": "No receiver data",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 84,
+        "w": 8,
+        "h": 5
+      }
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "Traffic comparison · API requests/min (5m)",
+      "description": "Önálló frontend indítások és HTTP-válaszok a naplózott backend /api kérések mellett. A health végpontok kizárva. Csak real mód; nincs erőltetett nulla vagy egyezést követelő arányszám. Frontend 3 percnél régebbi csomag vagy scrape-hiba esetén elrejtve.",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) < 180))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Frontend · API starts/min",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "(sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) < 180))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Frontend · HTTP responses/min",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "C",
+          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"/api(/.*)?\" [5m])) * 60",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "legendFormat": "Backend · logged API requests/min",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "queryType": "range"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No matching telemetry"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 89,
+        "w": 24,
+        "h": 8
+      }
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "Latency context · Browser headers / backend processing (5m)",
+      "description": "Eltérő mérések, trendekhez: a böngésző fetch-válaszfejlécig tartó ideje és a backend naplózott feldolgozási ideje. Nem teljes letöltési idő, nem vonhatók ki pontos hálózati késésként. A frontend P95 kosarakból becsült; csak HTTP-kimenetek és pozitív megfigyelésszám mellett.",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "((1000 * sum(rate(frontend_api_fetch_headers_seconds_sum{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m])) / sum(rate(frontend_api_fetch_headers_seconds_count{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m]))) and on() (sum(rate(frontend_api_fetch_headers_seconds_count{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m])) > 0)) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) < 180))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Browser · headers mean",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "((1000 * histogram_quantile(0.95, sum by (le) (rate(frontend_api_fetch_headers_seconds_bucket{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m])))) and on() (sum(rate(frontend_api_fetch_headers_seconds_count{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m])) > 0)) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) < 180))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Browser · headers P95 (estimated)",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "C",
+          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"/api(/.*)?\" | unwrap duration_ms | __error__=\"\" [5m]) by (job)",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "legendFormat": "Backend · processing P95",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "queryType": "range"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "noValue": "No matching telemetry"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 97,
+        "w": 24,
+        "h": 8
       }
     }
   ]

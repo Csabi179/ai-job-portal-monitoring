@@ -1,6 +1,6 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, forty-one Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
 
 ## Magyar
 
@@ -59,3 +59,42 @@ A négyoszlopos elrendezés és a látható adatok a felhasználó képeivel iga
 ## Security panels / Biztonsági panelek
 
 The pending revision adds eight panels, bringing this dashboard to 35 panels: 401/403/404/429 count cards, rates, traffic comparison and security logs. [Interpretation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md). / A frissítés nyolc új panellel összesen 35 panelt tartalmaz; az éles megjelenés ellenőrzése még hátravan.
+
+## Frontendforgalmi bővítés – 2026-11-18
+
+A fejlesztési ág 41 panelt tartalmaz; a korábbi 35 panel változatlan.
+A hat új panel (37–42) még nincs Oracle-ra telepítve:
+
+| ID | Tartalom |
+| --- | --- |
+| 37 | Lefedettség, hiányzó adatok és a kézi teszt értelmezése |
+| 38 | A fogadó Prometheus-scrape állapota; nem böngészős küldési állapot |
+| 39 | Utolsó elfogadott csomag kora, beleértve az üres kézi próbát |
+| 40 | Deduplikált csomagok száma a fogadó indulása óta; nem API-kérésszám |
+| 41 | Frontend API-indítások és HTTP-válaszok, backend naplózott /api kérések: közös 5 perces, kérés/perc grafikon |
+| 42 | Böngészős fetch-fejléc átlag és becsült P95, backend feldolgozási P95: közös 5 perces kontextus |
+
+A forgalmi/latenciapanelek vegyes Prometheus/Loki adatforrást használnak.
+A frontend mode=real adatait mutatják, csak sikeres scrape és 3 percen belüli
+elfogadott csomag mellett. Nincs hiányzó adatot nullával helyettesítő fallback,
+nincs hiányokon át összekötött vonal. Az üres kézi teszt önmagában nem hoz
+létre üzleti forgalmi idősorokat; ezek most várhatóan üresek.
+A frontend latencia kizárólag outcome=http adatot használ, pozitív megfigyelési
+ráta mellett. A frontend P95 kosarakból becsült érték.
+
+A backend összehasonlító görbék csak a /api és /api/... útvonalakat számolják,
+/api/health és /health nélkül. Ez szűkebb lefedettség, mint a dashboard
+korábbi, minden nem-health útvonalat számláló backendpaneljei.
+A nem mért direkt fetch-ek, közvetlen backendhívások, megszakítások, cache,
+mock mód, gyűjtési késés és újraküldés miatt nincs elvárt pontos egyezés.
+A backend és a frontend ideje eltérő időhatárt mér, nem vonhatók ki
+pontos hálózati késésként. Nincs új riasztás.
+
+Ellenőrzés: JSON érvényes; 41 egyedi panelazonosító; 6 új panel és 9 lekérdezés;
+a korábbi 35 panel JSON-tartalma változatlan; az új panelek nem fedik át a régieket.
+A queries API-val történő Oracle-próba és a Grafana megjelenítés még hátravan.
+A scripts/check-frontend-comparison-queries.py dashboard.json parancs a
+9 új lekérdezést olvasással ellenőrzi. Az üres eredmény nem hiba és nem aktív
+frontendmérés igazolása; lekérdezési hiba vagy warning esetén nem PASS.
+A Supabase meglévő CPU/RAM paneljei megmaradtak; külön adatbázis-aktivitás/
+várakozás összehasonlítása ebben a bővítésben még nincs megvalósítva.

@@ -423,3 +423,24 @@ A frontend automatikus mérőkódja továbbra is kikapcsolt.
 A védett preview-hoz nincs felhasználói hozzáférés; a 60 másodperces automatikus
 böngészős küldés, üzleti API-kérések mérése és a teljes frontendintegráció
 ettől a konzolpróbától nem vált igazolttá. Main összevonás nincs.
+
+## Böngészős próba Prometheusban igazolva; dashboard előkészítve – 2026-11-18
+
+A felhasználó Prometheus-kimenete success állapotú, job=frontend_traffic,
+instance=127.0.0.1:9121 idősorokat mutat:
+frontend_telemetry_batches_total=1;
+frontend_telemetry_last_received_timestamp_seconds=1795037032.555537.
+A lekérdezés ideje 1795037230 körül volt. Ez az üres konzolpróba
+böngésző -> Oracle -> Prometheus adatútját igazolja, nem automatikus,
+percenkénti forgalommérést és nem valódi üzleti kérések mérését.
+
+A meglévő Service Comparison dashboardhoz hat új panelt készítettünk elő,
+41 összes panellel. A korábbi 35 panel változatlan. A forgalom és latencia
+közös Prometheus/Loki grafikonon látható majd, adatfrissességi kapuval és
+kitalált nullaértékek nélkül. A panelek és a 9 lekérdezést ellenőrző,
+csak olvasó segéd Gitben verziózott; a JSON/Python szerkezeti ellenőrzés sikeres.
+Az Oracle-lekérdezéspróba és a paneltelepítés még hátravan.
+Részletek: [dashboard](SERVICE_COMPARISON_DASHBOARD.md#frontendforgalmi-bővítés--2026-11-18).
+A védett preview hiánya továbbra is fennáll; a frontendmérés kikapcsolt,
+main merge nincs. A további automatikus frontendteszthez a Vercel-projekt
+kezelőjének preview-hozzáférést vagy más engedélyezett telepítést kell biztosítania.
