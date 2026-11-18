@@ -407,3 +407,19 @@ A próba még nincs visszaigazolva.
 
 Elvárt válasz: Fogadó válasza: 204. Ez böngésző -> Oracle átvételt igazol;
 a Prometheusban való megjelenést utána külön ellenőrizzük.
+
+## Külső böngészős üres csomag átvétele igazolva – 2026-11-18
+
+A felhasználó a www.matchwise.tech oldalon futtatott, fent dokumentált
+konzolpróbára Fogadó válasza: 204 eredményt adott vissza.
+Ez igazolja a böngésző -> nyilvános Oracle HTTPS -> fogadó útvonalat,
+a www Origin-hoz tartozó CORS-válasz olvashatóságát és az üres,
+verziózott csomag sikeres fogadását.
+A próba üres starts/results listákat tartalmazott; üzleti API-forgalmat
+nem szimulált. A csomagszámláló és az utolsó fogadás időpontjának
+Prometheusbeli ellenőrzése a következő lépés, még nincs visszaigazolva.
+
+A frontend automatikus mérőkódja továbbra is kikapcsolt.
+A védett preview-hoz nincs felhasználói hozzáférés; a 60 másodperces automatikus
+böngészős küldés, üzleti API-kérések mérése és a teljes frontendintegráció
+ettől a konzolpróbától nem vált igazolttá. Main összevonás nincs.
