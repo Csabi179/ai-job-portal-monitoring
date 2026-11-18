@@ -10,7 +10,7 @@ fi
 repo=ernoking/job-portal-frontend
 head_branch=feat/frontend-api-traffic
 expected_head=e48661ef58be096bf1ff970368432ebd16e5e9ca
-expected_base=50d1058a035fe8cfb14ce291c923ab77c31f20cb
+expected_base=475cc291ae2187048ab588a51c1b4cc69b732e36
 
 fail() { printf '%s\n' "$*" >&2; exit 1; }
 command -v gh >/dev/null
