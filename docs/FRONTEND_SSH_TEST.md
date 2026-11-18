@@ -1,5 +1,7 @@
 # Teljes frontendteszt SSH-alagúton
 
+> Aktuális összefoglaló: [SERVICE_COMPARISON_STATUS.md](SERVICE_COMPARISON_STATUS.md). Az alábbi dátumozott lépések korábbi, köztes állapotokat is rögzítenek.
+
 Állapot: a Vite-indítás, az SSH-alagúton történő oldalbetöltés és az ismétlődő automatikus telemetriaküldés felhasználói kimenettel/képpel igazolt.
 A tényleges API-forgalom mérése és a frontend Grafana-görbék megjelenése igazolt.
 A backend útvonalszűrésének javítása után a backendgörbék és a három Supabase-közös grafikon is megjelent; képpel igazolva.
@@ -206,3 +208,16 @@ Az 5173-as Vite-porton nem maradhat listener. A receiver számlálói nullázód
 de a korábbi Prometheus-minták megmaradnak. A leállított teszt frontendgörbéinek
 kiürülése/vége elvárt, nem kiesésriasztás. A backend és Supabase meglévő
 megfigyelése tovább fut; éles Vercel-aktiválás külön lépés.
+
+## Ideiglenes SSH-s teszt lezárása igazolt – 2026-11-18
+
+A felhasználó kimenete: health ok; www CORS 204; localhost CORS 403;
+az Oracle 5173-as portján nincs listener (csak ss-fejléc).
+Az ideiglenes localhost CORS-engedély visszavonva, a Vite-szerver nem figyel.
+A receiver restart után a memóriabeli számlálók nullázódhatnak;
+a korábbi Prometheus-adatok megmaradnak. A teszt utáni frontend-adathiány elvárt.
+Kód és dokumentáció a két fejlesztési ágban verziózott; frontend e48661e CI sikeres.
+Az első, közös grafikonokra épülő változat és a kontrollált SSH/Vite teszt lezárva.
+Az éles Vercel frontend automatikus mérését nem kapcsoltuk be, main merge nincs.
+A következő élesítési lépés külön frontendkonfiguráció és jóváhagyott deploy;
+addig nem tekintjük az éles felhasználók forgalmát teljesen mértnek.
