@@ -104,4 +104,3 @@ printf '\nPASS: HTTPS route; CORS 204/403; invalid POST 400; Grafana healthy.\n'
 printf 'Backup and verification files: %s\n' "$work"
 printf 'The invalid POST increases rejected_total by one; no business requests were added.\n'
 printf 'Prometheus and frontend activation are still pending.\n'
-
