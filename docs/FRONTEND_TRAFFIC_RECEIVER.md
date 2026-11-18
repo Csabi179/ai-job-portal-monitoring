@@ -540,3 +540,31 @@ nyers naplót, útvonalakat, felhasználói adatokat vagy titkokat nem.
 A segéd Python-szintaxisellenőrzése sikeres; az Oracle-kimenet még hátravan.
 A /api szűrőt csak e bizonyíték alapján változtatjuk, nem vakon tágítjuk.
 Éles Vercel-mérés és main merge továbbra sincs.
+
+## Backend útvonalszűrés diagnózisa és javítása – 2026-11-18
+
+A felhasználó Oracle-diagnosztikája success eredményű:
+collector siker kora ~70,2 s; frontend indítások/válaszok kumulatív száma 9/9;
+15 percben 229 backend napló és 229 értelmezhető HTTP-esemény,
+6 non-health esemény, 0 hiányzó route. A /api előtagszűrés üres,
+a relatív auth/cv/jobs/profile/preferences/me szűrés 6 eseményt ad.
+Naplózott időadat is elérhető. Ez igazolja, hogy az új panelek kötelező /api
+előtagja zárta ki a meglévő nem-health API-forgalmat. Az Express/logger
+pontos belső előtagkezelését ezzel külön nem vizsgáltuk.
+
+A 41 C és 42 C backendlekérdezéseinek szűrőjét javítottuk:
+route=~"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)".
+A health kizárás megmaradt. Ismeretlen relatív root útvonalakat nem veszünk fel
+vakon; ezek később külön lefedettségi vizsgálatot igényelhetnek.
+A két összehasonlító panelen kívül minden panel változatlan, összesen 41 panel.
+A JSON-ellenőrzés és az előtagos/relatív, illetve kizárandó útvonalak helyi
+regexpróbái sikeresek. Az új LogQL élő preflightja és a javított dashboard
+Oracle-telepítése még hátravan. A rögzített javítási commit:
+594564ac5d7297f5814ac68daeb84f17a379682f.
+
+A 9/9 frontendérték a fogadó indulása óta kumulatív, a 6 backendérték 15 perces
+ablakot fed. Ezeket nem hasonlítjuk közvetlenül és nem jelöljük eltérésnek.
+A grafikonok azonos 5 perces ablakot használnak, de a mintavétel, kézbesítés,
+eltérő lefedettség és kezdeti counter-idősorok miatt akkor sincs kötelező egyezés.
+A javítás után friss normál kérés és a collector átfutása mellett ellenőrzünk.
+Main merge és új riasztás nincs.
