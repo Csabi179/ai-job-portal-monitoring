@@ -59,3 +59,32 @@ New JSON structure, unique UIDs, query references and thresholds checked locally
 A helyi szerkezeti ellenőrzés sikeres. A teljes régi promtool teszt itt nem futott le, mert a szükséges eszközök hiányoznak. A három új szabály éles lekérdezéspróbája és Grafana-értékelése még hátravan.
 
 Sources: [Grafana file provisioning](https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/), [KeepLast behavior](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/nodata-and-error-states/).
+
+## Successful preflight and installation / Sikeres próba és telepítés
+
+2026-11-18 operator output: CPU A=0, 5xx A=0 and D=1, login A=0 and D=1. All five datasource queries succeeded with nonempty, unlabelled vectors. No threshold was breached. This validates actual PromQL/LogQL syntax and current monitoring gates. It does not yet validate Grafana expressions B/E/F/C or notification delivery.
+
+A felhasználó kimenete alapján mind az öt éles lekérdezés sikeres. A riasztási feltételek 0 értékűek, a monitoringfeltételek 1 értékűek. A Grafana-kifejezések és a Telegram-küldés még nincsenek ellenőrizve.
+
+Install only the new provisioning file, then restart the existing Grafana container to load alert resources. Grafana is briefly unavailable during restart; metric and log collectors continue running. Rules become active and use the existing Telegram policy if a condition is met.
+
+Csak az új szabályfájlt telepítsd, majd indítsd újra a meglévő Grafana konténert. A Grafana rövid ideig nem lesz elérhető. A szabályok aktívvá válnak, és feltételteljesülés esetén a meglévő Telegram-értesítést használják.
+
+```bash
+cd ~/ai-job-monitoring
+python3 -m json.tool /tmp/matchwise-service-comparison-alerts.json > /dev/null
+install -m 644 /tmp/matchwise-service-comparison-alerts.json grafana/provisioning/alerting/service-comparison-alerts.json
+sudo docker restart monitoring-grafana
+```
+
+Run commands in order and stop on errors. Open Alerting -> Alert rules -> AI Job Portal -> service-comparison-security. After one or two evaluation cycles, expect three rules with state Normal and health OK. Initial datasource values do not guarantee the same values later. Record state and health separately; Normal with Error health is not a passing check. An empty group or evaluation errors require investigation before testing alerts.
+
+Sorrendben futtasd a parancsokat, hiba esetén állj meg. A Grafanában az új csoportban 1–2 értékelési ciklus után három szabályt várunk Normal állapottal és OK health értékkel. A kezdeti értékek később változhatnak. A Normal állapot önmagában nem elég, a health is legyen OK.
+
+Next: verify Grafana provisioning and expressions, then perform a controlled alert test without generating real backend load or login attacks. Viewer access and notification tests remain pending. The new file is initially untracked in the live main checkout; move it outside the checkout before a later branch switch if Git reports an overwrite conflict.
+
+Következő lépés: Grafana-betöltés és kifejezések ellenőrzése, majd kontrollált riasztási teszt. Viewer hozzáférés és értesítés még nincs igazolva. Az új fájl az éles main checkoutban kezdetben nem verziókövetett; későbbi ágváltáskor Git-ütközés esetén előbb helyezd a repón kívülre.
+
+To temporarily disable only these rules, set isPaused=true on all three rules in the installed JSON file, validate JSON, and restart Grafana. Removing the file alone may leave provisioned rules in Grafana; it is not a reliable rollback.
+
+Csak az új szabályok ideiglenes leállításához az isPaused mezőt állítsd true értékre mindhárom szabálynál a telepített JSON fájlban, ellenőrizd a JSON-t, majd indítsd újra a Grafanát. A fájl törlése önmagában nem megbízható visszaállítás, mert a szabályok bent maradhatnak.
