@@ -1,6 +1,6 @@
 # Az éles frontendmérés bekapcsolása
 
-Állapot (2026-11-19): a frontend main merge, CI/deploy és az éles oldalon ismétlődő automatikus 204-es küldés igazolt. A nem üres éles API-csomag és a Grafana utolsó ellenőrzése még hátravan. A monitoringág külön marad.
+Állapot (2026-11-19): a frontend main merge, CI/deploy, az éles automatikus 204-es küldés és a tényleges API-csomag igazolt. A Grafana éles megjelenésének utolsó ellenőrzése még hátravan. A monitoringág külön marad.
 A fogadó, HTTPS, Prometheus és a 45 paneles dashboard működik az Oracle-on.
 Az SSH/Vite teszt lezárva; a localhost CORS-engedély visszavonva.
 
@@ -180,3 +180,26 @@ pontos időközöket vagy a csomagtörzsben szereplő mock kapcsolók értékét
 Következő, még nem igazolt lépés: az első nagyobb csomag starts/results
 és mock_api/mock_jobs értékeinek ellenőrzése, majd Grafana frissesség és görbék.
 Nincs szükség localhost/Vite újraindításra; a localhost Origin továbbra is tiltott.
+
+## Éles, nem üres API-csomag igazolva – 2026-11-19
+
+A felhasználó az éles oldal első, f8c446b4-a9d6-40a4-a5e7-36d0f431f97b csomagját
+adta vissza. Időablak 1795045538927–1795045598927 ms: pontosan 60 000 ms.
+interval_ms=60000; mock_api=false; mock_jobs=false; inflight=0.
+Starts és results egyaránt 4 esemény, 3 dimenziósor:
+- me / GET: 1 HTTP 200, fejlécig mért idő 1015 ms;
+- cv / GET: 2 HTTP 200, időösszeg 1077 ms, maximum 583 ms (átlag 538,5 ms);
+- auth / POST: 1 HTTP 200, fejlécig mért idő 562 ms.
+A Network-kép szerint a csomag POST-ja 204 volt.
+Delivery failed_attempts/dropped_batches/dropped_observations mind 0.
+A sent_batches=0 az első csomag küldés előtti pillanatképe: a kód sikeres
+204 után növeli ezt, ezért nem sikertelen vagy hiányzó küldést jelent.
+
+Ez az éles buildben a tényleges API-indítások és HTTP-válaszok mérését,
+a csoportosítást és fejlécig tartó időadatok gyűjtését igazolja a megfigyelt
+böngészőben. Nem állítunk minden kliensre garantált, veszteségmentes lefedettséget.
+Következő utolsó próba: egyszeri normál éles oldalfrissítés, két perc gyűjtési idő,
+majd a Grafana frontend/backend paneljei és a fogadás frissességének ellenőrzése.
+A kezdeti counter-idősorok és az 5 perces ráták miatt további normál kérések/minták
+szükségesek lehetnek a forgalmi görbékhez. Ez az ellenőrzés még nincs visszaigazolva.
+Nincs localhost-engedély vagy SSH/Vite teszt újraindítva.
