@@ -14,17 +14,15 @@ Egyszerű összehasonlító dashboard a meglévő rendszerre építve. A Render 
 
 1. DONE: baseline and branch created; implementation plan versioned.
 2. DONE: operator confirmed four nonempty API responses and units (cpu / bytes) on November 18.
-3. IN PROGRESS: live API collection, .prom publication and Node Exporter ingestion verified. Service and two-minute timer implemented; installation and Prometheus verification pending.
-4. TODO: Service Comparison dashboard with aligned time axes, same units for comparable data, explicit freshness and backend logs. Vercel CPU/memory shown as not collected.
+3. DONE: collector, textfile ingestion, systemd timer and Prometheus ingestion verified by operator.
+4. IN PROGRESS: Service Comparison dashboard and bilingual installation guide implemented. Structure checks passed; live display/query and Viewer checks pending.
 5. TODO: backend CPU, backend 5xx and failed-login rules. Thresholds are initial examples, not measured service objectives. Exclude health traffic; require valid telemetry; document recovery and notification routing.
 6. TODO: bilingual install/rollback instructions; update documentation index, monitoring and alerting plans; verify Viewer access to the new dashboard.
 7. TODO: live Oracle rollout and controlled alert checks; record evidence separately from local tests. Review pull request before main integration.
 
 ## Current operator step / Jelenlegi felhasználói lépés
 
-Follow [RENDER_METRICS_COLLECTOR.md](RENDER_METRICS_COLLECTOR.md) for the read-only collector test. Automatic collection is not installed yet.
-
-A gyűjtő egyszeri próbájához kövesd a fenti leírást. Automatikus gyűjtés még nincs telepítve.
+Install the dashboard using [SERVICE_COMPARISON_DASHBOARD.md](SERVICE_COMPARISON_DASHBOARD.md), then check its panels in Grafana. / Telepítsd a dashboardot a leírás szerint, majd ellenőrizd a Grafanában.
 
 ## Evidence / Ellenőrzés
 
