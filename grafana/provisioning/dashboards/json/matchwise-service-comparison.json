@@ -2,7 +2,7 @@
   "uid": "matchwise-service-comparison",
   "title": "MatchWise · Service Comparison",
   "schemaVersion": 42,
-  "version": 3,
+  "version": 4,
   "editable": false,
   "tags": [
     "matchwise",
@@ -2312,7 +2312,7 @@
       "id": 41,
       "type": "timeseries",
       "title": "Traffic comparison · API requests/min (5m)",
-      "description": "Önálló frontend indítások és HTTP-válaszok a naplózott backend /api kérések mellett. A health végpontok kizárva. Csak real mód; nincs erőltetett nulla vagy egyezést követelő arányszám. Frontend 3 percnél régebbi csomag vagy scrape-hiba esetén elrejtve.",
+      "description": "Önálló frontend indítások és HTTP-válaszok a naplózott backend /api kérések mellett. A health végpontok kizárva. Csak real mód; nincs erőltetett nulla vagy egyezést követelő arányszám. Frontend 3 percnél régebbi csomag vagy scrape-hiba esetén elrejtve. A backend szűrő a /api előtagos útvonalak mellett a naplóban relatívan szereplő auth/cv/jobs/profile/preferences/me csoportokat is elfogadja.",
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
@@ -2342,7 +2342,7 @@
         },
         {
           "refId": "C",
-          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"/api(/.*)?\" [5m])) * 60",
+          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 60",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -2437,7 +2437,7 @@
         },
         {
           "refId": "C",
-          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"/api(/.*)?\" | unwrap duration_ms | __error__=\"\" [5m]) by (job)",
+          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | unwrap duration_ms | __error__=\"\" [5m]) by (job)",
           "datasource": {
             "type": "loki",
             "uid": "loki"
