@@ -1,6 +1,6 @@
 # MatchWise — AI Job Portal Monitoring
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](docs/SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Rollout status (November 18, 2026):** sixteen-rule configuration applied; one-minute backend/frontend targets and backend success confirmed by Oracle output. Panels and the real 404 procedure were confirmed by the operator. Earlier rollout notes below retain their dated scope. [Reusable tests](docs/testing/README.md).
 
 DevOps monitoring for the university AI-assisted job portal project.
 
@@ -102,3 +102,7 @@ Use the [English HTTPS runbook](docs/GRAFANA_HTTPS_ACCESS.en.md) or [Hungarian e
 The operator reviewed November 15 main/feature-branch source archives and preconfigured the two Cloudflare variables on Render. The feature uses Cloudinary CV storage and Cloudflare Workers AI for profile extraction. This is preparation, not evidence that the feature is merged or deployed. Existing HTTP logs can show endpoint counts, statuses and total processing duration; separate AI latency, token usage and provider-specific errors are unavailable. No dedicated AI panels or rules have been added. See the [monitoring plan](docs/monitoring-plan.en.md#cv-and-ai-monitoring-preparation).
 
 Security additions and the new cadence are described in [Security overview and frequent probes](docs/SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md). The existing three synthetic tests remain a dated fifteen-rule deployment test; the new 404 rule and cadence still need rollout verification.
+
+## Reusable test programs
+
+[Repeatable test catalog (HU/EN)](docs/testing/README.md) lists the versioned real 404 check, synthetic alert lifecycle test, query preflight and local validation tools. The operator confirmed the real 404 test completed successfully. These are functional monitoring checks, not proof of DDoS resistance. Future runs should record their own source commit and results; temporary /tmp files need not survive.

@@ -1,6 +1,6 @@
 # MatchWise documentation / dokumentáció
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Rollout status (November 18, 2026):** sixteen-rule configuration applied; one-minute backend/frontend targets and backend success confirmed by Oracle output. Panels and the real 404 procedure were confirmed by the operator. Earlier rollout notes below retain their dated scope. [Reusable tests](testing/README.md).
 
 Updated November 18, 2026. The guides describe current repository configuration and operator-confirmed deployment; dated test records preserve what was actually checked. Hungarian originals and English editions are listed below.
 
@@ -8,6 +8,7 @@ Frissítve: 2026. november 18. Az útmutatók a jelenlegi konfigurációt és az
 
 | Document / dokumentum | English | Magyar |
 |---|---|---|
+| Repeatable monitoring tests / Újrafuttatható tesztek | [HU/EN](testing/README.md) | [HU/EN](testing/README.md) |
 | Security overview and one-minute backend probes / Biztonsági panelek és percenkénti backend | [HU/EN](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) | [HU/EN](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) |
 | Render CPU/RAM collector / Render erőforrásgyűjtő | [HU/EN](RENDER_METRICS_COLLECTOR.md) | [HU/EN](RENDER_METRICS_COLLECTOR.md) |
 | Service comparison dashboard / Összehasonlító dashboard | [HU/EN](SERVICE_COMPARISON_DASHBOARD.md) | [HU/EN](SERVICE_COMPARISON_DASHBOARD.md) |

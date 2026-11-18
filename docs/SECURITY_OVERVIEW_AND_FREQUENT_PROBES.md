@@ -4,7 +4,7 @@ Updated / Frissítve: 2026-11-18. Branch: feat/service-comparison. Merge is defe
 
 ## Magyar
 
-Ez a módosítás még telepítésre vár. A korábbi 15 szabályos állapothoz képest 1 új riasztás és 8 új panel készült; összesen 16 állandó szabály és 35 panel a Service Comparison dashboardon. A korábbi éles teszteredmények nem igazolják ennek a frissítésnek az éles működését.
+A frissítés telepítve: az Oracle-kimenet a percenkénti backend/frontendscrape-et és a sikeres backendpróbát igazolja, az üzemeltető a paneleket és a valódi 404-próbát is visszaigazolta. Az alábbi telepítési parancsok későbbi újrafuttatáshoz maradnak meg. A korábbi 15 szabályos állapothoz képest 1 új riasztás és 8 új panel készült; összesen 16 állandó szabály és 35 panel a Service Comparison dashboardon. A korábbi éles teszteredmények nem igazolják ennek a frissítésnek az éles működését.
 
 ### Új panelek
 
@@ -36,7 +36,7 @@ Feltétel: legalább 20 naplózott, nem health 404 az előző 5 percben, 2 perce
 
 ## English
 
-This update is not deployed yet. It adds eight panels and one 404 alert to the earlier fifteen-rule deployment: sixteen permanent rules and thirty-five Service Comparison panels. Earlier live test evidence does not validate this update.
+The update is deployed: Oracle output confirms one-minute backend/frontend scrapes and a successful backend probe, and the operator confirmed the panels and real 404 procedure. Installation commands below remain for future use. It adds eight panels and one 404 alert to the earlier fifteen-rule deployment: sixteen permanent rules and thirty-five Service Comparison panels. Earlier live test evidence does not validate this update.
 
 New panels show five-minute 401/403/404/429 counts, their rates, security logs and a traffic comparison. Traffic compares the current five-minute requests/min average with the preceding thirty-minute average, offset by five minutes. All new traffic queries exclude /api/health and /health. Counts combine all users. Unknown routes may appear as unmatched. No IP/account attribution is available.
 
@@ -171,3 +171,9 @@ python3 /tmp/matchwise-test-backend-404-once.py
 Expect twenty HTTP 404 results, then allow collection/evaluation/pending/grouping. A brief event burst can sustain the rolling count for two minutes without new requests. After those events leave the five-minute window, a successful evaluation clears the condition and Telegram may send resolved after grouping. Original event time is used, so unusually late ingestion can shorten the remaining alert window. Record firing and resolved separately; no live success is claimed for this test yet.
 
 Húsz 404 választ várunk. Utána a begyűjtés, értékelés, kétperces pending és Telegram-csoportosítás idejét is hagyd lefutni. Újabb kérés nélkül is fennmaradhat a feltétel. Az események ötperces ablakból kikerülése után sikeres értékelés feloldja a feltételt. A firing és resolved külön rögzítendő; ennek a próbának a sikere még nincs igazolva.
+
+## Real 404 result and reuse / Valódi 404-eredmény és újrafuttatás
+
+Operator confirmed the whole 404 procedure completed successfully. This records operator-confirmed firing/recovery behavior without exact timestamps or raw output. The script and related programs are retained in Git; [repeatable test catalog](testing/README.md) is the entry point for future runs. Every new run needs its own evidence. A bounded functional check is not a DDoS test and proves no DDoS resistance.
+
+Az üzemeltető visszaigazolta a teljes 404-próba sikerét. A program és a kapcsolódó tesztek Gitben megmaradnak; későbbi futtatáshoz az [újrafuttatható tesztek jegyzékét](testing/README.md) használd. Pontos időadat és nyers kimenet nem érkezett. A kis mennyiségű funkcionális próba nem DDoS-teszt, és nem bizonyít DDoS-állóságot.

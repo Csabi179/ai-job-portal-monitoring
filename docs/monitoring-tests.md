@@ -10,6 +10,13 @@
 - Work is versioned on feat/service-comparison and deployed by file copies. No main merge or exact live checkout HEAD is established.
 - Historical records retain their original scope/dates. CV/AI preparation is not proof of production deployment.
 
+<a id="test-23-real-404-alert"></a>
+## TEST-23 — Real HTTP 404 alert cycle, 2026-11-18
+
+**Result: operator-confirmed successful procedure.** After running the bounded real-backend 404 test, the operator reported that everything completed successfully. The procedure expects twenty sequential HTTP 404 responses, the production HTTP 404 burst rule's firing notification and later recovery/resolved. This is an operator confirmation of the full procedure; raw response output, individual state/notification timestamps and new screenshots were not supplied. No exact latency is inferred.
+
+The operator had also confirmed the new security panels appeared. The helper is versioned at scripts/test-backend-404-once.py and is intended for future controlled reruns. See the [repeatable test catalog](testing/README.md). This does not establish overload/DDoS resistance, 403/429 enforcement, a production CPU/5xx threshold breach or all missing-data/error branches. New repetitions need their own evidence.
+
 <a id="test-22-security-update-preflight"></a>
 ## TEST-22 — Security overview and one-minute backend preparation, 2026-11-18
 
