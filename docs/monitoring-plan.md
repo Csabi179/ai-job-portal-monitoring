@@ -6,7 +6,7 @@
 
 A monitoring az Oracle host, a Render backend, a Vercel frontend, a Supabase és a naplógyűjtés állapotát követi. Az üzemeltető felel a Render-hostolásért, az Oracle monitoringért, a naplógyűjtésért, a dashboardokért, a riasztásokért és a dokumentációért. Az alkalmazás üzleti funkcióit és az adatbázis-migrációkat a csapat felelősei kezelik.
 
-A dashboard teljesítményt és kapacitást is megjelenít. Aktív értesítés kizárólag kieséshez vagy megfigyelési hibához tartozik; a pontos feltételeket a [riasztási terv](alerting-plan.md) tartalmazza.
+A dashboard teljesítményt és kapacitást is megjelenít. Aktív értesítés kieséshez, megfigyelési hibához és három új backend-erőforrás/biztonsági jelzéshez tartozik; a pontos feltételeket a [riasztási terv](alerting-plan.md) tartalmazza.
 
 ## Komponensek és elhelyezés
 
@@ -17,7 +17,7 @@ A dashboard teljesítményt és kapacitást is megjelenít. Aktív értesítés 
 | Docker Compose | Node Exporter 1.11.1; Blackbox Exporter 0.28.0 | Host- és textfile-metrikák, HTTP-próbák |
 | Docker Compose | Loki 3.7.9; Alloy 1.21.2 | Naplótárolás és továbbítás |
 | Docker Compose, public profil | Caddy 2.11.9 | Nyilvános HTTPS-elérés a helyi Grafanához |
-| Oracle systemd | Python collector és logrotate, service/timer párokkal | Render Logs API gyűjtés és JSONL-forgatás |
+| Oracle systemd | Külön Python napló- és metrikagyűjtő, valamint logrotate, service/timer párokkal | Render Logs API, Render Metrics API és JSONL-forgatás |
 | Render | matchwise-backend-monitoring-test.onrender.com | A csapat backendje, a main ág automatikus telepítésével az üzemeltető beállítása szerint |
 | Vercel | https://www.matchwise.tech/ | Frontend |
 | Supabase | uvopvarvelpabhmrqaaw | PostgreSQL, Auth, PostgREST és Metrics API |
@@ -37,6 +37,7 @@ Szerkeszthető architektúra: [draw.io és SVG](architecture/README.md).
 5. Sikeres collector-futás → heartbeat textfile → Node Exporter → Prometheus → Grafana Alerting.
 6. Böngésző → HTTPS → Caddy → Grafana bejelentkezés és jogosultság-ellenőrzés.
 7. Grafana Alerting → Telegram Bot API → a csapat Telegram-csoportja.
+8. Render Metrics API → külön Python erőforrásgyűjtő → .prom fájl → Node Exporter → Prometheus → Grafana.
 
 A collector csak a konfigurált service `http_request` eseményeit és az engedélyezett mezőket tartja meg: level, event, reqId, method, route, statusCode, responseTimeMs és errorCode, kiegészítve Render-azonosítókkal és időbélyeggel. Az Alloy az eredeti Render-eseményidőt használja. A route mező gyakran /api előtag nélküli sablon; kérésbody, CV-tartalom, jelszó és token nem része a gyűjtött mezőknek.
 
@@ -49,11 +50,12 @@ A collector csak a konfigurált service `http_request` eseményeit és az enged�
 | Frontend HTTP | 60 s; scrape timeout 15 s; prober timeout 10 s |
 | Supabase | 60 s; scrape timeout 30 s; file discovery 60 s |
 | Loki és Alloy health-próbák | 60 s; scrape timeout 15 s |
-| Collector | OnBootSec=2min; OnUnitInactiveSec=1min; AccuracySec=10s |
+| Naplócollector | OnBootSec=2min; OnUnitInactiveSec=1min; AccuracySec=10s |
+| Render erőforrásgyűjtő | OnBootSec=2min; OnUnitInactiveSec=2min; AccuracySec=5s; futásonként 4 API-kérés |
 | Grafana szabályértékelés | 1 perc |
 | Backend HTTP-riasztások frissessége | 40 perc; pending 2 perc |
 | Frontend HTTP-riasztások frissessége | 3 perc; pending 2 perc |
-| Dashboard állapotkártyák | Backend 40 perc; frontend 5 perc |
+| Dashboard állapotkártyák | Backend 40 perc; frontend 5 perc a Unified, 3 perc a Service Comparison dashboardon |
 | Gördülő Pino P50/P95 | 15 perc; végponttáblázat P95 a teljes kiválasztott időből |
 | Unified dashboard frissítése; provisioning fájlfigyelés | 1 perc; 30 s |
 
@@ -65,7 +67,9 @@ Fő dashboard: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overvi
 
 A három részletes dashboard megmarad üzemeltetési használatra: Infrastructure Overview, Application Availability és Backend Logs. A hat auth-számláló login-, logout- és regisztrációs eredményeket mutat; nem aktív felhasználók vagy munkamenetek számát. A legutóbbi auth-teszt statikus szövegét eltávolítottuk a bevezető panelből; a teszteredmény a tesztnaplóban marad.
 
-A **12 szabály** csoportjai: infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2), vercel-frontend-monitoring (2). CPU/RAM/lemez, P95, általános 4xx és a csendes alkalmazás nem aktív riasztási ok.
+A korábbi **12 kiesési/monitoring-szabály** csoportjai: infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2), vercel-frontend-monitoring (2). Ehhez a service-comparison-security csoport 3 szabálya csatlakozik: Render CPU >80% 5 percig, legalább 5 nem health 5xx/5 perc 2 perces kivárással, illetve legalább 10 POST login 401/5 perc 2 perces kivárással. Összesen **15 állandó szabály**. RAM/lemez, P95, általános 4xx és a csendes alkalmazás továbbra sem aktív riasztási ok.
+
+Új dashboard: **MatchWise · Service Comparison**. A működés, frissességi feltételek és korlátok a [dashboardleírásban](SERVICE_COMPARISON_DASHBOARD.md), a gördülő ablak példája a [riasztásleírásban](SERVICE_COMPARISON_ALERTS.md) található.
 
 A Telegram-üzenetek angol nyelvűek. A contact point UID-ja `ai_job_telegram`; a célcsoportot a privát Oracle `GRAFANA_TELEGRAM_CHAT_ID` választja ki. Group wait 30 s, group interval 5 perc, repeat interval 4 óra; a Resolved értesítés engedélyezett.
 
@@ -95,9 +99,9 @@ Backendmódosítás nélkül a `/cv/upload` és `/cv/:id/profile` HTTP-kéréssz
 
 ## Ellenőrzések és korlátok
 
-A [tesztnapló](monitoring-tests.md) külön rögzíti a dátumhoz kötött méréseket és az üzemeltetői visszajelzéseket. Igazolt a 12 szabály betöltése, a collector és Node Exporter Firing/Resolved kézbesítése, az angol értesítés, a HTTPS-bejelentkezés, a Viewer-hozzáférés működésének visszajelzése és a Telegram-csoportos átállás. A többi tíz szabály egyenkénti élő tesztje, a 4 órás ismétlés és a teljes infrastruktúra-helyreállítás nincs igazolva.
+A [tesztnapló](monitoring-tests.md) külön rögzíti a dátumhoz kötött méréseket és az üzemeltetői visszajelzéseket. Igazolt a 12 szabály betöltése, a collector és Node Exporter Firing/Resolved kézbesítése, az angol értesítés, a HTTPS-bejelentkezés, a Viewer-hozzáférés működésének visszajelzése és a Telegram-csoportos átállás. November 18-án a három új szabály szintetikus Firing/Resolved tesztje és a tesztszabályok eltávolítása igazolt; a valódi login-szabályt az üzemeltető 10 hibás bejelentkezéssel is kipróbálta. A másik tíz eredeti szabály egyenkénti élő tesztje, a 4 órás ismétlés és a teljes infrastruktúra-helyreállítás nincs igazolva.
 
-A backend 30 perces mintavétele kihagyhat rövid kiesést; az HTTP 200 nem teljes üzleti vagy böngészős funkcióteszt. Render/Vercel host CPU/RAM, böngészős hibák, Web Vitals és tracing nincsenek gyűjtve. A 12 szabály nem ellenőrzi külön a nyilvános Caddy/DNS/TLS útvonal egészét.
+A backend 30 perces mintavétele kihagyhat rövid kiesést; az HTTP 200 nem teljes üzleti vagy böngészős funkcióteszt. Render CPU/RAM már gyűjtött; Vercel host CPU/RAM, böngészős hibák, Web Vitals és tracing nincsenek gyűjtve. A 15 szabály nem ellenőrzi külön a nyilvános Caddy/DNS/TLS útvonal egészét.
 
 A teljes Oracle VM vagy Grafana kiesésekor a helyi Grafana nem tud megbízhatóan értesíteni; független külső ellenőrzés későbbi fejlesztés. Collector-siker, Loki-health és tényleges naplókézbesítés külön állapot. A hiányzó adat nem automatikusan nulla hiba vagy UP.
 
@@ -106,3 +110,7 @@ A teljes Oracle VM vagy Grafana kiesésekor a helyi Grafana nem tud megbízható
 Konfigurációmódosítás → validálás → GitHub-commit → Oracle `git pull --ff-only` → az érintett szolgáltatás alkalmazása → működés ellenőrzése. Konfliktust nem oldunk meg `reset --hard` paranccsal; volume-ot, SQLite-ot vagy kurzort nem törlünk rutinszerűen.
 
 Az egyedi fájl-bind mount módosítása konténer-újralétrehozást igényelhet. A dashboard-JSON-t a Grafana 30 másodpercenként figyeli; a környezeti változók módosításához Grafana-újralétrehozás kell. Az Oracle `.env` nem módosítja a Render Environment értékeit. Tervezett projektlezárás: legkésőbb 2026. december 15.
+
+## November 18-i telepítési kiegészítés
+
+A fejlesztés a feat/service-comparison ágon verziózott. Az Oracle-re ellenőrzött fájlmásolással került fel; main merge és az éles checkout átváltása nem igazolt. A telepített erőforrásgyűjtő külön példánya /usr/local/lib/matchwise/render-metrics-poll.py; későbbi frissítéskor ezt is telepíteni kell. Az új dashboard Viewer-hozzáférése külön ellenőrzendő. Részletek: [megvalósítási állapot](SERVICE_COMPARISON_PLAN.md).

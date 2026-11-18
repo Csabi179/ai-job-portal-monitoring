@@ -1,6 +1,8 @@
 # Manual tests for all 12 Grafana alert rules
 
-**Current applicability:** the conditions below still match the 12 provisioned rules; HTTP targets and pending times are unchanged. Normal Grafana access uses HTTPS and Telegram delivery targets the team group. Collector and Node Exporter live tests are evidenced; procedures for the other ten rules do not mean those tests were executed. See [current state and evidence](monitoring-tests.md).
+**Scope:** this runbook covers the original twelve rules. The current set has fifteen permanent rules; the three additions have a separate [test runbook](SERVICE_COMPARISON_ALERT_TEST.md) and [test record](monitoring-tests.md#test-20-synthetic-security-alert-cycle).
+
+**Current applicability:** the conditions below still match the original 12 provisioned rules; HTTP targets and pending times are unchanged. Normal Grafana access uses HTTPS and Telegram delivery targets the team group. Collector and Node Exporter live tests are evidenced; procedures for the other ten rules do not mean those tests were executed. See [current state and evidence](monitoring-tests.md).
 
 
 [Magyar változat](alert-rule-tests.md) · [Documentation index](README.md)

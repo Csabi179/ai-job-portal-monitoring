@@ -1,5 +1,7 @@
 # MatchWise stack és adatáramlás
 
+**Ábraverzió:** az alábbi draw.io/SVG a korábbi, 12 szabályos állapotot ábrázolja. November 18-án külön Render Metrics API → Python → .prom → Node Exporter adatfolyam, összehasonlító dashboard és három új szabály került a rendszerbe; az aktuális állandó szabályszám 15. Az ábrát ebben a dokumentációs frissítésben nem rajzoltuk újra. Aktuális részletek: [megvalósítási állapot](../SERVICE_COMPARISON_PLAN.md).
+
 [English version](README.en.md) · [Dokumentációjegyzék](../README.md)
 
 A szerkeszthető ábra a jelenlegi monitoringkonfigurációt és az üzemeltető által visszaigazolt telepítést mutatja. Az AI-integráció és a frontend–backend böngészős működés külön jelölést kap, ahol nincs igazolt telepítés vagy teljes integrációs teszt.
@@ -39,7 +41,7 @@ Webes hozzáféréshez csak a Caddy TCP 80/443 publikált. A Grafana 3000-es és
 
 Kék: alkalmazás-API; zöldeskék: metrikák; arany: naplók; piros: értesítés; szürke: hozzáférés/verziózás; szaggatott lila: nem igazolt vagy jövőbeli integráció. A nyilak feliratozott adat- vagy kérés/válasz kapcsolatot jelölnek; a Prometheus és a collector kezdeményezi a lekéréseket. Az ábra már nem kilenc aktív szabályt vagy kizárólagos SSH-s Grafana-elérést ír le. A frontend integrációs jelölése ellenőrzési korlát, nem a jelenlegi auth szimulált működésének állítása.
 
-A health-siker nem teljes üzleti teszt. Collector-siker, Loki-health és tényleges eseménykézbesítés külön állapot. A 12 szabály nem fedi le önállóan a teljes nyilvános Caddy/DNS/TLS útvonalat vagy a VM teljes kiesését. Részletek: [monitoringterv](../monitoring-plan.md), [tesztnapló](../monitoring-tests.md).
+A health-siker nem teljes üzleti teszt. Collector-siker, Loki-health és tényleges eseménykézbesítés külön állapot. A jelenlegi 15 szabály nem fedi le önállóan a teljes nyilvános Caddy/DNS/TLS útvonalat vagy a VM teljes kiesését. Részletek: [monitoringterv](../monitoring-plan.md), [tesztnapló](../monitoring-tests.md).
 
 ## Szerkesztés és ellenőrzés
 

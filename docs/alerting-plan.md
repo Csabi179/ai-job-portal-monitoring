@@ -2,13 +2,13 @@
 
 [English version](alerting-plan.en.md) · [Dokumentációjegyzék](README.md)
 
-**Jelenlegi dokumentált állapot (ellenőrzés: 2026. november 16.):** hat alap monitoring szolgáltatás és a public profil Caddy-szolgáltatása; működő HTTPS-bejelentkezés és üzemeltető által visszaigazolt Viewer-hozzáférés a Unified Monitoringhoz; 12 angol kiesési/megfigyelési szabály; Telegram-cél a csapat csoportja. A collector és a Node Exporter Firing/Resolved tesztje igazolt, a többi tíz szabály egyenkénti élő tesztje nem. Részletek: [tesztnapló](monitoring-tests.md).
+**Jelenlegi dokumentált állapot (2026. november 18.):** 15 állandó szabály: 12 kiesési/megfigyelési és 3 backend-erőforrás/biztonsági jelzés. Render CPU/RAM-gyűjtés és Service Comparison dashboard telepítve. A három új szabály szintetikus Firing/Resolved Telegram-köre képekkel igazolt; a tesztszabályok eltávolítását és a valódi, 10 hibás loginos próbát az üzemeltető visszaigazolta. Az eredeti collector/Node Exporter kézbesítési bizonyíték megmarad; a többi tíz eredeti szabály teljes éles tesztje nincs igazolva. [Tesztnapló](monitoring-tests.md).
 
-Konkrét tesztparancsok mind a 12 szabályhoz: [magyar](alert-rule-tests.md) · [English](alert-rule-tests.en.md).
+Konkrét tesztparancsok az eredeti 12 szabályhoz: [magyar](alert-rule-tests.md) · [English](alert-rule-tests.en.md).
 
 ## Cél és döntések
 
-Csak szolgáltatáskiesés vagy a megfigyelés működési hibája küld értesítést. CPU, RAM, lemezfoglaltság, sikeres lassú HTTP, P95, általános 4xx, hibás jelszó vagy az alkalmazásforgalom hiánya nem aktív riasztási ok. A dashboard ezeket továbbra is mutatja.
+Kiesési és megfigyelési riasztások mellett három új backendjelzés aktív. Magas Render CPU, sok 5xx és sok elutasított POST login értesítést adhat. Egyetlen hibás jelszó, RAM/lemezfoglaltság, sikeres lassú HTTP, P95, általános 4xx és forgalomhiány nem aktív riasztási ok.
 
 ### A korábbi kilenc szabály felülvizsgálata
 
@@ -26,9 +26,21 @@ Csak szolgáltatáskiesés vagy a megfigyelés működési hibája küld értes�
 
 A kiindulási backend- és frontendszabály két legutóbbi sikertelen próbát követelt; a backend akár további fél órát várt. Az új szabály egyetlen, a teljes 100 másodperces prober timeout után is sikertelen backendpróbát jelez, 2 perces pendinggel. A 30 perces próbaintervallum változatlan. A 22 másodperces, HTTP 200-zal sikeres hidegindítás nem riasztási ok.
 
-A kivett három UID explicit `deleteRules` bejegyzésben szerepel: önmagában a fájl eltávolítása nem törölné a Grafanában tárolt szabályt. Az új aktív készlet **12 szabály**, minden csoport értékelése **1 perc**.
+A kivett három UID explicit `deleteRules` bejegyzésben szerepel: önmagában a fájl eltávolítása nem törölné a Grafanában tárolt szabályt. A korábbi kiesési/monitoring-készlet **12 szabály**, az új hárommal együtt **15 állandó szabály**; minden csoport értékelése **1 perc**.
 
-## Pontos feltételek és késések
+## November 18-i három új szabály
+
+| UID | Feltétel | Pending |
+|---|---|---|
+| matchwise_backend_cpu_high | Render CPU >80%, friss és érvényes erőforrásméréssel | 5m |
+| matchwise_backend_5xx_burst | Legalább 5 nem health HTTP 5xx a gördülő előző 5 percben | 2m |
+| matchwise_backend_login_burst | Legalább 10 POST login 401 a gördülő előző 5 percben, minden felhasználó együtt | 2m |
+
+A kétperces pending nem követel új hibákat: a már megtörtént események addig számítanak, amíg az ötperces ablakban maradnak. A perc az értékelés gyakorisága. [Részletes idővonal, frissességi kapuk és KeepLast](SERVICE_COMPARISON_ALERTS.md). Az új naplóalapú szabályok Loki A-lekérdezést és Prometheus D-kaput, majd B/E/F/C Grafana-kifejezéseket használnak; nem az alábbi 12 régi szabály egyszerű PromQL-láncát.
+
+[Teszt és eltávolítás](SERVICE_COMPARISON_ALERT_TEST.md). A további eredeti telepítési és visszaállítási példák a korábbi kiesési csomagra vonatkoznak; az aktuális állandó darabszám 15.
+
+## Az eredeti 12 szabály pontos feltételei és késései
 
 A szabályok `A` PromQL-kifejezése, `B=last(A)` redukciója és `C: B > 0.5` küszöbe a [provisioning könyvtárban](../grafana/provisioning/alerting/) található. Az alábbi definíciók ezekhez tartoznak; nincs rejtett dashboardváltozó.
 
@@ -65,7 +77,7 @@ A Node Exporter kiesése a hostmegfigyelés kiesése; teljes VM-kiesést ebből 
 
 - Backend/frontend HTTP, PostgreSQL és collector: `noDataState=KeepLast`, `execErrState=KeepLast`. A bizonyíték hiánya vagy lekérdezési hiba nem oldhat fel egy folyamatban lévő kiesést. A kapcsolódó monitoring-szabály jelzi a mérés hibáját.
 - A többi nyolc monitoring-szabály: `noDataState=Alerting`, `execErrState=Error`. Sikeresen lefutó üres selector esetén explicit hibajelzés képződik. A fallback kizárólag a várt monitoringbemenet hiányát kódolja hibává; nem állítja a szolgáltatást UP állapotúra.
-- A szolgáltatásszabályok nem használnak `or vector(0)` egészségesnek minősítő pótlást. Aggregálással stabil, egyetlen címkekészletet adnak, csökkentve a MissingSeries miatti téves feloldást.
+- Az eredeti 12 szabály szolgáltatásszabályai nem használnak `or vector(0)` egészségesnek minősítő pótlást. Aggregálással stabil, egyetlen címkekészletet adnak, csökkentve a MissingSeries miatti téves feloldást.
 - A KeepLast kezdeti Normal állapota nem friss UP-bizonyíték. Mindig a hozzá tartozó monitoringriasztással és a minta korával együtt értelmezendő.
 - A DatasourceError eseményeket közös adatforrás szerinti értesítési csoport fogja össze. A Grafana pontos Error/Pending állapotmenetét a futó 13.2.1 példányon tesztelni kell. A normál küszöbtesztek nem helyettesítik ezt.
 - Egy kizárólag a KeepLast szabály saját kifejezését érintő futásidejű hiba rejtve maradhat, ha a kapcsolódó monitoringkifejezés működik. Ezt a helyi promtool tesztek, a telepítéskori szabály-Health ellenőrzés és a rendszeres operátori ellenőrzés mérsékli.
@@ -74,7 +86,7 @@ A Node Exporter kiesése a hostmegfigyelés kiesése; teljes VM-kiesést ebből 
 
 Megmaradó contact point: **AI Job Telegram**, UID `ai_job_telegram`. Token/chat ID környezeti változóban. A 2026-11-15-i üzemeltetői visszajelzés szerint a cél a csapat Telegram-csoportja a korábbi privát beszélgetés helyett. `disableResolveMessage=false`. A sablon felsorolja az eseményenkénti firing/resolved állapotot, a szabály összefoglalóját és rövid, legfeljebb 200 karakteres hibaleírását; közös teendőhivatkozással. Plain text (`parse_mode: None`) csökkenti a Telegram formázásból eredő kézbesítési hibáit. A 4096 karakteres Telegram-korlát miatt a nagy csoportok üzenete rövidülhet.
 
-Normál csoportkulcs: `grafana_folder, category`; külön availability és monitoring csoport. DatasourceError: `alertname, datasource_uid`. Group wait 30s, group interval 5m, repeat 4h. A 4h ismétlés a tartósan fennálló, változatlan csoportra vonatkozik; csoportváltozás előbb is küldhet üzenetet.
+Normál csoportkulcs: `grafana_folder, category`; külön availability, monitoring és security csoport; a kontrollált teszt security_test kategóriát használ. DatasourceError: `alertname, datasource_uid`. Group wait 30s, group interval 5m, repeat 4h. A 4h ismétlés a tartósan fennálló, változatlan csoportra vonatkozik; csoportváltozás előbb is küldhet üzenetet.
 
 Nincs automatikus függőségi elnyomás. Egy Blackbox-hibához több monitoringriasztás tartozhat; ezek egy csoportosított üzenetben jelennek meg. Egy már aktív HTTP-kiesés mérési hiba alatt is megmaradhat: ez tudatosan nem hamis helyreállás. A közös hibát először a Blackbox/Prometheus irányából kell vizsgálni.
 

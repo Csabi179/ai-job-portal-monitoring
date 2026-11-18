@@ -11,7 +11,7 @@ A Render használati panel csak sikeres gyűjtés, négy percnél frissebb gyűj
 
 A backend forgalma, hibái, válaszideje és hibanaplói a közös időablakban láthatók, health kérések nélkül. A többi szolgáltatás naplóit jelenleg nem gyűjtjük. Üres backend naplópanel lehet forgalomhiány vagy hiányzó napló; ellenőrizd a collector korát. Backend HTTP-próba: 30 percenként, legfeljebb 40 perces eredménnyel. Frontend: legfeljebb 3 perces eredmény.
 
-Éles bizonyíték: a felhasználó kimenete alapján a Render időzítő aktív és a Prometheus collection_success=1 értéket tárol (2026-11-18). A dashboard helyi szerkezetellenőrzése sikeres; éles megjelenés és lekérdezések ellenőrzése még hátravan. Riasztásokat ez a dashboard nem telepít.
+Éles bizonyíték: a felhasználó kimenete alapján a Render időzítő aktív és a Prometheus collection_success=1 értéket tárol (2026-11-18). A dashboard helyi szerkezetellenőrzése sikeres; a felhasználó képei az éles megjelenést és a látható panelek adatait is igazolják. Riasztásokat ez a dashboard nem telepít.
 
 ## English
 
@@ -24,7 +24,7 @@ Render usage is shown only when collection succeeds, the attempt is under four m
 
 Backend traffic, errors, response times and error logs use the same time range and exclude health requests. Logs from other services are not collected here. An empty backend log panel can mean no traffic or missing logs; check collector age. Backend probes run every 30 minutes and results are used for up to 40 minutes. Frontend results are used for up to three minutes.
 
-Live evidence: operator output confirms the Render timer is active and Prometheus stores collection_success=1 on 2026-11-18. Dashboard structure checks passed: JSON parsing, unique panel IDs, no grid overlaps and resolved filters. Live display and query validation are pending. This dashboard does not install alerts.
+Live evidence: operator output confirms the Render timer is active and Prometheus stores collection_success=1 on 2026-11-18. Dashboard structure checks passed: JSON parsing, unique panel IDs, no grid overlaps and resolved filters. Operator screenshots confirm live display and visible panel data. This dashboard does not install alerts.
 
 ## Installation / Telepítés
 
@@ -47,3 +47,9 @@ Körülbelül 30 másodperc után nyisd meg. Ellenőrizd a Render CPU/RAM adatok
 If any panel shows a query error, share the panel title and error text. Alert rules are the next stage after this check.
 
 Ha egy panel lekérdezési hibát jelez, a panel címét és a hiba szövegét küldd vissza. Ezután következnek a riasztási szabályok.
+
+## Evidence update / Ellenőrzési kiegészítés — 2026-11-18
+
+Operator screenshots confirm the four-column layout, Render/Supabase/Oracle resources, Vercel Not collected cards, statuses, ages and backend log context. No independent Viewer-account check was supplied for this new dashboard. Existing Viewer access to Unified Monitoring does not automatically grant access here.
+
+A négyoszlopos elrendezés és a látható adatok a felhasználó képeivel igazoltak. Az új dashboard Viewer-fiókos ellenőrzése nem történt meg; a Unified Monitoring meglévő jogosultsága ezt nem adja meg automatikusan.

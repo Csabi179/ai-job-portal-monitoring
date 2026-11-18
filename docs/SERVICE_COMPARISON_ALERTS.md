@@ -1,5 +1,7 @@
 # Service comparison alerts / Összehasonlító riasztások
 
+**Állapot / Status — 2026-11-18:** telepítve / deployed. Három szintetikus Firing/Resolved kör igazolt; teszteltávolítás visszaigazolva; valódi login-riasztás az üzemeltető próbája alapján működik. Three synthetic firing/resolved cycles confirmed; cleanup confirmed; real login alert confirmed by operator test. Earlier rollout notes below preserve their status at that step.
+
 ## Magyar
 
 Új csoport: service-comparison-security. Mappa: AI Job Portal. A meglévő 12 szabály mellé 3 új szabály kerül, összesen 15. A küszöbök kezdeti példák, a valós forgalom alapján finomítandók.
@@ -9,6 +11,23 @@
 | MatchWise \| Render backend \| High CPU usage | A Render saját CPU-keretének több mint 80%-a | 5 perc |
 | MatchWise \| Render backend \| HTTP 5xx burst | Legalább 5 naplózott, nem health 5xx válasz az előző 5 percben | 2 perc |
 | MatchWise \| Render backend \| Rejected login burst | Legalább 10 POST /auth/login vagy /api/auth/login kérés 401 válasszal az előző 5 percben | 2 perc |
+
+### Az ötperces ablak és a kétperces kivárás
+
+A szabály **az összes felhasználó** naplózott POST /auth/login vagy /api/auth/login, 401 válaszú kéréseit együtt számolja. Nem egyetlen fiókot vagy IP-címet figyel. A perc az ellenőrzés gyakorisága; a számlálás mindig az előző öt percre vonatkozik.
+
+Példa (szemléltető időpontok, nem mért tesztidők):
+
+| Idő | Mi történik? |
+|---|---|
+| 12:00–12:00:30 | 10 hibás login történik, majd nincs újabb. |
+| 12:01 | Az ellenőrzés legalább 10-et talál az előző 5 percben → Pending. |
+| 12:03 | Az előző 5 perc 11:58–12:03: ugyanaz a 10 esemény még benne van → Firing. |
+| 12:05 után | A korábbi események kiesnek az ablakból; amikor 10 alá csökken a szám, a következő sikeres értékelés feloldja a feltételt. |
+
+A pending azt kéri, hogy a **számláló feltétele** maradjon igaz két percig, nem azt, hogy közben újabb hibák történjenek. Egy rövid, 10 próbálkozásos sorozat is riaszthat. Ha a számláló már a pending alatt 10 alá csökken, a pending megszakad; új küszöbátlépéskor újraindul. A két perc csökkenthet átmeneti küszöbingadozást, de nem bizonyít két percig folyamatos próbálkozást.
+
+Az ötperces ablak az eredeti naplóesemény idejét használja, nem a Telegram-üzenet érkezési idejét. A naplógyűjtés és továbbítás késése, a percenkénti értékelés és az értesítési csoportosítás további késést okozhat. Ha az adatok hiányoznak vagy a kapu nem érvényes, a KeepLast miatt a korábbi állapot maradhat meg; az itt leírt normál feloldás sikeres értékelést feltételez.
 
 A szabályok percenként értékelődnek. A kivárás alatt minden értékeléskor fenn kell álljon a feltétel. A csúszó ötperces ablakban a hibák akkor is benne maradnak egy ideig, ha már megszűntek. A küldést a meglévő Telegram-szabályozás is késleltetheti (30 másodperces kezdeti várakozás, meglévő csoportnál 5 perces csoportfrissítés).
 
@@ -25,6 +44,23 @@ New group: service-comparison-security. Folder: AI Job Portal. Three rules are a
 - High CPU usage: over 80% of the Render CPU limit for 5 minutes.
 - HTTP 5xx burst: at least 5 logged non-health 5xx responses in the last 5 minutes, with a 2-minute pending period.
 - Rejected login burst: at least 10 POST /auth/login or /api/auth/login requests returning 401 in the last 5 minutes, with a 2-minute pending period.
+
+### Five-minute window and two-minute pending period
+
+The rule counts logged POST /auth/login or /api/auth/login requests with HTTP 401 from **all users together**. It does not track one account or IP address. One minute is the check frequency. Each check counts the previous five minutes.
+
+Example times below explain the rule; they are not measured test times.
+
+| Time | What happens? |
+|---|---|
+| 12:00–12:00:30 | Ten failed logins happen, then no more. |
+| 12:01 | The check finds at least ten in the last five minutes → Pending. |
+| 12:03 | The last five minutes are 11:58–12:03. The same ten events still count → Firing. |
+| After 12:05 | Old events leave the window. Once the count falls below ten, the next successful evaluation clears the condition. |
+
+The **count condition** must stay true for two minutes. New failures are not required during that time. A short burst of ten attempts can trigger an alert. If the count falls below ten during Pending, Pending stops and starts again only on a new threshold breach. Pending can filter brief threshold changes; it does not prove two minutes of continuous login attempts.
+
+The window uses original log event time, not Telegram receipt time. Log collection/forwarding, one-minute evaluation and notification grouping can add delays. Missing data or an invalid monitoring gate can retain the earlier state through KeepLast; normal recovery here assumes successful evaluation.
 
 Rules run every minute. The condition must remain true during the pending period. Old errors stay in the rolling five-minute window until they expire. Telegram routing adds a 30-second initial wait or up to the five-minute group update interval for an existing notification group.
 
@@ -106,3 +142,9 @@ Reference: https://grafana.com/docs/grafana/latest/alerting/alerting-rules/link-
 2026-11-18 operator logs explicitly confirm: invalid alert rule: both annotations __dashboardUid__ and __panelId__ must be specified. Moving only the new provisioning file outside the directory and restarting restored Grafana; /api/health returned database=ok, version=13.2.1. The corrected remote file was rechecked: all three incomplete links are removed. Reinstall the corrected file after fetching the feature branch, restart Grafana and verify health plus all three rule evaluations. Corrected live installation is still pending.
 
 A napló igazolta a hiányos dashboard/panel hivatkozás hibáját. Az új fájl félretétele és a Grafana újraindítása után a health válasz database=ok lett. A javított távoli fájl mindhárom szabálynál ellenőrzött. Következő lépés a javított fájl letöltése és telepítése, majd a health és a szabályértékelések ellenőrzése.
+
+## Confirmed final rollout / Visszaigazolt telepítési állapot
+
+After the annotation fix, Grafana started with database=ok. Screenshots show all three production and test rules. All three synthetic tests delivered firing/resolved messages to the team group. Operator confirmed cleanup and reported triggering the real Rejected login burst rule by ten deliberately failed logins; supplied alert text identifies the production rule. Exact real-test timings and a production-login resolved message were not supplied. CPU and 5xx production threshold breaches and missing-data branches are not established by the synthetic test.
+
+A hibajavítás után a Grafana elindult. A három szintetikus teszt értesítése képekkel igazolt, a tesztszabályok eltávolítását az üzemeltető visszaigazolta. A valódi login-riasztást 10 szándékosan hibás bejelentkezéssel is kipróbálta, és a valódi szabály firing szövegét megadta. Pontos időmérés és a valódi login-próba resolved üzenete nem érkezett; valódi CPU/5xx küszöbátlépést nem állítunk teszteltnek.

@@ -1,6 +1,8 @@
 # A 12 Grafana-riasztás kézi tesztelése
 
-**Jelenlegi alkalmazás:** az alábbi szabálylogika továbbra is a 12 provisionált szabályhoz tartozik; a HTTP-célok és a kivárási idők nem változtak. A Grafana normál elérése HTTPS-en történik, a Telegram-cél a csapat csoportja. A collector és Node Exporter élő tesztje igazolt; a többi tíz szabály tesztelési eljárása nem jelent elvégzett tesztet. Lásd [aktuális állapot és tesztek](monitoring-tests.md).
+**Hatókör:** ez az eredeti 12 szabály tesztleírása. A jelenlegi készlet 15 állandó szabály; az új három külön [tesztleírásban](SERVICE_COMPARISON_ALERT_TEST.md) és [tesztnaplóban](monitoring-tests.md#test-20-synthetic-security-alert-cycle) szerepel.
+
+**Jelenlegi alkalmazás:** az alábbi szabálylogika továbbra is az eredeti 12 provisionált szabályhoz tartozik; a HTTP-célok és a kivárási idők nem változtak. A Grafana normál elérése HTTPS-en történik, a Telegram-cél a csapat csoportja. A collector és Node Exporter élő tesztje igazolt; a többi tíz szabály tesztelési eljárása nem jelent elvégzett tesztet. Lásd [aktuális állapot és tesztek](monitoring-tests.md).
 
 
 [English version](alert-rule-tests.en.md) · [Dokumentációjegyzék](README.md)

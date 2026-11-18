@@ -18,12 +18,26 @@ Dashboard JSON: `grafana/provisioning/dashboards/json/matchwise-unified-monitori
 
 The original dedicated Infrastructure, Application Availability and Backend Logs dashboards are retained.
 
+## Service comparison and security signals
+
+**MatchWise · Service Comparison** (UID `matchwise-service-comparison`) places Render, Supabase, Vercel and Oracle side by side. Render CPU/RAM are collected through its Metrics API by a separate Python/systemd collector; Vercel host CPU/RAM are not collected.
+
+Three new rules cover high Render CPU (>80% for 5 minutes), at least five non-health 5xx responses in five minutes (2-minute pending), and at least ten rejected POST logins in five minutes (2-minute pending). The login counter covers all users together. Existing events can keep the rolling-window condition true without further failed attempts.
+
+- [Resource collector and installation (HU/EN)](docs/RENDER_METRICS_COLLECTOR.md)
+- [Comparison dashboard (HU/EN)](docs/SERVICE_COMPARISON_DASHBOARD.md)
+- [Alert behavior and timing examples (HU/EN)](docs/SERVICE_COMPARISON_ALERTS.md)
+- [Controlled test and cleanup (HU/EN)](docs/SERVICE_COMPARISON_ALERT_TEST.md)
+- [Implementation and deployment status (HU/EN)](docs/SERVICE_COMPARISON_PLAN.md)
+
+November 18 evidence: resource ingestion/timer and dashboard confirmed; all three synthetic tests delivered firing/resolved to Telegram; test cleanup confirmed by the operator. The operator also reported a successful real ten-failed-login test and supplied the production alert text. Viewer access to this new dashboard remains unverified. Work is versioned on `feat/service-comparison`; Oracle was updated by reviewed file copies, not a confirmed branch switch or main merge.
+
 ## Stack and ingestion
 
 - **Docker Compose:** six base services (Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Alloy), plus deployed Caddy in the opt-in `public` profile.
 - **Render logs:** Pino JSON → Render Logs API → Python systemd collector → deduplicated JSONL → Alloy → Loki.
 - **Metrics:** Node Exporter and Blackbox Exporter → Prometheus → Grafana.
-- **Alerting:** 12 English outage/monitoring-failure rules, with Firing/Resolved notifications sent to the team's Telegram group. Collector and Node Exporter delivery were verified; the other ten rules have not been individually fired live. See the [alerting plan](docs/alerting-plan.en.md).
+- **Alerting:** 15 permanent English rules: 12 outage/monitoring-failure rules plus three backend resource/security signals, with Firing/Resolved notifications sent to the team's Telegram group. Collector and Node Exporter delivery were verified; the other ten rules have not been individually fired live. See the [alerting plan](docs/alerting-plan.en.md).
 - **Retention:** Prometheus 7 days or 2 GB; logrotate rotates the local JSONL at 20 MB with seven archives. Loki retention is separate.
 
 Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). Internal monitoring web services bind to loopback. Team access uses Caddy HTTPS at https://grafana-r0cecq.duckdns.org/ with Grafana authentication; no Oracle or SSH access is granted to teammates.
@@ -42,7 +56,7 @@ Additional documentation:
 - [Installation guide](docs/installation-guide.md)
 - [Monitoring tests](docs/monitoring-tests.md)
 - [Monitoring plan](docs/monitoring-plan.en.md)
-- [Outage-only alerting plan, deployment and tests](docs/alerting-plan.en.md)
+- [Alerting plan, deployment and tests](docs/alerting-plan.en.md)
 
 Basic operations on Oracle:
 
@@ -69,7 +83,7 @@ On November 9, the existing Render service was switched to the team's backend re
 
 ## Security and limits
 
-Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. No Render/Vercel host CPU/RAM telemetry or frontend browser-performance data is currently collected. Render availability is sampled every 30 minutes, so the latest UP result is not a continuous-uptime guarantee.
+Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. Render CPU/RAM telemetry is collected through its Metrics API. Vercel host CPU/RAM and frontend browser-performance data are not collected. Render availability is sampled every 30 minutes, so the latest UP result is not a continuous-uptime guarantee.
 
 Project target completion/shutdown: no later than **December 15, 2026**.
 

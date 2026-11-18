@@ -2,13 +2,13 @@
 
 [Magyar változat](alerting-plan.md) · [Documentation index](README.md)
 
-**Current documented state (reviewed November 16, 2026):** six base monitoring services plus Caddy in the public profile; HTTPS Grafana login and operator-confirmed Viewer access to Unified Monitoring; 12 English outage/monitoring-failure rules; Telegram destination is the team group. Collector and Node Exporter Firing/Resolved were evidenced; the other ten rules have not been individually verified live. See [verification records](monitoring-tests.md).
+**Current documented state (November 18, 2026):** 15 permanent rules: 12 outage/monitoring rules plus three backend resource/security signals. Render CPU/RAM collection and the Service Comparison dashboard are deployed. Screenshots prove synthetic Firing/Resolved Telegram delivery for all three new rules; the operator confirmed cleanup and a real ten-failed-login test. Earlier collector/Node Exporter delivery evidence remains; the other ten original rules have not been fully tested live. See [test records](monitoring-tests.md).
 
-Exact commands for all 12 rules: [English](alert-rule-tests.en.md) · [Hungarian](alert-rule-tests.md).
+Exact commands for the original 12 rules: [English](alert-rule-tests.en.md) · [Hungarian](alert-rule-tests.md).
 
 ## Purpose and decisions
 
-Only service outages and monitoring failures send notifications. High CPU, RAM or disk usage, a slow but successful HTTP response, P95, general 4xx, incorrect passwords and absence of application traffic are not active alert conditions. They remain visible on dashboards.
+Outage and monitoring alerts are joined by three backend signals. High Render CPU, many 5xx responses and many rejected POST logins can send notifications. One wrong password, RAM/disk usage, a slow but successful HTTP response, P95, general 4xx and absence of traffic are not active alert conditions.
 
 ### Review of the previous nine rules
 
@@ -26,9 +26,21 @@ Only service outages and monitoring failures send notifications. High CPU, RAM o
 
 The original backend/frontend rules required the latest two probes to fail; this could add another 30 minutes for the backend. The replacement reports one unsuccessful completed backend probe, allowing its full 100-second prober timeout and then 2 minutes pending. Probes still run every 30 minutes. A 22-second cold start that ends in HTTP 200 is not an alert condition.
 
-The three removed UIDs appear explicitly under `deleteRules`: deleting a provisioning file alone would not delete the stored rule. The active replacement set contains **12 rules**, evaluated **every minute**.
+The three removed UIDs appear explicitly under `deleteRules`: deleting a provisioning file alone would not delete the stored rule. The earlier outage/monitoring set contains **12 rules**; with the three additions there are **15 permanent rules**, evaluated **every minute**.
 
-## Exact conditions and delays
+## Three new rules added November 18
+
+| UID | Condition | Pending |
+|---|---|---|
+| matchwise_backend_cpu_high | Render CPU >80% with fresh valid resource data | 5m |
+| matchwise_backend_5xx_burst | At least five non-health HTTP 5xx responses in the rolling last five minutes | 2m |
+| matchwise_backend_login_burst | At least ten POST login 401 responses in the rolling last five minutes, all users combined | 2m |
+
+The two-minute pending period does not require new failures: earlier events still count while they remain in the five-minute window. One minute is the evaluation frequency. See [timing examples, telemetry gates and KeepLast](SERVICE_COMPARISON_ALERTS.md). New log rules combine a Loki A query, a Prometheus D gate and Grafana B/E/F/C expressions; they differ from the simpler PromQL chain of the original twelve rules below.
+
+[Test and cleanup](SERVICE_COMPARISON_ALERT_TEST.md). Later original deployment and rollback examples concern the earlier outage bundle; the current permanent count is fifteen.
+
+## Exact conditions and delays of the original twelve rules
 
 The actual `A` PromQL expressions, `B=last(A)` reductions and `C: B > 0.5` thresholds are in the [provisioning directory](../grafana/provisioning/alerting/). The definitions below describe those files; there are no hidden dashboard variables. The English update changes titles, summaries, descriptions and runbook links only, not rule logic or UIDs.
 
@@ -65,7 +77,7 @@ Node Exporter failure means host monitoring has failed; it does not establish co
 
 - Backend/frontend HTTP, PostgreSQL and collector: `noDataState=KeepLast`, `execErrState=KeepLast`. Missing evidence or a query error must not clear an active outage. Related monitoring rules report telemetry failure.
 - The other eight monitoring rules: `noDataState=Alerting`, `execErrState=Error`. Successfully evaluated empty selectors produce explicit failure. Fallbacks encode missing expected monitoring input as a fault; they do not declare the application UP.
-- Service rules do not use a healthy `or vector(0)` fallback. Aggregation produces one stable label set to reduce false MissingSeries resolution.
+- Service rules in the original twelve-rule set do not use a healthy `or vector(0)` fallback. Aggregation produces one stable label set to reduce false MissingSeries resolution.
 - Initial Normal state under KeepLast is not fresh UP evidence. Interpret it alongside the related monitoring rule and sample age.
 - DatasourceError events are grouped by datasource. The exact Error/Pending transitions still need testing on the running Grafana 13.2.1 instance. Normal threshold tests do not replace this.
 - A runtime error affecting only a KeepLast rule's own expression can remain hidden if the related monitoring expression works. Local promtool tests, deployment-time rule Health checks and regular operator review mitigate this limitation.
@@ -76,7 +88,7 @@ Contact point remains **AI Job Telegram**, UID `ai_job_telegram`. Bot token/chat
 
 The notification language is English, including the 12 rule titles, summary/description annotations and recovery text. The template lists each event's firing/resolved state, summary and at most 200 description characters, followed by a shared English runbook link. The current descriptions are complete sentences shorter than 200 characters. Plain text (`parse_mode: None`) reduces formatting-related Telegram failures. Large groups may still be truncated by Telegram's 4096-character limit.
 
-Normal grouping: `grafana_folder, category`, keeping availability and monitoring groups separate. DatasourceError grouping: `alertname, datasource_uid`. Group wait 30s; group interval 5m; repeat 4h. The 4-hour repeat applies to an unchanged persistent group; group changes can notify sooner.
+Normal grouping: `grafana_folder, category`, keeping availability, monitoring and security groups separate. Controlled tests use security_test. DatasourceError grouping: `alertname, datasource_uid`. Group wait 30s; group interval 5m; repeat 4h. The 4-hour repeat applies to an unchanged persistent group; group changes can notify sooner.
 
 There is no automatic dependency inhibition. One Blackbox failure can trigger several monitoring rules, grouped into one notification. An already-active HTTP outage can remain active during a telemetry failure to avoid false recovery. Investigate shared Blackbox/Prometheus causes first.
 

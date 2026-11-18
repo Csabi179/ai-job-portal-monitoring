@@ -1,5 +1,7 @@
 # MatchWise stack and data flow
 
+**Diagram version:** the draw.io/SVG below shows the earlier twelve-rule baseline. November 18 added a separate Render Metrics API → Python → .prom → Node Exporter flow, a comparison dashboard and three rules; the current permanent count is fifteen. The diagram was not redrawn in this documentation update. See [current implementation status](../SERVICE_COMPARISON_PLAN.md).
+
 [Magyar változat](README.md) · [Documentation index](../README.md)
 
 The editable diagram describes the current monitoring configuration and operator-confirmed deployment. AI integration and frontend-to-backend browser behavior are labelled separately where deployment or end-to-end verification is not established.
@@ -39,7 +41,7 @@ Only Caddy TCP 80/443 is published for web access. Grafana 3000 and monitoring m
 
 Blue denotes application APIs, teal metrics, gold logs, red notifications, grey access/versioning, and dashed purple an unverified/future integration. Arrows represent labelled data or request/response flow; Prometheus and the collector initiate pulls. The diagram no longer describes nine active rules or SSH-only Grafana access. The frontend integration label is a verification boundary, not a claim that current authentication is simulated.
 
-A successful health check is not a full business test. Collector success, Loki health and actual event delivery differ. The current 12 rules do not independently cover the entire public Caddy/DNS/TLS path or complete VM failure. See the [monitoring plan](../monitoring-plan.en.md) and [test log](../monitoring-tests.md).
+A successful health check is not a full business test. Collector success, Loki health and actual event delivery differ. The current 15 rules do not independently cover the entire public Caddy/DNS/TLS path or complete VM failure. See the [monitoring plan](../monitoring-plan.en.md) and [test log](../monitoring-tests.md).
 
 ## Editing and validation
 

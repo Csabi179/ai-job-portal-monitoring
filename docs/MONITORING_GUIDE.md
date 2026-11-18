@@ -4,7 +4,7 @@
 
 
 
-> **Status:** Reviewed November 16, 2026 against repository configuration and operator evidence; this review does not provide a new live Oracle audit.
+> **Status:** Updated November 18, 2026 against repository configuration and operator evidence; updated from repository configuration and operator-supplied evidence; no direct assistant SSH audit.
 > **Main dashboard:** **MatchWise | Unified Monitoring** (Grafana UID: **matchwise-unified-overview**).  
 > **Scope:** Oracle Cloud monitoring VM, independently deployed Render backend, Vercel frontend, Supabase, and backend HTTP logs.
 
@@ -50,7 +50,7 @@ Prometheus configuration: **prometheus/prometheus.yml**; HTTP probe modules: **b
 
 **Important interpretation:** A Blackbox probe measures an end-to-end HTTP request including Render cold-start delay. The Pino responseTimeMs field measures server-side request processing and does **not** include the entire client-to-server round trip. A successful Render HTTP probe is the **latest sampled probe**, not a guarantee of continuous availability between 30-minute checks.
 
-**Unavailable telemetry:** Render/Vercel platform CPU/RAM and frontend browser errors, Web Vitals, and frontend application logs are **not currently collected**. Do not read these as zero; they are outside monitoring coverage.
+**Resource update:** Render CPU/RAM is collected by the separate [resource collector](RENDER_METRICS_COLLECTOR.md). Vercel platform CPU/RAM, frontend browser errors, Web Vitals and frontend application logs are **not currently collected**. Do not read these as zero; they are outside monitoring coverage.
 
 ## 3. Dashboard inventory
 
@@ -79,7 +79,7 @@ For changes, edit and version the JSON in Git, update the Oracle working tree, a
 
 ## 4. Alerting
 
-The repository now contains **12 outage/monitoring-failure rules**. High RAM/disk usage and the old local Grafana test rule are explicitly deleted from the provisioned state. Performance and 4xx remain dashboard diagnostics.
+The repository contains **15 permanent rules**: 12 outage/monitoring-failure rules and three backend resource/security signals. High RAM/disk usage and the old local Grafana test rule are explicitly deleted from the provisioned state. Render CPU >80% for 5 minutes, at least five 5xx/5 minutes and at least ten rejected POST logins/5 minutes now alert; the two log rules have a 2-minute pending period. General 4xx and other performance values remain dashboard diagnostics.
 
 The authoritative [alerting plan](alerting-plan.en.md) documents exact conditions, pending times, No Data/Error handling, Telegram grouping, deployment, rollback and unexecuted live tests. HTTP/database/collector rules keep their last state when evidence disappears. Separate monitoring rules report telemetry failures. The backend retains 30-minute probing and uses a 40-minute freshness window; one failed completed probe with 2-minute pending now suffices, replacing the earlier two-failure requirement.
 
@@ -181,10 +181,18 @@ To sync changes committed directly to GitHub on Oracle:
 
 Verified in the project: Oracle and HTTP availability measurements, Pino structured logs, Render Logs API collection, SQLite duplicate suppression, local file ingestion by Alloy, Grafana dashboard visualizations, Telegram test notification, and a healthy collector alert provisioned in Grafana.
 
-Limitations: coarse 30-minute Render HTTP probing; Render Free sleeping; frontend HTTP-only probing; lack of Render/Vercel CPU/RAM and browser performance telemetry; collector API pagination cap; no automatic retry inside the Python collector; log rotation is not a proof of perfect delivery; Grafana/Prometheus outages reduce monitoring visibility.
+Limitations: coarse 30-minute Render HTTP probing; Render Free sleeping; frontend HTTP-only probing; lack of Vercel CPU/RAM and browser performance telemetry; collector API pagination cap; no automatic retry inside the Python collector; log rotation is not a proof of perfect delivery; Grafana/Prometheus outages reduce monitoring visibility.
 
 For installation, test history and monitoring planning, see **docs/installation-guide.md**, **docs/monitoring-tests.md**, and **docs/monitoring-plan.md**.
 
 ## 10. CV and AI preparation
 
 The operator supplied November 15 main and CV-profile feature-branch source archives. The feature uses Cloudinary storage and Cloudflare Workers AI, with the two Cloudflare variables preconfigured on Render. Merge/deployment and the required Supabase migration are not verified by this repository. Without backend changes, existing HTTP logs provide endpoint counts/statuses and total processing duration, not separate AI latency or token usage. No dedicated AI panel or rule is configured. See [the monitoring plan](monitoring-plan.en.md#cv-and-ai-monitoring-preparation).
+
+## Service comparison deployment — November 18
+
+[Service Comparison dashboard](SERVICE_COMPARISON_DASHBOARD.md) adds a fifth dashboard with four aligned service columns. [Alert behavior](SERVICE_COMPARISON_ALERTS.md) explains the rolling five-minute count and two-minute pending period: the same ten failed logins can remain in the window and trigger without more attempts. [Controlled tests](SERVICE_COMPARISON_ALERT_TEST.md) delivered firing/resolved for all three test copies; cleanup was operator-confirmed. A real ten-failed-login test triggered the permanent rule according to operator feedback. [TEST-17 through TEST-21](monitoring-tests.md#test-17-render-resource-collection) record the evidence and limits.
+
+The two collectors are separate. The resource collector runs as matchwise-render-metrics.service/timer from /usr/local/lib/matchwise/render-metrics-poll.py, writes ~/monitoring-exporter-metrics/matchwise_render_resources.prom, and uses the existing private render-logs.env. Timer interval: two minutes after completion, four Render API requests per run. A Git update alone does not replace the installed script. The earlier log collector still writes its own heartbeat and JSONL.
+
+The feature was deployed through file copies from feat/service-comparison while preserving the live checkout. Review git status and any untracked-file collisions before later branch integration. Do not overwrite deployed files blindly. New-dashboard Viewer access, architecture diagram refresh and final branch/main integration remain separate follow-ups. Diagram references in this guide show the earlier twelve-rule baseline.

@@ -86,14 +86,18 @@ Megszakításhoz ugyanazt az eltávolító parancsot használd. A korai törlés
 
 ## Validation / Ellenőrzés
 
-Three local unittest methods passed: source immutability and preserved expression graphs/pending periods; deletion limited to test IDs; invalid source rejection and atomic output replacement. Live Grafana state transitions and Telegram delivery remain pending until operator evidence arrives. Local tests do not exercise Grafana itself.
+Three local unittest methods passed: source immutability and preserved expression graphs/pending periods; deletion limited to test IDs; invalid source rejection and atomic output replacement. Live evidence is recorded below: firing/resolved delivered for all three tests; cleanup later confirmed by the operator. Local tests do not exercise Grafana itself.
 
-Három helyi teszt sikeres. Az éles Grafana-állapotváltás és a Telegram-küldés csak a felhasználó visszajelzése után tekinthető igazoltnak.
+Három helyi teszt sikeres. Mindhárom teszt firing/resolved kézbesítését képek igazolják, az eltávolítást az üzemeltető visszaigazolta.
 
 Source: [Grafana alert file provisioning](https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/).
 
 ## Live evidence 2026-11-18 / Éles bizonyíték
 
-Operator supplied Grafana /api/health with database=ok and screenshots showing all three production rules present, all three TEST rules present, and Telegram firing followed by resolved notifications for HTTP 5xx burst, High CPU usage and Rejected login burst. This confirms notification delivery and recovery messages through the real Grafana/Telegram path for all three synthetic tests. The Grafana screenshot shows an intermediate test state; it does not independently confirm final state/health fields. Cleanup is pending operator execution and confirmation.
+Operator supplied Grafana /api/health with database=ok and screenshots showing all three production rules present, all three TEST rules present, and Telegram firing followed by resolved notifications for HTTP 5xx burst, High CPU usage and Rejected login burst. This confirms notification delivery and recovery messages through the real Grafana/Telegram path for all three synthetic tests. The Grafana screenshot shows an intermediate test state; it does not independently confirm final state/health fields. The operator subsequently confirmed successful cleanup and continued operation.
 
-A felhasználó kimenete és képei alapján a Grafana működik, az eredeti három szabály és a három tesztszabály betöltődött. Mindhárom tesztszabályhoz megérkezett a firing és a resolved Telegram-üzenet. A szintetikus teszt értesítési és helyreállási köre igazolt. Ez nem valódi backendhiba, túlterhelés vagy sikertelen bejelentkezési hullám próbája. A tesztszabályok eltávolítása még hátravan.
+A felhasználó kimenete és képei alapján a Grafana működik, az eredeti három szabály és a három tesztszabály betöltődött. Mindhárom tesztszabályhoz megérkezett a firing és a resolved Telegram-üzenet. A szintetikus teszt értesítési és helyreállási köre igazolt. Ez nem valódi backendhiba, túlterhelés vagy sikertelen bejelentkezési hullám próbája. Az üzemeltető később visszaigazolta a tesztszabályok sikeres eltávolítását és a további működést.
+
+Separate production check: the operator also reported triggering the real login rule with ten wrong login attempts. That uses real application logs, unlike this synthetic demo. See [TEST-21](monitoring-tests.md#test-21-real-login-alert).
+
+Külön éles próba: az üzemeltető tíz hibás bejelentkezéssel a valódi login-szabályt is kiváltotta. Ez a szintetikus teszttől eltérően valódi alkalmazásnaplókon alapul. [TEST-21](monitoring-tests.md#test-21-real-login-alert).

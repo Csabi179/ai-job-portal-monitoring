@@ -1,5 +1,9 @@
 # Monitoring Installation Guide
 
+## November 18 feature deployment
+
+Render CPU/RAM needs a separate systemd service/timer and installed Python copy outside the repository. Follow [resource collector installation](RENDER_METRICS_COLLECTOR.md), [comparison dashboard installation](SERVICE_COMPARISON_DASHBOARD.md) and [new alert provisioning](SERVICE_COMPARISON_ALERTS.md) after the base stack. Restore/check private environment files and Grafana ACLs separately. A Git checkout alone does not update /usr/local/lib/matchwise/render-metrics-poll.py. Temporary TEST rules are not permanent configuration; follow [explicit cleanup](SERVICE_COMPARISON_ALERT_TEST.md#cleanup--eltávolítás).
+
 ## Environment
 
 The OS/engine versions below are recorded installation observations, not a new live version inventory. Current container image pins are in `compose.yaml`.
@@ -147,7 +151,7 @@ Prometheus metrics, Loki log data, Alloy read positions and the Render collector
 4. Restore the Grafana volume if historical Grafana data is needed; recover Prometheus/Loki/Alloy volumes separately if their history is required.
 5. Restore the collector private environment file, cursor, SQLite database, textfile metric directory and other private mounts; install systemd service/timer units from `systemd/`.
 6. Start Docker Compose and the two Render-related systemd timers.
-7. Verify Prometheus targets, the four Grafana dashboards, 12 alert rules and collector heartbeat; restore/check folder and dashboard permissions for the Viewer account.
+7. Verify Prometheus targets, the five Grafana dashboards, 15 permanent alert rules and collector heartbeat; restore/check folder and dashboard permissions for the Viewer account.
 8. Restore/check Caddy volumes and the public .env settings, then follow the HTTPS runbook for DNS/firewall/TLS verification.
 9. Verify English Telegram test delivery to the team group using the private destination setting. No deliberate production outage is needed for a contact-point test.
 

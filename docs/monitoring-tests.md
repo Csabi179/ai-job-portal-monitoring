@@ -1,13 +1,51 @@
 # Monitoring Verification
 
-## Current documented state — reviewed November 16, 2026
+## Current documented state — reviewed November 18, 2026
 
-- Six base monitoring services plus deployed Caddy in the public profile; authenticated Grafana HTTPS access and operator-confirmed Viewer use of Unified Monitoring.
-- Twelve provisioned English rules; collector and Node Exporter Firing/Resolved were evidenced. The other ten rules and 4-hour repetition were not individually verified live.
-- Telegram destination changed from private chat to the team group, confirmed by the operator (TEST-13).
-- The introductory dashboard's static latest-auth-test note was removed; TEST-08 remains the dated auth evidence.
-- CV/Cloudflare preparation is source/configuration evidence, not proof of merge, deployment or live AI monitoring.
-- Historical records below retain their original dates/statuses. A pending or old nine-rule statement inside an older test is not the present deployment state.
+- Fifteen permanent rules: original twelve outage/monitoring rules plus three resource/security signals.
+- Render resource API collection, .prom ingestion, systemd timer and Prometheus ingestion confirmed by operator output; Service Comparison dashboard confirmed by screenshots.
+- All three new synthetic tests delivered firing and resolved to the team Telegram group. Operator confirmed cleanup and a real ten-failed-login trigger.
+- Earlier collector and Node Exporter delivery evidence remains valid; the other ten original rules have not been individually verified live.
+- Viewer access is confirmed only for Unified Monitoring, not the new comparison dashboard. Four-hour repetition, full-host failure protection and missing-data branches are not established.
+- Work is versioned on feat/service-comparison and deployed by file copies. No main merge or exact live checkout HEAD is established.
+- Historical records retain their original scope/dates. CV/AI preparation is not proof of production deployment.
+
+<a id="test-17-render-resource-collection"></a>
+## TEST-17 — Render resource collection and scheduling, 2026-11-18
+
+**Result: operator-supplied live output confirms the complete API-to-Prometheus path.** CPU, cpu-limit, memory and memory-limit each returned HTTP 200 with nonempty samples and units cpu/bytes. After a query-format fix, the Python collector exited 0 and emitted collection_success=1. File publication and Node Exporter reading were confirmed with CPU 0.14497778%, RAM 17.7024848991% and node_textfile_scrape_error=0. Operator output confirms an active two-minute timer and a Prometheus collection_success=1 vector with job=node_exporter.
+
+Local collector tests: four methods including invalid inputs, safe HTTP diagnostics and atomic replacement passed. Initial explicit time-window requests returned HTTP 400; matching the earlier probe request fixed collection. Credentials were not changed or recorded. Exact rejected parameter not isolated. This verifies the supplied successful samples, not continuous availability or a fresh-data guarantee during a sleeping service.
+
+<a id="test-18-service-comparison-dashboard"></a>
+## TEST-18 — Service Comparison dashboard, 2026-11-18
+
+**Result: operator screenshots confirm rendering and visible data.** Four columns show Render, Supabase, Vercel and Oracle. Resource graphs, status cards, sample ages, backend traffic/errors/response times, collector age and HTTP error logs are visible. Vercel CPU/RAM are explicitly Not collected. New Render history is short because collection just started. Local JSON/ID/grid/filter checks passed.
+
+**Limits:** no Viewer-account test for this new dashboard was supplied. Different resource percentages do not establish an attack. The older architecture diagram has not been redrawn to include this feature.
+
+<a id="test-19-alert-provisioning-recovery"></a>
+## TEST-19 — Alert query preflight and Grafana startup recovery, 2026-11-18
+
+**Result: all five datasource queries succeeded; startup incident identified and corrected.** Operator output: CPU A=0; 5xx A=0,D=1; login A=0,D=1. Grafana initially restarted because the new rule annotations set __dashboardUid__ without __panelId__. Logs explicitly identify that invalid pair. Removing the new file restored database=ok. The incomplete optional links were removed from all three rules and a validator assertion was added. Operator confirmed the corrected deployment worked; later screenshot shows all three production rules and database=ok.
+
+**Limits:** JSON and datasource-query checks alone did not validate Grafana provisioning; this incident demonstrates that boundary. General missing-data/error branches and the full original promtool suite were not rerun in this environment.
+
+<a id="test-20-synthetic-security-alert-cycle"></a>
+## TEST-20 — Three synthetic alert cycles and cleanup, 2026-11-18
+
+**Result: firing and resolved Telegram messages for all three TEST rules are visible in operator screenshots.** Temporary rules used separate test UIDs/category and timed Prometheus values. Real Grafana expression graphs and pending periods were preserved. The backend was not loaded and no application logs were fabricated. /api/health returned database=ok. Local helper tests covered source isolation, expression/pending preservation, deletion scope, invalid input and atomic output.
+
+The operator subsequently confirmed cleanup succeeded and the system still worked. Removal is operator-confirmed; no independent post-cleanup inventory was supplied. Exact per-rule pending/receipt times were not measured. This confirms the synthetic notification/recovery path, not real CPU/5xx threshold breaches or telemetry failure behavior.
+
+<a id="test-21-real-login-alert"></a>
+## TEST-21 — Real rejected-login alert, 2026-11-18
+
+**Result: operator-reported successful production-rule trigger.** The operator intentionally failed login ten times and supplied firing text for MatchWise | Render backend | Rejected login burst. This is distinct from the TEST fixture: it uses real backend HTTP logs and the permanent rule.
+
+The rule counts POST /auth/login or /api/auth/login requests returning 401 across all users in the rolling last five minutes. It evaluates every minute and requires the count condition to remain true for two minutes. No new failed logins are required while the original ten remain in that window. See the [timing example](SERVICE_COMPARISON_ALERTS.md).
+
+**Limits:** exact attempt/event/evaluation/receipt times, identities and a production-login resolved message were not supplied. Do not treat the illustrative 12:00 timeline as measured test evidence. Source CPU and 5xx threshold tests remain unverified.
 
 <a id="test-14-https-viewer-access"></a>
 ## TEST-14 — Grafana HTTPS and Viewer access, 2026-11-11

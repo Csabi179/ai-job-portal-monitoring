@@ -1,39 +1,55 @@
-# Service comparison implementation / Megvalósítási terv
+# Service comparison implementation / Megvalósítási állapot
 
-Started / Kezdés: 2026-11-18.
-Baseline: c12e4041776545428717647ad3947efe22036e0e.
-Branch: feat/service-comparison.
+Updated / Frissítve: 2026-11-18.
+Repository: Csabi179/ai-job-portal-monitoring.
+Branch / Ág: feat/service-comparison.
+Baseline / Kiindulási commit: c12e4041776545428717647ad3947efe22036e0e.
 
-## Scope / Cél
+## Delivered / Elkészült
 
-Simple side-by-side backend, Supabase, frontend and Oracle panels. Reuse existing Prometheus, Loki, Node Exporter and Grafana. Add Render CPU/memory collection only after API access and response semantics are verified. Missing metrics must not appear as zero. All labels and dashboards are English; operational instructions are provided in Hungarian and English.
+| Step / Lépés | State / Állapot | Evidence / Bizonyíték |
+|---|---|---|
+| Render API capability and units / API és mértékegységek | DONE | Four nonempty CPU/memory/limit responses / Négy nem üres válasz |
+| Resource collector and atomic .prom / Erőforrásgyűjtő | DONE | Live success, Node Exporter read errors=0 / Éles siker, beolvasási hiba=0 |
+| systemd scheduling and Prometheus ingestion / Időzítő és beérkezés | DONE | Active timer and collection_success=1 / Aktív időzítő és sikerjelző |
+| Four-column Service Comparison dashboard / Négyoszlopos dashboard | DONE for operator / Üzemeltetőnél működik | Operator screenshots / Képek |
+| Three permanent resource/security rules / Három állandó új szabály | DEPLOYED / TELEPÍTVE | Live queries, corrected provisioning, screenshots / Lekérdezések, javított betöltés, képek |
+| Synthetic Firing/Resolved test / Szintetikus teszt | PASS | Telegram screenshots for all three / Mindhárom Telegram-üzenetpár |
+| Temporary test cleanup / Teszteltávolítás | CONFIRMED / VISSZAIGAZOLT | Operator confirmation / Üzemeltetői visszajelzés |
+| Real ten-failed-login test / Valódi 10 hibás login | CONFIRMED FIRING / VISSZAIGAZOLT FIRING | Operator report and production alert text / Visszajelzés és riasztásszöveg |
+| HU/EN guides, timing example, indexes and test records / Dokumentáció | UPDATED / FRISSÍTVE | This documentation commit / Jelen dokumentációs commit |
 
-Egyszerű összehasonlító dashboard a meglévő rendszerre építve. A Render CPU/memória gyűjtése API-ellenőrzés után készül el. A hiányzó mérés nem nulla. A szolgáltatások eltérő erőforráshasználata önmagában nem támadás.
+## Where to read / Leírások
 
-## Steps / Lépések
+- [Render resource collector / Erőforrásgyűjtő](RENDER_METRICS_COLLECTOR.md)
+- [Dashboard](SERVICE_COMPARISON_DASHBOARD.md)
+- [Three rules and rolling-window example / Három szabály és időablakpélda](SERVICE_COMPARISON_ALERTS.md)
+- [Synthetic test and explicit deletion / Szintetikus teszt és törlés](SERVICE_COMPARISON_ALERT_TEST.md)
+- [Dated evidence TEST-17–21 / Dátumozott tesztnapló](monitoring-tests.md#test-17-render-resource-collection)
 
-1. DONE: baseline and branch created; implementation plan versioned.
-2. DONE: operator confirmed four nonempty API responses and units (cpu / bytes) on November 18.
-3. DONE: collector, textfile ingestion, systemd timer and Prometheus ingestion verified by operator.
-4. IN PROGRESS: operator screenshots confirm dashboard rendering and visible data; Viewer access check pending.
-5. IN PROGRESS: three guarded rules implemented (CPU >80% for 5m, >=5 5xx/5m for 2m, >=10 login401/5m for 2m). Structure checked; all five live datasource queries passed; Grafana provisioning, expressions and notification tests pending.
-6. TODO: bilingual install/rollback instructions; update documentation index, monitoring and alerting plans; verify Viewer access to the new dashboard.
-7. TODO: live Oracle rollout and controlled alert checks; record evidence separately from local tests. Review pull request before main integration.
+## Operational state / Üzemeltetési állapot
 
-## Current operator step / Jelenlegi felhasználói lépés
+The existing twelve outage/monitoring rules remain; service-comparison-security adds three, making fifteen permanent rules. TEST rules are temporary fixtures, not permanent provisioning source. Cleanup was confirmed by the operator; no separate post-cleanup API inventory was supplied.
 
-Run the controlled test in [SERVICE_COMPARISON_ALERT_TEST.md](SERVICE_COMPARISON_ALERT_TEST.md). Telegram firing/resolved for all three tests confirmed. Explicitly delete test rules and verify original rules remain. / Mindhárom teszt firing/resolved értesítése igazolt. Töröld a tesztszabályokat, majd ellenőrizd az eredeti szabályok megmaradását.
+A meglévő 12 kiesési/monitoring-szabály mellé három új került, összesen 15 állandó szabállyal. A TEST szabályok ideiglenesek; az eltávolítás visszaigazolt, külön API-leltár nem érkezett róla.
 
-## Evidence / Ellenőrzés
+Oracle rollout used reviewed git show/file-copy commands from this feature branch. The resource script is installed at /usr/local/lib/matchwise/render-metrics-poll.py; service/timer units are installed under /etc/systemd/system. Changing the repository copy alone does not update the installed script. Dashboard and alert JSON were copied into the live checkout. Inspect local changes/untracked files before later branch switching or pulling. Do not use reset --hard or discard live files to resolve collisions.
 
-2026-11-18: operator confirmed Render API access/units, successful collector calculation, atomic .prom publication, Node Exporter ingestion, active timer and Prometheus collection_success=1. Screenshots confirm the comparison dashboard renders with resource data, status panels, log context and explicit Vercel resource gaps. Viewer access remains unverified.
+Az Oracle-telepítés ellenőrzött fájlmásolásokkal történt a fejlesztési ágról. A külön telepített Python-példányt és systemd-egységeket frissítéskor külön is alkalmazni kell. Későbbi ágváltás előtt ellenőrizd a helyi módosításokat és nem verziókövetett fájlokat; ütközést ne oldj meg adatvesztő visszaállítással.
 
-Collector: four local test methods passed. Dashboard structure checks passed. Three new alert rule structures and references checked; actual PromQL/LogQL, Grafana expressions and delivery still require live verification. Existing promtool suite not rerun here (tools unavailable).
+## Fixes recorded / Rögzített javítások
 
-A gyűjtés és a dashboard éles működése a felhasználó kimenetével és képeivel igazolt. Viewer hozzáférés és az új riasztások éles működése még nincs ellenőrizve. A fő ág változatlan; a munka a fejlesztési ágon található.
+1. Initial probe hid unit names; revised output confirmed cpu/bytes. / Az első próba elrejtette a mértékegységet, a javított igazolta.
+2. Collector HTTP 400 with explicit time-window parameters; matching the successful default-window probe fixed it. Exact rejected parameter was not isolated. / A külön időablak elhagyásával megoldódott a 400-as hiba; konkrét hibás paraméter nem lett elkülönítve.
+3. Grafana startup rejected __dashboardUid__ without __panelId__. Incomplete optional links removed; validator assertion added; recovery confirmed. / A hiányos dashboard/panel hivatkozás javítva, indulás visszaigazolt.
 
-2026-11-18 live query evidence: CPU A=0; 5xx A=0,D=1; login A=0,D=1. All five datasource queries succeeded. Grafana expressions and Telegram delivery are not yet verified.
+## Remaining checks and integration / Hátralévő ellenőrzések
 
-2026-11-18: startup incident confirmed and corrected (incomplete optional dashboard annotation). User reports corrected Grafana is working; separate rule-health evidence remains to be recorded. Timed synthetic test generator and bilingual runbook implemented; three local tests passed. Live demonstration and cleanup pending.
+- New-dashboard Viewer access is unverified. / Az új dashboard Viewer-hozzáférése nincs ellenőrizve.
+- Real CPU/5xx threshold breaches and missing-data/error branches are unverified. Synthetic tests prove the notification path, not source threshold behavior. / A valódi CPU/5xx küszöbpróbák és adathiányos ágak nem teszteltek.
+- Exact real-login pending/receipt times and its resolved message were not supplied. / A valódi login-próba pontos idői és resolved üzenete nem érkezett.
+- The original promtool suite was not rerun here because required tools were unavailable. Local collector/helper tests and structure checks passed. / A régi promtool csomag itt nem futott újra; helyi collector/helper tesztek és szerkezeti ellenőrzések sikeresek.
+- Existing draw.io/SVG remains the twelve-rule baseline; current addition is documented in text. / A régi ábra a 12 szabályos kiindulást mutatja, az új rész szövegesen dokumentált.
+- Main merge, final pull request review and exact current live checkout HEAD are not established. / Main merge, végső PR-ellenőrzés és az éles checkout pontos HEAD-je nincs igazolva.
 
-2026-11-18: operator supplied database=ok health response, Grafana rule screenshot and Telegram firing/resolved messages naming all three TEST rules. Synthetic notification cycle passed; cleanup, Viewer check, documentation index/plan consolidation and final PR review remain pending. Real source threshold breach testing is not claimed.
+No secrets or raw application logs are recorded in these guides. / Titkos értékek és nyers alkalmazásnaplók nem kerültek a dokumentációba.
