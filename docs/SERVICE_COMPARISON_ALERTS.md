@@ -88,3 +88,15 @@ Következő lépés: Grafana-betöltés és kifejezések ellenőrzése, majd kon
 To temporarily disable only these rules, set isPaused=true on all three rules in the installed JSON file, validate JSON, and restart Grafana. Removing the file alone may leave provisioned rules in Grafana; it is not a reliable rollback.
 
 Csak az új szabályok ideiglenes leállításához az isPaused mezőt állítsd true értékre mindhárom szabálynál a telepített JSON fájlban, ellenőrizd a JSON-t, majd indítsd újra a Grafanát. A fájl törlése önmagában nem megbízható visszaállítás, mert a szabályok bent maradhatnak.
+
+## Startup incident / Indulási hiba
+
+Operator reported Grafana restarting after the new rules were installed. Container status confirms a restart loop; startup logs are still needed to establish the exact cause. Inspection found invalid annotations in all three new rules: __dashboardUid__ was set without __panelId__. Grafana requires both together. Removed the incomplete optional links and added a validator assertion. The data queries and thresholds are unchanged. JSON and annotation-pair checks passed; live startup recovery is pending.
+
+A Grafana az új szabályok telepítése után újraindulási ciklusba került. Az új fájlban hibás, hiányos dashboard/panel hivatkozást találtunk. Eltávolítottuk a hiányos hivatkozást, és az ellenőrzőt kiegészítettük. A pontos indulási hiba naplóval, a helyreállítás éles próbával még ellenőrizendő.
+
+Emergency recovery: preserve the last 80 container log lines, move only service-comparison-alerts.json outside the provisioning directory, restart monitoring-grafana and check /api/health. Do not delete volumes or change other rules. Removing this file avoids loading the invalid definitions at startup; it does not guarantee deletion of any already-persisted rules. Install the corrected version only after confirming startup.
+
+Gyors helyreállítás: mentsd/nézd meg az utolsó 80 naplósort, helyezd csak az új service-comparison-alerts.json fájlt a provisioning könyvtáron kívülre, indítsd újra a Grafanát, majd ellenőrizd az /api/health választ. A javított fájlt a működés visszaállítása után telepítsd.
+
+Reference: https://grafana.com/docs/grafana/latest/alerting/alerting-rules/link-alert-rules-to-panels/
