@@ -1,0 +1,87 @@
+# Teljes frontendteszt SSH-alagúton
+
+Állapot: előkészített tesztút; Oracle/Vite/böngészős futás még nincs igazolva.
+A felhasználó megerősítette, hogy SSH-val csatlakozik az Oracle-ra.
+Nincs main merge és nincs új nyilvános fejlesztői port.
+
+## Cél és adatút
+
+Az Oracle /home/ubuntu/job-portal-frontend, feat/frontend-api-traffic munkapéldányát teszteljük.
+A Vercel preview nem elérhető a felhasználónak. Ez a teszt saját, engedélyezett
+forrásból fut, nem változtatja meg a Vercel-hozzáférést vagy annak védelmét.
+
+Böngésző http://localhost:5173 -> saját SSH-alagút -> Oracle 127.0.0.1:5173
+-> Vite /api proxy -> Render -> Supabase.
+Telemetria: böngésző -> nyilvános Oracle HTTPS-fogadó -> Prometheus -> Grafana.
+
+A Vercel routingot és az éles frontendtelepítést ez a teszt nem igazolja.
+A mode=real valódi HTTP-hívásokat jelent, nem feltétlenül éles felhasználói eredetet.
+A kontrollált teszt idejét dokumentálni kell, nem természetes éles forgalomként értelmezni.
+
+## Verziózott fájlok
+
+- frontend-test/vite.monitoring-test.config.mjs: a frontend gyökerébe másolandó külön config.
+- systemd/matchwise-frontend-traffic-local-test.conf: ideiglenes drop-in.
+  Telepítési hely: /etc/systemd/system/matchwise-frontend-traffic.service.d/50-local-browser-test.conf.
+
+A Vite-konfiguráció megtartja az alap React plugint, de a /api proxyt a Renderre állítja.
+A szokásos vite.config.js az Oracle-on a Grafana 3000-es portjára vinne API-hívásokat.
+A tesztconfig csak 127.0.0.1:5173 címen figyel, strictPort-tal;
+allowedHosts: localhost és 127.0.0.1. Nem lesz allowedHosts=true vagy 0.0.0.0.
+A Node-szintaxisellenőrzés helyben sikeres; a tényleges Vite-indítás még hátravan.
+
+## Indítás Oracle-on
+
+A monitoring fejlesztési ágból a két fájlt git show-val, rögzített commitból nyerjük ki.
+Meglévő, eltérő tesztconfig/drop-in esetén megállunk, nem írjuk felül.
+A drop-in megtartja a www.matchwise.tech eredetet és hozzáadja kizárólag
+a http://localhost:5173 eredetet. Nem engedélyez wildcardot vagy más localhost portot.
+A fogadó újraindítása nullázza annak memóriabeli számlálóit és deduplikációját;
+a korábbi Prometheus-minták megmaradnak. A helyi Origin OPTIONS válaszát ellenőrizni kell.
+
+A frontend könyvtárában a külön configgal, csak az adott folyamatra:
+
+```bash
+env VITE_FRONTEND_TELEMETRY_ENABLED=true \
+  VITE_FRONTEND_TELEMETRY_URL=https://grafana-r0cecq.duckdns.org/matchwise-telemetry/v1 \
+  VITE_USE_MOCK_API=false VITE_USE_MOCK_JOBS=false \
+  npm run dev -- --config vite.monitoring-test.config.mjs
+```
+
+A frontend forrásbeli trafficConfig.js enabled=false értéke nem változik.
+A már elkészült telemetry kód a Vite-változókat a fájlkonfiguráció előtt használja.
+Nem írunk .env fájlt és nem teszünk titkot a konfigurációba.
+
+## Saját gép: SSH-alagút és böngésző
+
+A saját szokásos OpenSSH-parancsban, a meglévő kulcs/host beállítások megtartásával:
+-N -o ExitOnForwardFailure=yes -L 127.0.0.1:5173:127.0.0.1:5173.
+Az opciókat a távoli cél elé kell tenni. A helyi és távoli végpont is loopback.
+PuTTY esetén helyi tunnel: source 5173, destination 127.0.0.1:5173.
+Nem továbbítunk SSH-agentet.
+
+A saját böngészőben pontosan http://localhost:5173 legyen; a 127.0.0.1 URL
+más Origin, a fogadó tesztengedélye nem tartalmazza automatikusan.
+Az első automatikus csomag egy perc után várható; lap maradjon előtérben.
+A Network nézetben a matchwise-telemetry/v1 POST válasza 204 legyen.
+Néhány normál, olvasó API-művelettel és pár perc megfigyeléssel tesztelünk,
+nem terheléses vagy hibásbejelentkezés-sorozattal.
+
+Külön ellenőrzendő: valódi API-válaszok (szükség esetén backend CORS),
+60 másodperces automatikus küldés, számlálók növekedése, majd Grafana.
+Az elsőként létrejött counter-idősor és az 5 perces rate miatt a görbékhez
+további minták és újabb normál kérések is szükségesek lehetnek.
+A puszta Vite-indítás nem indít böngészős telemetriát.
+
+## Leállítás
+
+A Vite terminálban Ctrl+C, az SSH-alagút termináljában Ctrl+C.
+A külön teszt-drop-in eltávolítása után daemon-reload és fogadó restart
+visszaállítja az eredeti www-only Origin beállítást, ha más drop-in nem módosítja.
+Csak a fenti pontos drop-in fájlt távolítjuk el, nem a teljes könyvtárat.
+Ez is nullázza a memóriabeli számlálókat; a teszt időablakát fel kell jegyezni.
+A frontend új tesztconfigja később külön commitban kerülhet a frontend ágra;
+addig is a monitoringrepóban verziózott. Éles frontendaktiválás külön lépés.
+
+Források: [Vite server options](https://vite.dev/config/server-options),
+[OpenSSH -L](https://man.openbsd.org/ssh#L).
