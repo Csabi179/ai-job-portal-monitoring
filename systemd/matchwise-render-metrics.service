@@ -1,0 +1,14 @@
+[Unit]
+Description=MatchWise Render resource metrics collector
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+EnvironmentFile=/home/ubuntu/monitoring-private-secrets/render-logs.env
+ExecStart=/usr/bin/python3 /usr/local/lib/matchwise/render-metrics-poll.py --write --output /home/ubuntu/monitoring-exporter-metrics/matchwise_render_resources.prom
+TimeoutStartSec=100
+NoNewPrivileges=true
+PrivateTmp=true
