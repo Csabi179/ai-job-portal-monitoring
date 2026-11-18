@@ -59,3 +59,9 @@ No secrets or raw application logs are recorded in these guides. / Titkos érté
 ## Next requested revision / Következő kért módosítás
 
 Implemented on the same branch: eight security panels, guarded 404 burst rule, one-minute backend cadence, shorter timeout and three-minute freshness across rules/dashboards. Full updated promtool suite and live Loki checks are the next operator step. No merge is planned now, as requested. / Ugyanazon az ágon elkészült a nyolc biztonsági panel, a 404-riasztás és a percenkénti backend-próba. Következő lépés a frissített tesztcsomag és lekérdezések Oracle-ellenőrzése. Összevonás most nincs tervben.
+
+## Backend cadence rollout confirmed / Backend-gyakoriság igazolt
+
+Operator supplied post-apply output: Grafana /api/health returned database=ok, version=13.2.1. Both blackbox_render_backend and blackbox_vercel_frontend targets report scrapeInterval=1m, scrapeTimeout=15s and health=up. Backend probe_success=1 at query timestamp 1795025266.993. This verifies active target configuration and a successful current HTTP probe; a long-term no-sleep guarantee is not claimed. New security panel rendering, four-rule group health and an actual 404 threshold trigger remain to be verified. No main merge was performed.
+
+A frissítés utáni kimenet szerint a Grafana működik, a backend és a frontend targetje is 1m/15s beállítású és up állapotú. A backend probe_success=1. A percenkénti beállítás és a sikeres HTTP-próba igazolt; a hosszú távú elalvásmentesség nem garantált. Az új panelek megjelenése, a security csoport négy szabályának health értéke és a valódi 404-próba még ellenőrzendő. Main összevonás nem történt.
