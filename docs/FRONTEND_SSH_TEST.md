@@ -1,7 +1,8 @@
 # Teljes frontendteszt SSH-alagúton
 
 Állapot: a Vite-indítás, az SSH-alagúton történő oldalbetöltés és az ismétlődő automatikus telemetriaküldés felhasználói kimenettel/képpel igazolt.
-A tényleges API-forgalom mérése és a forgalmi grafikonok ellenőrzése még hátravan.
+A tényleges API-forgalom mérése és a frontend Grafana-görbék megjelenése igazolt.
+A backend összehasonlító görbéi még nem látszanak; ennek oka diagnosztika alatt.
 A felhasználó megerősítette, hogy SSH-val csatlakozik az Oracle-ra.
 Nincs main merge és nincs új nyilvános fejlesztői port.
 
@@ -122,3 +123,31 @@ Az elsőként megjelenő counter-idősor első értékéből a rate nem tud elő
 növekményt számolni; a görbékhez következő normál kérések és további scrape-minták kellenek.
 Egy normál oldalfrissítéssel, majd két perc megfigyeléssel folytatjuk,
 nem mesterséges hibasorozattal vagy terheléses próbával.
+
+## Frontend forgalmi és latenciagörbék megjelentek – 2026-11-18
+
+A felhasználó Grafana-képe a Last 15 minutes időablakban igazolja:
+fogadó scrape UP, utolsó csomag kora 1,56 perc, elfogadott csomagok száma 27.
+Látszik a frontend API starts/min és HTTP responses/min idősora, valamint
+a böngészős fejlécig mért átlag és kosarakból becsült P95.
+A kép végén hozzávetőleg 1 indítás/perc, 1,5 válasz/perc,
+550 ms átlag és 950 ms becsült P95 látszik. Ezek vizuális közelítések,
+nem nyers lekérdezési vagy benchmarkeredmények.
+A rate értékek beérkezési ütemet és külön indítás-/befejezésszámlálókat
+követnek; a köztük lévő eltérés önmagában nem bizonyít hibát.
+
+Igazolt a tényleges frontend API-adatok útja az SSH/Vite tesztböngészőtől
+a fogadón és Prometheuson át a Grafana frontendgörbéiig.
+A backend görbék és azok legendái nem látszanak a képen.
+Ezért a frontend-backend összefüggések teljes összehasonlítását még nem
+tekintjük késznek. Nem következtetünk a hiányzó görbéből nulla backendforgalomra.
+
+A scripts/diagnose-backend-comparison.py kizárólag olvasó Prometheus/Loki
+lekérdezéseket futtat: collector-frissesség, frontend kumulatív számlálók,
+15 perces backend nyers naplódarabszám, értelmezhető HTTP-események,
+non-health események, /api prefixszűrés, relatív API-csoportok,
+hiányzó route és naplózott időadatok. Csak összesített számokat ír ki,
+nyers naplót, útvonalakat, felhasználói adatokat vagy titkokat nem.
+A segéd Python-szintaxisellenőrzése sikeres; az Oracle-kimenet még hátravan.
+A /api szűrőt csak e bizonyíték alapján változtatjuk, nem vakon tágítjuk.
+Éles Vercel-mérés és main merge továbbra sincs.
