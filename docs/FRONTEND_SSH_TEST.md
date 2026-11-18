@@ -101,3 +101,24 @@ A kép a csomagtörzseket nem mutatja, ezért ebből nem állítunk valódi
 Következő próba: normál álláslista-/részletmegnyitás, következő csomag starts/results
 listáinak ellenőrzése, majd Prometheus/Grafana. Nem küldünk szándékos hibasorozatot.
 Az SSH-s teszt nem éles Vercel frontendtelepítés. Main összevonás nincs.
+
+## Valódi API-események a csomagban igazolva – 2026-11-18
+
+A felhasználó a 11226837-b2fa-446c-aef2-69e0368bff30 csomag összesített tartalmát
+adta vissza. Időablak: 1795039361018–1795039421018 ms, pontosan 60 000 ms;
+interval_ms=60000, mock_api=false, mock_jobs=false, inflight=0.
+Starts és results egyaránt három eseményt tartalmaz, két dimenziósorban:
+- auth / POST: 1 HTTP 200; fejlécig mért idő 759 ms.
+- cv / GET: 2 HTTP 200; időösszeg 1489 ms, maximum 964 ms (átlag 744,5 ms).
+A diszjunkt időtartamkosár mindhárom megfigyelést az 500–1000 ms tartományba sorolja.
+Delivery: sent_batches=10, failed_attempts=0, dropped_batches=0, dropped_observations=0.
+Ezek a böngésző adott lapjának korábbi küldési diagnosztikái, nem globális számlálók.
+A csomag átvétele a korábbi Network-képen 204 volt.
+
+Ez tényleges API-indítások, HTTP-válaszok, csoportosítás és időmérés működését
+igazolja az SSH/Vite tesztúton. Nem teljes választestidő és nem éles Vercel-forgalom.
+A három esemény Prometheus-számlálóinak és a Grafana görbéinek ellenőrzése még hátravan.
+Az elsőként megjelenő counter-idősor első értékéből a rate nem tud előző
+növekményt számolni; a görbékhez következő normál kérések és további scrape-minták kellenek.
+Egy normál oldalfrissítéssel, majd két perc megfigyeléssel folytatjuk,
+nem mesterséges hibasorozattal vagy terheléses próbával.
