@@ -43,13 +43,14 @@ a korábbi Prometheus-minták megmaradnak.
 A frontendgörbékben a teszt után elmaradó friss adat elvárt: a tesztfrontend leállt.
 A fogadó szolgáltatás és a monitoring ettől tovább működik.
 
-## Mi nincs még élesítve vagy igazolva?
+## Éles működés és még nem igazolt részek
 
-**A www.matchwise.tech éles frontendjén az automatikus mérés nincs bekapcsolva.**
+**A www.matchwise.tech éles oldalon az ismétlődő automatikus 204-es telemetriaküldés igazolt.**
 A forrásbeli trafficConfig.js alapértéke enabled=false és üres endpoint;
 a teszt a Vite-folyamat környezeti változóival működött, amelyeket nem írtunk .env fájlba.
-Az éles aktiváláshoz külön engedélyezett frontendkonfiguráció és éles deploy szükséges,
-a projekt kezelőjével egyeztetve. A frontend main merge 2026-11-19-én külön engedélyt kapott és megtörtént; a monitoringág külön maradt.
+A projekt kezelője a felhasználó visszajelzése alapján beállította a Production-változókat és deployolt;
+a main merge utáni éles oldalon a küldés már látszik. A csomagok üzleti API-tartalmát
+és az éles forgalom Grafana-megjelenését még ellenőrizni kell. A frontend main merge 2026-11-19-én külön engedélyt kapott és megtörtént; a monitoringág külön maradt.
 
 Nincs automatikus összetett eltérésriasztás, DDoS-/terheléses igazolás vagy általános
 rendellenesség-felismerési bizonyíték. Az új panelek Viewer-hozzáférése nincs külön igazolva.
@@ -107,3 +108,18 @@ valódi automatikus /matchwise-telemetry/v1 POST 204, nem üres normál API-adat
 majd Prometheus/Grafana frissülés. Ez még nincs visszaigazolva.
 A merge és a Vercel success önmagában nem éles böngészős adatküldési bizonyíték.
 A monitoring feat/service-comparison ága továbbra sem lett main-be olvasztva.
+
+## Éles oldalon ismétlődő 204-es küldés igazolva – 2026-11-19
+
+A felhasználó az éles www.matchwise.tech oldal újratöltése és Network-vizsgálata
+után képet adott vissza. Öt POST látszik a grafana-r0cecq.duckdns.org v1
+fogadóútvonalára, mind 204. Az initiator a buildelt index JavaScript fetch-hívása.
+A képen az első csomag átvitele 1,84 kB, a későbbieké 1,26 kB.
+A nagyobb méretből önmagában nem következtetünk nem üres API-adatokra.
+
+Ez az éles oldalon ismétlődő automatikus fogadást igazolja a felhasználó
+aktuális böngészőjében. Nem bizonyít minden látogatóra teljes lefedettséget,
+pontos időközöket vagy a csomagtörzsben szereplő mock kapcsolók értékét.
+Következő, még nem igazolt lépés: az első nagyobb csomag starts/results
+és mock_api/mock_jobs értékeinek ellenőrzése, majd Grafana frissesség és görbék.
+Nincs szükség localhost/Vite újraindításra; a localhost Origin továbbra is tiltott.
