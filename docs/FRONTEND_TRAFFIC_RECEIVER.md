@@ -312,3 +312,22 @@ Következő lépés: a pontos fájlok commitolása az új fejlesztési ágon,
 majd normál, force nélküli push. HTTPS-hitelesítésnél interaktív jelszókérést
 nem indítunk; hiányzó hitelesítés esetén a hibát külön kezeljük.
 Main összevonás és telemetria-aktiválás ebben a lépésben nincs.
+
+## Frontendcommit elkészült, HTTPS-push hitelesítés hiányzik – 2026-11-18
+
+A felhasználó kimenete igazolja az Oracle-on létrejött d180f6f helyi commitot,
+feat/frontend-api-traffic ágon, 10 fájllal (545 beszúrás, 2 törlés).
+A push sikertelen: could not read Username for https://github.com:
+terminal prompts disabled. Ez nem GitHubon igazolt ág vagy deploy.
+A helyi commitot megőrizzük, nem készítjük újra és nem reseteljük.
+
+Következő lépésként GitHub CLI webes/device hitelesítést javaslunk a
+felhasználó saját fiókjával, HTTPS-protokollal. A workflow scope szükséges
+az érintett .github/workflows/ci.yml fájl pushához OAuth-token használatakor.
+A hitelesítő segédet a frontendrepó helyi konfigurációjához állítjuk be.
+Nincs token beillesztése parancssorba, távoli URL-be vagy chatbe.
+A monitoring SSH-aliasát és kulcsát nem módosítjuk.
+A gh telepítése/bejelentkezés és az új push még nem igazolt.
+
+Források: [gh auth login](https://cli.github.com/manual/gh_auth_login),
+[GitHub CLI mint Git hitelesítő segéd](https://cli.github.com/manual/gh_auth_setup-git).
