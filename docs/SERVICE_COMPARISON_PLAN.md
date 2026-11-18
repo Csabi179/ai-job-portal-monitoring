@@ -22,7 +22,7 @@ Egyszerű összehasonlító dashboard a meglévő rendszerre építve. A Render 
 
 ## Current operator step / Jelenlegi felhasználói lépés
 
-Run the controlled test in [SERVICE_COMPARISON_ALERT_TEST.md](SERVICE_COMPARISON_ALERT_TEST.md). Observe Pending/Firing/Normal and Telegram firing/resolved, then explicitly delete test rules. / Futtasd a kontrollált tesztet, ellenőrizd az állapotváltásokat és értesítéseket, majd töröld a tesztszabályokat.
+Run the controlled test in [SERVICE_COMPARISON_ALERT_TEST.md](SERVICE_COMPARISON_ALERT_TEST.md). Telegram firing/resolved for all three tests confirmed. Explicitly delete test rules and verify original rules remain. / Mindhárom teszt firing/resolved értesítése igazolt. Töröld a tesztszabályokat, majd ellenőrizd az eredeti szabályok megmaradását.
 
 ## Evidence / Ellenőrzés
 
@@ -35,3 +35,5 @@ A gyűjtés és a dashboard éles működése a felhasználó kimenetével és k
 2026-11-18 live query evidence: CPU A=0; 5xx A=0,D=1; login A=0,D=1. All five datasource queries succeeded. Grafana expressions and Telegram delivery are not yet verified.
 
 2026-11-18: startup incident confirmed and corrected (incomplete optional dashboard annotation). User reports corrected Grafana is working; separate rule-health evidence remains to be recorded. Timed synthetic test generator and bilingual runbook implemented; three local tests passed. Live demonstration and cleanup pending.
+
+2026-11-18: operator supplied database=ok health response, Grafana rule screenshot and Telegram firing/resolved messages naming all three TEST rules. Synthetic notification cycle passed; cleanup, Viewer check, documentation index/plan consolidation and final PR review remain pending. Real source threshold breach testing is not claimed.
