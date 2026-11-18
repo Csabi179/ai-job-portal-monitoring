@@ -16,11 +16,6 @@ diff --git a/src/api/http.js b/src/api/http.js
        ...options,
        headers,
        body,
-@@ -151,3 +152,4 @@
- 
- // Re-export apiFetch for backward compatibility
- export const apiFetch = request;
-+
 diff --git a/src/main.jsx b/src/main.jsx
 --- a/src/main.jsx
 +++ b/src/main.jsx
@@ -34,11 +29,6 @@ diff --git a/src/main.jsx b/src/main.jsx
  
  createRoot(document.getElementById('root')).render(
    <StrictMode>
-@@ -11,3 +14,4 @@
-     </BrowserRouter>
-   </StrictMode>,
- )
-+
 diff --git a/package.json b/package.json
 --- a/package.json
 +++ b/package.json
