@@ -357,3 +357,53 @@ Preview-ból történő aktiválás előtt a pontos preview Origin-t külön,
 verziózott konfigurációval engedélyezni kell, wildcard nélkül.
 A preview próbaforgalma nem tekinthető a www.matchwise.tech éles felhasználói
 forgalmának. Main merge, éles telemetria és új összehasonlító panelek még nincsenek igazolva.
+
+## Preview-hozzáférés hiányzik; külön böngészős fogadópróba – 2026-11-18
+
+A felhasználó megnyitotta a preview-címet: Vercel-bejelentkezést kér,
+és ehhez nincs hozzáférése. A preview teszthez jelenleg nem használható.
+Nem módosítjuk a Vercel védelmét, és main merge-t sem végzünk.
+A teljes frontendváltozat böngészős ellenőrzéséhez a projekt kezelőjétől
+preview-hozzáférés vagy más jóváhagyott teszttelepítés szükséges.
+A projekt kezelőjének üzenetet nem küldtünk.
+
+A fogadó külső böngészős HTTPS/CORS-útvonala ettől függetlenül ellenőrizhető:
+a https://www.matchwise.tech oldalon megnyitott fejlesztői konzolban
+az alábbi üres csomagot küldjük. Ez nem a módosított request() automatikus
+mérésének, nem a percenkénti működésnek és nem az éles build mock
+kapcsolóinak igazolása. Nem küld üzleti kéréseket vagy személyes adatot.
+Csak a fogadó csomagszámlálóját és a fogadás frissességét változtatja;
+a frontendforgalmi számlálókhoz nem ad kitalált kéréseket.
+A próba még nincs visszaigazolva.
+
+```javascript
+(async () => {
+  if (location.origin !== "https://www.matchwise.tech") {
+    throw new Error("A tesztet a https://www.matchwise.tech oldalon futtasd.");
+  }
+  const now = Date.now();
+  const response = await fetch(
+    "https://grafana-r0cecq.duckdns.org/matchwise-telemetry/v1",
+    {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+      body: JSON.stringify({
+        schema_version: 1, batch_id: crypto.randomUUID(),
+        window_start_ms: now, window_end_ms: now, interval_ms: 60000,
+        timing: "fetch_response_headers", mock_api: false, mock_jobs: false,
+        inflight: 0,
+        duration_limits_ms: [100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000],
+        starts: [], results: [],
+        delivery: { sent_batches: 0, failed_attempts: 0,
+          dropped_batches: 0, dropped_observations: 0 }
+      })
+    }
+  );
+  console.log("Fogadó válasza:", response.status);
+})().catch(error => console.error("Teszt sikertelen:", error.message));
+```
+
+Elvárt válasz: Fogadó válasza: 204. Ez böngésző -> Oracle átvételt igazol;
+a Prometheusban való megjelenést utána külön ellenőrizzük.
