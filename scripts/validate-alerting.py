@@ -27,6 +27,8 @@ def main():
             assert group['interval'] == '1m', path
             for rule in group['rules']:
                 uid = rule['uid']
+                annotations = rule.get('annotations', {})
+                assert bool(annotations.get('__dashboardUid__')) == bool(annotations.get('__panelId__')), (uid, 'incomplete dashboard/panel link')
                 assert uid not in rules, uid
                 assert not rule['isPaused'], uid
                 assert rule['execErrState'] == ('KeepLast' if rule['noDataState'] == 'KeepLast' else 'Error'), uid
