@@ -119,3 +119,30 @@ and no missing-to-zero substitution. Database transaction counts include interna
 the PostgREST queue is not a general database lock/wait queue.
 Current availability of these new chart expressions is pending the operator preflight.
 See [Service Comparison](SERVICE_COMPARISON_DASHBOARD.md).
+
+## Backend–Supabase közös grafikonok megjelenése igazolva – 2026-11-18
+
+A felhasználó képe igazolja a három új grafikon megjelenését:
+backend API requests/min és Supabase committed transactions/s;
+Render CPU % és Supabase committed transactions/s;
+backend processing P95 és PostgREST waiting requests.
+A jobb oldali tengelyek külön mértékegységet mutatnak. A sárga DB-tranzakciógörbe
+nem CPU-százalék: a zöld Render CPU-görbe ezen a mintán alacsony.
+A PostgREST várakozási sor mintái a képen 0-t mutatnak; ebből nem következik,
+hogy rövid tüskék, PostgreSQL lock-várakozás vagy más szűk keresztmetszet sosem volt.
+A DB-aktivitás belső szolgáltatásokból és más kliensekből is eredhet;
+a görbék együttmozgása önmagában nem ok-okozati vagy rendellenességi bizonyíték.
+
+Az első, közös grafikonokra épülő forgalmi megfigyelési változat működik:
+a 45 paneles dashboardban a frontend–backend és backend–Supabase kontextus
+az Oracle SSH/Vite frontendteszttel ellenőrizve. Automatikus összetett
+riasztás, terheléses/DDOS-próba és éles Vercel frontendmérés nincs bevezetve.
+A meglévő éles main ágat nem vontuk össze.
+
+A külön Vite-tesztconfig eddig a monitoringrepóban verziózott és a frontend
+Oracle-munkapéldányában tesztelt fájl. A frontend-test/SSH_MONITORING_TEST.md
+rövid, a frontendrepóba átemelhető útmutatót ad. Következő lépés e két fájl
+commitolása/pusholása a frontend feat/frontend-api-traffic ágára, majd a
+Vite/SSH-alagút leállítása és az ideiglenes localhost CORS drop-in eltávolítása.
+Ezek még nincsenek visszaigazolva. A fogadó újraindításakor a memóriabeli
+számlálók nullázódnak, a korábbi Prometheus-adatok megmaradnak.

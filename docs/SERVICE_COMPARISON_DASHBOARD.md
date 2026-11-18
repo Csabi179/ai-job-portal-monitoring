@@ -1,6 +1,6 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
-> **Állapot / State (2026-11-18):** a 41 paneles frontend–backend változat Oracle-on és képpel igazolt. A fejlesztési ág most 45 panelt készít elő; a négy új backend–Supabase panel lekérdezéspróbája és telepítése még hátravan. A 16 állandó riasztáson nem változtatunk; main merge nincs.
+> **Állapot / State (2026-11-18):** a 45 paneles dashboard Oracle-ra telepítve, a frontend–backend és backend–Supabase közös grafikonok képpel igazoltak. A frontend automatikus mérése az SSH/Vite tesztben működik; éles Vercel-aktiválás nincs. Új riasztás és main merge nincs.
 
 ## Magyar
 
@@ -146,7 +146,7 @@ bizonyítéka az SSH/Vite tesztben. Nem éles Vercel-aktiválás és nem terhel�
 
 ## Backend–Supabase bővítés előkészítve: 45 panel
 
-A korábbi 41 panel változatlan; négy új panel, még nincs telepítve:
+A korábbi 41 panel változatlan; a négy új panel telepítve és megjelenése képpel igazolva:
 - 43: lefedettségi és mértékegység-magyarázat.
 - 44: backend API requests/min (bal tengely) és Supabase committed transactions/s (jobb).
 - 45: Render CPU % (bal) és Supabase committed transactions/s (jobb).
@@ -191,3 +191,30 @@ Következő lépés a 45 paneles JSON telepítése mentéssel és az élő 41 pa
 Ismeretlen helyi eltérésnél megállunk. Nincs Grafana-újraindítás,
 main merge, új riasztás vagy éles frontendaktiválás. A négy új panel
 vizuális ellenőrzése még hátravan.
+
+## Backend–Supabase közös grafikonok megjelenése igazolva – 2026-11-18
+
+A felhasználó képe igazolja a három új grafikon megjelenését:
+backend API requests/min és Supabase committed transactions/s;
+Render CPU % és Supabase committed transactions/s;
+backend processing P95 és PostgREST waiting requests.
+A jobb oldali tengelyek külön mértékegységet mutatnak. A sárga DB-tranzakciógörbe
+nem CPU-százalék: a zöld Render CPU-görbe ezen a mintán alacsony.
+A PostgREST várakozási sor mintái a képen 0-t mutatnak; ebből nem következik,
+hogy rövid tüskék, PostgreSQL lock-várakozás vagy más szűk keresztmetszet sosem volt.
+A DB-aktivitás belső szolgáltatásokból és más kliensekből is eredhet;
+a görbék együttmozgása önmagában nem ok-okozati vagy rendellenességi bizonyíték.
+
+Az első, közös grafikonokra épülő forgalmi megfigyelési változat működik:
+a 45 paneles dashboardban a frontend–backend és backend–Supabase kontextus
+az Oracle SSH/Vite frontendteszttel ellenőrizve. Automatikus összetett
+riasztás, terheléses/DDOS-próba és éles Vercel frontendmérés nincs bevezetve.
+A meglévő éles main ágat nem vontuk össze.
+
+A külön Vite-tesztconfig eddig a monitoringrepóban verziózott és a frontend
+Oracle-munkapéldányában tesztelt fájl. A frontend-test/SSH_MONITORING_TEST.md
+rövid, a frontendrepóba átemelhető útmutatót ad. Következő lépés e két fájl
+commitolása/pusholása a frontend feat/frontend-api-traffic ágára, majd a
+Vite/SSH-alagút leállítása és az ideiglenes localhost CORS drop-in eltávolítása.
+Ezek még nincsenek visszaigazolva. A fogadó újraindításakor a memóriabeli
+számlálók nullázódnak, a korábbi Prometheus-adatok megmaradnak.
