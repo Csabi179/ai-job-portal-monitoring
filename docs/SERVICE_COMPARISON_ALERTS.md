@@ -100,3 +100,9 @@ Emergency recovery: preserve the last 80 container log lines, move only service-
 Gyors helyreállítás: mentsd/nézd meg az utolsó 80 naplósort, helyezd csak az új service-comparison-alerts.json fájlt a provisioning könyvtáron kívülre, indítsd újra a Grafanát, majd ellenőrizd az /api/health választ. A javított fájlt a működés visszaállítása után telepítsd.
 
 Reference: https://grafana.com/docs/grafana/latest/alerting/alerting-rules/link-alert-rules-to-panels/
+
+## Confirmed cause and recovery / Igazolt ok és helyreállás
+
+2026-11-18 operator logs explicitly confirm: invalid alert rule: both annotations __dashboardUid__ and __panelId__ must be specified. Moving only the new provisioning file outside the directory and restarting restored Grafana; /api/health returned database=ok, version=13.2.1. The corrected remote file was rechecked: all three incomplete links are removed. Reinstall the corrected file after fetching the feature branch, restart Grafana and verify health plus all three rule evaluations. Corrected live installation is still pending.
+
+A napló igazolta a hiányos dashboard/panel hivatkozás hibáját. Az új fájl félretétele és a Grafana újraindítása után a health válasz database=ok lett. A javított távoli fájl mindhárom szabálynál ellenőrzött. Következő lépés a javított fájl letöltése és telepítése, majd a health és a szabályértékelések ellenőrzése.
