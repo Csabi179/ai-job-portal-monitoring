@@ -120,3 +120,28 @@ nincs közvetlen Vercel-hozzáférés. A konfiguráció/deploy felhasználói vi
 az éles böngészős telemetria még ellenőrizendő.
 Az új merge után a CI/deployment és a www.matchwise.tech automatikus
 204-es POST-jai, a csomagok tartalma és a Grafana frissessége lesz az ellenőrzés.
+
+## PR #11 elkészült, régi gh checks kompatibilitás javítva – 2026-11-19
+
+A felhasználó a felülvizsgált main-alappal futtatta a segédet. A readiness sikeres,
+[PR #11](https://github.com/ernoking/job-portal-frontend/pull/11) létrejött.
+A gh pr checks --json kapcsolót az Oracle CLI-verziója nem támogatja;
+a segéd megállt a merge előtt. A többször kiírt hiba nem több merge-kísérlet:
+a check-regisztrációs várakozó ciklus futott. A 11 helyi nem commitolt módosítás
+figyelmeztetése a monitoring checkoutból ered, nem lett eldobva vagy stage-elve.
+
+A kapcsolt GitHub-eszközzel ellenőrizve: PR open, merged=false, mergeable=true,
+mergeable_state=clean, head=e48661ef58be096bf1ff970368432ebd16e5e9ca,
+base=475cc291ae2187048ab588a51c1b4cc69b732e36.
+Az új pull_request CI run 44422242453 és a korábbi push CI sikeres;
+a check-runs listában a check és a Vercel Preview Comments success.
+A kapcsolt eszköz közvetlen merge-hívását is 403-mal utasította el a GitHub;
+ezért a végrehajtás továbbra is az Oracle felhasználói gh-fiókjával történik.
+
+A segéd most check-runs REST API-val számolja az ellenőrzéseket,
+a rendelkezésre álló gh pr checks --watch --fail-fast paranccsal vár,
+és REST PUT /pulls/11/merge sha feltétellel védi a headet.
+A régi gh pr checks --json és az esetleg verziófüggő --match-head-commit
+használata megszűnt. A normál GitHub merge-védelem megmarad, nincs admin/force.
+A PR-műveletek ideiglenes könyvtárból futnak, nem a módosított monitoring checkoutból.
+A javított Bash-szintaxis ellenőrzése sikeres; tényleges merge még nincs visszaigazolva.
