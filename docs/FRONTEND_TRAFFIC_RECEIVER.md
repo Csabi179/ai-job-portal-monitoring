@@ -6,7 +6,8 @@ A frontendkód az Oracle fejlesztési ágán alkalmazva, tesztelve és GitHubra 
 A GitHub CI és a Vercel deploy státusza sikeres; a védett preview-hoz nincs hozzáférés.
 A 41 paneles dashboard telepítése és megjelenése igazolt.
 Az SSH-s tesztfrontend betöltődik és automatikusan ismételt, 204-es telemetriacsomagokat küld.
-Az üzleti API-kérések mérése, a forgalmi görbék és az éles frontendaktiválás még hátravan.
+Az üzleti API-kérések böngészős mérése és a frontend forgalmi/latenciagörbék megjelenése igazolt.
+A backend összehasonlító görbék hiányának oka és az éles frontendaktiválás még hátravan.
 Új riasztást nem adtunk hozzá. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
@@ -511,3 +512,31 @@ Részletek: [SSH-teszt](FRONTEND_SSH_TEST.md#valódi-api-események-a-csomagban-
 Ez az SSH/Vite tesztfrontend automatikus API-mérésének bizonyítéka;
 a forgalmi számlálók és görbék élő ellenőrzése még hátravan.
 Az éles Vercel frontend forráskonfigurációja továbbra is kikapcsolt; main merge nincs.
+
+## Frontend forgalmi és latenciagörbék megjelentek – 2026-11-18
+
+A felhasználó Grafana-képe a Last 15 minutes időablakban igazolja:
+fogadó scrape UP, utolsó csomag kora 1,56 perc, elfogadott csomagok száma 27.
+Látszik a frontend API starts/min és HTTP responses/min idősora, valamint
+a böngészős fejlécig mért átlag és kosarakból becsült P95.
+A kép végén hozzávetőleg 1 indítás/perc, 1,5 válasz/perc,
+550 ms átlag és 950 ms becsült P95 látszik. Ezek vizuális közelítések,
+nem nyers lekérdezési vagy benchmarkeredmények.
+A rate értékek beérkezési ütemet és külön indítás-/befejezésszámlálókat
+követnek; a köztük lévő eltérés önmagában nem bizonyít hibát.
+
+Igazolt a tényleges frontend API-adatok útja az SSH/Vite tesztböngészőtől
+a fogadón és Prometheuson át a Grafana frontendgörbéiig.
+A backend görbék és azok legendái nem látszanak a képen.
+Ezért a frontend-backend összefüggések teljes összehasonlítását még nem
+tekintjük késznek. Nem következtetünk a hiányzó görbéből nulla backendforgalomra.
+
+A scripts/diagnose-backend-comparison.py kizárólag olvasó Prometheus/Loki
+lekérdezéseket futtat: collector-frissesség, frontend kumulatív számlálók,
+15 perces backend nyers naplódarabszám, értelmezhető HTTP-események,
+non-health események, /api prefixszűrés, relatív API-csoportok,
+hiányzó route és naplózott időadatok. Csak összesített számokat ír ki,
+nyers naplót, útvonalakat, felhasználói adatokat vagy titkokat nem.
+A segéd Python-szintaxisellenőrzése sikeres; az Oracle-kimenet még hátravan.
+A /api szűrőt csak e bizonyíték alapján változtatjuk, nem vakon tágítjuk.
+Éles Vercel-mérés és main merge továbbra sincs.
