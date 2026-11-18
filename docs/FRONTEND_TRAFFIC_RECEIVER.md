@@ -1,5 +1,7 @@
 # Frontendforgalom – fogadó és biztonságos bevezetés
 
+> Aktuális összefoglaló: [SERVICE_COMPARISON_STATUS.md](SERVICE_COMPARISON_STATUS.md). Az alábbi dátumozott lépések korábbi, köztes állapotokat is rögzítenek.
+
 Állapot: a fogadó Oracle-ra telepítve, a felhasználó kimenetével igazolva.
 A Caddy HTTPS-útvonalának helyi ellenőrzése és a fogadó Prometheus-bekötése sikeres.
 A frontendkód az Oracle fejlesztési ágán alkalmazva, tesztelve és GitHubra pusholva.
@@ -633,3 +635,16 @@ commitolása/pusholása a frontend feat/frontend-api-traffic ágára, majd a
 Vite/SSH-alagút leállítása és az ideiglenes localhost CORS drop-in eltávolítása.
 Ezek még nincsenek visszaigazolva. A fogadó újraindításakor a memóriabeli
 számlálók nullázódnak, a korábbi Prometheus-adatok megmaradnak.
+
+## Ideiglenes SSH-s teszt lezárása igazolt – 2026-11-18
+
+A felhasználó kimenete: health ok; www CORS 204; localhost CORS 403;
+az Oracle 5173-as portján nincs listener (csak ss-fejléc).
+Az ideiglenes localhost CORS-engedély visszavonva, a Vite-szerver nem figyel.
+A receiver restart után a memóriabeli számlálók nullázódhatnak;
+a korábbi Prometheus-adatok megmaradnak. A teszt utáni frontend-adathiány elvárt.
+Kód és dokumentáció a két fejlesztési ágban verziózott; frontend e48661e CI sikeres.
+Az első, közös grafikonokra épülő változat és a kontrollált SSH/Vite teszt lezárva.
+Az éles Vercel frontend automatikus mérését nem kapcsoltuk be, main merge nincs.
+A következő élesítési lépés külön frontendkonfiguráció és jóváhagyott deploy;
+addig nem tekintjük az éles felhasználók forgalmát teljesen mértnek.
