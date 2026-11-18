@@ -2,8 +2,9 @@
 
 Állapot: a fogadó Oracle-ra telepítve, a felhasználó kimenetével igazolva.
 A Caddy HTTPS-útvonalának helyi ellenőrzése és a fogadó Prometheus-bekötése sikeres.
-A frontendkód az Oracle fejlesztési ágán alkalmazva és tesztelve; a commit/push,
-aktiválás és a valódi böngészős mérés még hátravan.
+A frontendkód az Oracle fejlesztési ágán alkalmazva, tesztelve és GitHubra pusholva.
+A GitHub CI és a Vercel deploy státusza sikeres. Az aktiválás és a valódi
+böngészős mérés még hátravan.
 Nincs új dashboard vagy riasztás telepítve. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
@@ -331,3 +332,28 @@ A gh telepítése/bejelentkezés és az új push még nem igazolt.
 
 Források: [gh auth login](https://cli.github.com/manual/gh_auth_login),
 [GitHub CLI mint Git hitelesítő segéd](https://cli.github.com/manual/gh_auth_setup-git).
+
+## Frontend push, CI és deploy státusz igazolva – 2026-11-18
+
+A felhasználó push-kimenete igazolja a feat/frontend-api-traffic ág létrejöttét
+és az origin követését. A kapcsolt GitHub-eszközzel ellenőrzött HEAD:
+d180f6f06bc5ded13bf55a5f6f6f7baf6d6334ea.
+GitHub Actions CI run 44400084367: completed/success, check: completed/success.
+[CI](https://github.com/ernoking/job-portal-frontend/actions/runs/44400084367).
+A Vercel commit status success, leírása: Deployment has completed.
+[Deploy státusz céloldala](https://vercel.com/ai-job-portal1/matchwise/977ZAK7axrdQqNXwT9uSwb9Ko5wx).
+A Vercel Preview Comments check is success; ez visszajelzés-kezelési check,
+nem külön bizonyíték az alkalmazás funkcionális működésére.
+
+A Vercel check által megadott preview-eredet:
+https://matchwise-git-feat-frontend-api-traffic-ai-job-portal1.vercel.app.
+A webes eszköz ezt nem tudta megnyitni; ebből nem következtetünk a
+Vercel-védelem állapotára vagy a felhasználó böngészős elérésére.
+A felhasználói megnyitás és az esetleges Vercel-hitelesítés még ellenőrzendő.
+
+A frontend forráskonfigurációja továbbra is enabled=false és üres endpoint.
+A fogadó jelenleg csak https://www.matchwise.tech Origin-t engedélyez.
+Preview-ból történő aktiválás előtt a pontos preview Origin-t külön,
+verziózott konfigurációval engedélyezni kell, wildcard nélkül.
+A preview próbaforgalma nem tekinthető a www.matchwise.tech éles felhasználói
+forgalmának. Main merge, éles telemetria és új összehasonlító panelek még nincsenek igazolva.
