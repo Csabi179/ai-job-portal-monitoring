@@ -148,3 +148,9 @@ Sources: [Render free instances](https://render.com/docs/free), [Loki metric que
 Operator output from the staged snapshot /tmp/matchwise-security-update.3fTDyq confirms valid Prometheus configuration, PASS for twelve rules and 38 PromQL scenarios, successful source queries for all four security rules, and successful (empty) results for all Loki dashboard queries. This is a successful read-only preflight, not proof of deployment. Next: back up and apply the seven files, recreate Blackbox/Prometheus and load Grafana rules.
 
 A felhasználó kimenete igazolta az érvényes konfigurációt és mind a 38 tesztesetet. A négy security-szabály lekérdezése sikeres; a Loki-panelek üres, de hibamentes választ adtak. Az éles telepítés és a percenkénti mintavétel ellenőrzése még hátravan.
+
+## Backend cadence rollout confirmed / Backend-gyakoriság igazolt
+
+Operator supplied post-apply output: Grafana /api/health returned database=ok, version=13.2.1. Both blackbox_render_backend and blackbox_vercel_frontend targets report scrapeInterval=1m, scrapeTimeout=15s and health=up. Backend probe_success=1 at query timestamp 1795025266.993. This verifies active target configuration and a successful current HTTP probe; a long-term no-sleep guarantee is not claimed. New security panel rendering, four-rule group health and an actual 404 threshold trigger remain to be verified. No main merge was performed.
+
+A frissítés utáni kimenet szerint a Grafana működik, a backend és a frontend targetje is 1m/15s beállítású és up állapotú. A backend probe_success=1. A percenkénti beállítás és a sikeres HTTP-próba igazolt; a hosszú távú elalvásmentesség nem garantált. Az új panelek megjelenése, a security csoport négy szabályának health értéke és a valódi 404-próba még ellenőrzendő. Main összevonás nem történt.
