@@ -462,3 +462,29 @@ Következő lépés: Grafana bind mount ellenőrzése, az élő dashboard teljes
 a meglévő panelek és metadata összehasonlítása a megőrzött alappal,
 majd csak a Service Comparison JSON fájl telepítése. Eltérés esetén megállunk.
 Nincs Grafana-újraindítás vagy main merge; a vizuális ellenőrzés még hátravan.
+
+## Dashboard telepítése és megjelenése igazolva – 2026-11-18
+
+A felhasználó kimenete Dashboard-ellenőrzés: OK eredményt, valamint Grafana
+/api/health database=ok és version=13.2.1 értékeket igazol.
+Mentés: /home/ubuntu/monitoring-backups/frontend-dashboard.UnZHUI.
+A felhasználó képe igazolja a hat új panel megjelenését: lefedettségi leírás,
+fogadó scrape UP, utolsó csomag kora 15,9 perc, elfogadott csomagok száma 1,
+forgalmi és latenciagrafikon No matching telemetry állapottal.
+A csomag kora az egyszeri üres kézi próba idejét mutatja, nem folyamatos
+küldési állapotot. A forgalmi grafikonok üressége nem bizonyít nulla forgalmat.
+
+Igazolt: külső böngészős üres csomag -> Oracle -> Prometheus -> Grafana.
+Nem igazolt: automatikus percenkénti küldés, tényleges API-kérések
+frontendmérése, éles frontendtelemetria, új panelek Viewer-hozzáférése.
+A forráskonfigurációban a frontendmérés kikapcsolt, main merge nincs.
+
+A teljes frontendváltozat tesztelhető lehet az Oracle munkapéldányból,
+Vercel nélküli fejlesztői szerverrel és a felhasználó saját SSH-alagútjával.
+Ez még csak javaslat: az SSH-kapcsolat módja és az alagút használhatósága
+nincs tisztázva. Ehhez külön, verziózott tesztkonfiguráció és szűk CORS-origin kell;
+nyilvános fejlesztői portot nem nyitunk.
+A fejlesztési ág vite.config.js fájlját ellenőriztük: /api -> http://localhost:3000.
+Ez az Oracle-on a Grafana címe lenne, így a jelenlegi dev konfigurációt
+változtatás nélkül ott nem használjuk. A tesztkonfigurációnak a Render API-ra
+kell továbbítania. A teszt nem helyettesíti az éles frontendtelepítést.
