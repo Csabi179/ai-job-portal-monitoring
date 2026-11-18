@@ -107,9 +107,8 @@ def publish(path, content):
             os.unlink(tmp)
 
 def collect(key, service):
-    now = datetime.now(timezone.utc)
-    query = urlencode({"resource": service, "resolutionSeconds": 60,
-                       "startTime": (now - timedelta(minutes=10)).isoformat(), "endTime": now.isoformat()})
+    # Match the successful live probe; freshness is checked on returned samples.
+    query = urlencode({"resource": service, "resolutionSeconds": 60})
     opener = build_opener(NoRedirect())
     payloads = {}
     for name in ENDPOINTS:
