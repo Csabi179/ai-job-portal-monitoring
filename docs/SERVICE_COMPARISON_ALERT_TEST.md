@@ -91,3 +91,9 @@ Three local unittest methods passed: source immutability and preserved expressio
 Három helyi teszt sikeres. Az éles Grafana-állapotváltás és a Telegram-küldés csak a felhasználó visszajelzése után tekinthető igazoltnak.
 
 Source: [Grafana alert file provisioning](https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/).
+
+## Live evidence 2026-11-18 / Éles bizonyíték
+
+Operator supplied Grafana /api/health with database=ok and screenshots showing all three production rules present, all three TEST rules present, and Telegram firing followed by resolved notifications for HTTP 5xx burst, High CPU usage and Rejected login burst. This confirms notification delivery and recovery messages through the real Grafana/Telegram path for all three synthetic tests. The Grafana screenshot shows an intermediate test state; it does not independently confirm final state/health fields. Cleanup is pending operator execution and confirmation.
+
+A felhasználó kimenete és képei alapján a Grafana működik, az eredeti három szabály és a három tesztszabály betöltődött. Mindhárom tesztszabályhoz megérkezett a firing és a resolved Telegram-üzenet. A szintetikus teszt értesítési és helyreállási köre igazolt. Ez nem valódi backendhiba, túlterhelés vagy sikertelen bejelentkezési hullám próbája. A tesztszabályok eltávolítása még hátravan.
