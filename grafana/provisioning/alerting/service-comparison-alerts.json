@@ -1,0 +1,415 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "service-comparison-security",
+      "folder": "AI Job Portal",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "matchwise_backend_cpu_high",
+          "title": "MatchWise | Render backend | High CPU usage",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "max(matchwise_render_cpu_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"} > bool 80) and on() (min(matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"}) == 1) and on() (max(time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"}) < 300) and on() (max(time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"}) < 240) and on() (min(up{job=\"node_exporter\"}) == 1) and on() (max(node_textfile_scrape_error{job=\"node_exporter\"}) == 0)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "B",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "5m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "annotations": {
+            "summary": "MatchWise | Render backend | High CPU usage",
+            "description": "CPU remains above 80% of the Render CPU limit for 5 minutes with fresh valid resource data.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md",
+            "__dashboardUid__": "matchwise-service-comparison"
+          },
+          "labels": {
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "warning",
+            "component": "matchwise_backend",
+            "category": "security"
+          },
+          "isPaused": false
+        },
+        {
+          "uid": "matchwise_backend_5xx_burst",
+          "title": "MatchWise | Render backend | HTTP 5xx burst",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "loki",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "editorMode": "code",
+                "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode >= 500 | statusCode < 600 | __error__=\"\" [5m])) or vector(0)) >= bool 5",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A",
+                "queryType": "instant",
+                "range": false
+              },
+              "queryType": "instant"
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "D",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "(min(up{job=\"node_exporter\"}) == 1) and on() (max(node_textfile_scrape_error{job=\"node_exporter\"}) == 0) and on() (max(time() - matchwise_render_collector_last_success_timestamp_seconds{job=\"node_exporter\"}) < 300) and on() (min(up{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 1) and on() (count(up{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 2) and on() (min(probe_success{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 1) and on() (count(probe_success{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 2)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "D"
+              }
+            },
+            {
+              "refId": "E",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "D",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "E",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "F",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "$B * $E",
+                "type": "math",
+                "refId": "F",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "F",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "annotations": {
+            "summary": "MatchWise | Render backend | HTTP 5xx burst",
+            "description": "At least 5 logged non-health HTTP 5xx responses in a rolling 5-minute window, sustained for 2 minutes. Check backend errors and dependencies.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md",
+            "__dashboardUid__": "matchwise-service-comparison"
+          },
+          "labels": {
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "warning",
+            "component": "matchwise_backend",
+            "category": "security"
+          },
+          "isPaused": false
+        },
+        {
+          "uid": "matchwise_backend_login_burst",
+          "title": "MatchWise | Render backend | Rejected login burst",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "loki",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "loki",
+                  "uid": "loki"
+                },
+                "editorMode": "code",
+                "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | method=\"POST\" | route=~\"(/api)?/auth/login\" | statusCode = 401 | __error__=\"\" [5m])) or vector(0)) >= bool 10",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "A",
+                "queryType": "instant",
+                "range": false
+              },
+              "queryType": "instant"
+            },
+            {
+              "refId": "B",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "A",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "B",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "D",
+              "datasourceUid": "prometheus",
+              "relativeTimeRange": {
+                "from": 300,
+                "to": 0
+              },
+              "model": {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "prometheus"
+                },
+                "editorMode": "code",
+                "expr": "(min(up{job=\"node_exporter\"}) == 1) and on() (max(node_textfile_scrape_error{job=\"node_exporter\"}) == 0) and on() (max(time() - matchwise_render_collector_last_success_timestamp_seconds{job=\"node_exporter\"}) < 300) and on() (min(up{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 1) and on() (count(up{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 2) and on() (min(probe_success{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 1) and on() (count(probe_success{job=\"blackbox_monitoring_components\",service=~\"loki|alloy\"}) == 2)",
+                "instant": true,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "D"
+              }
+            },
+            {
+              "refId": "E",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "D",
+                "reducer": "last",
+                "type": "reduce",
+                "refId": "E",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "F",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "$B * $E",
+                "type": "math",
+                "refId": "F",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "expression": "F",
+                "type": "threshold",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "params": [
+                        0.5
+                      ],
+                      "type": "gt"
+                    },
+                    "operator": {
+                      "type": "and"
+                    },
+                    "query": {
+                      "params": [
+                        "C"
+                      ]
+                    },
+                    "reducer": {
+                      "params": [],
+                      "type": "last"
+                    },
+                    "type": "query"
+                  }
+                ],
+                "refId": "C",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ],
+          "for": "2m",
+          "noDataState": "KeepLast",
+          "execErrState": "KeepLast",
+          "annotations": {
+            "summary": "MatchWise | Render backend | Rejected login burst",
+            "description": "At least 10 logged POST login HTTP 401 responses in a rolling 5-minute window, sustained for 2 minutes. This is a signal to investigate, not proof of an attack.",
+            "runbook_url": "https://github.com/Csabi179/ai-job-portal-monitoring/blob/feat/service-comparison/docs/SERVICE_COMPARISON_ALERTS.md",
+            "__dashboardUid__": "matchwise-service-comparison"
+          },
+          "labels": {
+            "project": "matchwise",
+            "environment": "university",
+            "severity": "warning",
+            "component": "matchwise_backend",
+            "category": "security"
+          },
+          "isPaused": false
+        }
+      ]
+    }
+  ]
+}
