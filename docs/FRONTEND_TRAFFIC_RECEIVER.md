@@ -500,3 +500,14 @@ Az ismétlődő automatikus fogadás igazolt; a csomagok starts/results tartalma
 a normál API-hívások és a forgalmi grafikonok még ellenőrizendők.
 Ez a külön Oracle/Vite tesztút, nem a Vercel éles frontendtelepítése.
 Részletek: [SSH-teszt](FRONTEND_SSH_TEST.md).
+
+## Nem üres, tényleges frontend API-csomag igazolva – 2026-11-18
+
+A felhasználó összesített telemetriája 60 000 ms-os időablakban 1 auth/POST
+és 2 cv/GET indítást és HTTP 200 választ tartalmazott. Az auth idő 759 ms;
+a cv időösszeg 1489 ms, maximum 964 ms. A mock kapcsolók false értékűek.
+A lap diagnosztikájában nincs hibás kísérlet vagy eldobott csomag/megfigyelés.
+Részletek: [SSH-teszt](FRONTEND_SSH_TEST.md#valódi-api-események-a-csomagban-igazolva--2026-11-18).
+Ez az SSH/Vite tesztfrontend automatikus API-mérésének bizonyítéka;
+a forgalmi számlálók és görbék élő ellenőrzése még hátravan.
+Az éles Vercel frontend forráskonfigurációja továbbra is kikapcsolt; main merge nincs.
