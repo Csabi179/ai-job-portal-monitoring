@@ -1,0 +1,20 @@
+[Unit]
+Description=MatchWise browser API traffic receiver
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+ExecStart=/usr/bin/python3 /usr/local/lib/matchwise/frontend-traffic-receiver.py
+Environment=FRONTEND_TRAFFIC_ORIGINS=https://www.matchwise.tech
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+MemoryMax=128M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

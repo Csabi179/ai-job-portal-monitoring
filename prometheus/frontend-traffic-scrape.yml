@@ -1,0 +1,7 @@
+# Merge this entry into the existing scrape_configs list after backing up the live file.
+# Do not replace the live prometheus.yml: it contains local monitoring changes.
+- job_name: frontend_traffic
+  scrape_interval: 60s
+  scrape_timeout: 10s
+  static_configs:
+    - targets: ['127.0.0.1:9121']

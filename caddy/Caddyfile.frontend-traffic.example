@@ -1,0 +1,12 @@
+{
+    admin 127.0.0.1:2019
+}
+
+grafana-r0cecq.duckdns.org {
+    handle /matchwise-telemetry/v1 {
+        reverse_proxy 127.0.0.1:9121
+    }
+    handle {
+        reverse_proxy 127.0.0.1:3000
+    }
+}

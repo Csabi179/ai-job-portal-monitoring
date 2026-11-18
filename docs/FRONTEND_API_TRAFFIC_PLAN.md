@@ -1,7 +1,7 @@
 # Frontend API-forgalom mérése – megvalósítási terv
 
 Dátum: 2026-11-18.
-Állapot: TERV; nincs implementálva, telepítve vagy élesben tesztelve.
+Állapot: fejlesztési frontendkód és Oracle-fogadó elkészült, helyi tesztekkel. Nincs élesben telepítve. [Megvalósítás, fájlok és bevezetés](FRONTEND_TRAFFIC_RECEIVER.md).
 Monitoringág: feat/service-comparison. Main összevonás nincs.
 
 ## Ellenőrzött kiindulás
@@ -40,14 +40,14 @@ erőforrásainak elegendőségét a telepítés során kell ellenőrizni.
 - Elindított API-kérések száma.
 - HTTP-válaszok száma státuszkód szerint.
 - Válasz nélkül végződő fetch-hibák külön számlálója.
-- Böngészőben mért idő összege és elemszáma; kezdetben átlag,
-  percentilisek és hisztogram nélkül.
+- Böngészőben mért idő összege, maximuma, elemszáma és fix időtartamkosarak;
+  a későbbi lassulás- és percentiliselemzéshez előkészítve.
 - Fogadott jelentések száma, utolsó sikeres fogadás ideje,
   a fogadó működését jelző saját állapot.
 
-A mérés pontos időhatárát implementálás előtt rögzíteni kell:
-a fetch válaszfejlécig tartó ideje és a törzs beolvasásáig tartó idő
-különböző fogalmak. A fetch-hiba nem bizonyít backendhibát;
+Rögzített időhatár: a fetch indításától a válaszfejlécekig tartó idő,
+hibánál a fetch elutasításáig. A választest teljes beolvasását és
+a JSON feldolgozását nem méri. A fetch-hiba nem bizonyít backendhibát;
 hálózati hiba vagy megszakítás is lehet.
 
 Felhasználói követelmény: az összesítések időzített küldése 60 másodpercenként
@@ -59,8 +59,9 @@ Nincs korlátlan sor vagy korlátlan újrapróbálkozás.
 Ha van újraküldés, batchazonosítóval és korlátozott idejű
 duplikációszűréssel kell elkerülni a dupla számlálást.
 
-Első körben nincs útvonal-, felhasználó- vagy sessioncímke,
-nincs query string, token, kérés-/választörzs vagy IP-cím naplózása.
+Rögzített, engedélyezett API-csoportok vannak; nyers útvonal,
+felhasználó- és sessionazonosító, query string, token,
+kérés-/választörzs és IP-cím nem kerül a jelentésbe.
 A proxy és fogadó alkalmazás saját naplóbeállításait is ellenőrizni kell.
 
 ## Korlátok és védelem
@@ -106,3 +107,20 @@ eltérő időablak vagy gyűjtési késés. Az eltérés önmagában nem támad�
 
 Oracle ágváltás/pull előtt helyi módosításokat és nem követett fájlokat
 ellenőrizni kell; az élő checkout fejlesztési ágra váltása nem igazolt.
+
+## Fejlesztési implementáció és Oracle-állapot – 2026-11-18
+
+A frontend kódja 60 másodperces időzítéssel, verziózott csomaggal,
+fix útvonalcsoportokkal és időtartamkosarakkal elkészült. Alapból kikapcsolt.
+A frontend GitHub-kapcsolata az ág létrehozását 403-mal elutasította;
+a teljes módosítás ezért a patches/frontend-api-traffic.patch fájlban verziózott.
+Nincs frontend-ág vagy igazolt deploy ettől a változtatástól.
+10 frontendteszt és 6 fogadóteszt sikeres; git apply --check sikeres.
+Teljes frontend build/lint nem futott: npm nincs a helyi környezetben.
+
+Az Oracle checkout a felhasználó szerint main, HEAD
+7ac0229c8384e55a23551b86f6d6db6002608b4b, helyi módosításokkal és nem követett fájlokkal.
+A sudo-val kiolvasott élő Caddyfile a repóban lévő alappal egyezik.
+Továbbra sincs ágváltás, pull vagy teljes konfigurációfelülírás.
+A szolgáltatás telepítése, Caddy/Prometheus-bekötés, dashboard és a
+valódi böngészős teljes adatút ellenőrzése hátravan.

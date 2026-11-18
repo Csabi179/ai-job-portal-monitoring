@@ -1,0 +1,631 @@
+diff --git a/src/api/http.js b/src/api/http.js
+--- a/src/api/http.js
++++ b/src/api/http.js
+@@ -1,4 +1,5 @@
+ import { getStoredSession, clearStoredSession } from '../auth/storage';
++import { monitoredFetch } from '../monitoring/browserTraffic.js';
+ 
+ export class ApiError extends Error {
+   constructor(message, status = 0, data = null) {
+@@ -71,7 +72,7 @@
+ 
+   let res;
+   try {
+-    res = await fetch(url, {
++    res = await monitoredFetch(url, {
+       ...options,
+       headers,
+       body,
+@@ -151,3 +152,4 @@
+ 
+ // Re-export apiFetch for backward compatibility
+ export const apiFetch = request;
++
+diff --git a/src/main.jsx b/src/main.jsx
+--- a/src/main.jsx
++++ b/src/main.jsx
+@@ -3,6 +3,9 @@
+ import { BrowserRouter } from 'react-router-dom'
+ import './styles/global.css'
+ import App from './App.jsx'
++import { startApiTraffic } from './monitoring/browserTraffic.js'
++
++startApiTraffic();
+ 
+ createRoot(document.getElementById('root')).render(
+   <StrictMode>
+@@ -11,3 +14,4 @@
+     </BrowserRouter>
+   </StrictMode>,
+ )
++
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -7,7 +7,8 @@
+     "dev": "vite",
+     "build": "vite build",
+     "lint": "oxlint",
+-    "preview": "vite preview"
++    "preview": "vite preview",
++    "test:telemetry": "node --test tests/apiTraffic.test.js"
+   },
+   "dependencies": {
+     "react": "^19.2.8",
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -12,5 +12,6 @@
+           node-version: '24'
+           cache: npm
+       - run: npm ci
++      - run: npm run test:telemetry
+       - run: npm run lint
+       - run: npm run build
+diff --git a/src/monitoring/apiTraffic.js b/src/monitoring/apiTraffic.js
+new file mode 100644
+--- /dev/null
++++ b/src/monitoring/apiTraffic.js
+@@ -0,0 +1,142 @@
++// Versioned, bounded browser aggregates. No request URLs or credentials leave this module.
++export const REPORT_INTERVAL_MS = 60_000;
++export const DURATION_LIMITS_MS = [100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000];
++const METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']);
++const GROUPS = new Set(['auth', 'jobs', 'cv', 'profile', 'preferences', 'me']);
++const MAX_RESULTS = 128;
++const MAX_ATTEMPTS = 3;
++
++function dimensions(input, method) {
++  const path = String(input).split(/[?#]/, 1)[0];
++  if (path === '/api/health' || path === '/health') return null;
++  const segment = path.startsWith('/api/') ? path.slice(5).split('/')[0] : '';
++  const verb = String(method || 'GET').toUpperCase();
++  return { route: GROUPS.has(segment) ? segment : 'other', method: METHODS.has(verb) ? verb : 'OTHER' };
++}
++
++export function createApiTrafficMonitor({
++  enabled = false, endpoint = '', baseUrl = 'https://www.matchwise.tech/',
++  fetchImpl = (...args) => globalThis.fetch(...args),
++  now = () => performance.now(), wallNow = () => Date.now(),
++  setIntervalImpl = setInterval, clearIntervalImpl = clearInterval,
++  setTimeoutImpl = setTimeout, clearTimeoutImpl = clearTimeout,
++  id = () => globalThis.crypto.randomUUID(),
++  mockApi = false, mockJobs = false,
++} = {}) {
++  let target = null;
++  try {
++    const candidate = new URL(endpoint, baseUrl);
++    if (enabled && endpoint && candidate.protocol === 'https:' &&
++        !candidate.username && !candidate.password && !candidate.search && !candidate.hash) target = candidate.href;
++  } catch { /* Missing or invalid configuration disables reporting. */ }
++  const diagnostics = { sent_batches: 0, failed_attempts: 0, dropped_batches: 0, dropped_observations: 0 };
++  const empty = () => ({ start: wallNow(), starts: new Map(), results: new Map() });
++  let active = empty();
++  let pending = null;
++  let timer = null;
++  let sending = false;
++  let inflight = 0;
++  let stopped = false;
++  const safe = (fn) => { try { return fn(); } catch { return undefined; } };
++
++  function record(dim, status, outcome, elapsed) {
++    const key = `${dim.route}:${dim.method}:${outcome}:${status}`;
++    let row = active.results.get(key);
++    if (!row) {
++      if (active.results.size >= MAX_RESULTS) { diagnostics.dropped_observations += 1; return; }
++      row = { ...dim, status, outcome, count: 0, duration_sum_ms: 0, duration_max_ms: 0,
++        duration_bins: Array(DURATION_LIMITS_MS.length + 1).fill(0) };
++      active.results.set(key, row);
++    }
++    const duration = Number.isFinite(elapsed) ? Math.max(0, Math.min(elapsed, 3_600_000)) : 0;
++    row.count += 1;
++    row.duration_sum_ms += duration;
++    row.duration_max_ms = Math.max(row.duration_max_ms, duration);
++    const bin = DURATION_LIMITS_MS.findIndex((bound) => duration <= bound);
++    row.duration_bins[bin < 0 ? DURATION_LIMITS_MS.length : bin] += 1;
++  }
++
++  // Measures fetch until response headers, not body download/JSON parsing or server-only latency.
++  async function measuredFetch(input, options = {}) {
++    if (!target || stopped) return fetchImpl(input, options);
++    const dim = safe(() => dimensions(input, options.method));
++    if (!dim) return fetchImpl(input, options);
++    const began = safe(now);
++    safe(() => {
++      const key = `${dim.route}:${dim.method}`;
++      const row = active.starts.get(key) || { ...dim, count: 0 };
++      row.count += 1;
++      active.starts.set(key, row);
++      inflight += 1;
++    });
++    try {
++      const response = await fetchImpl(input, options);
++      safe(() => record(dim, response.status >= 100 && response.status <= 599 ? response.status : 'other', 'http', now() - began));
++      return response;
++    } catch (error) {
++      safe(() => record(dim, 0, error?.name === 'AbortError' ? 'aborted' : 'network_error', now() - began));
++      throw error;
++    } finally {
++      safe(() => { inflight = Math.max(0, inflight - 1); });
++    }
++  }
++
++  async function flush() {
++    if (!target || stopped || sending) return;
++    sending = true;
++    let timeout;
++    try {
++      if (!pending) {
++        const batch = {
++          schema_version: 1, batch_id: id(), window_start_ms: active.start, window_end_ms: wallNow(),
++          interval_ms: REPORT_INTERVAL_MS, timing: 'fetch_response_headers',
++          mock_api: Boolean(mockApi), mock_jobs: Boolean(mockJobs), inflight,
++          duration_limits_ms: DURATION_LIMITS_MS,
++          starts: [...active.starts.values()], results: [...active.results.values()],
++          delivery: { ...diagnostics },
++        };
++        pending = { body: JSON.stringify(batch), attempts: 0 };
++        active = empty();
++      }
++      pending.attempts += 1;
++      if (new TextEncoder().encode(pending.body).byteLength > 60_000) {
++        diagnostics.dropped_batches += 1; pending = null; return;
++      }
++      const controller = new AbortController();
++      timeout = setTimeoutImpl(() => controller.abort(), 8000);
++      // Direct transport avoids measuring telemetry as business API traffic.
++      const response = await fetchImpl(target, {
++        method: 'POST', body: pending.body, headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
++        mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer',
++        redirect: 'error', cache: 'no-store', signal: controller.signal,
++      });
++      // A 204 is the receiver acknowledgement. A generic HTML 200 is not delivery success.
++      if (response.status !== 204) throw new Error('Telemetry not acknowledged');
++      diagnostics.sent_batches += 1;
++      pending = null;
++    } catch {
++      diagnostics.failed_attempts += 1;
++      if (pending && pending.attempts >= MAX_ATTEMPTS) {
++        diagnostics.dropped_batches += 1;
++        pending = null;
++      }
++    } finally {
++      if (timeout !== undefined) clearTimeoutImpl(timeout);
++      sending = false;
++    }
++  }
++
++  return {
++    fetch: measuredFetch,
++    start() {
++      if (target && timer === null && !stopped) timer = setIntervalImpl(() => { void flush(); }, REPORT_INTERVAL_MS);
++    },
++    stop() {
++      stopped = true;
++      if (timer !== null) clearIntervalImpl(timer);
++      timer = null;
++    },
++    // Explicit flush is for tests/manual diagnostics; production only uses the 60-second timer.
++    flush,
++  };
++}
+diff --git a/src/monitoring/browserTraffic.js b/src/monitoring/browserTraffic.js
+new file mode 100644
+--- /dev/null
++++ b/src/monitoring/browserTraffic.js
+@@ -0,0 +1,17 @@
++import { createApiTrafficMonitor } from './apiTraffic.js';
++import { trafficConfig } from './trafficConfig.js';
++
++const env = import.meta.env;
++const monitor = createApiTrafficMonitor({
++  enabled: env.VITE_FRONTEND_TELEMETRY_ENABLED === undefined
++    ? trafficConfig.enabled : env.VITE_FRONTEND_TELEMETRY_ENABLED === 'true',
++  endpoint: env.VITE_FRONTEND_TELEMETRY_URL ?? trafficConfig.endpoint,
++  baseUrl: window.location.href,
++  mockApi: env.VITE_USE_MOCK_API === 'true',
++  mockJobs: env.VITE_USE_MOCK_JOBS === 'true',
++});
++
++export const monitoredFetch = monitor.fetch;
++export function startApiTraffic() { monitor.start(); }
++
++if (import.meta.hot) import.meta.hot.dispose(() => monitor.stop());
+diff --git a/src/monitoring/trafficConfig.js b/src/monitoring/trafficConfig.js
+new file mode 100644
+--- /dev/null
++++ b/src/monitoring/trafficConfig.js
+@@ -0,0 +1,6 @@
++// Public configuration only. Enable after the Oracle receiver has been verified.
++// This file supports teams without access to Vercel environment settings.
++export const trafficConfig = Object.freeze({
++  enabled: false,
++  endpoint: '',
++});
+diff --git a/tests/apiTraffic.test.js b/tests/apiTraffic.test.js
+new file mode 100644
+--- /dev/null
++++ b/tests/apiTraffic.test.js
+@@ -0,0 +1,215 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { readFile } from 'node:fs/promises';
++import { createApiTrafficMonitor, REPORT_INTERVAL_MS } from '../src/monitoring/apiTraffic.js';
++
++function setup(extra = {}) {
++  const posts = [];
++  let mono = 0;
++  let clock = 1_000_000;
++  const monitor = createApiTrafficMonitor({
++    enabled: true, endpoint: 'https://monitor.example/traffic',
++    now: () => mono, wallNow: () => clock,
++    fetchImpl: async (url, options) => {
++      if (url === 'https://monitor.example/traffic') {
++        posts.push({ options, batch: JSON.parse(options.body) });
++        return { status: 204 };
++      }
++      mono += 350;
++      return { status: 200 };
++    }, ...extra,
++  });
++  return { monitor, posts, advance() { clock += 60_000; } };
++}
++
++test('opt-in and valid HTTPS endpoint are required; business fetch passes through', async () => {
++  for (const config of [{ enabled: false }, { endpoint: '' }, { endpoint: 'http://monitor.example' },
++    { endpoint: 'https://user:secret@monitor.example' }, { endpoint: 'https://monitor.example?q=secret' }]) {
++    let calls = 0;
++    const response = { status: 200 };
++    const { monitor } = setup({ ...config, fetchImpl: async () => { calls += 1; return response; },
++      setIntervalImpl: () => assert.fail('disabled timer') });
++    monitor.start();
++    assert.equal(await monitor.fetch('/api/jobs'), response);
++    await monitor.flush();
++    assert.equal(calls, 1);
++  }
++});
++
++test('single 60-second timer; no immediate or stop/background send', () => {
++  let scheduled = 0;
++  let cleared = 0;
++  const { monitor, posts } = setup({ setIntervalImpl: (_fn, ms) => {
++    assert.equal(ms, 60_000); scheduled += 1; return 7;
++  }, clearIntervalImpl: (value) => { assert.equal(value, 7); cleared += 1; } });
++  assert.equal(REPORT_INTERVAL_MS, 60_000);
++  monitor.start(); monitor.start();
++  assert.equal(scheduled, 1);
++  monitor.stop(); monitor.start();
++  assert.equal(cleared, 1);
++  assert.equal(scheduled, 1);
++  assert.equal(posts.length, 0);
++});
++
++test('aggregates status, route groups, timing bins; strips IDs, queries, credentials and health', async () => {
++  const { monitor, posts, advance } = setup();
++  await monitor.fetch('/api/jobs/private-id?email=secret@example.test', {
++    headers: { Authorization: 'Bearer password' }, body: 'private CV',
++  });
++  await monitor.fetch('/api/jobs/another-id?page=2');
++  await monitor.fetch('/api/health');
++  advance(); await monitor.flush();
++  const { batch, options } = posts[0];
++  assert.equal(batch.starts[0].count, 2);
++  assert.equal(batch.results[0].route, 'jobs');
++  assert.equal(batch.results[0].status, 200);
++  assert.equal(batch.results[0].duration_sum_ms, 700);
++  assert.equal(batch.results[0].duration_bins[2], 2);
++  assert.equal(batch.results[0].duration_bins.reduce((a, b) => a + b), 2);
++  for (const secret of ['private-id', 'another-id', 'secret@', 'password', 'private CV', 'Authorization']) {
++    assert.equal(options.body.includes(secret), false);
++  }
++  assert.equal(options.credentials, 'omit');
++  assert.equal(options.referrerPolicy, 'no-referrer');
++  assert.equal(batch.timing, 'fetch_response_headers');
++  assert.equal(batch.window_end_ms - batch.window_start_ms, 60_000);
++});
++
++test('network errors and aborts preserve original exceptions and have separate outcomes', async () => {
++  for (const name of ['TypeError', 'AbortError']) {
++    const error = new Error('private details'); error.name = name;
++    const posts = [];
++    const { monitor } = setup({ fetchImpl: async (url, options) => {
++      if (url.startsWith('https:')) { posts.push(JSON.parse(options.body)); return { status: 204 }; }
++      throw error;
++    } });
++    await assert.rejects(monitor.fetch('/api/auth/login', { method: 'POST' }), (caught) => caught === error);
++    await monitor.flush();
++    assert.equal(posts[0].results[0].outcome, name === 'AbortError' ? 'aborted' : 'network_error');
++    assert.equal(JSON.stringify(posts).includes('private details'), false);
++  }
++});
++
++test('bounded cardinality; excess result series are reported as lost observations', async () => {
++  const posts = [];
++  let status = 100;
++  const { monitor } = setup({ fetchImpl: async (url, options) => {
++    if (url.startsWith('https:')) { posts.push(JSON.parse(options.body)); return { status: 204 }; }
++    return { status: status++ };
++  } });
++  for (let n = 0; n < 180; n += 1) await monitor.fetch(`/api/jobs/${n}`);
++  await monitor.flush();
++  assert.equal(posts[0].results.length, 128);
++  assert.equal(posts[0].delivery.dropped_observations, 52);
++  assert.equal(posts[0].starts[0].count, 180);
++});
++
++test('retry at subsequent ticks keeps batch identical, caps attempts, retains newer traffic', async () => {
++  const posts = [];
++  let fail = true;
++  const { monitor } = setup({ fetchImpl: async (url, options) => {
++    if (url.startsWith('https:')) {
++      posts.push(options.body);
++      if (fail) throw new Error('offline');
++      return { status: 204 };
++    }
++    return { status: 200 };
++  } });
++  await monitor.fetch('/api/jobs');
++  await monitor.flush();
++  await monitor.fetch('/api/profile');
++  await monitor.flush(); await monitor.flush();
++  assert.equal(posts[0], posts[1]); assert.equal(posts[1], posts[2]);
++  fail = false; await monitor.flush();
++  const latest = JSON.parse(posts[3]);
++  assert.notEqual(latest.batch_id, JSON.parse(posts[0]).batch_id);
++  assert.equal(latest.starts[0].route, 'profile');
++  assert.equal(latest.delivery.failed_attempts, 3);
++  assert.equal(latest.delivery.dropped_batches, 1);
++});
++
++test('HTML 200 is not an acknowledgement; idle heartbeats have empty business counters', async () => {
++  const posts = [];
++  const { monitor } = setup({ fetchImpl: async (url, options) => {
++    posts.push(JSON.parse(options.body)); return { status: 200 };
++  } });
++  await monitor.flush(); await monitor.flush();
++  assert.deepEqual(posts[0].starts, []);
++  assert.deepEqual(posts[0].results, []);
++  assert.equal(posts[0].batch_id, posts[1].batch_id);
++});
++
++test('slow delivery does not overlap; requests finishing later appear in the next batch', async () => {
++  let releaseBusiness, releasePost;
++  const posts = [];
++  const { monitor } = setup({ fetchImpl: (url, options) => {
++    if (url.startsWith('https:')) {
++      posts.push(JSON.parse(options.body));
++      return new Promise((resolve) => { releasePost = () => resolve({ status: 204 }); });
++    }
++    return new Promise((resolve) => { releaseBusiness = () => resolve({ status: 204 }); });
++  } });
++  const business = monitor.fetch('/api/jobs');
++  const delivery = monitor.flush();
++  await monitor.flush();
++  assert.equal(posts.length, 1);
++  assert.equal(posts[0].inflight, 1);
++  assert.equal(posts[0].results.length, 0);
++  releaseBusiness(); await business;
++  releasePost(); await delivery;
++  const nextDelivery = monitor.flush();
++  assert.equal(posts[1].results[0].status, 204);
++  assert.equal(posts[1].inflight, 0);
++  releasePost(); await nextDelivery;
++});
++
++test('delivery timeout cancels transport and releases the next scheduled attempt', async () => {
++  let timeout;
++  let sends = 0;
++  const { monitor } = setup({
++    setTimeoutImpl: (fn, ms) => { assert.equal(ms, 8000); timeout = fn; return 1; },
++    clearTimeoutImpl: () => {},
++    fetchImpl: (url, options) => {
++      sends += 1;
++      return new Promise((_resolve, reject) => {
++        options.signal.addEventListener('abort', () => reject(new Error('timeout')), { once: true });
++      });
++    },
++  });
++  const first = monitor.flush(); timeout(); await first;
++  const second = monitor.flush(); timeout(); await second;
++  assert.equal(sends, 2);
++});
++
++test('existing HTTP helper keeps JSON, 204, error and logout behaviour with instrumentation', async () => {
++  let nextResponse;
++  let networkError = false;
++  let logouts = 0;
++  const { monitor } = setup({ fetchImpl: async () => {
++    if (networkError) throw new TypeError('offline');
++    return nextResponse;
++  } });
++  globalThis.__trafficTest = { monitoredFetch: monitor.fetch,
++    getStoredSession: () => ({ token: 'test-token' }), clearStoredSession: () => { logouts += 1; } };
++  try {
++    let source = await readFile(new URL('../src/api/http.js', import.meta.url), 'utf8');
++    source = source.replace(/^import .*;\r?\n/gm, '');
++    source = 'const { monitoredFetch, getStoredSession, clearStoredSession } = globalThis.__trafficTest;\n' + source;
++    const { request, ApiError, setUnauthorizedHandler } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
++    setUnauthorizedHandler(() => {});
++    nextResponse = new Response(null, { status: 204 });
++    assert.equal(await request('/auth/logout'), null);
++    nextResponse = Response.json({ jobs: [1] });
++    assert.deepEqual(await request('/jobs'), { jobs: [1] });
++    for (const status of [401, 404, 429, 500, 503]) {
++      nextResponse = Response.json({ error: { message: 'expected' } }, { status });
++      await assert.rejects(request('/jobs'), (e) => e instanceof ApiError && e.status === status);
++    }
++    assert.equal(logouts, 1);
++    nextResponse = Response.json({}, { status: 401 });
++    await assert.rejects(request('/auth/login', { method: 'POST' }));
++    assert.equal(logouts, 1);
++    networkError = true;
++    await assert.rejects(request('/jobs'), (e) => e instanceof ApiError && e.status === 0);
++  } finally { delete globalThis.__trafficTest; }
++});
+diff --git a/tests/make-traffic-fixture.mjs b/tests/make-traffic-fixture.mjs
+new file mode 100644
+--- /dev/null
++++ b/tests/make-traffic-fixture.mjs
+@@ -0,0 +1,14 @@
++import { createApiTrafficMonitor } from '../src/monitoring/apiTraffic.js';
++let mono = 0;
++const monitor = createApiTrafficMonitor({
++  enabled: true, endpoint: 'https://monitor.example/traffic',
++  now: () => mono, wallNow: () => 1_000_000,
++  id: () => '12345678-1234-1234-1234-123456789abc',
++  fetchImpl: async (url, options) => {
++    if (url.startsWith('https:')) { process.stdout.write(options.body); return { status: 204 }; }
++    mono += 350;
++    return { status: 200 };
++  },
++});
++await monitor.fetch('/api/jobs/private-id?secret=discard-me');
++await monitor.flush();
+diff --git a/docs/FRONTEND_API_TRAFFIC.md b/docs/FRONTEND_API_TRAFFIC.md
+new file mode 100644
+--- /dev/null
++++ b/docs/FRONTEND_API_TRAFFIC.md
+@@ -0,0 +1,143 @@
++# Frontend API-forgalom mérése
++
++Állapot: fejlesztési implementáció; az Oracle-fogadó és az éles bekötés még nincs kész.
++A mérés alapértelmezetten kikapcsolt. Main összevonás nincs.
++
++## Cél és adatút
++
++A böngészőben induló valódi API-hívások külön mérését készítjük elő,
++hogy a frontend, a Render backend és a Supabase aktivitását összevethessük.
++Ez nem teljes Vercel access log, és nem látja a közvetlen backendhívásokat.
++
++Üzleti út: böngésző -> Vercel /api -> Render -> Supabase.
++Tervezett mérési út: böngészős összesítés -> Oracle HTTPS-fogadó -> Prometheus -> Grafana.
++A fogadó még nem létezik ebben a frontendváltoztatásban.
++
++## Bekapcsolás és visszaállítás
++
++A src/monitoring/trafficConfig.js nyilvános konfigurációját Gitben lehet módosítani,
++Vercel-felületi hozzáférés nélkül. A fogadó ellenőrzése után:
++
++```js
++export const trafficConfig = Object.freeze({
++  enabled: true,
++  endpoint: 'https://ELLENORZOTT-ORACLE-HOST/ELLENORZOTT-FOGADO-UTVONAL',
++});
++```
++
++Ez példa, nem működő fogadócím. Addig enabled=false és üres endpoint marad.
++Kikapcsolás: enabled=false, új build/deploy. Az üzleti API tovább működik.
++Ha beállították őket, a buildidejű VITE_FRONTEND_TELEMETRY_ENABLED és
++VITE_FRONTEND_TELEMETRY_URL felülírja a fájl értékeit. A VITE-változók nyilvánosak;
++titkos kulcsot egyik beállításba sem szabad tenni.
++Csak HTTPS-cím, felhasználónév, jelszó, query string és fragment nélkül használható.
++
++A felhasználó szerint automatikus deploy van. A deployt indító ágak és a preview
++viselkedése nincs igazolva; a fejlesztési ág nem jelent igazolt éles telepítést.
++Az engedélyezés külön telepítési lépés a fogadó elkészülte után.
++
++## Időzítés és lefedettség
++
++- Böngészőlaponként egy 60 000 ms-os időzítő; az első küldés is egy perc után.
++- Nincs lapbezáráskor vagy háttérbe kerüléskor indított külön küldés.
++- A böngésző késleltetheti a háttérben futó időzítőt. A percenkénti beállítás
++  nem garantál pontos falióra szerinti kézbesítést.
++- A main.jsx egyszer indítja a gyűjtőt, a React komponenseken kívül.
++  A fejlesztői HMR a régi időzítőt leállítja.
++- A request()/apiFetch segéden átmenő fetch-hívásokat méri. A mock kód
++  hálózat nélküli eredményeit, a segédet megkerülő fetch-eket és az oldal
++  statikus erőforrásait nem számolja.
++- A /health és /api/health hívások ki vannak zárva.
++- Üres üzleti számlálókkal is megy életjel, amíg az adott lap fut.
++  Az életjelek száma nem megbízható felhasználó- vagy sessionszám.
++
++## Későbbi elemzéshez előkészített adatok
++
++A schema_version=1 csomag tartalma:
++
++| Mező | Jelentés |
++| --- | --- |
++| batch_id | Véletlen csomagazonosító az újraküldések kiszűréséhez; nem sessionazonosító |
++| window_start_ms, window_end_ms | A számlálók böngészőóra szerinti időablaka |
++| interval_ms | 60 000; a beállított küldési periódus |
++| mock_api, mock_jobs | A build mock kapcsolóinak állapota; a lefedettség értelmezéséhez |
++| inflight | Az adott lapon éppen függő mért fetch-ek száma, pillanatkép |
++| starts | Indítások: route, method, count |
++| results | Befejezések: route, method, outcome, status, count és időadatok |
++| duration_limits_ms | A diszjunkt időtartamkosarak felső határai |
++| delivery | Korábbi sikeres csomagok, hibás küldési kísérletek, eldobott csomagok és megfigyelések száma |
++
++A fix route-csoportok: auth, jobs, cv, profile, preferences, me, other.
++Az URL-ekből csak ezt az engedélyezett csoportot tartjuk meg.
++Az HTTP-metódusok: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, OTHER.
++Pontos HTTP-státusz 100–599 között; egyéb HTTP-státusz: other.
++Külön outcome: http, network_error, aborted. Utóbbi kettő status=0;
++ez nem HTTP 0 válasz és nem bizonyít backendhibát.
++
++A timing=fetch_response_headers: a fetch indításától a válaszfejlécek
++rendelkezésre állásáig tartó, performance.now()-val mért böngészős idő.
++Nem tartalmazza a teljes választest letöltését és a JSON-feldolgozást;
++nem kizárólag backend-feldolgozási idő. Hibánál a fetch elutasításáig mér.
++Soronként: duration_sum_ms, duration_max_ms, duration_bins.
++A kosarak határai: 100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000 ms,
++majd egy utolsó, 60 másodperc feletti kosár. A kosarak diszjunktak;
++Prometheus-hisztogramhoz a fogadón kumulatívvá kell alakítani őket.
++Az egyórásnál nagyobb mért idő egy órára korlátozott.
++Az átlagból és a kosarakból később lassulás és közelítő percentilis számolható.
++Több lap maximumaiból átlagos vagy globális percentilis nem számolható.
++
++Az indítás és a befejezés külön ablakba eshet. A start és result sorok
++száma ezért nem feltétlenül egyezik; ezt az inflight is segít értelmezni.
++Az inflight értékeket nem szabad a fogadón folytonosan összeadni.
++
++## Korlátozott küldés és fogadószerződés
++
++- Közvetlen POST, a mért segéd megkerülésével; nem termel önmagát mérő forgalmat.
++- text/plain;charset=UTF-8 törzsben UTF-8 JSON; CORS mód, credentials=omit,
++  referrerPolicy=no-referrer, redirect=error. Nincs auth token, cookie vagy referer.
++- A fogadó sikeres átvételt 204-gyel jelez; egy általános HTML 200 nem siker.
++- Nyolc másodperces küldési timeout; legfeljebb egy küldés van folyamatban.
++- A csomag legfeljebb három kísérletet kap, kizárólag a következő percenkénti
++  időzítéseknél. Ugyanaz a batch_id és ugyanaz a törzs kerül újraküldésre.
++- Eközben az új mérések külön összesítőben maradnak. Siker vagy eldobás után
++  a következő időzítés továbbítja őket. Így a tényleges ablak hosszabb is lehet.
++- Nincs tartós böngészőtár, végtelen csomagsor vagy lapbezáráskor küldési garancia.
++- Legfeljebb 128 eredménysor egy aktív összesítőben; az új, ezen felüli
++  kombinációk dropped_observations számlálót növelnek. Az indítások külön megmaradnak.
++- Legfeljebb 60 000 bájtos törzs; nagyobb csomag eldobva, számlálva.
++- A delivery számlálók a lap megnyitása óta kumulatívak, pillanatképek;
++  ezeket sem szabad minden jelentésnél összeadni. A fogadó saját beérkezési
++  számlálókat is vezessen. Az utolsó elveszett csomag veszteségjelzése is elveszhet.
++
++A fogadón szükséges: verzió- és sémaellenőrzés, érték- és méretkorlát,
++engedélyezett origin, terhelési korlát, korlátozott idejű batch_id-duplikációszűrés,
++a feldolgozás utáni 204 válasz, belső Prometheus-elérés.
++A CORS nem hitelesítés; a böngészőből küldött adatok meghamisíthatók.
++A fogadó és a proxy ne naplózzon IP-címet vagy nyers törzset.
++
++## Adatértelmezés és adatvédelem
++
++Nincs felhasználóazonosító, sessionazonosító, IP-cím, teljes útvonal,
++query string, URL-paraméter, fejléc, token, kérés-/választörzs vagy hibaüzenet
++a jelentésben. Az Oracle technikailag megkapja a hálózati kapcsolatot;
++az IP-cím naplózását ott is külön ki kell kapcsolni/ellenőrizni.
++
++A hiányzó telemetria nem nulla forgalom. Lapbezárás, blokkolás, offline állapot,
++mock mód, cache, közvetlen backendhívás és eltérő időablak is okozhat eltérést.
++A fogadó kiesése nem változtathatja meg az üzleti API-kérések eredményét.
++A meglévő JSON-feldolgozás, 204-kezelés, ApiError és 401 kijelentkeztetés megmarad.
++Kezdetben közös grafikonokat készítünk, összetett riasztást nem kapcsolunk be.
++
++## Ellenőrzés
++
++```bash
++node --test tests/apiTraffic.test.js
++npm run lint
++npm run build
++```
++
++A tesztek ellenőrzik az opt-int, a 60 másodperces időzítőt, az adatvédelmet,
++a számlálókat és kosarakat, a hibákat/megszakítást, a korlátozott memóriát,
++az újraküldést, a timeoutot, a párhuzamos kéréseket és a meglévő HTTP-viselkedést.
++Nem bizonyítják az Oracle-fogadást, a teljes adatút működését vagy az éles
++frontend mért lefedettségét; ezek külön telepítési próbát igényelnek.
