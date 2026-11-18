@@ -1,6 +1,6 @@
 # Az éles frontendmérés bekapcsolása
 
-Állapot (2026-11-19): a frontend main összevonása külön felhasználói engedélyt kapott; a végrehajtás és production build még nincs igazolva. A monitoringág továbbra is külön marad.
+Állapot (2026-11-19): a frontend main merge, CI/deploy és az éles oldalon ismétlődő automatikus 204-es küldés igazolt. A nem üres éles API-csomag és a Grafana utolsó ellenőrzése még hátravan. A monitoringág külön marad.
 A fogadó, HTTPS, Prometheus és a 45 paneles dashboard működik az Oracle-on.
 Az SSH/Vite teszt lezárva; a localhost CORS-engedély visszavonva.
 
@@ -165,3 +165,18 @@ valódi automatikus /matchwise-telemetry/v1 POST 204, nem üres normál API-adat
 majd Prometheus/Grafana frissülés. Ez még nincs visszaigazolva.
 A merge és a Vercel success önmagában nem éles böngészős adatküldési bizonyíték.
 A monitoring feat/service-comparison ága továbbra sem lett main-be olvasztva.
+
+## Éles oldalon ismétlődő 204-es küldés igazolva – 2026-11-19
+
+A felhasználó az éles www.matchwise.tech oldal újratöltése és Network-vizsgálata
+után képet adott vissza. Öt POST látszik a grafana-r0cecq.duckdns.org v1
+fogadóútvonalára, mind 204. Az initiator a buildelt index JavaScript fetch-hívása.
+A képen az első csomag átvitele 1,84 kB, a későbbieké 1,26 kB.
+A nagyobb méretből önmagában nem következtetünk nem üres API-adatokra.
+
+Ez az éles oldalon ismétlődő automatikus fogadást igazolja a felhasználó
+aktuális böngészőjében. Nem bizonyít minden látogatóra teljes lefedettséget,
+pontos időközöket vagy a csomagtörzsben szereplő mock kapcsolók értékét.
+Következő, még nem igazolt lépés: az első nagyobb csomag starts/results
+és mock_api/mock_jobs értékeinek ellenőrzése, majd Grafana frissesség és görbék.
+Nincs szükség localhost/Vite újraindításra; a localhost Origin továbbra is tiltott.
