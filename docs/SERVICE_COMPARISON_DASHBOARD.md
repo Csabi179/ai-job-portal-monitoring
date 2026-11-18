@@ -63,7 +63,7 @@ The pending revision adds eight panels, bringing this dashboard to 35 panels: 40
 ## Frontendforgalmi bővítés – 2026-11-18
 
 A fejlesztési ág 41 panelt tartalmaz; a korábbi 35 panel változatlan.
-A hat új panel (37–42) még nincs Oracle-ra telepítve:
+A hat új panel (37–42) Oracle-ra telepítve; felhasználói kimenettel és képpel igazolva:
 
 | ID | Tartalom |
 | --- | --- |
@@ -92,9 +92,18 @@ pontos hálózati késésként. Nincs új riasztás.
 
 Ellenőrzés: JSON érvényes; 41 egyedi panelazonosító; 6 új panel és 9 lekérdezés;
 a korábbi 35 panel JSON-tartalma változatlan; az új panelek nem fedik át a régieket.
-A queries API-val történő Oracle-próba és a Grafana megjelenítés még hátravan.
+A kilenc lekérdezés Oracle-próbája és az új rész Grafana-megjelenése sikeres, felhasználói kimenettel és képpel igazolva.
 A scripts/check-frontend-comparison-queries.py dashboard.json parancs a
 9 új lekérdezést olvasással ellenőrzi. Az üres eredmény nem hiba és nem aktív
 frontendmérés igazolása; lekérdezési hiba vagy warning esetén nem PASS.
 A Supabase meglévő CPU/RAM paneljei megmaradtak; külön adatbázis-aktivitás/
 várakozás összehasonlítása ebben a bővítésben még nincs megvalósítva.
+
+## Paneltelepítés visszaigazolva – 2026-11-18
+
+A felhasználó képe szerint a fogadó UP, a csomagszám 1, az egyszeri
+üres próba kora 15,9 perc. A két forgalmi/latencia grafikon No matching telemetry.
+Mentés: /home/ubuntu/monitoring-backups/frontend-dashboard.UnZHUI.
+A Grafana health database=ok, version=13.2.1. Az automatikus frontendmérés
+még nincs aktiválva; valódi forgalmi görbéket, eltérések felismerését és
+Viewer-hozzáférést ez a kép nem igazol. Main összevonás nincs.
