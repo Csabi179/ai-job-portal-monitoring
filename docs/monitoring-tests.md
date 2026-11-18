@@ -453,3 +453,9 @@ The earlier October test entries describe their original test environment. TEST-
 ### TEST-22 Oracle preflight result — operator output
 
 The staged copy at /tmp/matchwise-security-update.3fTDyq passed deployed-version promtool configuration syntax and all 38 scenarios for the twelve original rules. The validator also checked the sixteen-rule inventory. Live preflight returned CPU A=0, 5xx/login/404 A=0,D=1. Every Loki dashboard target, including the offset baseline and bounded logs, returned success with zero series at this check. Zero series is not a query error and does not independently prove complete ingestion; no matching non-health traffic was available in the queried windows. Rollout, cadence verification, Grafana evaluation and a real 404 trigger remain pending.
+
+## Backend cadence rollout confirmed / Backend-gyakoriság igazolt
+
+Operator supplied post-apply output: Grafana /api/health returned database=ok, version=13.2.1. Both blackbox_render_backend and blackbox_vercel_frontend targets report scrapeInterval=1m, scrapeTimeout=15s and health=up. Backend probe_success=1 at query timestamp 1795025266.993. This verifies active target configuration and a successful current HTTP probe; a long-term no-sleep guarantee is not claimed. New security panel rendering, four-rule group health and an actual 404 threshold trigger remain to be verified. No main merge was performed.
+
+A frissítés utáni kimenet szerint a Grafana működik, a backend és a frontend targetje is 1m/15s beállítású és up állapotú. A backend probe_success=1. A percenkénti beállítás és a sikeres HTTP-próba igazolt; a hosszú távú elalvásmentesség nem garantált. Az új panelek megjelenése, a security csoport négy szabályának health értéke és a valódi 404-próba még ellenőrzendő. Main összevonás nem történt.
