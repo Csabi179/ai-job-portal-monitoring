@@ -1,7 +1,8 @@
 # Frontendforgalom – fogadó és biztonságos bevezetés
 
 Állapot: a fogadó Oracle-ra telepítve, a felhasználó kimenetével igazolva.
-A Caddy HTTPS-útvonalának helyi ellenőrzése sikeres; a Prometheus bekötése még hátravan.
+A Caddy HTTPS-útvonalának helyi ellenőrzése és a fogadó Prometheus-bekötése sikeres.
+A frontendkód alkalmazása, aktiválása és a valódi böngészős mérés még hátravan.
 Nincs új dashboard vagy riasztás telepítve. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
@@ -256,3 +257,23 @@ a megfelelő scrape URL és a frontend_telemetry_receiver_up=1 lekérdezhető mi
 Hiba esetén megpróbálja visszaírni és újratölteni a mentett konfigurációt;
 a tényleges visszaállítást hibaszituációban még nem teszteltük.
 Caddy-, frontend- és riasztásmódosítás ebben a lépésben nincs.
+
+## Prometheus-integráció Oracle-on igazolva – 2026-11-18
+
+A felhasználó a 326ca439b26c38f6f4f625014a39b72402f96f80 verzió
+Prometheus-segédjének kimenetét adta vissza. A 3 konfigurációmegőrzési teszt
+az Oracle-on is sikeres (0,002 s). A jelölt és az élő konfiguráció
+promtool check config ellenőrzése sikeres.
+Mentés: /home/ubuntu/monitoring-backups/frontend-traffic-prometheus.uevpd6hx/prometheus.yml.before.
+A segéd PASS eredménye igazolja: frontend_traffic target up,
+frontend_telemetry_receiver_up=1 lekérdezhető a Prometheusból,
+a korábbi feladatok nevei az aktív targetek között megmaradtak.
+Ez a korábbi feladatok teljes mérési egészségét külön nem igazolja.
+
+Igazolt láncszakasz: Oracle-fogadó -> Prometheus.
+A frontendmérés továbbra is alapból kikapcsolt; valódi böngészős
+adatküldés, külső CORS, frontenddeploy és összehasonlító Grafana-panelek
+még nincsenek igazolva. Main összevonás nem történt.
+Következő lépés: a frontend munkapéldány azonosítása, a kikapcsolt patch
+fejlesztési ágon alkalmazása, frontendtesztek/lint/build, majd az
+engedélyezés és a deploy célágának tisztázása után korlátozott böngészős próba.
