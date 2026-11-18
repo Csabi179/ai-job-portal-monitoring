@@ -277,3 +277,19 @@ még nincsenek igazolva. Main összevonás nem történt.
 Következő lépés: a frontend munkapéldány azonosítása, a kikapcsolt patch
 fejlesztési ágon alkalmazása, frontendtesztek/lint/build, majd az
 engedélyezés és a deploy célágának tisztázása után korlátozott böngészős próba.
+
+## Frontend munkapéldány elkészült – 2026-11-18
+
+A felhasználó az Oracle-on klónozta a nyilvános ernoking/job-portal-frontend repót
+/home/ubuntu/job-portal-frontend alá, és létrehozta a feat/frontend-api-traffic ágat.
+A korábbi patch alkalmazása sikeres volt, de két új üres zárósor miatt a
+git diff --check hibával megállt: src/api/http.js és src/main.jsx.
+A blokk ezért a Node/npm verziók kiírásáig nem jutott el.
+Ez formázási hiba; a frontend build és működés ettől még nem igazolt.
+
+A patch-ben a két fájl végét egyetlen LF-re normalizáltuk.
+A javított patch git apply --check --whitespace=error próbája sikeres.
+A már módosított Oracle munkapéldányra nem alkalmazzuk újra a teljes patch-et;
+ott csak a két fájl felesleges üres zárósorait távolítjuk el, majd
+újra git diff --check és Node/npm verzióellenőrzés következik.
+Frontendcommit, push, deploy és adatküldés továbbra sincs igazolva.
