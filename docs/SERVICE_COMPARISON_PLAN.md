@@ -14,7 +14,7 @@ Egyszerű összehasonlító dashboard a meglévő rendszerre építve. A Render 
 
 1. DONE: baseline and branch created; implementation plan versioned.
 2. DONE: operator confirmed four nonempty API responses and units (cpu / bytes) on November 18.
-3. IN PROGRESS: collector implemented with atomic textfile output, source timestamp and collection health. Local tests passed. Oracle dry run pending; systemd timer comes after live validation.
+3. IN PROGRESS: live API collection, .prom publication and Node Exporter ingestion verified. Service and two-minute timer implemented; installation and Prometheus verification pending.
 4. TODO: Service Comparison dashboard with aligned time axes, same units for comparable data, explicit freshness and backend logs. Vercel CPU/memory shown as not collected.
 5. TODO: backend CPU, backend 5xx and failed-login rules. Thresholds are initial examples, not measured service objectives. Exclude health traffic; require valid telemetry; document recovery and notification routing.
 6. TODO: bilingual install/rollback instructions; update documentation index, monitoring and alerting plans; verify Viewer access to the new dashboard.
