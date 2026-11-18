@@ -50,3 +50,9 @@ Három tesztmetódus sikeres: százalékszámítás, kilenc hibás bemenet és a
 The collector now reports only the endpoint name and HTTP status code. Response bodies, headers and credentials remain hidden. Four local tests pass, including safe diagnostics for HTTP 400, 401, 403, 429 and 500. Repeat the one-time command above to obtain the status. Automatic rollout remains pending.
 
 Az első Oracle-próba HTTP-hibával végződött, de a státuszkód még nem ismert. A korábbi sikeres próba kézzel bekért kulcsot használt, a gyűjtő pedig a meglévő környezeti fájlból olvas, és időablakot is megad. A hiba oka még nincs igazolva. A javított üzenet megmutatja a végpontot és a HTTP-kódot, titkos adatot nem ír ki. A négy helyi teszt sikeres. Következő lépés a fenti egyszeri próba megismétlése; az automatikus telepítés még vár.
+
+## HTTP 400 follow-up / Javítás
+
+The second Oracle run returned cpu: HTTP 400. Removed explicit startTime/endTime parameters to match the successful probe. The collector now uses the API default time window and still rejects samples older than five minutes. Four local tests passed. Live confirmation is pending; the exact rejected parameter is not yet proven.
+
+A második próba cpu: HTTP 400 hibát adott. A kérésből eltávolítottuk a külön megadott időablakot, így a korábban sikeres próba kérését használjuk. Az ötperces frissességellenőrzés megmarad. Négy helyi teszt sikeres; az éles megerősítés még hátravan. A konkrét elutasított paraméter még nem bizonyított.
