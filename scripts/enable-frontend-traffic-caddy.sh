@@ -10,13 +10,13 @@ cd "$repo"
 fail() { printf '%s\n' "$*" >&2; exit 1; }
 command -v python3 >/dev/null
 command -v curl >/dev/null
-sudo -v
-sudo systemctl is-active --quiet matchwise-frontend-traffic.service
+# Check authorization per command without prompting; no blanket sudo -v.
+sudo -n systemctl is-active --quiet matchwise-frontend-traffic.service
 curl --noproxy '*' --max-time 5 -fsS http://127.0.0.1:9121/health
 
-mount_path="$(sudo docker inspect monitoring-caddy --format '{{range .Mounts}}{{if eq .Destination "/etc/caddy"}}{{.Source}}{{end}}{{end}}')"
+mount_path="$(sudo -n docker inspect monitoring-caddy --format '{{range .Mounts}}{{if eq .Destination "/etc/caddy"}}{{.Source}}{{end}}{{end}}')"
 [[ "$mount_path" == "$repo/caddy" ]] || fail "Unexpected Caddy mount: $mount_path"
-network="$(sudo docker inspect monitoring-caddy --format '{{.HostConfig.NetworkMode}}')"
+network="$(sudo -n docker inspect monitoring-caddy --format '{{.HostConfig.NetworkMode}}')"
 [[ "$network" == host ]] || fail "Caddy must use host networking for this rollout."
 
 mkdir -p /home/ubuntu/monitoring-backups
@@ -28,8 +28,8 @@ rollback() {
     trap - EXIT
     if [[ "$modified" == true && "$successful" != true ]]; then
         printf 'Restoring previous Caddyfile from %s\n' "$work/Caddyfile.before" >&2
-        if sudo cp -- "$work/Caddyfile.before" caddy/Caddyfile; then
-            sudo docker exec monitoring-caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile || true
+        if sudo -n cp -- "$work/Caddyfile.before" caddy/Caddyfile; then
+            sudo -n docker exec monitoring-caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile || true
         fi
         [[ "$status" -ne 0 ]] || status=1
     fi
@@ -41,25 +41,25 @@ trap 'exit 143' TERM
 
 git show "$source_ref:caddy/Caddyfile" > "$work/Caddyfile.expected"
 git show "$source_ref:caddy/Caddyfile.frontend-traffic.example" > "$work/Caddyfile.candidate"
-sudo cp -a -- caddy/Caddyfile "$work/Caddyfile.before"
+sudo -n cp -a -- caddy/Caddyfile "$work/Caddyfile.before"
 
 # Preserve unknown edits. An already-enabled configuration is also safe to rerun.
-if sudo cmp -s caddy/Caddyfile "$work/Caddyfile.candidate"; then
+if sudo -n cmp -s caddy/Caddyfile "$work/Caddyfile.candidate"; then
     printf 'Caddyfile already contains the intended route; validating again.\n'
 else
-    sudo cmp -s caddy/Caddyfile "$work/Caddyfile.expected" || fail \
+    sudo -n cmp -s caddy/Caddyfile "$work/Caddyfile.expected" || fail \
         "Live Caddyfile differs from the reviewed baseline. Stopped; inspect $work."
 fi
 
 candidate="/tmp/matchwise-frontend-traffic-$(basename "$work").Caddyfile"
-sudo docker cp "$work/Caddyfile.candidate" "monitoring-caddy:$candidate"
-sudo docker exec monitoring-caddy caddy validate --config "$candidate" --adapter caddyfile
+sudo -n docker cp "$work/Caddyfile.candidate" "monitoring-caddy:$candidate"
+sudo -n docker exec monitoring-caddy caddy validate --config "$candidate" --adapter caddyfile
 
 # Recheck after validation, before updating the mounted file.
-sudo cmp -s caddy/Caddyfile "$work/Caddyfile.before" || fail 'Caddyfile changed during validation; stopped.'
+sudo -n cmp -s caddy/Caddyfile "$work/Caddyfile.before" || fail 'Caddyfile changed during validation; stopped.'
 modified=true
-sudo cp -- "$work/Caddyfile.candidate" caddy/Caddyfile
-sudo docker exec monitoring-caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+sudo -n cp -- "$work/Caddyfile.candidate" caddy/Caddyfile
+sudo -n docker exec monitoring-caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 
 # Test HTTPS locally with the real hostname and certificate, without DNS/hairpin dependencies.
 base="https://$host"
