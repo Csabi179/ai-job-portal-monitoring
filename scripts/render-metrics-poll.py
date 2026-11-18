@@ -14,9 +14,20 @@ import re
 import tempfile
 import time
 from urllib.parse import urlencode
+from urllib.error import HTTPError
 from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 ENDPOINTS = {"cpu": "cpu", "cpu-limit": "cpu", "memory": "bytes", "memory-limit": "bytes"}
+
+class MetricsHTTPError(Exception):
+    """Only trusted endpoint names and numeric status codes may be displayed."""
+    def __init__(self, endpoint, status):
+        self.endpoint = endpoint
+        self.status = int(status)
+        super().__init__(f"{endpoint}: HTTP {self.status} (response body hidden)")
+
+def failure_message(exc):
+    return str(exc) if isinstance(exc, MetricsHTTPError) else type(exc).__name__
 
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -104,11 +115,14 @@ def collect(key, service):
     for name in ENDPOINTS:
         request = Request("https://api.render.com/v1/metrics/" + name + "?" + query,
                           headers={"Authorization": "Bearer " + key, "Accept": "application/json"})
-        with opener.open(request, timeout=20) as response:
-            body = response.read(2000001)
-            if len(body) > 2000000:
-                raise ValueError("Oversized response")
-            payloads[name] = json.loads(body)
+        try:
+            with opener.open(request, timeout=20) as response:
+                body = response.read(2000001)
+                if len(body) > 2000000:
+                    raise ValueError("Oversized response")
+                payloads[name] = json.loads(body)
+        except HTTPError as exc:
+            raise MetricsHTTPError(name, exc.code) from None
     return calculate(payloads, service, time.time())
 
 def main():
@@ -130,7 +144,7 @@ def main():
     except Exception as exc:
         # Replace old resource data with explicit failure; do not present old usage as fresh.
         metrics = {"matchwise_render_metrics_collection_success": 0}
-        print("Collection failed: " + type(exc).__name__, file=__import__("sys").stderr)
+        print("Collection failed: " + failure_message(exc), file=__import__("sys").stderr)
         exit_code = 1
     metrics["matchwise_render_metrics_last_attempt_timestamp_seconds"] = time.time()
     output = render(metrics, service)
