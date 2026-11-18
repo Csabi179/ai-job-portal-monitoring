@@ -449,3 +449,7 @@ The 401 event appeared in both the general HTTP log panel and the filtered HTTP 
 At the time of this test, the dashboard auth metadata was manually set to `Verified by team` based on this operator-reported evidence; the later introductory latest-auth-test note has since been removed from the dashboard. This records the test outcome at the stated date. The two event correlations establish delivery for these requests. The full SQL comparison and 24-check database verification outputs were not provided, and continuous auth availability and browser frontend integration were not tested in this flow.
 
 The earlier October test entries describe their original test environment. TEST-08 supplies the later team-backend auth and logging verification.
+
+### TEST-22 Oracle preflight result — operator output
+
+The staged copy at /tmp/matchwise-security-update.3fTDyq passed deployed-version promtool configuration syntax and all 38 scenarios for the twelve original rules. The validator also checked the sixteen-rule inventory. Live preflight returned CPU A=0, 5xx/login/404 A=0,D=1. Every Loki dashboard target, including the offset baseline and bounded logs, returned success with zero series at this check. Zero series is not a query error and does not independently prove complete ingestion; no matching non-health traffic was available in the queried windows. Rollout, cadence verification, Grafana evaluation and a real 404 trigger remain pending.
