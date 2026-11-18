@@ -22,6 +22,20 @@ def main():
     for path in sorted((ROOT / 'grafana/provisioning/alerting').iterdir()):
         doc = yaml.safe_load(path.read_text(encoding='utf-8'))
         assert doc['apiVersion'] == 1, path
+        # A locally deployed demo is separate from the 15 permanent rules.
+        if path.name == 'service-comparison-test.json':
+            allowed = {'mw_test_cpu_flow', 'mw_test_5xx_flow', 'mw_test_login_flow'}
+            for item in doc.get('deleteRules', []):
+                assert item['uid'] in allowed, item
+            for group in doc.get('groups', []):
+                assert group['name'] == 'service-comparison-test', group['name']
+                for rule in group['rules']:
+                    assert rule['uid'] in allowed, rule['uid']
+                    assert rule['labels']['test'] == 'true', rule['uid']
+                    annotations = rule.get('annotations', {})
+                    assert bool(annotations.get('__dashboardUid__')) == bool(annotations.get('__panelId__')), rule['uid']
+            print('Checked temporary demo IDs; excluded demo from permanent-rule scenarios.')
+            continue
         deleted.update(r['uid'] for r in doc.get('deleteRules', []))
         for group in doc.get('groups', []):
             assert group['interval'] == '1m', path
