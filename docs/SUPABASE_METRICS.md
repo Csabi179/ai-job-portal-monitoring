@@ -1,5 +1,7 @@
 # Supabase metrics on the Oracle monitoring VM
 
+> Current rollout note (2026-11-18): the existing Oracle checkout is on main with local modifications. Do not rerun the historical first-deployment pull/recreation commands on that checkout. The current service-comparison changes use pinned git show copies, backups and validation; no branch switch or main merge.
+
 On 2026-11-09 the operator verified direct HTTP 200 access, successful promtool validation, and automated Prometheus collection. The active target was uvopvarvelpabhmrqaaw.supabase.co:443 with health up and no last error at 21:26:43 UTC. The project replacement was intentional. The inventory contained 323 metric names, including Prometheus-generated scrape health series.
 
 ## Configuration
@@ -106,3 +108,14 @@ Source references
 ## Outage alerting update — November 10, 2026
 
 The repository adds separate Metrics API/telemetry and PostgreSQL reachability rules, pinned to `uvopvarvelpabhmrqaaw.supabase.co:443`. Successful scrape plus pg_up=0 means exporter-to-database connectivity failure; a failed API scrape alone does not establish database failure. Missing pg_up is a telemetry issue. Neither capacity nor latency creates an alert. See the [alerting plan](alerting-plan.en.md) for conditions, deployment and live tests still required. Change both alert selectors when intentionally changing project.
+
+## Service Comparison activity context – 2026-11-18
+
+The feature branch prepares three shared charts using the existing verified-inventory
+queries for pg_stat_database_xact_commit_total and pgrst_db_pool_waiting.
+These add workload context alongside backend API rates, Render CPU and backend P95.
+They use the selected project instance, successful scrape and pg_up gates, separate axes,
+and no missing-to-zero substitution. Database transaction counts include internal services;
+the PostgREST queue is not a general database lock/wait queue.
+Current availability of these new chart expressions is pending the operator preflight.
+See [Service Comparison](SERVICE_COMPARISON_DASHBOARD.md).

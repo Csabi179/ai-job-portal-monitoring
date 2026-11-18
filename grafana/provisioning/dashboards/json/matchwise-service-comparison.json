@@ -2,7 +2,7 @@
   "uid": "matchwise-service-comparison",
   "title": "MatchWise · Service Comparison",
   "schemaVersion": 42,
-  "version": 4,
+  "version": 5,
   "editable": false,
   "tags": [
     "matchwise",
@@ -2494,6 +2494,354 @@
       "gridPos": {
         "x": 0,
         "y": 97,
+        "w": 24,
+        "h": 8
+      }
+    },
+    {
+      "id": 43,
+      "type": "text",
+      "title": "Backend–Supabase activity · context, not one-to-one requests",
+      "gridPos": {
+        "x": 0,
+        "y": 105,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Backend–adatbázis összefüggések\nAzonos időtengely, **eltérő mértékegységek és külön tengelyek**. A DB-tranzakciók belső szolgáltatásokat és más klienseket is tartalmazhatnak; nem backendkérésszámlálók. A várakozási sor a **PostgREST kapcsolatkészletére** vonatkozik, nem minden adatbázis-várakozásra. Az együttmozgás támpont, nem ok-okozati bizonyíték. Hiányzó DB-adatnál nincs kitalált nulla."
+      }
+    },
+    {
+      "id": 44,
+      "type": "timeseries",
+      "title": "Backend API rate / Supabase committed transactions",
+      "description": "Backend API requests/min (left), Supabase committed transactions/s (right), both 5m averages. Database-wide activity includes internal services and other clients. Different units; no expected numerical equality.",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 60",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "legendFormat": "Backend · API requests/min",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "queryType": "range"
+        },
+        {
+          "refId": "B",
+          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Supabase · committed transactions/s",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisLabel": "Backend API requests/min"
+          },
+          "min": 0,
+          "noValue": "No matching telemetry"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Supabase · committed transactions/s"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Supabase committed transactions/s"
+              },
+              {
+                "id": "unit",
+                "value": "ops"
+              },
+              {
+                "id": "max",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 109,
+        "w": 24,
+        "h": 8
+      }
+    },
+    {
+      "id": 45,
+      "type": "timeseries",
+      "title": "Backend CPU / Supabase committed transactions",
+      "description": "Render CPU % (left, API sample) and database-wide committed transactions/s (right, 5m average). CPU-heavy application work may legitimately cause little database activity; the graph is context, not an anomaly verdict.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(matchwise_render_cpu_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Backend · CPU (%)",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Supabase · committed transactions/s",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisLabel": "Render CPU (%)"
+          },
+          "min": 0,
+          "max": 100,
+          "noValue": "No fresh data"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Supabase · committed transactions/s"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Supabase committed transactions/s"
+              },
+              {
+                "id": "unit",
+                "value": "ops"
+              },
+              {
+                "id": "max",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 117,
+        "w": 24,
+        "h": 8
+      }
+    },
+    {
+      "id": 46,
+      "type": "timeseries",
+      "title": "Backend processing P95 / PostgREST pool queue",
+      "description": "Backend logged processing P95 in ms over 5m (left); PostgREST pool waiting requests sampled every 60s (right). Not a PostgreSQL lock-wait or total database queue metric. Short queue spikes may fall between scrapes; missing data is not zero.",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | unwrap duration_ms | __error__=\"\" [5m]) by (job)",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "legendFormat": "Backend · processing P95",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "queryType": "range"
+        },
+        {
+          "refId": "B",
+          "expr": "(sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"${supabase_instance}\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "PostgREST · waiting requests",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisLabel": "Backend processing P95 (ms)"
+          },
+          "min": 0,
+          "noValue": "No matching telemetry"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PostgREST · waiting requests"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "PostgREST waiting requests"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "max",
+                "value": null
+              },
+              {
+                "id": "custom.axisSoftMax",
+                "value": 5
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 125,
         "w": 24,
         "h": 8
       }

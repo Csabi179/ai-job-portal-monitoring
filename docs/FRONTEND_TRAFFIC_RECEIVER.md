@@ -7,7 +7,8 @@ A GitHub CI és a Vercel deploy státusza sikeres; a védett preview-hoz nincs h
 A 41 paneles dashboard telepítése és megjelenése igazolt.
 Az SSH-s tesztfrontend betöltődik és automatikusan ismételt, 204-es telemetriacsomagokat küld.
 Az üzleti API-kérések böngészős mérése és a frontend forgalmi/latenciagörbék megjelenése igazolt.
-A backend összehasonlító görbék hiányának oka és az éles frontendaktiválás még hátravan.
+A backend összehasonlító görbék útvonalszűrését javítottuk, megjelenésük képpel igazolt.
+Az éles frontendaktiválás és a backend–Supabase közös panelek bevezetése még hátravan.
 Új riasztást nem adtunk hozzá. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
@@ -568,3 +569,20 @@ A grafikonok azonos 5 perces ablakot használnak, de a mintavétel, kézbesíté
 eltérő lefedettség és kezdeti counter-idősorok miatt akkor sincs kötelező egyezés.
 A javítás után friss normál kérés és a collector átfutása mellett ellenőrzünk.
 Main merge és új riasztás nincs.
+
+## Frontend és backend görbék együtt igazolva – 2026-11-18
+
+A felhasználó új Grafana-képén a relatív backend API-útvonalakat is elfogadó
+szűrő után a két backendgörbe megjelent. Látszik a frontend indítás/válasz ráta,
+a backend API-ráta, a böngészős átlag/becsült P95 és a backend feldolgozási P95.
+Fogadó UP; csomagszám 36; utolsó csomag kora 1,50 perc.
+A korábbi és különböző indulású idősorok pontos egyezését nem várjuk el.
+Az SSH-s frontend -> fogadó -> Prometheus -> Grafana teszt és a backend Loki
+kontextusa működik. Az éles Vercel frontend továbbra sincs bekapcsolva.
+
+A következő, független munka a backend–Supabase összefüggések közös grafikonjai:
+a meglévő Unified Monitoring tranzakció- és PostgREST-várakozási metrikáiból
+három grafikon és egy magyarázó panel előkészítve (41 -> 45 panel).
+A 41 meglévő panel változatlan. Külön tengelyek és pontos mértékegységek,
+DB up/pg_up kapu, hiányzó adatok helyett nincs nulla, új riasztás nincs.
+A 15 összes lekérdezés új élő preflightja és a négy panel telepítése még hátravan.

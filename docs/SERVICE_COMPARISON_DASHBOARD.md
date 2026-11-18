@@ -1,6 +1,6 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, forty-one Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Állapot / State (2026-11-18):** a 41 paneles frontend–backend változat Oracle-on és képpel igazolt. A fejlesztési ág most 45 panelt készít elő; a négy új backend–Supabase panel lekérdezéspróbája és telepítése még hátravan. A 16 állandó riasztáson nem változtatunk; main merge nincs.
 
 ## Magyar
 
@@ -136,3 +136,38 @@ A grafikonok azonos 5 perces ablakot használnak, de a mintavétel, kézbesíté
 eltérő lefedettség és kezdeti counter-idősorok miatt akkor sincs kötelező egyezés.
 A javítás után friss normál kérés és a collector átfutása mellett ellenőrzünk.
 Main merge és új riasztás nincs.
+
+## Frontend–backend közös görbék igazolva – 2026-11-18
+
+A felhasználó új képe már a Backend logged API requests/min és Backend processing
+P95 görbéit is mutatja a frontend görbék mellett. Fogadó UP, 36 elfogadott csomag,
+utolsó csomag kora 1,50 perc. Ez a relatív útvonalszűrés javításának megjelenési
+bizonyítéka az SSH/Vite tesztben. Nem éles Vercel-aktiválás és nem terheléses teszt.
+
+## Backend–Supabase bővítés előkészítve: 45 panel
+
+A korábbi 41 panel változatlan; négy új panel, még nincs telepítve:
+- 43: lefedettségi és mértékegység-magyarázat.
+- 44: backend API requests/min (bal tengely) és Supabase committed transactions/s (jobb).
+- 45: Render CPU % (bal) és Supabase committed transactions/s (jobb).
+- 46: backend feldolgozási P95 ms (bal) és PostgREST pool waiting requests (jobb).
+
+A Supabase-lekérdezéseket a már meglévő Unified Monitoring dashboardból vesszük:
+pg_stat_database_xact_commit_total és pgrst_db_pool_waiting.
+Minden DB-sor a kiválasztott supabase_instance értékre szűr, és sikeres
+up/pg_up mellett látszik. Hiányzó adatoknál nem készítünk nullaértéket.
+A tranzakciószám projekt-/adatbázisszintű aktivitás, belső szolgáltatásokat
+és más klienseket is tartalmazhat; nem backend-kérésszámláló.
+A várakozási sor kizárólag PostgREST kapcsolatkészlet, nem PostgreSQL lock-wait
+és nem a teljes adatbázis várakozási sora. A 60 másodperces scrape rövid tüskéket kihagyhat.
+
+A közös időtengely trendek megfigyelésére szolgál. Két külön tengely miatt
+a görbék metszése vagy azonos magassága nem számszerű egyezés és nem ok-okozati bizonyíték.
+Az 5 perces tranzakció- és backend-ráták mellett a CPU Render API-minta,
+a queue pedig scrape-pillanatkép. Nem adunk automatikus rendellenesség-riasztást.
+
+Ellenőrzés: érvényes JSON, 45 egyedi panel, 15 lekérdezés a 37–46 panelcsoportban,
+a korábbi 41 panel változatlan. Python-szintaxisellenőrzés sikeres.
+Oracle-preflight: check-frontend-comparison-queries.py dashboard.json --include-database.
+Ez a dashboard alapértelmezett Supabase-instance változóját helyettesíti a tesztben.
+Az új DB-metrikák aktuális adata, az élő lekérdezések és a Grafana-megjelenés még ellenőrizendő.

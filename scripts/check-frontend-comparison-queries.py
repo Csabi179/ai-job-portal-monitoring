@@ -11,11 +11,16 @@ from urllib.request import ProxyHandler, build_opener
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('dashboard', type=Path)
+    parser.add_argument('--include-database', action='store_true', help='Also check panels 43–46 using the dashboard default Supabase instance')
     args = parser.parse_args()
     dashboard = json.loads(args.dashboard.read_text(encoding='utf-8'))
-    panels = [panel for panel in dashboard['panels'] if panel['id'] in range(37, 43)]
-    if {panel['id'] for panel in panels} != set(range(37, 43)):
-        raise SystemExit('Expected six frontend comparison panels; wrong dashboard version.')
+    ids = set(range(37, 47 if args.include_database else 43))
+    panels = [panel for panel in dashboard['panels'] if panel['id'] in ids]
+    if {panel['id'] for panel in panels} != ids:
+        raise SystemExit('Missing comparison panels; wrong dashboard version.')
+    instance = next((item.get('current', {}).get('value') for item in dashboard.get('templating', {}).get('list', []) if item.get('name') == 'supabase_instance'), None)
+    if args.include_database and (not isinstance(instance, str) or not instance):
+        raise SystemExit('Missing default Supabase instance.')
     opener = build_opener(ProxyHandler({}))
     failed = False
     queries = 0
@@ -28,7 +33,7 @@ def main():
             name = f"{panel['id']} {target['refId']} {uid}"
             queries += 1
             try:
-                with opener.open(base + '?' + urlencode({'query': target['expr']}), timeout=30) as response:
+                with opener.open(base + '?' + urlencode({'query': target['expr'].replace('\"${supabase_instance}\"', json.dumps(instance)) if args.include_database else target['expr']}), timeout=30) as response:
                     result = json.load(response)
                 if result.get('status') != 'success':
                     raise ValueError('Query failed')
@@ -42,8 +47,9 @@ def main():
                 status = f' HTTP {error.code}' if isinstance(error, HTTPError) else ''
                 print(name, 'FAILED', type(error).__name__ + status)
                 failed = True
-    if queries != 9:
-        raise SystemExit('Unexpected query count; expected nine.')
+    expected_queries = 15 if args.include_database else 9
+    if queries != expected_queries:
+        raise SystemExit('Unexpected query count; expected ' + str(expected_queries))
     print('Preflight FAILED' if failed else 'Preflight PASS; empty series do not prove live frontend instrumentation.')
     return int(failed)
 
