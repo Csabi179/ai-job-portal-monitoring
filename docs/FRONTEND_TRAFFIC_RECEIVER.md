@@ -2,7 +2,8 @@
 
 Állapot: a fogadó Oracle-ra telepítve, a felhasználó kimenetével igazolva.
 A Caddy HTTPS-útvonalának helyi ellenőrzése és a fogadó Prometheus-bekötése sikeres.
-A frontendkód alkalmazása, aktiválása és a valódi böngészős mérés még hátravan.
+A frontendkód az Oracle fejlesztési ágán alkalmazva és tesztelve; a commit/push,
+aktiválás és a valódi böngészős mérés még hátravan.
 Nincs új dashboard vagy riasztás telepítve. Main összevonás nincs.
 
 ## Ellenőrzött környezet, 2026-11-18
@@ -293,3 +294,21 @@ A már módosított Oracle munkapéldányra nem alkalmazzuk újra a teljes patch
 ott csak a két fájl felesleges üres zárósorait távolítjuk el, majd
 újra git diff --check és Node/npm verzióellenőrzés következik.
 Frontendcommit, push, deploy és adatküldés továbbra sincs igazolva.
+
+## Frontendvalidálás Oracle-on sikeres – 2026-11-18
+
+A felhasználó kimenete alapján a /home/ubuntu/job-portal-frontend
+feat/frontend-api-traffic munkapéldányában a formázási javítás után
+sikeres a git diff --check. Node.js v24.22.2 és npm 11.19.1 elérhető.
+Az npm ci 28 csomagot telepített, az audit a futtatáskor 0 sérülékenységet jelzett.
+Az npm run test:telemetry mind a 10 tesztje sikeres.
+Az npm run lint 0 figyelmeztetéssel és 0 hibával zárt (70 fájl, 104 szabály).
+Az npm run build Vite 8.3.4-gyel sikeres (123 transzformált modul).
+A blokk utolsó git diff --check lépése nem jelzett hibát.
+Ez a forrás buildelhetőségét és a tesztelt viselkedéseket igazolja;
+nem frontenddeploy- vagy böngészős adatküldés-igazolás.
+A mérés konfigurációja továbbra is kikapcsolt. Frontendcommit és push még nincs visszaigazolva.
+Következő lépés: a pontos fájlok commitolása az új fejlesztési ágon,
+majd normál, force nélküli push. HTTPS-hitelesítésnél interaktív jelszókérést
+nem indítunk; hiányzó hitelesítés esetén a hibát külön kezeljük.
+Main összevonás és telemetria-aktiválás ebben a lépésben nincs.
