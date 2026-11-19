@@ -1,6 +1,6 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
-> **Állapot / State (2026-11-18):** a 45 paneles dashboard Oracle-ra telepítve, a frontend–backend és backend–Supabase közös grafikonok képpel igazoltak. A frontend automatikus mérése az SSH/Vite tesztben működik; éles Vercel-aktiválás nincs. Új riasztás és main merge nincs.
+> **Állapot / State (2026-11-19):** 45 panel telepítve. A frontend main-be összevonva; éles 204-es küldés és nem üres API-csomag, valamint friss Grafana fogadási adatok igazoltak. Pozitív frontendgörbék az SSH-tesztben igazoltak; az utolsó éles képen nulla frontendráta és hiányzó frontend-latencia látszik. A monitoringág külön marad.
 
 ## Magyar
 
@@ -218,3 +218,20 @@ commitolása/pusholása a frontend feat/frontend-api-traffic ágára, majd a
 Vite/SSH-alagút leállítása és az ideiglenes localhost CORS drop-in eltávolítása.
 Ezek még nincsenek visszaigazolva. A fogadó újraindításakor a memóriabeli
 számlálók nullázódnak, a korábbi Prometheus-adatok megmaradnak.
+
+## Éles Grafana ellenőrzés képpel visszaigazolva – 2026-11-19
+
+A felhasználó képei: receiver UP, 9 elfogadott csomag, utolsó fogadás kora 1,11 perc.
+A frontend indítás-/HTTP-válasz rátaidősorok nullán látszanak; pozitív éles
+frontendráta vagy frontend-latenciagörbe ezen az utolsó képen nem látható.
+A backend API-ráta és P95, a Supabase commit-sebesség, a Render CPU és
+PostgREST waiting grafikonjai megjelennek. Az utóbbi mintavételezett értékei 0.
+
+A friss életjel nem jelent új API-műveletet. Az első counter-minta kezdőérték;
+a rate és a pozitív elemszámra kapuzott latency újabb megfigyelések nélkül
+maradhat nulla/üres. Ez összhangban van a képpel, nem bizonyított rendellenesség.
+Az éles, valódi API-csomag korábban 4 HTTP 200 eseményt és 60s időablakot
+igazolt; a fogadási adatok és a frontend idősorok együtt az éles adatút működését
+alátámasztják. Nem állítunk az utolsó képen nem látható pozitív frontendlatenciát.
+További mesterséges teszt vagy módosítás nem szükséges; normál használati adatot gyűjtünk.
+Aktuális összefoglaló: [SERVICE_COMPARISON_STATUS.md](SERVICE_COMPARISON_STATUS.md).
