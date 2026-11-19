@@ -6,6 +6,8 @@ DevOps monitoring for the university AI-assisted job portal project.
 
 ## Main dashboard
 
+The supplied service-grouped redesign is available in both languages through the [pinned Oracle installer with backup and rollback](docs/SERVICE_DASHBOARDS_INSTALLATION.md). Hungarian dashboard names retain the `HU` suffix; English copies have no suffix. Existing dashboard UIDs and bookmarks are preserved.
+
 **MatchWise | Unified Monitoring** (Grafana UID: `matchwise-unified-overview`) is the default operations view. It combines:
 
 - Oracle Cloud VM: CPU, RAM, filesystem, disk I/O, network traffic, uptime and system load.
@@ -16,13 +18,13 @@ DevOps monitoring for the university AI-assisted job portal project.
 - Render log collector: latest successful collection and Node Exporter textfile scrape health.
 - Expandable diagnostics for detailed HTTP logs.
 
-Dashboard JSON: `grafana/provisioning/dashboards/json/matchwise-unified-monitoring.json`.
+Dashboard JSON: `grafana/provisioning/dashboards/json/matchwise-unified-monitoring.json`. Since the service-grouped redesign the dashboard has one section per service (Frontend, Backend, Database, Oracle, log pipeline), each opening with the same KPI strips; see [Service-grouped dashboards](docs/SERVICE_DASHBOARDS_REDESIGN.md).
 
 The original dedicated Infrastructure, Application Availability and Backend Logs dashboards are retained.
 
 ## Service comparison and security signals
 
-**MatchWise · Service Comparison** (UID `matchwise-service-comparison`) places Render, Supabase, Vercel and Oracle side by side. Render CPU/RAM are collected through its Metrics API by a separate Python/systemd collector; Vercel host CPU/RAM are not collected.
+**MatchWise · Service Comparison** (UID `matchwise-service-comparison`) places Render, Supabase, Vercel and Oracle side by side with identical panels, fixed service colours and shared units (scorecard, availability, load, errors, security signals). Render CPU/RAM are collected through its Metrics API by a separate Python/systemd collector; Vercel host CPU/RAM are not collected.
 
 The first three added rules cover high Render CPU (>80% for 5 minutes), at least five non-health 5xx responses in five minutes (2-minute pending), and at least ten rejected POST logins in five minutes (2-minute pending). The login counter covers all users together. Existing events can keep the rolling-window condition true without further failed attempts.
 

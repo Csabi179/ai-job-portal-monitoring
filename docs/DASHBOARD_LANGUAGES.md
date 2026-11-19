@@ -1,5 +1,7 @@
 # MatchWise dashboard languages
 
+> **Current service-grouped trial:** use [the new installer](SERVICE_DASHBOARDS_INSTALLATION.md). It preserves the four names/UIDs below and completes the earlier bilingual setup first if necessary. The older layout/generation procedure below is retained as rollout history; frontend details are section 08 in the new comparison layout.
+
 > **Grafana 13 fix:** the previous retry restored its files after checking the obsolete legacy dashboard table. Use the latest pinned bilingual installer with the [current-storage verifier fix](GRAFANA13_PROVISIONING_VERIFICATION.md); it also updates the preparation call. The four requested names and dashboard models are unchanged.
 
 
@@ -19,6 +21,8 @@ English localization covers panel and row titles, descriptions, Markdown, legend
 The previously requested removal of the comparison dashboard's backend-log and generic data-source/methodology sections remains in both languages. Frontend details remain section **06**. The Unified dashboard's own diagnostic logs remain available.
 
 ## Generation and validation
+
+> **Superseded for these two dashboards:** `scripts/build-service-dashboards.py` now emits both languages together (see [Service-grouped dashboards](SERVICE_DASHBOARDS_REDESIGN.md)); the translation-dictionary pipeline described next is retained only as history.
 
 `scripts/build-bilingual-dashboards.py SOURCE_DIRECTORY OUTPUT_DIRECTORY` reads the two Hungarian provisioning files and generates four models plus `dashboard-language-manifest.json`. Hungarian titles receive the suffix once; generation is idempotent. The Hungarian files are the source of truth for measurements/layout. Update the explicit English title/description/label dictionaries when new UI fields are added, then regenerate the English models.
 

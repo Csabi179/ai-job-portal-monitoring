@@ -1,5 +1,7 @@
 # MatchWise documentation / dokumentáció
 
+Current dashboard trial: [service-grouped HU/EN installation with backup and rollback](SERVICE_DASHBOARDS_INSTALLATION.md).
+
 > **Rollout status (November 18, 2026):** sixteen-rule configuration applied; one-minute backend/frontend targets and backend success confirmed by Oracle output. Panels and the real 404 procedure were confirmed by the operator. Earlier rollout notes below retain their dated scope. [Reusable tests](testing/README.md).
 
 Updated November 18, 2026. The guides describe current repository configuration and operator-confirmed deployment; dated test records preserve what was actually checked. Hungarian originals and English editions are listed below.
@@ -12,6 +14,7 @@ Frissítve: 2026. november 18. Az útmutatók a jelenlegi konfigurációt és az
 | Security overview and one-minute backend probes / Biztonsági panelek és percenkénti backend | [HU/EN](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) | [HU/EN](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) |
 | Render CPU/RAM collector / Render erőforrásgyűjtő | [HU/EN](RENDER_METRICS_COLLECTOR.md) | [HU/EN](RENDER_METRICS_COLLECTOR.md) |
 | Service comparison dashboard / Összehasonlító dashboard | [HU/EN](SERVICE_COMPARISON_DASHBOARD.md) | [HU/EN](SERVICE_COMPARISON_DASHBOARD.md) |
+| Service-grouped dashboards / Szolgáltatás szerinti dashboardok | [HU/EN](SERVICE_DASHBOARDS_REDESIGN.md) | [HU/EN](SERVICE_DASHBOARDS_REDESIGN.md) |
 | Three new alert rules and timing / Három új szabály és időzítés | [HU/EN](SERVICE_COMPARISON_ALERTS.md) | [HU/EN](SERVICE_COMPARISON_ALERTS.md) |
 | Controlled alert test and cleanup / Kontrollált teszt és eltávolítás | [HU/EN](SERVICE_COMPARISON_ALERT_TEST.md) | [HU/EN](SERVICE_COMPARISON_ALERT_TEST.md) |
 | Implementation and deployment status / Megvalósítás és telepítési állapot | [HU/EN](SERVICE_COMPARISON_PLAN.md) | [HU/EN](SERVICE_COMPARISON_PLAN.md) |
