@@ -1,148 +1,90 @@
 # Forgalmi összehasonlítás – aktuális állapot
 
-Frissítve: 2026-11-19. Az első közös grafikonos változat tesztje és az ideiglenes teszt lezárása sikeres.
+Frissítve: 2026-11-19. **Az éles frontend → Oracle → Prometheus → Grafana adatút működése igazolt.**
 
-## Mi működik tartósan az Oracle-on?
+## Elkészült és működik
 
-- Python fogadó: 127.0.0.1:9121, külön systemd-szolgáltatás.
+- Éles www.matchwise.tech frontend: automatikus, 60 000 ms-ra konfigurált összesítés.
+- Külön Python fogadó: 127.0.0.1:9121, systemd alatt.
 - HTTPS-fogadás a meglévő Caddy /matchwise-telemetry/v1 útvonalán.
-- Prometheus frontend_traffic scrape: 60s/10s.
-- 45 paneles Service Comparison dashboard, változatlan UID-val: matchwise-service-comparison.
-- Közös frontend–backend forgalmi és latenciagrafikonok, valamint backend–Supabase aktivitási kontextus.
-- A backend relatív és /api előtagos API-útvonalait is kezeli az összehasonlító szűrés; health kérések kizárva.
-- A backend és Supabase korábbi adatgyűjtése megmaradt. Új riasztást nem adtunk hozzá.
+- Prometheus frontend_traffic gyűjtés: 60s/10s.
+- 45 paneles Service Comparison dashboard, UID: matchwise-service-comparison.
+- Közös frontend–backend forgalmi és latenciakontextus.
+- Backend API-ráta, Render CPU, Supabase commit-sebesség és PostgREST-sor közös grafikonjai.
+- Backend relatív és /api előtagos API-útvonalak kezelése, health kizárással.
+- A meglévő backend/Supabase gyűjtés és riasztások megmaradtak; új összetett riasztás nincs.
 
-## Mit igazolt a teszt?
+## Élesítési és mérési bizonyíték
 
-Az Oracle-on futó frontend saját SSH-alagúton nyílt meg a felhasználó böngészőjében.
-A külön tesztkonfiguráció Renderre továbbította az API-hívásokat.
-A mérőkód 60 000 ms-os periódussal indult; ismételt 204-es fogadás látszott.
-Egy pontosan 60 másodperces csomagban valódi auth POST és cv GET HTTP 200
-események, számlálók és fejlécig mért időadatok jelentek meg.
-A frontend adatainak böngésző -> Oracle -> Prometheus -> Grafana útja igazolt.
-A backend API-ráta és P95, a Supabase committed transactions/s, a Render CPU
-és a PostgREST pool waiting grafikonjai képpel igazoltak.
+A frontend PR #11 külön felhasználói engedéllyel main-be került.
+Merge: 86fc6ff74ce1819e77749be899de598bf54b6577.
+A [main CI](https://github.com/ernoking/job-portal-frontend/actions/runs/44423094254)
+és a Vercel commitstatus sikeres. A forrás tartalma megegyezik a tesztelt e48661e változattal.
 
-Ellenőrzések: 10 frontendteszt, 6 fogadóteszt, 3 konfigurációmegőrzési teszt,
-lint és production build sikeres; 15 dashboard-lekérdezés Oracle-preflightja sikeres.
-A frontend utolsó pusholt commitja e48661ef58be096bf1ff970368432ebd16e5e9ca,
-[CI](https://github.com/ernoking/job-portal-frontend/actions/runs/44413623454) sikeres.
-A Vercel branch-deploy státusza sikeres, de a védett preview-hoz a felhasználónak nincs hozzáférése.
+A felhasználó jelezte a Production-változók beállítását és deployt.
+Az éles oldal böngészőjében ismételt, buildelt JavaScriptből indított POST-ok,
+mind 204 válasszal. Egy pontosan 60 másodperces csomagban:
+- me GET: 1 HTTP 200, fejlécig mért idő 1015 ms;
+- cv GET: 2 HTTP 200, időösszeg 1077 ms, maximum 583 ms;
+- auth POST: 1 HTTP 200, fejlécig mért idő 562 ms.
+Starts és results: összesen 4 esemény; mock_api=false, mock_jobs=false.
+Nincs jelzett sikertelen kísérlet vagy eldobott csomag/megfigyelés.
+A sent_batches=0 az első csomag küldés előtti pillanatképe, nem hibajelzés.
 
-## A teszt lezárása igazolt
+Az éles ellenőrzés utáni Grafana-kép: receiver UP, 9 elfogadott csomag,
+utolsó csomag kora 1,11 perc. A frontend rátaidősorok jelen vannak,
+az adott időablakban nullán. Pozitív éles frontendráta és frontend-latenciagörbe
+ezen az utolsó képen nem látható. A backend- és DB-görbék láthatók;
+a PostgREST queue mintái nullák, a Render CPU alacsony.
 
-A felhasználó visszaadta a cleanup kimenetét:
-- receiver /health: ok;
-- www.matchwise.tech Origin OPTIONS: 204;
-- localhost:5173 Origin OPTIONS: 403;
-- az Oracle 5173-as portjának ss-listája üres (csak fejléc).
+Az első pozitív counter-minta az idősor kiindulóértéke, abból a rate még nem
+tud megelőző növekményt számolni. További, API-esemény nélküli életjelek
+friss fogadást és nulla rátát eredményezhetnek; a frontend latency-panel
+pozitív HTTP-megfigyelési rátát igényel. A kép ezzel összhangban van,
+de ebből nem állítunk minden kliensre garantált, veszteségmentes lefedettséget.
+Az SSH-teszt alatt pozitív frontend forgalmi/latenciagörbék külön is igazoltak.
 
-Az ideiglenes localhost-engedély visszavonva, a Vite-porton nincs szerver.
-A receiver restart nullázza a memóriabeli számlálókat és deduplikációt;
-a korábbi Prometheus-minták megmaradnak.
-A frontendgörbékben a teszt után elmaradó friss adat elvárt: a tesztfrontend leállt.
-A fogadó szolgáltatás és a monitoring ettől tovább működik.
+## Tesztek
 
-## Éles működés és még nem igazolt részek
+10 frontendteszt, 6 fogadóteszt, 3 konfigurációmegőrzési teszt;
+Oracle/GitHub lint és production build sikeres.
+15 dashboard-lekérdezés Oracle-preflightja sikeres.
+A kézi üres fogadópróba után az SSH/Vite teszt valódi API-eseményeket és
+pozitív frontend/backend grafikonokat igazolt; az éles mérés külön ellenőrizve.
 
-**A www.matchwise.tech éles oldalon az automatikus küldés és a tényleges API-kérések összesített mérése igazolt.**
-A forrásbeli trafficConfig.js alapértéke enabled=false és üres endpoint;
-a teszt a Vite-folyamat környezeti változóival működött, amelyeket nem írtunk .env fájlba.
-A projekt kezelője a felhasználó visszajelzése alapján beállította a Production-változókat és deployolt;
-a main merge utáni éles oldalon a küldés már látszik. A csomagok üzleti API-tartalmát
-és az éles forgalom Grafana-megjelenését még ellenőrizni kell. A frontend main merge 2026-11-19-én külön engedélyt kapott és megtörtént; a monitoringág külön maradt.
+## Ideiglenes teszt lezárva
 
-Nincs automatikus összetett eltérésriasztás, DDoS-/terheléses igazolás vagy általános
-rendellenesség-felismerési bizonyíték. Az új panelek Viewer-hozzáférése nincs külön igazolva.
-A PostgREST queue mintavételezett kapcsolatkészlet-várakozás, nem teljes adatbázis-/lock-várakozás.
+Health ok; www Origin OPTIONS 204; localhost:5173 Origin OPTIONS 403.
+Az Oracle 5173-as portján nincs listener. A Vite és a localhost-engedély nem szükséges
+az éles működéshez. A receiver restart nullázza a memóriabeli számlálókat
+és deduplikációt, a korábbi Prometheus-minták megmaradnak.
+
+## Értelmezési korlátok
+
+A frontend nem Vercel access log: csak a mérőkódon átmenő böngészős API-hívások látszanak.
+A háttérbe tett vagy bezárt lap, blokkolás és hálózati hiba adatvesztést/késést okozhat.
+Hiányzó adat nem nulla forgalom. A beérkezés és az API-esemény időpontja eltérhet.
+A böngészős idő válaszfejlécig tart; a P95 kosarakból becsült.
+A PostgREST-sor nem a teljes adatbázis vagy PostgreSQL lock-várakozás.
 A DB-tranzakciók belső szolgáltatásokat és más klienseket is tartalmaznak.
-A külön tengelyeken lévő görbék egyezése vagy eltérése önmagában nem ok-okozati bizonyíték.
-A böngészős idők válaszfejlécig mérnek; P95 kosarakból becsült.
-Hiányzó frontendadat nem nulla forgalom; a gyűjtési késés és az eltérő lefedettség számít.
+Külön tengelyeken lévő görbék egyezése/eltérése nem ok-okozati bizonyíték.
+Nincs új automatikus rendellenesség-riasztás vagy DDoS-/terheléses igazolás.
+Az új dashboard Viewer-hozzáférése nincs külön igazolva.
 
-## Verziózás és üzemeltetési korlát
+## Verziózás és üzemeltetés
 
-- Monitoring: Csabi179/ai-job-portal-monitoring, feat/service-comparison.
-- Frontend: ernoking/job-portal-frontend, feat/frontend-api-traffic.
-- Kód és dokumentáció mindkét fejlesztési ágban verziózott.
-- Oracle monitoring checkout: a felhasználó utolsó igazolása szerint main,
+- Frontend: ernoking/job-portal-frontend; a tesztelt fejlesztési ág main-be összevonva, PR #11.
+- Monitoring: Csabi179/ai-job-portal-monitoring, feat/service-comparison továbbra is külön.
+- Kód és dokumentáció Gitben verziózott.
+- Oracle monitoring checkout az utolsó igazolás szerint main,
   7ac0229c8384e55a23551b86f6d6db6002608b4b, helyi módosításokkal.
   A telepítés fájlonkénti másolással történt: nincs pull/ágváltás.
   Későbbi frissítés előtt git status; helyi fájlokat nem dobunk el.
-- A külön telepített Python-scriptek és systemd-fájlok nem frissülnek automatikusan Git-frissítéstől.
+- A külön telepített Python és systemd példányokat a Git-frissítés önmagában nem frissíti.
 
-Részletes bizonyítékok és eljárások:
-[frontend/fogadó](FRONTEND_TRAFFIC_RECEIVER.md),
-[dashboard](SERVICE_COMPARISON_DASHBOARD.md),
-[SSH-teszt](FRONTEND_SSH_TEST.md),
-[Supabase](SUPABASE_METRICS.md).
+Nincs további kötelező tesztparancs. Normál használat mellett gyűlhet az éles minta;
+új közös riasztási küszöbök előtt ennek lefedettségét és szokásos viselkedését kell értékelni.
 
-## Éles forrás előkészítése – 2026-11-19
-
-A felhasználó most külön engedélyezte a frontend feat/frontend-api-traffic -> main
-összevonást. A monitoring feat/service-comparison ág továbbra sem vonható össze.
-A kapcsolt GitHub-eszköz PR-létrehozására 403 érkezett, ezért az Oracle GitHub CLI-hez
-készült rögzített SHA-kat, readiness-t és CI-t ellenőrző merge-segéd.
-A script helyi Bash-szintaxisellenőrzése sikeres; a tényleges Oracle-futás,
-PR-létrehozás és merge még nincs igazolva. Részletek:
-[Production activation](FRONTEND_PRODUCTION_ACTIVATION.md).
-A két Production-változó mellett új Production build szükséges;
-a változók mentése önmagában nem írja át a már kiadott frontend JavaScriptjét.
-
-## Frontend merge és az utána indult CI/deploy sikeres – 2026-11-19
-
-A felhasználó REST merge-kimenete merged=true, SHA:
-86fc6ff74ce1819e77749be899de598bf54b6577.
-A kapcsolt GitHub-eszköz ezt [PR #11](https://github.com/ernoking/job-portal-frontend/pull/11)
-merged állapotával és a main aktuális HEAD-jével külön igazolta.
-A tesztelt e48661e forrás a merge elődje; e48661e -> 86fc6ff összehasonlításban
-0 változott fájl szerepel. A frontendkód tartalma megegyezik a teszteltével.
-[Main CI 44423094254](https://github.com/ernoking/job-portal-frontend/actions/runs/44423094254): completed/success.
-Az új merge-commit Vercel státusza success, Deployment has completed.
-[Deployment státusz céloldala](https://vercel.com/ai-job-portal1/matchwise/6Q6jnND9uuawRBNkGnedCZujnu89).
-
-A két környezeti változó beállítását és a deployt a felhasználó korábban jelezte.
-A Vercel-projekt konkrét beállításait közvetlenül nem olvastuk ki.
-Következő ellenőrzés: az éles https://www.matchwise.tech oldalt újratöltve,
-valódi automatikus /matchwise-telemetry/v1 POST 204, nem üres normál API-adatok,
-majd Prometheus/Grafana frissülés. Ez még nincs visszaigazolva.
-A merge és a Vercel success önmagában nem éles böngészős adatküldési bizonyíték.
-A monitoring feat/service-comparison ága továbbra sem lett main-be olvasztva.
-
-## Éles oldalon ismétlődő 204-es küldés igazolva – 2026-11-19
-
-A felhasználó az éles www.matchwise.tech oldal újratöltése és Network-vizsgálata
-után képet adott vissza. Öt POST látszik a grafana-r0cecq.duckdns.org v1
-fogadóútvonalára, mind 204. Az initiator a buildelt index JavaScript fetch-hívása.
-A képen az első csomag átvitele 1,84 kB, a későbbieké 1,26 kB.
-A nagyobb méretből önmagában nem következtetünk nem üres API-adatokra.
-
-Ez az éles oldalon ismétlődő automatikus fogadást igazolja a felhasználó
-aktuális böngészőjében. Nem bizonyít minden látogatóra teljes lefedettséget,
-pontos időközöket vagy a csomagtörzsben szereplő mock kapcsolók értékét.
-Következő, még nem igazolt lépés: az első nagyobb csomag starts/results
-és mock_api/mock_jobs értékeinek ellenőrzése, majd Grafana frissesség és görbék.
-Nincs szükség localhost/Vite újraindításra; a localhost Origin továbbra is tiltott.
-
-## Éles, nem üres API-csomag igazolva – 2026-11-19
-
-A felhasználó az éles oldal első, f8c446b4-a9d6-40a4-a5e7-36d0f431f97b csomagját
-adta vissza. Időablak 1795045538927–1795045598927 ms: pontosan 60 000 ms.
-interval_ms=60000; mock_api=false; mock_jobs=false; inflight=0.
-Starts és results egyaránt 4 esemény, 3 dimenziósor:
-- me / GET: 1 HTTP 200, fejlécig mért idő 1015 ms;
-- cv / GET: 2 HTTP 200, időösszeg 1077 ms, maximum 583 ms (átlag 538,5 ms);
-- auth / POST: 1 HTTP 200, fejlécig mért idő 562 ms.
-A Network-kép szerint a csomag POST-ja 204 volt.
-Delivery failed_attempts/dropped_batches/dropped_observations mind 0.
-A sent_batches=0 az első csomag küldés előtti pillanatképe: a kód sikeres
-204 után növeli ezt, ezért nem sikertelen vagy hiányzó küldést jelent.
-
-Ez az éles buildben a tényleges API-indítások és HTTP-válaszok mérését,
-a csoportosítást és fejlécig tartó időadatok gyűjtését igazolja a megfigyelt
-böngészőben. Nem állítunk minden kliensre garantált, veszteségmentes lefedettséget.
-Következő utolsó próba: egyszeri normál éles oldalfrissítés, két perc gyűjtési idő,
-majd a Grafana frontend/backend paneljei és a fogadás frissességének ellenőrzése.
-A kezdeti counter-idősorok és az 5 perces ráták miatt további normál kérések/minták
-szükségesek lehetnek a forgalmi görbékhez. Ez az ellenőrzés még nincs visszaigazolva.
-Nincs localhost-engedély vagy SSH/Vite teszt újraindítva.
+Részletek: [élesítés](FRONTEND_PRODUCTION_ACTIVATION.md),
+[fogadó és bizonyítékok](FRONTEND_TRAFFIC_RECEIVER.md),
+[dashboard](SERVICE_COMPARISON_DASHBOARD.md), [SSH-teszt](FRONTEND_SSH_TEST.md).
