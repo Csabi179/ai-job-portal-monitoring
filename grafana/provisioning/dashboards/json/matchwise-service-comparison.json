@@ -1,18 +1,19 @@
 {
   "uid": "matchwise-service-comparison",
-  "title": "MatchWise · Service Comparison",
+  "title": "MatchWise · Szolgáltatások összehasonlítása",
   "schemaVersion": 42,
-  "version": 5,
+  "version": 6,
   "editable": false,
   "tags": [
     "matchwise",
     "security",
-    "comparison"
+    "comparison",
+    "magyar"
   ],
   "timezone": "browser",
   "refresh": "1m",
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "templating": {
@@ -49,7 +50,7 @@
     {
       "id": 1,
       "type": "text",
-      "title": "MatchWise · Service Comparison",
+      "title": "MatchWise · Szolgáltatások összehasonlítása",
       "gridPos": {
         "x": 0,
         "y": 0,
@@ -58,74 +59,14 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Compare changes at the same time. Percentages use each service's own capacity; machines have different sizes. CPU: Oracle/Supabase use a 5-minute average; Render uses API samples. Gaps mean missing or stale data. Different usage alone does not prove an attack."
+        "content": "### Állapot → forgalom → terhelés\n**Kék: frontend · Narancs: backend · Zöld: adatbázis · Lila: Oracle.** Közös időtengely, külön jelölt mértékegységek. A hiányzó adat nem nulla; a részletek lent lenyithatók."
       }
     },
     {
-      "id": 2,
-      "type": "text",
-      "title": "Backend · Render",
-      "gridPos": {
-        "x": 0,
-        "y": 3,
-        "w": 6,
-        "h": 3
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Render API resources + HTTP probes."
-      }
-    },
-    {
-      "id": 3,
-      "type": "text",
-      "title": "Database · Supabase",
-      "gridPos": {
-        "x": 6,
-        "y": 3,
-        "w": 6,
-        "h": 3
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Database host resources + Metrics API."
-      }
-    },
-    {
-      "id": 4,
-      "type": "text",
-      "title": "Frontend · Vercel",
-      "gridPos": {
-        "x": 12,
-        "y": 3,
-        "w": 6,
-        "h": 3
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "HTTP probes. Host CPU/RAM are not collected."
-      }
-    },
-    {
-      "id": 5,
-      "type": "text",
-      "title": "Monitoring · Oracle",
-      "gridPos": {
-        "x": 18,
-        "y": 3,
-        "w": 6,
-        "h": 3
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Monitoring VM host resources."
-      }
-    },
-    {
-      "id": 6,
+      "id": 8,
       "type": "stat",
-      "title": "Backend · HTTP result (last 3m)",
-      "description": "1 = latest HTTP probe passed, 0 = failed, no data = unknown. Probe every minute; 10-second prober timeout and 3-minute freshness.",
+      "title": "Frontend · HTTP-próba",
+      "description": "Last observed result of the 1-minute Blackbox HTTP probe; 5-minute freshness window. See probe age and actual sample counts below. Exporter scrape failures are shown in the availability section.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -133,7 +74,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
+          "expr": "last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -145,18 +86,28 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No recent probe",
+          "noValue": "Nincs adat",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "NEM ELÉRHETŐ",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "ELÉRHETŐ",
                   "color": "green"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
                 }
               }
             }
@@ -194,15 +145,103 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 6,
+        "y": 3,
         "w": 6,
-        "h": 6
+        "h": 4
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Backend · HTTP-próba",
+      "description": "1 = latest HTTP probe passed, 0 = failed, no data = unknown. Probe every minute; 10-second prober timeout and 3-minute freshness.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "Nincs adat",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "NEM ELÉRHETŐ",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "ELÉRHETŐ",
+                  "color": "green"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 6,
+        "y": 3,
+        "w": 6,
+        "h": 4
       }
     },
     {
       "id": 7,
       "type": "stat",
-      "title": "Supabase · PostgreSQL reachability",
+      "title": "Adatbázis · PostgreSQL-kapcsolat",
       "description": "pg_up reports whether the PostgreSQL exporter connected successfully. The card requires a successful Metrics API scrape. Application auth checks are tracked in the authentication section.",
       "datasource": {
         "type": "prometheus",
@@ -224,28 +263,28 @@
         "defaults": {
           "unit": "short",
           "decimals": 0,
-          "noValue": "No data",
+          "noValue": "Nincs adat",
           "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "NEM ELÉRHETŐ",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "ELÉRHETŐ",
+                  "color": "green"
+                }
+              }
+            },
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "Nincs adat",
                   "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "DOWN",
-                  "color": "red"
-                },
-                "1": {
-                  "text": "UP",
-                  "color": "green"
                 }
               }
             }
@@ -285,1826 +324,16 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 6,
-        "y": 6,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 8,
-      "type": "stat",
-      "title": "Frontend · HTTP result (last 3m)",
-      "description": "Last observed result of the 1-minute Blackbox HTTP probe; 5-minute freshness window. See probe age and actual sample counts below. Exporter scrape failures are shown in the availability section.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "noValue": "No recent probe",
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "DOWN",
-                  "color": "red"
-                },
-                "1": {
-                  "text": "UP",
-                  "color": "green"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
         "x": 12,
-        "y": 6,
+        "y": 3,
         "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 9,
-      "type": "stat",
-      "title": "Oracle · Metrics collection",
-      "description": "Last Prometheus scrape of Oracle VM host metrics.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "up{job=\"node_exporter\"}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "noValue": "N/A",
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "DOWN",
-                  "color": "red"
-                },
-                "1": {
-                  "text": "UP",
-                  "color": "green"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 18,
-        "y": 6,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 10,
-      "type": "timeseries",
-      "title": "Backend · CPU (%)",
-      "description": "Render API usage / CPU limit. Hidden if collection fails, source is older than five minutes, attempt older than four minutes or Node Exporter has errors.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(matchwise_render_cpu_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Backend · CPU (%)",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "max": 100,
-          "noValue": "No fresh data"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 0,
-        "y": 12,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 11,
-      "type": "timeseries",
-      "title": "Supabase · CPU (%)",
-      "description": "5-minute average CPU use of the database host.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Supabase · CPU (%)",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "max": 100,
-          "noValue": "No fresh data"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 6,
-        "y": 12,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 12,
-      "type": "text",
-      "title": "Frontend · CPU (%)",
-      "gridPos": {
-        "x": 12,
-        "y": 12,
-        "w": 6,
-        "h": 6
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "**Not collected**\n\nVercel host CPU is not available in this monitoring setup."
-      }
-    },
-    {
-      "id": 13,
-      "type": "timeseries",
-      "title": "Oracle · CPU (%)",
-      "description": "5-minute average CPU use of the monitoring VM.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"node_exporter\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Oracle · CPU (%)",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "max": 100,
-          "noValue": "No fresh data"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 18,
-        "y": 12,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 14,
-      "type": "timeseries",
-      "title": "Backend · Memory (%)",
-      "description": "Render API used bytes / memory limit. Same freshness checks as Backend CPU.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(matchwise_render_memory_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Backend · Memory (%)",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "max": 100,
-          "noValue": "No fresh data"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 0,
-        "y": 18,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 15,
-      "type": "timeseries",
-      "title": "Supabase · Memory (%)",
-      "description": "Database host memory use based on MemAvailable.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Supabase · Memory (%)",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "max": 100,
-          "noValue": "No fresh data"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 6,
-        "y": 18,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 16,
-      "type": "text",
-      "title": "Frontend · Memory (%)",
-      "gridPos": {
-        "x": 12,
-        "y": 18,
-        "w": 6,
-        "h": 6
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "**Not collected**\n\nVercel host memory is not available in this monitoring setup."
-      }
-    },
-    {
-      "id": 17,
-      "type": "timeseries",
-      "title": "Oracle · Memory (%)",
-      "description": "Monitoring VM memory use based on MemAvailable.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Oracle · Memory (%)",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "max": 100,
-          "noValue": "No fresh data"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 18,
-        "y": 18,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 18,
-      "type": "stat",
-      "title": "Backend · Resource sample age",
-      "description": "Current telemetry value. Missing data is unknown.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "max(time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"})",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "noValue": "N/A",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "green"
-              },
-              {
-                "value": 180,
-                "color": "orange"
-              },
-              {
-                "value": 300,
-                "color": "red"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 0,
-        "y": 24,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 19,
-      "type": "stat",
-      "title": "Supabase · Metrics collection",
-      "description": "Prometheus scrape status for the selected Supabase target. UP confirms the Metrics API scrape. PostgreSQL reachability is shown separately.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "min(up{job=\"supabase\",instance=\"${supabase_instance}\"})",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "decimals": 0,
-          "noValue": "No data",
-          "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "No data",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "value",
-              "options": {
-                "0": {
-                  "text": "DOWN",
-                  "color": "red"
-                },
-                "1": {
-                  "text": "UP",
-                  "color": "green"
-                }
-              }
-            }
-          ],
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "red"
-              },
-              {
-                "value": 1,
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 6,
-        "y": 24,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 20,
-      "type": "stat",
-      "title": "Frontend · Probe sample age",
-      "description": "Age of the latest stored frontend probe sample within five minutes.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[3m:30s])",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "noValue": "No recent sample",
-          "decimals": 1,
-          "color": {
-            "mode": "thresholds",
-            "fixedColor": "blue"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 120
-              },
-              {
-                "color": "red",
-                "value": 240
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 12,
-        "y": 24,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 21,
-      "type": "timeseries",
-      "title": "Oracle · Textfile read errors",
-      "description": "0 = Node Exporter textfile metrics parsed successfully; 1 = parsing error.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "node_textfile_scrape_error{job=\"node_exporter\"}",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "0 = OK / 1 = error",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 0,
-            "fillOpacity": 0,
-            "showPoints": "always",
-            "pointSize": 5,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "max": 1
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 18,
-        "y": 24,
-        "w": 6,
-        "h": 6
-      }
-    },
-    {
-      "id": 22,
-      "type": "text",
-      "title": "Logs and workload context",
-      "gridPos": {
-        "x": 0,
-        "y": 30,
-        "w": 24,
-        "h": 3
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Only backend application logs are collected in this setup. Supabase, Vercel and Oracle application/system logs are not collected here. Traffic below excludes health checks. Empty log panels can mean no traffic or missing logs; check log collector health."
-      }
-    },
-    {
-      "id": 23,
-      "type": "timeseries",
-      "title": "Backend · Requests/min (5m)",
-      "description": "Requests per minute, calculated from a five-minute rolling window. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" [5m])) * 60",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "editorMode": "code",
-          "queryType": "range",
-          "legendFormat": "Requests/min",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "noValue": "No matching logs"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 0,
-        "y": 33,
-        "w": 12,
-        "h": 7
-      }
-    },
-    {
-      "id": 24,
-      "type": "timeseries",
-      "title": "Backend · Errors/min (5m)",
-      "description": "4xx and 5xx HTTP errors per minute (five-minute rolling window). Zero is shown when there are no matching errors.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" [5m])) * 0)) * 60",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "editorMode": "code",
-          "queryType": "range",
-          "legendFormat": "4xx/min",
-          "instant": false,
-          "range": true
-        },
-        {
-          "refId": "B",
-          "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | statusCode >= 500 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" [5m])) * 0)) * 60",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "editorMode": "code",
-          "queryType": "range",
-          "legendFormat": "5xx/min",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 12,
-        "y": 33,
-        "w": 12,
-        "h": 7
-      }
-    },
-    {
-      "id": 25,
-      "type": "timeseries",
-      "title": "Backend · P50 / P95 response time",
-      "description": "Pino processing-time percentiles over a rolling 15-minute window, filtered by Traffic and Route contains. Read the timing sample count alongside these values. Very small samples produce unstable percentiles.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "quantile_over_time(0.50, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "editorMode": "code",
-          "queryType": "range",
-          "legendFormat": "P50",
-          "instant": false,
-          "range": true
-        },
-        {
-          "refId": "B",
-          "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "editorMode": "code",
-          "queryType": "range",
-          "legendFormat": "P95",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 0,
-        "y": 40,
-        "w": 12,
-        "h": 7
-      }
-    },
-    {
-      "id": 26,
-      "type": "timeseries",
-      "title": "Log collector · Seconds since success",
-      "description": "Age of the last successful Render Logs API collection. It normally resets after each successful systemd run.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "max(time() - matchwise_render_collector_last_success_timestamp_seconds)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Age since last success",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 12,
-        "y": 40,
-        "w": 12,
-        "h": 7
-      }
-    },
-    {
-      "id": 28,
-      "type": "text",
-      "title": "Security overview · Backend",
-      "gridPos": {
-        "x": 0,
-        "y": 47,
-        "w": 24,
         "h": 4
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "Counts cover the last 5 minutes and exclude health checks. 401 = unauthenticated request, 403 = access refused, 404 = not found, 429 = rate limit response. Counts are across all users; no IP/account attribution. A missing result can mean no matching traffic or missing logs. A 429 panel does not prove rate limiting exists. These are investigation signals, not proof of attacks."
-      }
-    },
-    {
-      "id": 29,
-      "type": "stat",
-      "title": "Backend · HTTP 401 (last 5m)",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
-          "editorMode": "code",
-          "queryType": "instant",
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "noValue": "No matching logs",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 0,
-        "y": 51,
-        "w": 6,
-        "h": 5
-      }
-    },
-    {
-      "id": 30,
-      "type": "stat",
-      "title": "Backend · HTTP 403 (last 5m)",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
-          "editorMode": "code",
-          "queryType": "instant",
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "noValue": "No matching logs",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 6,
-        "y": 51,
-        "w": 6,
-        "h": 5
-      }
-    },
-    {
-      "id": 31,
-      "type": "stat",
-      "title": "Backend · HTTP 404 (last 5m)",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
-          "editorMode": "code",
-          "queryType": "instant",
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "noValue": "No matching logs",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 12,
-        "y": 51,
-        "w": 6,
-        "h": 5
-      }
-    },
-    {
-      "id": 32,
-      "type": "stat",
-      "title": "Backend · HTTP 429 (last 5m)",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
-          "editorMode": "code",
-          "queryType": "instant",
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "noValue": "No matching logs",
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 18,
-        "y": 51,
-        "w": 6,
-        "h": 5
-      }
-    },
-    {
-      "id": 33,
-      "type": "timeseries",
-      "title": "Backend · 401 / 403 / 404 / 429 per minute",
-      "description": "Five-minute rolling rates, with non-health HTTP traffic as the zero fallback. Same data as the count cards, expressed per minute.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 401/min",
-          "queryType": "range",
-          "instant": false,
-          "range": true
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 403/min",
-          "queryType": "range",
-          "instant": false,
-          "range": true
-        },
-        {
-          "refId": "C",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 404/min",
-          "queryType": "range",
-          "instant": false,
-          "range": true
-        },
-        {
-          "refId": "D",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 429/min",
-          "queryType": "range",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "noValue": "No matching logs"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 0,
-        "y": 56,
-        "w": 12,
-        "h": 7
-      }
-    },
-    {
-      "id": 34,
-      "type": "timeseries",
-      "title": "Backend · Traffic change (health excluded)",
-      "description": "Current five-minute request rate vs the preceding 30-minute average, ending five minutes ago. Both lines are requests/minute. No automatic traffic-spike alert is enabled; low-volume baselines can exaggerate relative changes.",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "editorMode": "code",
-          "queryType": "range",
-          "legendFormat": "Current 5m average",
-          "instant": false,
-          "range": true
-        },
-        {
-          "refId": "B",
-          "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [30m] offset 5m))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [30m] offset 5m))) * 0)) * 60",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "editorMode": "code",
-          "queryType": "range",
-          "legendFormat": "Previous 30m average (offset 5m)",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "pointSize": 4,
-            "spanNulls": false,
-            "axisPlacement": "auto",
-            "axisColorMode": "text",
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "stacking": {
-              "mode": "none",
-              "group": "A"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "min": 0,
-          "noValue": "No matching logs"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true,
-          "calcs": []
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 12,
-        "y": 56,
-        "w": 12,
-        "h": 7
-      }
-    },
-    {
-      "id": 36,
-      "title": "Backend · Security response logs",
-      "type": "logs",
-      "gridPos": {
-        "x": 0,
-        "y": 63,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "{job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode=~\"401|403|404|429\" | __error__=\"\"",
-          "queryType": "range",
-          "editorMode": "code"
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "showLabels": false,
-        "wrapLogMessage": true,
-        "sortOrder": "Descending",
-        "enableLogDetails": true
-      },
-      "description": "Logged 401/403/404/429 HTTP events, excluding health checks. Original route can be unmatched. No client IP/user attribution."
-    },
-    {
-      "id": 27,
-      "title": "Backend · HTTP error logs",
-      "type": "logs",
-      "gridPos": {
-        "x": 0,
-        "y": 71,
-        "w": 24,
-        "h": 9
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"(/api/health|/health)\" | statusCode >= 400 | __error__=\"\"",
-          "queryType": "range",
-          "editorMode": "code"
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "showLabels": false,
-        "wrapLogMessage": true,
-        "sortOrder": "Descending",
-        "enableLogDetails": true
-      }
-    },
-    {
-      "id": 37,
-      "type": "text",
-      "title": "Frontend–backend traffic comparison · measurement coverage",
-      "gridPos": {
-        "x": 0,
-        "y": 80,
-        "w": 24,
-        "h": 4
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "### Forgalmi összehasonlítás\nA frontend a mérőkódot futtató böngészők API-hívásait mutatja; a backend a naplózott kéréseket. Eltérés nem bizonyít támadást. **Hiányzó frontendadat nem nulla forgalom.** Az üres kézi tesztcsomag a fogadási utat igazolja, nem az automatikus mérés aktiválását. A grafikonok beérkezési ütemet mutatnak; az újraküldés és a háttérbe tett lap késést okozhat."
       }
     },
     {
       "id": 38,
       "type": "stat",
-      "title": "Frontend telemetry · Receiver scrape",
+      "title": "Telemetria · Oracle-fogadó",
       "description": "A Prometheus eléri-e a fogadót. Nem bizonyít aktív böngészőoldali küldést.",
       "datasource": {
         "type": "prometheus",
@@ -2125,18 +354,28 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "N/A",
+          "noValue": "Nincs adat",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "NEM ELÉRHETŐ",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "ELÉRHETŐ",
                   "color": "green"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
                 }
               }
             }
@@ -2173,17 +412,17 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 0,
-        "y": 84,
-        "w": 8,
-        "h": 5
+        "x": 18,
+        "y": 3,
+        "w": 6,
+        "h": 4
       }
     },
     {
       "id": 39,
       "type": "stat",
-      "title": "Frontend telemetry · Last packet age",
-      "description": "Másodperc az utolsó elfogadott csomag óta, a kézi üres próbát is beleértve. Nyitott lap hiányában az életjel elmaradhat; ez önmagában nem kiesés.",
+      "title": "Böngészőcsomag · Utolsó beérkezés kora",
+      "description": "Másodperc az utolsó elfogadott csomag óta, a kézi üres próbát is beleértve. Nyitott lap hiányában az életjel elmaradhat; ez önmagában nem kiesés. Üres, de elfogadott életjel is frissíti. Bezárt böngésző mellett öregedhet; ez önmagában nem frontendkiesés.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2204,10 +443,10 @@
         "defaults": {
           "unit": "s",
           "min": 0,
-          "noValue": "No received packet / no scrape",
+          "noValue": "Nincs adat",
           "color": {
             "mode": "fixed",
-            "fixedColor": "blue"
+            "fixedColor": "#56B4E9"
           },
           "thresholds": {
             "mode": "absolute",
@@ -2217,7 +456,96 @@
                 "value": null
               }
             ]
-          }
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 8,
+        "h": 4
+      }
+    },
+    {
+      "id": 47,
+      "type": "stat",
+      "title": "Backend-napló · Sikeres gyűjtés kora",
+      "description": "A naplógyűjtő utolsó sikeres futásának kora; nem az utolsó üzleti kérés kora.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(time() - matchwise_render_collector_last_success_timestamp_seconds)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Utolsó sikeres gyűjtés kora",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "noValue": "Nincs adat",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
@@ -2238,16 +566,16 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 84,
+        "y": 7,
         "w": 8,
-        "h": 5
+        "h": 4
       }
     },
     {
       "id": 40,
       "type": "stat",
-      "title": "Frontend telemetry · Accepted packets",
-      "description": "Elfogadott, deduplikált csomagok a fogadó indulása óta. Nem API-kérésszám és nem felhasználószám; az üres kézi tesztcsomagot is tartalmazza.",
+      "title": "Böngészőcsomag · Elfogadott összesen",
+      "description": "Elfogadott, deduplikált csomagok a fogadó indulása óta. Nem API-kérésszám és nem felhasználószám; az üres kézi tesztcsomagot is tartalmazza. Elfogadott összesítések a fogadó indulása óta; nem API-kérések vagy felhasználók száma. Újrainduláskor nullázódik.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2269,10 +597,10 @@
           "unit": "short",
           "min": 0,
           "decimals": 0,
-          "noValue": "No receiver data",
+          "noValue": "Nincs adat",
           "color": {
             "mode": "fixed",
-            "fixedColor": "blue"
+            "fixedColor": "#56B4E9"
           },
           "thresholds": {
             "mode": "absolute",
@@ -2282,7 +610,19 @@
                 "value": null
               }
             ]
-          }
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
@@ -2303,16 +643,29 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 84,
+        "y": 7,
         "w": 8,
-        "h": 5
+        "h": 4
       }
+    },
+    {
+      "id": 48,
+      "type": "row",
+      "title": "01 · API-forgalom és válaszidő — összevethető egységek",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
     },
     {
       "id": 41,
       "type": "timeseries",
-      "title": "Traffic comparison · API requests/min (5m)",
-      "description": "Önálló frontend indítások és HTTP-válaszok a naplózott backend /api kérések mellett. A health végpontok kizárva. Csak real mód; nincs erőltetett nulla vagy egyezést követelő arányszám. Frontend 3 percnél régebbi csomag vagy scrape-hiba esetén elrejtve. A backend szűrő a /api előtagos útvonalak mellett a naplóban relatívan szereplő auth/cv/jobs/profile/preferences/me csoportokat is elfogadja.",
+      "title": "API-forgalom · Frontend és backend",
+      "description": "Ötperces átlag percenkénti kérésszámra vetítve; health nélkül. Folytonos kék: indítás, szaggatott kék: HTTP-válasz, narancs: backend API-napló. Azonos egység, eltérő lefedettség. A frontend frissességi feltételei megmaradnak.",
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
@@ -2325,7 +678,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Frontend · API starts/min",
+          "legendFormat": "Frontend · API-indítás / perc",
           "instant": false,
           "range": true
         },
@@ -2336,7 +689,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Frontend · HTTP responses/min",
+          "legendFormat": "Frontend · HTTP-válasz / perc",
           "instant": false,
           "range": true
         },
@@ -2347,7 +700,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "legendFormat": "Backend · logged API requests/min",
+          "legendFormat": "Backend · Naplózott API / perc",
           "instant": false,
           "range": true,
           "editorMode": "code",
@@ -2356,12 +709,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:kérés/perc",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 3,
             "showPoints": "never",
             "pointSize": 4,
             "spanNulls": false,
@@ -2379,34 +732,100 @@
             }
           },
           "min": 0,
-          "noValue": "No matching telemetry"
+          "noValue": "Nincs adat"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend · API-indítás / perc"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend · HTTP-válasz / perc"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backend · Naplózott API / perc"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend · HTTP-válasz / perc"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    5,
+                    5
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 89,
-        "w": 24,
-        "h": 8
+        "y": 12,
+        "w": 12,
+        "h": 10
       }
     },
     {
       "id": 42,
       "type": "timeseries",
-      "title": "Latency context · Browser headers / backend processing (5m)",
+      "title": "Válaszidő · Böngésző és backend",
       "description": "Eltérő mérések, trendekhez: a böngésző fetch-válaszfejlécig tartó ideje és a backend naplózott feldolgozási ideje. Nem teljes letöltési idő, nem vonhatók ki pontos hálózati késésként. A frontend P95 kosarakból becsült; csak HTTP-kimenetek és pozitív megfigyelésszám mellett.",
       "datasource": {
         "type": "datasource",
@@ -2420,7 +839,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Browser · headers mean",
+          "legendFormat": "Frontend · Fejlécekig átlag",
           "instant": false,
           "range": true
         },
@@ -2431,7 +850,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Browser · headers P95 (estimated)",
+          "legendFormat": "Frontend · Fejlécekig P95 (becsült)",
           "instant": false,
           "range": true
         },
@@ -2442,7 +861,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "legendFormat": "Backend · processing P95",
+          "legendFormat": "Backend · Feldolgozás P95",
           "instant": false,
           "range": true,
           "editorMode": "code",
@@ -2456,7 +875,7 @@
             "drawStyle": "line",
             "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 3,
             "showPoints": "never",
             "pointSize": 4,
             "spanNulls": false,
@@ -2474,50 +893,114 @@
             }
           },
           "min": 0,
-          "noValue": "No matching telemetry"
+          "noValue": "Nincs adat"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend · Fejlécekig átlag"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend · Fejlécekig P95 (becsült)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backend · Feldolgozás P95"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend · Fejlécekig P95 (becsült)"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    5,
+                    5
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 0,
-        "y": 97,
-        "w": 24,
-        "h": 8
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 10
       }
     },
     {
-      "id": 43,
-      "type": "text",
-      "title": "Backend–Supabase activity · context, not one-to-one requests",
+      "id": 49,
+      "type": "row",
+      "title": "02 · Backend, adatbázis, erőforrások — közös időtengely",
+      "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 105,
+        "y": 22,
         "w": 24,
-        "h": 4
+        "h": 1
       },
-      "options": {
-        "mode": "markdown",
-        "content": "### Backend–adatbázis összefüggések\nAzonos időtengely, **eltérő mértékegységek és külön tengelyek**. A DB-tranzakciók belső szolgáltatásokat és más klienseket is tartalmazhatnak; nem backendkérésszámlálók. A várakozási sor a **PostgREST kapcsolatkészletére** vonatkozik, nem minden adatbázis-várakozásra. Az együttmozgás támpont, nem ok-okozati bizonyíték. Hiányzó DB-adatnál nincs kitalált nulla."
-      }
+      "panels": []
     },
     {
-      "id": 44,
+      "id": 50,
       "type": "timeseries",
-      "title": "Backend API rate / Supabase committed transactions",
-      "description": "Backend API requests/min (left), Supabase committed transactions/s (right), both 5m averages. Database-wide activity includes internal services and other clients. Different units; no expected numerical equality.",
+      "title": "Backend · API-forgalom",
+      "description": "Naplózott backend API-kérések percenként, ötperces átlagban. Health nélkül; relatív és /api előtagos API-útvonalak is szerepelnek. Hiányzó naplóadatot nem helyettesít nulla.",
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
@@ -2530,32 +1013,21 @@
             "type": "loki",
             "uid": "loki"
           },
-          "legendFormat": "Backend · API requests/min",
+          "legendFormat": "Backend · Naplózott API / perc",
           "instant": false,
           "range": true,
           "editorMode": "code",
           "queryType": "range"
-        },
-        {
-          "refId": "B",
-          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "Supabase · committed transactions/s",
-          "instant": false,
-          "range": true
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:kérés/perc",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 3,
             "showPoints": "never",
             "pointSize": 4,
             "spanNulls": false,
@@ -2571,33 +1043,24 @@
             "thresholdsStyle": {
               "mode": "off"
             },
-            "axisLabel": "Backend API requests/min"
+            "axisLabel": ""
           },
           "min": 0,
-          "noValue": "No matching telemetry"
+          "noValue": "Nincs adat"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Supabase · committed transactions/s"
+              "options": "Backend · Naplózott API / perc"
             },
             "properties": [
               {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": "Supabase committed transactions/s"
-              },
-              {
-                "id": "unit",
-                "value": "ops"
-              },
-              {
-                "id": "max",
-                "value": null
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
               }
             ]
           }
@@ -2605,32 +1068,124 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 109,
-        "w": 24,
+        "y": 23,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 45,
+      "id": 51,
       "type": "timeseries",
-      "title": "Backend CPU / Supabase committed transactions",
-      "description": "Render CPU % (left, API sample) and database-wide committed transactions/s (right, 5m average). CPU-heavy application work may legitimately cause little database activity; the graph is context, not an anomaly verdict.",
+      "title": "Adatbázis · Lezárt tranzakciók",
+      "description": "Lezárt PostgreSQL-tranzakciók másodpercenként, ötperces átlagban. Belső szolgáltatásokat és más klienseket is tartalmazhat; nem backendkérésszám. A PostgreSQL- és scrape-elérhetőségi feltételek megmaradnak.",
       "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Adatbázis · Tranzakció / s",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:tranzakció/s",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 3,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisLabel": ""
+          },
+          "min": 0,
+          "noValue": "Nincs adat"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Adatbázis · Tranzakció / s"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#009E73"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 23,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 53,
+      "type": "timeseries",
+      "title": "CPU · Saját kapacitás (%)",
+      "description": "Azonos százalékos skála, eltérő szolgáltatáskapacitások. Minden adatforrás meglévő frissességi feltétele megmarad. CPU: Oracle/Supabase 5 perces átlag, Render API-minta.",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
       },
       "targets": [
         {
@@ -2640,18 +1195,29 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Backend · CPU (%)",
+          "legendFormat": "Backend",
           "instant": false,
           "range": true
         },
         {
           "refId": "B",
-          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "legendFormat": "Supabase · committed transactions/s",
+          "legendFormat": "Adatbázis",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "C",
+          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Oracle",
           "instant": false,
           "range": true
         }
@@ -2663,7 +1229,7 @@
             "drawStyle": "line",
             "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 3,
             "showPoints": "never",
             "pointSize": 4,
             "spanNulls": false,
@@ -2678,35 +1244,55 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            },
-            "axisLabel": "Render CPU (%)"
+            }
           },
           "min": 0,
           "max": 100,
-          "noValue": "No fresh data"
+          "noValue": "Nincs adat"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Supabase · committed transactions/s"
+              "options": "Backend"
             },
             "properties": [
               {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Adatbázis"
+            },
+            "properties": [
               {
-                "id": "custom.axisLabel",
-                "value": "Supabase committed transactions/s"
-              },
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#009E73"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Oracle"
+            },
+            "properties": [
               {
-                "id": "unit",
-                "value": "ops"
-              },
-              {
-                "id": "max",
-                "value": null
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#B28CD9"
+                }
               }
             ]
           }
@@ -2714,29 +1300,31 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 0,
-        "y": 117,
-        "w": 24,
+        "x": 16,
+        "y": 23,
+        "w": 8,
         "h": 8
       }
     },
     {
-      "id": 46,
+      "id": 55,
       "type": "timeseries",
-      "title": "Backend processing P95 / PostgREST pool queue",
-      "description": "Backend logged processing P95 in ms over 5m (left); PostgREST pool waiting requests sampled every 60s (right). Not a PostgreSQL lock-wait or total database queue metric. Short queue spikes may fall between scrapes; missing data is not zero.",
+      "title": "Backend · Feldolgozási idő P95",
+      "description": "Naplózott backend API-kérések feldolgozási idejének P95 értéke az utolsó 5 percben, ms-ban. Health nélkül. Nem tartalmazza a böngésző és a backend közötti teljes hálózati utat.",
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
@@ -2749,22 +1337,11 @@
             "type": "loki",
             "uid": "loki"
           },
-          "legendFormat": "Backend · processing P95",
+          "legendFormat": "Backend · Feldolgozás P95",
           "instant": false,
           "range": true,
           "editorMode": "code",
           "queryType": "range"
-        },
-        {
-          "refId": "B",
-          "expr": "(sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"${supabase_instance}\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "legendFormat": "PostgREST · waiting requests",
-          "instant": false,
-          "range": true
         }
       ],
       "fieldConfig": {
@@ -2774,7 +1351,7 @@
             "drawStyle": "line",
             "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 10,
+            "fillOpacity": 3,
             "showPoints": "never",
             "pointSize": 4,
             "spanNulls": false,
@@ -2790,37 +1367,24 @@
             "thresholdsStyle": {
               "mode": "off"
             },
-            "axisLabel": "Backend processing P95 (ms)"
+            "axisLabel": ""
           },
           "min": 0,
-          "noValue": "No matching telemetry"
+          "noValue": "Nincs adat"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "PostgREST · waiting requests"
+              "options": "Backend · Feldolgozás P95"
             },
             "properties": [
               {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": "PostgREST waiting requests"
-              },
-              {
-                "id": "unit",
-                "value": "short"
-              },
-              {
-                "id": "max",
-                "value": null
-              },
-              {
-                "id": "custom.axisSoftMax",
-                "value": 5
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
               }
             ]
           }
@@ -2828,23 +1392,2710 @@
       },
       "options": {
         "legend": {
-          "displayMode": "list",
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 125,
-        "w": 24,
+        "y": 31,
+        "w": 8,
         "h": 8
       }
+    },
+    {
+      "id": 52,
+      "type": "timeseries",
+      "title": "PostgREST · Várakozó kérések",
+      "description": "Aktuálisan a PostgREST kapcsolatkészletére várakozó kérések. Nem az összes adatbázis-várakozás. A mért nulla érvényes érték; a hiányzó adat külön állapot.",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"${supabase_instance}\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "PostgREST · Várakozó kérések",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:kérés",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 3,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "axisLabel": ""
+          },
+          "min": 0,
+          "noValue": "Nincs adat"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PostgREST · Várakozó kérések"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#009E73"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 31,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 54,
+      "type": "timeseries",
+      "title": "Memória · Saját kapacitás (%)",
+      "description": "Azonos százalékos skála, szolgáltatásonként eltérő saját kapacitás és memóriafogalom. A meglévő frissességi feltételek megmaradnak.",
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Mixed --"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(matchwise_render_memory_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Backend",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "(100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Adatbázis",
+          "instant": false,
+          "range": true
+        },
+        {
+          "refId": "C",
+          "expr": "(100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "Oracle",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "fillOpacity": 3,
+            "showPoints": "never",
+            "pointSize": 4,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "min": 0,
+          "max": 100,
+          "noValue": "Nincs adat"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backend"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Adatbázis"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#009E73"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Oracle"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#B28CD9"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 31,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 56,
+      "type": "row",
+      "title": "03 · Erőforrások és adatgyűjtés · részletek",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 9,
+          "type": "stat",
+          "title": "Oracle · Metrikagyűjtés",
+          "description": "Last Prometheus scrape of Oracle VM host metrics.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "up{job=\"node_exporter\"}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "noValue": "Nincs adat",
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "NEM ELÉRHETŐ",
+                      "color": "red"
+                    },
+                    "1": {
+                      "text": "ELÉRHETŐ",
+                      "color": "green"
+                    }
+                  }
+                },
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 40,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 10,
+          "type": "timeseries",
+          "title": "Backend · CPU (%)",
+          "description": "Render API usage / CPU limit. Hidden if collection fails, source is older than five minutes, attempt older than four minutes or Node Exporter has errors.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(matchwise_render_cpu_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Backend · CPU (%)",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "max": 100,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#E69F00"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 8,
+            "y": 40,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 11,
+          "type": "timeseries",
+          "title": "Adatbázis · CPU (%)",
+          "description": "5-minute average CPU use of the database host.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Adatbázis · CPU (%)",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "max": 100,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#009E73"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 16,
+            "y": 40,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 13,
+          "type": "timeseries",
+          "title": "Oracle · CPU (%)",
+          "description": "5-minute average CPU use of the monitoring VM.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Oracle · CPU (%)",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "max": 100,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#B28CD9"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 47,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 14,
+          "type": "timeseries",
+          "title": "Backend · Memória (%)",
+          "description": "Render API used bytes / memory limit. Same freshness checks as Backend CPU.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(matchwise_render_memory_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Backend · Memória (%)",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "max": 100,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#E69F00"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 8,
+            "y": 47,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 15,
+          "type": "timeseries",
+          "title": "Adatbázis · Memória (%)",
+          "description": "Database host memory use based on MemAvailable.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Adatbázis · Memória (%)",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "max": 100,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#009E73"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 16,
+            "y": 47,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 17,
+          "type": "timeseries",
+          "title": "Oracle · Memória (%)",
+          "description": "Monitoring VM memory use based on MemAvailable.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Oracle · Memória (%)",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "max": 100,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#B28CD9"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 54,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 18,
+          "type": "stat",
+          "title": "Backend · Erőforrásminta kora",
+          "description": "Current telemetry value. Missing data is unknown.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"})",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "noValue": "Nincs adat",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "value": null,
+                    "color": "green"
+                  },
+                  {
+                    "value": 180,
+                    "color": "orange"
+                  },
+                  {
+                    "value": 300,
+                    "color": "red"
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 8,
+            "y": 54,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 19,
+          "type": "stat",
+          "title": "Adatbázis · Metrikagyűjtés",
+          "description": "Prometheus scrape status for the selected Supabase target. UP confirms the Metrics API scrape. PostgreSQL reachability is shown separately.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "min(up{job=\"supabase\",instance=\"${supabase_instance}\"})",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "decimals": 0,
+              "noValue": "Nincs adat",
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "NEM ELÉRHETŐ",
+                      "color": "red"
+                    },
+                    "1": {
+                      "text": "ELÉRHETŐ",
+                      "color": "green"
+                    }
+                  }
+                },
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "value": null,
+                    "color": "red"
+                  },
+                  {
+                    "value": 1,
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 16,
+            "y": 54,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 20,
+          "type": "stat",
+          "title": "Frontend · HTTP-próba kora",
+          "description": "Age of the latest stored frontend probe sample within five minutes.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[3m:30s])",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "noValue": "Nincs adat",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds",
+                "fixedColor": "blue"
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 120
+                  },
+                  {
+                    "color": "red",
+                    "value": 240
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 61,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 21,
+          "type": "timeseries",
+          "title": "Oracle · Textfile-gyűjtési hibajelzés",
+          "description": "0 = Node Exporter textfile metrics parsed successfully; 1 = parsing error.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "node_textfile_scrape_error{job=\"node_exporter\"}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "0 = rendben / 1 = hiba",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 0,
+                "fillOpacity": 3,
+                "showPoints": "always",
+                "pointSize": 5,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "max": 1,
+              "noValue": "Nincs adat"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 8,
+            "y": 61,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 26,
+          "type": "timeseries",
+          "title": "Backend · Utolsó sikeres naplógyűjtés kora",
+          "description": "Age of the last successful Render Logs API collection. It normally resets after each successful systemd run.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(time() - matchwise_render_collector_last_success_timestamp_seconds)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Utolsó sikeres gyűjtés kora",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#E69F00"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 16,
+            "y": 61,
+            "w": 8,
+            "h": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "type": "row",
+      "title": "04 · HTTP-hibák és biztonsági jelzések",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 28,
+          "type": "text",
+          "title": "Biztonsági jelzések · Értelmezés",
+          "gridPos": {
+            "x": 0,
+            "y": 41,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**Utolsó 5 perc, health nélkül.** A 401/403/404/429 darabszám vizsgálati jelzés, önmagában nem támadásbizonyíték. Hiányzó eredményből nem következik nulla esemény. Nincs IP- vagy fiókszintű hozzárendelés; a 429-panel nem igazolja a korlátozás meglétét."
+          }
+        },
+        {
+          "id": 29,
+          "type": "stat",
+          "title": "401 · Nincs hitelesítés · 5 perc",
+          "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+              "editorMode": "code",
+              "queryType": "instant",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 45,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 30,
+          "type": "stat",
+          "title": "403 · Hozzáférés megtagadva · 5 perc",
+          "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+              "editorMode": "code",
+              "queryType": "instant",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 8,
+            "y": 45,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 31,
+          "type": "stat",
+          "title": "404 · Nem található · 5 perc",
+          "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+              "editorMode": "code",
+              "queryType": "instant",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 16,
+            "y": 45,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 32,
+          "type": "stat",
+          "title": "429 · Korlátozott kérés · 5 perc",
+          "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+              "editorMode": "code",
+              "queryType": "instant",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 52,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 23,
+          "type": "timeseries",
+          "title": "Backend · Összes nem health kérés / perc",
+          "description": "Requests per minute, calculated from a five-minute rolling window. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" [5m])) * 60",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "code",
+              "queryType": "range",
+              "legendFormat": "Kérés / perc",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#E69F00"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 8,
+            "y": 52,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 24,
+          "type": "timeseries",
+          "title": "Backend · HTTP 4xx és 5xx / perc",
+          "description": "4xx and 5xx HTTP errors per minute (five-minute rolling window). Zero is shown when there are no matching errors.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | statusCode >= 400 | statusCode < 500 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" [5m])) * 0)) * 60",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "code",
+              "queryType": "range",
+              "legendFormat": "4xx / perc",
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "B",
+              "expr": "(sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | statusCode >= 500 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" [5m])) * 0)) * 60",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "code",
+              "queryType": "range",
+              "legendFormat": "5xx / perc",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "noValue": "Nincs adat"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 16,
+            "y": 52,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 25,
+          "type": "timeseries",
+          "title": "Backend · Feldolgozási idő P50 / P95 · 15 perc",
+          "description": "Pino processing-time percentiles over a rolling 15-minute window, filtered by Traffic and Route contains. Read the timing sample count alongside these values. Very small samples produce unstable percentiles.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "quantile_over_time(0.50, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "code",
+              "queryType": "range",
+              "legendFormat": "P50",
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "B",
+              "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\".*.*\" | unwrap duration_ms | __error__=\"\" [15m]) by (job)",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "code",
+              "queryType": "range",
+              "legendFormat": "P95",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#E69F00"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 59,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 33,
+          "type": "timeseries",
+          "title": "Backend · HTTP-státuszok / perc",
+          "description": "Five-minute rolling rates, with non-health HTTP traffic as the zero fallback. Same data as the count cards, expressed per minute.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+              "legendFormat": "HTTP 401/min",
+              "queryType": "range",
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "B",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+              "legendFormat": "HTTP 403/min",
+              "queryType": "range",
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "C",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+              "legendFormat": "HTTP 404/min",
+              "queryType": "range",
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "D",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+              "legendFormat": "HTTP 429/min",
+              "queryType": "range",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "noValue": "Nincs adat"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 8,
+            "y": 59,
+            "w": 8,
+            "h": 7
+          }
+        },
+        {
+          "id": 34,
+          "type": "timeseries",
+          "title": "Backend · Jelenlegi és korábbi forgalom",
+          "description": "Current five-minute request rate vs the preceding 30-minute average, ending five minutes ago. Both lines are requests/minute. No automatic traffic-spike alert is enabled; low-volume baselines can exaggerate relative changes.",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "code",
+              "queryType": "range",
+              "legendFormat": "Jelenlegi 5 perces átlag",
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "B",
+              "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [30m] offset 5m))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [30m] offset 5m))) * 0)) * 60",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "code",
+              "queryType": "range",
+              "legendFormat": "Korábbi 30 perces átlag (5 perc eltolás)",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "noValue": "Nincs adat"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 16,
+            "y": 59,
+            "w": 8,
+            "h": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "type": "row",
+      "title": "05 · Backend-naplók",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 41,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 22,
+          "type": "text",
+          "title": "Naplók · Lefedettség",
+          "gridPos": {
+            "x": 0,
+            "y": 42,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "Csak a backend alkalmazásnaplóit gyűjtjük. Az üres naplópanel jelenthet eseményhiányt vagy hiányzó naplókat; ellenőrizd a naplógyűjtés frissességét. A health kérések kimaradnak."
+          }
+        },
+        {
+          "id": 36,
+          "title": "Backend · Biztonsági válaszok naplója",
+          "type": "logs",
+          "gridPos": {
+            "x": 0,
+            "y": 46,
+            "w": 24,
+            "h": 10
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "{job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode=~\"401|403|404|429\" | __error__=\"\"",
+              "queryType": "range",
+              "editorMode": "code"
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "showLabels": false,
+            "wrapLogMessage": true,
+            "sortOrder": "Descending",
+            "enableLogDetails": true
+          },
+          "description": "Logged 401/403/404/429 HTTP events, excluding health checks. Original route can be unmatched. No client IP/user attribution."
+        },
+        {
+          "id": 27,
+          "title": "Backend · HTTP-hibanapló",
+          "type": "logs",
+          "gridPos": {
+            "x": 0,
+            "y": 56,
+            "w": 24,
+            "h": 10
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"(/api/health|/health)\" | statusCode >= 400 | __error__=\"\"",
+              "queryType": "range",
+              "editorMode": "code"
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "showLabels": false,
+            "wrapLogMessage": true,
+            "sortOrder": "Descending",
+            "enableLogDetails": true
+          }
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "type": "row",
+      "title": "06 · Haladó összevetés · két külön tengely",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 43,
+          "type": "text",
+          "title": "Két tengely · Használati útmutató",
+          "gridPos": {
+            "x": 0,
+            "y": 43,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**Haladó nézet: két külön függőleges tengely.** A bal és jobb oldal eltérő egységű; a görbék magassága közvetlenül nem hasonlítható össze. A fő nézet külön grafikonjai könnyebben olvashatók. A DB-tranzakciók nem backendkérések; a sor csak a PostgREST-kapcsolatkészletre vonatkozik."
+          }
+        },
+        {
+          "id": 44,
+          "type": "timeseries",
+          "title": "API-forgalom ↔ DB-tranzakciók · Két tengely",
+          "description": "Backend API requests/min (left), Supabase committed transactions/s (right), both 5m averages. Database-wide activity includes internal services and other clients. Different units; no expected numerical equality.",
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 60",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "legendFormat": "Backend · API / perc",
+              "instant": false,
+              "range": true,
+              "editorMode": "code",
+              "queryType": "range"
+            },
+            {
+              "refId": "B",
+              "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Adatbázis · Tranzakció / s",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": "Backend API-kérés / perc"
+              },
+              "min": 0,
+              "noValue": "Nincs adat"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Adatbázis · Tranzakció / s"
+                },
+                "properties": [
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "right"
+                  },
+                  {
+                    "id": "custom.axisLabel",
+                    "value": "Adatbázis-tranzakció / s"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "ops"
+                  },
+                  {
+                    "id": "max",
+                    "value": null
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Backend · API / perc"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Adatbázis · Tranzakció / s"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 47,
+            "w": 24,
+            "h": 8
+          }
+        },
+        {
+          "id": 45,
+          "type": "timeseries",
+          "title": "Backend CPU ↔ DB-tranzakciók · Két tengely",
+          "description": "Render CPU % (left, API sample) and database-wide committed transactions/s (right, 5m average). CPU-heavy application work may legitimately cause little database activity; the graph is context, not an anomaly verdict.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(matchwise_render_cpu_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Backend · CPU (%)",
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "B",
+              "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "Adatbázis · Tranzakció / s",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": "Render CPU (%)"
+              },
+              "min": 0,
+              "max": 100,
+              "noValue": "Nincs adat"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Adatbázis · Tranzakció / s"
+                },
+                "properties": [
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "right"
+                  },
+                  {
+                    "id": "custom.axisLabel",
+                    "value": "Adatbázis-tranzakció / s"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "ops"
+                  },
+                  {
+                    "id": "max",
+                    "value": null
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Backend · CPU (%)"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Adatbázis · Tranzakció / s"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 55,
+            "w": 24,
+            "h": 8
+          }
+        },
+        {
+          "id": 46,
+          "type": "timeseries",
+          "title": "Backend P95 ↔ PostgREST-sor · Két tengely",
+          "description": "Backend logged processing P95 in ms over 5m (left); PostgREST pool waiting requests sampled every 60s (right). Not a PostgreSQL lock-wait or total database queue metric. Short queue spikes may fall between scrapes; missing data is not zero.",
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | unwrap duration_ms | __error__=\"\" [5m]) by (job)",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "legendFormat": "Backend · Feldolgozás P95",
+              "instant": false,
+              "range": true,
+              "editorMode": "code",
+              "queryType": "range"
+            },
+            {
+              "refId": "B",
+              "expr": "(sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"${supabase_instance}\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "legendFormat": "PostgREST · Várakozó kérések",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": "Backend feldolgozás P95 (ms)"
+              },
+              "min": 0,
+              "noValue": "Nincs adat"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "PostgREST · Várakozó kérések"
+                },
+                "properties": [
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "right"
+                  },
+                  {
+                    "id": "custom.axisLabel",
+                    "value": "PostgREST várakozó kérések"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "short"
+                  },
+                  {
+                    "id": "max",
+                    "value": null
+                  },
+                  {
+                    "id": "custom.axisSoftMax",
+                    "value": 5
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Backend · Feldolgozás P95"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "PostgREST · Várakozó kérések"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 63,
+            "w": 24,
+            "h": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "type": "row",
+      "title": "07 · Adatforrások és mérési útmutató",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 43,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 37,
+          "type": "text",
+          "title": "A mérés értelmezése",
+          "gridPos": {
+            "x": 0,
+            "y": 44,
+            "w": 24,
+            "h": 13
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "### Mit hasonlítunk össze?\n- **Frontend:** a mérőkódot futtató böngészők API-hívásai, 60 másodperces összesítésekben. Az üres csomag életjel, nem API-forgalom.\n- **Backend:** a naplózott API-kérések. Más kliensek, eltérő lefedettség és beérkezési késés miatt nem várunk pontos számegyezést.\n- **Válaszidő:** a böngésző a válaszfejlécekig, a backend a saját feldolgozását méri. A böngészős P95 hisztogramból becsült érték.\n- **Frissesség:** a frontend görbéi 3 percnél régebbi csomagnál elrejtődnek. Új számlálósor első mintájának eseményei a rate-görbén még nem feltétlenül jelennek meg.\n- **Erőforrások:** minden százalék az adott szolgáltatás saját kapacitásához viszonyít; a gépek mérete eltér. Oracle/Supabase CPU: 5 perces átlag, Render CPU: API-minta.\n- **Adatbázis:** a tranzakciók belső szolgáltatásokat és más klienseket is tartalmaznak. A PostgREST-sor nem az összes DB-várakozás.\n\n**Hiányzó adat ≠ nulla. Együttmozgás ≠ bizonyított ok-okozat.**"
+          }
+        },
+        {
+          "id": 2,
+          "type": "text",
+          "title": "Backend · Render",
+          "gridPos": {
+            "x": 0,
+            "y": 57,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "Render API-erőforrásminták, HTTP-próbák és strukturált alkalmazásnaplók. A backendforgalom a naplózott kéréseket mutatja."
+          }
+        },
+        {
+          "id": 3,
+          "type": "text",
+          "title": "Adatbázis · Supabase",
+          "gridPos": {
+            "x": 0,
+            "y": 61,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "Supabase Metrics API: PostgreSQL-elérhetőség, géperőforrások, lezárt tranzakciók és PostgREST-kapcsolatkészlet."
+          }
+        },
+        {
+          "id": 4,
+          "type": "text",
+          "title": "Frontend · Vercel",
+          "gridPos": {
+            "x": 0,
+            "y": 65,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "HTTP-próba és böngészőoldali API-mérés. A böngésző 60 másodpercenként küld összesítést. Vercel host CPU- és memóriamérés nincs."
+          }
+        },
+        {
+          "id": 5,
+          "type": "text",
+          "title": "Monitoring · Oracle",
+          "gridPos": {
+            "x": 0,
+            "y": 69,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "Oracle VM: Prometheus, Loki, Grafana és telemetriafogadó. A CPU- és memóriaadat a monitoringgép saját kapacitásához viszonyított."
+          }
+        },
+        {
+          "id": 12,
+          "type": "text",
+          "title": "Frontend · CPU",
+          "gridPos": {
+            "x": 0,
+            "y": 73,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**Nincs gyűjtve.** Ebben a rendszerben nincs Vercel host CPU-adat."
+          }
+        },
+        {
+          "id": 16,
+          "type": "text",
+          "title": "Frontend · Memória",
+          "gridPos": {
+            "x": 0,
+            "y": 77,
+            "w": 24,
+            "h": 4
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**Nincs gyűjtve.** Ebben a rendszerben nincs Vercel host memóriaadat."
+          }
+        }
+      ]
     }
   ]
 }

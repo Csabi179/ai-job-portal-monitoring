@@ -8,18 +8,25 @@ from urllib.parse import urlencode
 from urllib.request import ProxyHandler, build_opener
 
 
+def walk_panels(panels):
+    for panel in panels:
+        yield panel
+        yield from walk_panels(panel.get('panels', []))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('dashboard', type=Path)
     parser.add_argument('--include-database', action='store_true', help='Also check panels 43–46 using the dashboard default Supabase instance')
+    parser.add_argument('--overview', action='store_true', help='Check all visible overview metrics in the redesigned dashboard')
     args = parser.parse_args()
     dashboard = json.loads(args.dashboard.read_text(encoding='utf-8'))
-    ids = set(range(37, 47 if args.include_database else 43))
-    panels = [panel for panel in dashboard['panels'] if panel['id'] in ids]
+    ids = {6, 7, 8, 38, 39, 40, 41, 42, 47, 50, 51, 52, 53, 54, 55} if args.overview else set(range(37, 47 if args.include_database else 43))
+    panels = [panel for panel in walk_panels(dashboard['panels']) if panel['id'] in ids]
     if {panel['id'] for panel in panels} != ids:
         raise SystemExit('Missing comparison panels; wrong dashboard version.')
     instance = next((item.get('current', {}).get('value') for item in dashboard.get('templating', {}).get('list', []) if item.get('name') == 'supabase_instance'), None)
-    if args.include_database and (not isinstance(instance, str) or not instance):
+    if (args.include_database or args.overview) and (not isinstance(instance, str) or not instance):
         raise SystemExit('Missing default Supabase instance.')
     opener = build_opener(ProxyHandler({}))
     failed = False
@@ -33,7 +40,7 @@ def main():
             name = f"{panel['id']} {target['refId']} {uid}"
             queries += 1
             try:
-                with opener.open(base + '?' + urlencode({'query': target['expr'].replace('\"${supabase_instance}\"', json.dumps(instance)) if args.include_database else target['expr']}), timeout=30) as response:
+                with opener.open(base + '?' + urlencode({'query': target['expr'].replace('\"${supabase_instance}\"', json.dumps(instance)) if (args.include_database or args.overview) else target['expr']}), timeout=30) as response:
                     result = json.load(response)
                 if result.get('status') != 'success':
                     raise ValueError('Query failed')
@@ -47,7 +54,7 @@ def main():
                 status = f' HTTP {error.code}' if isinstance(error, HTTPError) else ''
                 print(name, 'FAILED', type(error).__name__ + status)
                 failed = True
-    expected_queries = 15 if args.include_database else 9
+    expected_queries = 23 if args.overview else (15 if args.include_database else 9)
     if queries != expected_queries:
         raise SystemExit('Unexpected query count; expected ' + str(expected_queries))
     print('Preflight FAILED' if failed else 'Preflight PASS; empty series do not prove live frontend instrumentation.')
