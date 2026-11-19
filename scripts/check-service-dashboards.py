@@ -151,23 +151,27 @@ def check_consistency(models, errors):
                 if title.split('·')[1].strip().startswith(svc) if '·' in title else False:
                     wanted[svc] = panels
         for svc, panels in wanted.items():
-            first = sorted(panels, key=lambda p: (p['gridPos']['y'], p['gridPos']['x']))[:STRIP]
+            count=4 if svc=='Frontend' else STRIP
+            first = sorted(panels, key=lambda p: (p['gridPos']['y'], p['gridPos']['x']))[:count]
             ys = {p['gridPos']['y'] for p in first}
-            if len(first) != STRIP or len(ys) != 1 or any(p['gridPos']['w'] != 4 for p in first):
-                errors.append(f'unified {lang}: {svc} does not open with a {STRIP}-tile strip')
+            if len(first) != count or len(ys) != 1 or any(p['gridPos']['w'] != 24//count for p in first):
+                errors.append(f'unified {lang}: {svc} does not open with a {count}-tile strip')
             kinds = [p['title'].split('·', 1)[-1].strip() for p in first]
             ref = [k.replace('(%)', '').strip() for k in kinds]
             if svc in ('Frontend', 'Backend', 'Oracle', 'Adatbázis', 'Database'):
                 if len(set(p['type'] for p in first)) != 1:
                     errors.append(f'unified {lang}: {svc} strip mixes panel types')
-        titles = [[p['title'].split('·', 1)[-1].strip() for p in sorted(panels, key=lambda p: (p['gridPos']['y'], p['gridPos']['x']))[:STRIP]] for panels in wanted.values()]
+        titles = [[p['title'].split('·', 1)[-1].strip() for p in sorted(panels, key=lambda p: (p['gridPos']['y'], p['gridPos']['x']))[:STRIP]] for svc,panels in wanted.items() if svc!='Frontend']
+        if 'Frontend' in wanted:
+            fe_titles=[p['title'] for p in sorted(wanted['Frontend'],key=lambda p:(p['gridPos']['y'],p['gridPos']['x']))[:4]]
+            if titles and fe_titles!=titles[0][:4]: errors.append(f'unified {lang}: frontend common health tiles differ')
         expected_services={'Frontend','Backend','Oracle','Adatbázis' if lang=='hu' else 'Database'}
         if set(wanted)!=expected_services:
             errors.append(f'unified {lang}: missing or unexpected service sections: {sorted(set(wanted)^expected_services)}')
         if titles and any(t != titles[0] for t in titles[1:]):
             errors.append(f'unified {lang}: service strips differ: {titles}')
         cmp_ = models['matchwise-service-comparison' + ('' if lang == 'hu' else '-en') + '.json']
-        score = [p for p in cmp_['panels'] if p['type'] == 'stat'][:24]
+        score = [p for p in cmp_['panels'] if p['type'] == 'stat'][:16]
         rows = {}
         for p in score:
             rows.setdefault(p['gridPos']['y'], []).append(p)
@@ -176,8 +180,8 @@ def check_consistency(models, errors):
         if [s[0] for s in shape] != services:
             errors.append(f'comparison {lang}: missing scorecard service labels')
         shape=[s[1:] for s in shape]
-        if len(rows) != 4 or any(s != shape[0] for s in shape) or len(shape[0]) != STRIP-1:
-            errors.append(f'comparison {lang}: scorecard is not 4 identical rows of {STRIP}: {shape}')
+        if len(rows) != 4 or any(s != shape[0] for s in shape) or len(shape[0]) != 3 or any(p['gridPos']['w']!=6 for p in score):
+            errors.append(f'comparison {lang}: scorecard is not 4 identical rows of 4: {shape}')
 
 
 def check_parity(models, errors):

@@ -56,6 +56,33 @@ class ServiceDashboardTests(unittest.TestCase):
     def test_committed_dashboards_pass_structure_parity_and_consistency(self):
         self.assertEqual(run_checker(JSON_DIR), 0)
 
+    def test_api_count_uses_selected_period_and_survives_current_receiver_staleness(self):
+        audit=module('range_audit','check-dashboard-final-audit.py')
+        for suffix in ('','-en'):
+            d=read(JSON_DIR/('matchwise-unified-monitoring'+suffix+'.json'))
+            card=next(p for p in d['panels'] if p['id']==335)
+            target=card['targets'][0];expr=target['expr']
+            self.assertIn('sum(increase(frontend_api_requests_started_total',expr)
+            self.assertIn('[$__range]',expr)
+            self.assertNotIn('rate(',expr)
+            self.assertNotIn('up{',expr)
+            self.assertNotIn('last_received',expr)
+            self.assertTrue(target['instant']);self.assertFalse(target['range'])
+            self.assertNotIn('/min',card['fieldConfig']['defaults']['unit'])
+            for seconds in (900,7200):
+                self.assertIn('['+str(seconds)+'s]',audit.expand(expr,d,seconds))
+
+    def test_frontend_host_placeholders_are_removed_with_visible_explanation(self):
+        for name in checker.FILES:
+            d=read(JSON_DIR/name)
+            ids={p['id'] for p in checker.walk(d['panels'])}
+            removed={333,334} if 'unified' in name else {314,315}
+            self.assertFalse(ids&removed)
+            heading=d['panels'][0]['options']['content']
+            self.assertIn('Frontend host',heading)
+            self.assertIn('CPU',heading)
+            self.assertIn('Vercel',heading)
+
     def test_validator_rejects_changed_english_measurement(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.copy_models(tmp)

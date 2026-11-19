@@ -389,6 +389,8 @@ class Q:
         self.cpu = {'be': b.expr('comparison', 10), 'db': b.expr('comparison', 11), 'or': b.expr('comparison', 13)}
         self.mem = {'be': b.expr('comparison', 14), 'db': b.expr('comparison', 15), 'or': b.expr('comparison', 17)}
         self.fe_starts = b.expr('comparison', 41, 0)
+        # Historical count ends at the selected dashboard end time. No current freshness gate.
+        self.fe_calls_range = 'sum(increase(frontend_api_requests_started_total{job="frontend_traffic",mode="real"}[$__range]))'
         self.fe_mean = b.expr('comparison', 42, 0)
         self.fe_p95 = b.expr('comparison', 42, 1)
         self.fe_err_pct = b.expr('comparison', 67)
@@ -469,10 +471,16 @@ def health_strip(q, svc, with_status=True):
 def traffic_strip(q, svc, filters=None):
     name = S(svc)
     if svc == 'fe':
-        starts = (q.fe_starts, L('Böngészőből indított API-hívások percenként.', 'Browser-initiated API calls per minute.'))
+        starts = (q.fe_calls_range, L(
+            'API-hívások becsült száma a kiválasztott időablakban, Prometheus-számlálónövekményből. '
+            'Egész számra kerekített megjelenítés. A csomagbeérkezés és a percenkénti mintavétel ideje számít; '
+            'a frissen megjelenő sorozat első értéke nem feltétlenül számolható. A hiányzó adat nem nulla.',
+            'Estimated API calls in the selected time range, from Prometheus counter increases. '
+            'Displayed rounded to a whole number. Batch arrival and one-minute sampling determine timing; '
+            'the first value of a new series may not be counted. Missing data is not zero.'))
         p = [
-            stat(f'{name} · ' + L('API-hívás / perc', 'API calls / min'), starts[1], [tgt('A', starts[0], instant=True)],
-                 unit='suffix:' + L('hívás/perc', 'calls/min'), fixed=COLOR['fe'], decimals=1),
+            stat(f'{name} · ' + L('API-hívások', 'API calls'), starts[1], [tgt('A', starts[0], instant=True)],
+                 unit='suffix:' + L('hívás', 'calls'), fixed=COLOR['fe'], decimals=0),
             stat(f'{name} · 4xx / ' + L('perc', 'min'), L('Böngészőben látott 4xx HTTP-válaszok percenként.', '4xx HTTP responses seen in the browser per minute.'),
                  [tgt('A', fe_status_rate('4..'), instant=True)], unit='suffix:' + L('hiba/perc', 'errors/min'),
                  th=[(None, 'green'), (0.1, 'orange')], decimals=1),
@@ -578,15 +586,19 @@ def build_unified(base):
     X, Y = '${excluded_route:raw}', '.*${route_filter:regex}.*'
 
     b.line([text(L('MatchWise · Üzemeltetési áttekintés', 'MatchWise · Operations overview'),
-                 L('**Szolgáltatásonként csoportosítva.** Minden szolgáltatás ugyanazzal a két KPI-sávval indul: '
-                   '*állapot · sikeresség · ellenőrzés időtartama · frissesség · CPU · memória*, majd '
-                   '*forgalom · hibák · késleltetés*. Színek: kék frontend · narancs backend · zöld adatbázis · lila Oracle.\n\n'
-                   'Hiányzó adat ≠ nulla. A szolgáltatások egymás melletti összevetése: **Szolgáltatások összehasonlítása** dashboard (felső link).',
-                   '**Grouped by service.** Every service opens with the same two KPI strips: '
-                   '*status · success rate · check duration · freshness · CPU · memory*, then '
-                   '*traffic · errors · latency*. Colours: blue frontend · orange backend · green database · purple Oracle.\n\n'
-                   'Missing data ≠ zero. For side-by-side comparison open the **Service Comparison** dashboard (link above).'),
-                 L('Az összes jelenleg gyűjtött adat áttekintése.', 'High-level view of all currently collected monitoring data.'), h=4)])
+                 L('**Szolgáltatásonként csoportosítva.** Állapot, sikeresség, mérési idő és adatfrissesség, majd '
+                   '*forgalom · hibák · késleltetés*. CPU és memória ott szerepel, ahol ezek gyűjtöttek. '
+                   'Színek: kék frontend · narancs backend · zöld adatbázis · lila Oracle.\n\n'
+                   'Hiányzó adat ≠ nulla. A szolgáltatások egymás melletti összevetése: **Szolgáltatások összehasonlítása** dashboard (felső link).\n\n'
+                   '**Frontend host:** a statikus Vercel-frontend host CPU-/memóriaadatai ehhez a monitoringhoz nem érhetők el; a böngészős telemetria nem méri őket. '
+                   '**API-hívások:** a kiválasztott időablak becsült összes hívása, nem percenkénti átlag.',
+                   '**Grouped by service.** Status, check success, check duration and freshness, followed by '
+                   '*traffic · errors · latency*. CPU and memory appear where collected. '
+                   'Colours: blue frontend · orange backend · green database · purple Oracle.\n\n'
+                   'Missing data ≠ zero. For side-by-side comparison open the **Service Comparison** dashboard (link above).\n\n'
+                   '**Frontend host:** host CPU/memory metrics for this static Vercel frontend are unavailable to this monitoring system; browser telemetry does not measure them. '
+                   '**API calls:** estimated total calls in the selected time range, not a per-minute rate.'),
+                 L('Az összes jelenleg gyűjtött adat áttekintése.', 'High-level view of all currently collected monitoring data.'), h=7)])
 
     # 00 overview
     b.row(L('00 · Áttekintés · állapot', '00 · Overview · status'))
@@ -609,7 +621,9 @@ def build_unified(base):
 
     # 01 frontend
     b.row('01 · Frontend · Vercel')
-    b.line(health_strip(q, 'fe'))
+    frontend_health=health_strip(q, 'fe')[:4]
+    for panel in frontend_health: panel['_w']=6
+    b.line(frontend_health)
     b.line(traffic_strip(q, 'fe'))
     b.line([probe_ts(q, 'fe'), fe_traffic_ts(q)])
     b.row(L('01a · Frontend · HTTP-próba részletei', '01a · Frontend · HTTP probe details'), True)
@@ -680,11 +694,11 @@ def build_unified(base):
     m['version'] = m.get('version', 1) + 1
     m['description'] = L(
         'Egységes üzemeltetési nézet szolgáltatásonként csoportosítva: Frontend (Vercel), Backend (Render), Adatbázis (Supabase), '
-        'Oracle VM és naplógyűjtés. Minden szolgáltatás azonos KPI-sávokkal indul (állapot, sikeresség, ellenőrzés időtartama, '
-        'frissesség, CPU, memória; forgalom, hibák, késleltetés). A Render és a Vercel host CPU/RAM metrikái csak ott jelennek meg, ahol gyűjtöttek.',
+        'Oracle VM és naplógyűjtés. Egységes egészség- és forgalmi nézetek; CPU és memória csak gyűjtött adatforrással. '
+        'A frontend API-hívásszáma a kiválasztott időablak becsült összesítése. A frontend host CPU/RAM-kártyái hiányzó adatforrás miatt nem szerepelnek.',
         'Unified operations view grouped by service: Frontend (Vercel), Backend (Render), Database (Supabase), Oracle VM and log collection. '
-        'Every service opens with the same KPI strips (status, success rate, check duration, freshness, CPU, memory; traffic, errors, latency). '
-        'Vercel host CPU/RAM is shown as n/a because it is not collected.')
+        'Consistent health and traffic views; CPU and memory only where collected. Frontend API calls show an estimated selected-period total. '
+        'Frontend host CPU/RAM cards are omitted because this monitoring system has no data source for them.')
     return m
 
 
@@ -741,12 +755,22 @@ def build_comparison(base):
                    '**The same panel for every service.** Fixed colours: blue frontend · orange backend · green database · purple Oracle. '
                    'Series on one panel share a unit; where a service collects no data the tile shows *n/a*, not zero.\n\n'
                    'Order: **Scorecard → Availability → Load → Errors → Security signals**. Database error rate is the rolled-back transaction share and its '
-                   'traffic is transactions/min: not HTTP requests. The detailed browser view is at the bottom.'),
-                 L('Szolgáltatások egymás melletti összehasonlítása azonos felépítéssel.', 'Side-by-side service comparison with an identical structure.'), h=4)])
+                   'traffic is transactions/min: not HTTP requests. The detailed browser view is at the bottom.')+'\n\n'+
+                 L('**Frontend host:** a statikus Vercel-frontend host CPU-/memóriaadatai ehhez a monitoringhoz nem érhetők el; a böngészős telemetria nem méri őket. '
+                   'Erőforrás-kártyák csak a backendhez, az adatbázishoz és az Oracle VM-hez szerepelnek.',
+                   '**Frontend host:** host CPU/memory metrics for this static Vercel frontend are unavailable to this monitoring system; browser telemetry does not measure them. '
+                   'Resource cards are shown for the backend, database and Oracle VM only.'),
+                 L('Szolgáltatások egymás melletti összehasonlítása azonos felépítéssel.', 'Side-by-side service comparison with an identical structure.'), h=7)])
 
     b.row(L('01 · Összegzőkártya · most', '01 · Scorecard · now'))
+    resource_cards=[]
     for svc in ('fe', 'be', 'db', 'or'):
-        b.line(score_row(q, svc))
+        cells=score_row(q, svc)
+        for panel in cells[:4]: panel['_w']=6
+        b.line(cells[:4])
+        if svc!='fe':
+            for panel in cells[4:]: panel['_w']=8
+            resource_cards.append(cells[4:])
 
     b.row(L('02 · Elérhetőség és adatfrissesség', '02 · Availability and freshness'))
     b.line([timeline(L('Elérhetőség · minden szolgáltatás', 'Availability · all services'),
@@ -761,6 +785,8 @@ def build_comparison(base):
                  [tgt('A', q.age[k], instant=True)], unit='s', th=AGE, decimals=0, w=6) for k in ('fe', 'be', 'db', 'or')])
 
     b.row(L('03 · Terhelés', '03 · Load'))
+    b.line([cells[0] for cells in resource_cards])
+    b.line([cells[1] for cells in resource_cards])
     lt_fe = f'{fe_n} · ' + L('böngészős API-hívás/perc', 'browser API calls/min')
     lt_be = f'{be_n} · ' + L('naplózott API-kérés/perc', 'logged API requests/min')
     b.line([
@@ -943,12 +969,12 @@ def polish_display(model, kind):
                     'A value outside 0–100% is an invalid sample; it is not replaced with zero.')
     visit(model['panels'])
     if kind == 'comparison':
-        cards=[p for p in model['panels'] if p['type']=='stat'][:24]
+        cards=[p for p in model['panels'] if p['type']=='stat'][:16]
         labels=[None,L('Mérési idő','Check time'),L('Forgalom','Traffic / min'),
                 L('Hibaarány','Errors (%)'),'CPU (%)',L('Memória (%)','Memory (%)')]
         for i,panel in enumerate(cards):
             old=panel['title']
-            panel['title']=S(('fe','be','db','or')[i//6]) if i%6==0 else labels[i%6]
+            panel['title']=S(('fe','be','db','or')[i//4]) if i%4==0 else labels[i%4]
             panel['description']=old+'\n\n'+panel.get('description','')
     # Grafana automatically scales milliseconds to seconds. Keep the column label unit-neutral.
     def relabel(value):

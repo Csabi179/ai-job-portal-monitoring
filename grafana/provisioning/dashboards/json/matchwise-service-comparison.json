@@ -54,13 +54,13 @@
       "description": "Szolgáltatások egymás melletti összehasonlítása azonos felépítéssel.",
       "options": {
         "mode": "markdown",
-        "content": "**Ugyanaz a panel minden szolgáltatásra.** Fix színek: kék frontend · narancs backend · zöld adatbázis · lila Oracle. Az egy panelen lévő sorozatok azonos mértékegységűek; ahol a szolgáltatás nem gyűjt adatot, *n/a* jelenik meg, nem nulla.\n\nSorrend: **Összegzőkártya → Elérhetőség → Terhelés → Hibák → Biztonsági jelek**. Az adatbázis hibaaránya a visszagörgetett tranzakciók aránya, a forgalma tranzakció/perc: nem HTTP-kérés. A részletes böngészős nézet a lap alján."
+        "content": "**Ugyanaz a panel minden szolgáltatásra.** Fix színek: kék frontend · narancs backend · zöld adatbázis · lila Oracle. Az egy panelen lévő sorozatok azonos mértékegységűek; ahol a szolgáltatás nem gyűjt adatot, *n/a* jelenik meg, nem nulla.\n\nSorrend: **Összegzőkártya → Elérhetőség → Terhelés → Hibák → Biztonsági jelek**. Az adatbázis hibaaránya a visszagörgetett tranzakciók aránya, a forgalma tranzakció/perc: nem HTTP-kérés. A részletes böngészős nézet a lap alján.\n\n**Frontend host:** a statikus Vercel-frontend host CPU-/memóriaadatai ehhez a monitoringhoz nem érhetők el; a böngészős telemetria nem méri őket. Erőforrás-kártyák csak a backendhez, az adatbázishoz és az Oracle VM-hez szerepelnek."
       },
       "gridPos": {
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 4
+        "h": 7
       }
     },
     {
@@ -71,7 +71,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 7,
         "w": 24,
         "h": 1
       }
@@ -159,8 +159,8 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 5,
-        "w": 4,
+        "y": 8,
+        "w": 6,
         "h": 3
       }
     },
@@ -238,9 +238,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 4,
-        "y": 5,
-        "w": 4,
+        "x": 6,
+        "y": 8,
+        "w": 6,
         "h": 3
       }
     },
@@ -314,9 +314,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 8,
-        "y": 5,
-        "w": 4,
+        "x": 12,
+        "y": 8,
+        "w": 6,
         "h": 3
       }
     },
@@ -417,129 +417,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 12,
-        "y": 5,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 314,
-      "type": "stat",
-      "title": "CPU (%)",
-      "description": "Frontend · CPU (%)\n\nA Vercel host CPU-ja nincs gyűjtve.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "vector(1) == 0",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "noValue": "n/a · nem gyűjtött",
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "gray"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 16,
-        "y": 5,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 315,
-      "type": "stat",
-      "title": "Memória (%)",
-      "description": "Frontend · Memória (%)\n\nA Vercel host memóriája nincs gyűjtve.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "vector(1) == 0",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": false,
-          "range": true
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "noValue": "n/a · nem gyűjtött",
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "gray"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 20,
-        "y": 5,
-        "w": 4,
+        "x": 18,
+        "y": 8,
+        "w": 6,
         "h": 3
       }
     },
@@ -626,8 +506,8 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 8,
-        "w": 4,
+        "y": 11,
+        "w": 6,
         "h": 3
       }
     },
@@ -705,9 +585,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 4,
-        "y": 8,
-        "w": 4,
+        "x": 6,
+        "y": 11,
+        "w": 6,
         "h": 3
       }
     },
@@ -783,9 +663,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 8,
-        "y": 8,
-        "w": 4,
+        "x": 12,
+        "y": 11,
+        "w": 6,
         "h": 3
       }
     },
@@ -888,217 +768,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 12,
-        "y": 8,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 328,
-      "type": "stat",
-      "title": "CPU (%)",
-      "description": "Backend · CPU (%)\n\nCPU-kihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(matchwise_render_cpu_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "noValue": "Nincs adat",
-          "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": -1e+30,
-                "to": -1e-06,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 100.000001,
-                "to": 1e+30,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "green"
-              },
-              {
-                "value": 75,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 1,
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 16,
-        "y": 8,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 329,
-      "type": "stat",
-      "title": "Memória (%)",
-      "description": "Backend · Memória (%)\n\nMemóriakihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(matchwise_render_memory_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "noValue": "Nincs adat",
-          "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": -1e+30,
-                "to": -1e-06,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 100.000001,
-                "to": 1e+30,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "green"
-              },
-              {
-                "value": 75,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 1,
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 20,
-        "y": 8,
-        "w": 4,
+        "x": 18,
+        "y": 11,
+        "w": 6,
         "h": 3
       }
     },
@@ -1185,8 +857,8 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 11,
-        "w": 4,
+        "y": 14,
+        "w": 6,
         "h": 3
       }
     },
@@ -1264,9 +936,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 4,
-        "y": 11,
-        "w": 4,
+        "x": 6,
+        "y": 14,
+        "w": 6,
         "h": 3
       }
     },
@@ -1340,9 +1012,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 8,
-        "y": 11,
-        "w": 4,
+        "x": 12,
+        "y": 14,
+        "w": 6,
         "h": 3
       }
     },
@@ -1443,217 +1115,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 12,
-        "y": 11,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 342,
-      "type": "stat",
-      "title": "CPU (%)",
-      "description": "Adatbázis · CPU (%)\n\nCPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "noValue": "Nincs adat",
-          "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": -1e+30,
-                "to": -1e-06,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 100.000001,
-                "to": 1e+30,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "green"
-              },
-              {
-                "value": 75,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 1,
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 16,
-        "y": 11,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 343,
-      "type": "stat",
-      "title": "Memória (%)",
-      "description": "Adatbázis · Memória (%)\n\nMemóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "noValue": "Nincs adat",
-          "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": -1e+30,
-                "to": -1e-06,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 100.000001,
-                "to": 1e+30,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "green"
-              },
-              {
-                "value": 75,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 1,
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 20,
-        "y": 11,
-        "w": 4,
+        "x": 18,
+        "y": 14,
+        "w": 6,
         "h": 3
       }
     },
@@ -1740,8 +1204,8 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 14,
-        "w": 4,
+        "y": 17,
+        "w": 6,
         "h": 3
       }
     },
@@ -1819,9 +1283,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 4,
-        "y": 14,
-        "w": 4,
+        "x": 6,
+        "y": 17,
+        "w": 6,
         "h": 3
       }
     },
@@ -1879,9 +1343,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 8,
-        "y": 14,
-        "w": 4,
+        "x": 12,
+        "y": 17,
+        "w": 6,
         "h": 3
       }
     },
@@ -1939,217 +1403,9 @@
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
-        "x": 12,
-        "y": 14,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 356,
-      "type": "stat",
-      "title": "CPU (%)",
-      "description": "Oracle · CPU (%)\n\nCPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"node_exporter\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "noValue": "Nincs adat",
-          "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": -1e+30,
-                "to": -1e-06,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 100.000001,
-                "to": 1e+30,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "green"
-              },
-              {
-                "value": 75,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 1,
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 16,
-        "y": 14,
-        "w": 4,
-        "h": 3
-      }
-    },
-    {
-      "id": 357,
-      "type": "stat",
-      "title": "Memória (%)",
-      "description": "Oracle · Memória (%)\n\nMemóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "(100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "instant": true,
-          "range": false
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "noValue": "Nincs adat",
-          "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": -1e+30,
-                "to": -1e-06,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            },
-            {
-              "type": "range",
-              "options": {
-                "from": 100.000001,
-                "to": 1e+30,
-                "result": {
-                  "text": "Hibás minta",
-                  "color": "gray"
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "value": null,
-                "color": "green"
-              },
-              {
-                "value": 75,
-                "color": "orange"
-              },
-              {
-                "value": 90,
-                "color": "red"
-              }
-            ]
-          },
-          "decimals": 1,
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": {
-          "values": false,
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": ""
-        },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto"
-      },
-      "pluginVersion": "13.2.1",
-      "gridPos": {
-        "x": 20,
-        "y": 14,
-        "w": 4,
+        "x": 18,
+        "y": 17,
+        "w": 6,
         "h": 3
       }
     },
@@ -2161,7 +1417,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 17,
+        "y": 20,
         "w": 24,
         "h": 1
       }
@@ -2297,7 +1553,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 21,
         "w": 24,
         "h": 6
       }
@@ -2401,7 +1657,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 24,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -2505,7 +1761,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 24,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -2609,7 +1865,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 24,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -2713,7 +1969,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 24,
+        "y": 27,
         "w": 6,
         "h": 4
       }
@@ -2793,7 +2049,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 31,
         "w": 6,
         "h": 4
       }
@@ -2873,7 +2129,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 28,
+        "y": 31,
         "w": 6,
         "h": 4
       }
@@ -2953,7 +2209,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 28,
+        "y": 31,
         "w": 6,
         "h": 4
       }
@@ -3033,7 +2289,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 28,
+        "y": 31,
         "w": 6,
         "h": 4
       }
@@ -3046,9 +2302,633 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 32,
+        "y": 35,
         "w": 24,
         "h": 1
+      }
+    },
+    {
+      "id": 328,
+      "type": "stat",
+      "title": "Backend · CPU (%)",
+      "description": "CPU-kihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(matchwise_render_cpu_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Nincs adat",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 75,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 1,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 8,
+        "h": 3
+      }
+    },
+    {
+      "id": 342,
+      "type": "stat",
+      "title": "Adatbázis · CPU (%)",
+      "description": "CPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Nincs adat",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 75,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 1,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 36,
+        "w": 8,
+        "h": 3
+      }
+    },
+    {
+      "id": 356,
+      "type": "stat",
+      "title": "Oracle · CPU (%)",
+      "description": "CPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Nincs adat",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 75,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 1,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 36,
+        "w": 8,
+        "h": 3
+      }
+    },
+    {
+      "id": 329,
+      "type": "stat",
+      "title": "Backend · Memória (%)",
+      "description": "Memóriakihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(matchwise_render_memory_utilization_percent{job=\"node_exporter\",service=\"matchwise_backend\"}) and ((matchwise_render_metrics_collection_success{job=\"node_exporter\",service=\"matchwise_backend\"} == 1) and (time() - matchwise_render_metrics_last_attempt_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 240) and (time() - matchwise_render_metrics_source_timestamp_seconds{job=\"node_exporter\",service=\"matchwise_backend\"} < 300) and on(job,instance) (up{job=\"node_exporter\"} == 1) and on(job,instance) (node_textfile_scrape_error{job=\"node_exporter\"} == 0))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Nincs adat",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 75,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 1,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "w": 8,
+        "h": 3
+      }
+    },
+    {
+      "id": 343,
+      "type": "stat",
+      "title": "Adatbázis · Memória (%)",
+      "description": "Memóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Nincs adat",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 75,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 1,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 8,
+        "y": 39,
+        "w": 8,
+        "h": 3
+      }
+    },
+    {
+      "id": 357,
+      "type": "stat",
+      "title": "Oracle · Memória (%)",
+      "description": "Memóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Nincs adat",
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 75,
+                "color": "orange"
+              },
+              {
+                "value": 90,
+                "color": "red"
+              }
+            ]
+          },
+          "decimals": 1,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 16,
+        "y": 39,
+        "w": 8,
+        "h": 3
       }
     },
     {
@@ -3163,7 +3043,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 33,
+        "y": 42,
         "w": 12,
         "h": 8
       }
@@ -3240,7 +3120,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 33,
+        "y": 42,
         "w": 12,
         "h": 8
       }
@@ -3406,7 +3286,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 41,
+        "y": 50,
         "w": 12,
         "h": 8
       }
@@ -3572,7 +3452,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 41,
+        "y": 50,
         "w": 12,
         "h": 8
       }
@@ -3740,7 +3620,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 49,
+        "y": 58,
         "w": 12,
         "h": 8
       }
@@ -3857,7 +3737,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 49,
+        "y": 58,
         "w": 12,
         "h": 8
       }
@@ -4055,7 +3935,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 57,
+        "y": 66,
         "w": 24,
         "h": 9
       }
@@ -4068,7 +3948,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 66,
+        "y": 75,
         "w": 24,
         "h": 1
       }
@@ -4235,7 +4115,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 67,
+        "y": 76,
         "w": 12,
         "h": 8
       }
@@ -4352,7 +4232,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 67,
+        "y": 76,
         "w": 12,
         "h": 8
       }
@@ -4469,7 +4349,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 75,
+        "y": 84,
         "w": 12,
         "h": 8
       }
@@ -4610,7 +4490,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 75,
+        "y": 84,
         "w": 12,
         "h": 8
       }
@@ -4623,7 +4503,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 83,
+        "y": 92,
         "w": 24,
         "h": 1
       }
@@ -4638,7 +4518,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 84,
+        "y": 93,
         "w": 24,
         "h": 4
       }
@@ -4719,7 +4599,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 88,
+        "y": 97,
         "w": 6,
         "h": 4
       }
@@ -4800,7 +4680,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 88,
+        "y": 97,
         "w": 6,
         "h": 4
       }
@@ -4881,7 +4761,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 88,
+        "y": 97,
         "w": 6,
         "h": 4
       }
@@ -4962,7 +4842,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 88,
+        "y": 97,
         "w": 6,
         "h": 4
       }
@@ -5072,7 +4952,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 92,
+        "y": 101,
         "w": 12,
         "h": 8
       }
@@ -5160,7 +5040,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 92,
+        "y": 101,
         "w": 12,
         "h": 8
       }
@@ -5173,7 +5053,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 100,
+        "y": 109,
         "w": 24,
         "h": 1
       }
@@ -5261,7 +5141,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 101,
+        "y": 110,
         "w": 8,
         "h": 4
       }
@@ -5337,7 +5217,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 101,
+        "y": 110,
         "w": 8,
         "h": 4
       }
@@ -5414,7 +5294,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 101,
+        "y": 110,
         "w": 8,
         "h": 4
       }
@@ -5491,7 +5371,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 105,
+        "y": 114,
         "w": 8,
         "h": 4
       }
@@ -5570,7 +5450,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 105,
+        "y": 114,
         "w": 8,
         "h": 4
       }
@@ -5662,7 +5542,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 105,
+        "y": 114,
         "w": 8,
         "h": 4
       }
@@ -5683,7 +5563,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 110,
+            "y": 119,
             "w": 24,
             "h": 4
           }
@@ -5825,7 +5705,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 114,
+            "y": 123,
             "w": 24,
             "h": 8
           }
@@ -5990,7 +5870,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 122,
+            "y": 131,
             "w": 24,
             "h": 8
           }
@@ -6136,7 +6016,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 130,
+            "y": 139,
             "w": 24,
             "h": 8
           }
@@ -6144,7 +6024,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 109,
+        "y": 118,
         "w": 24,
         "h": 1
       }
@@ -6165,7 +6045,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 111,
+            "y": 120,
             "w": 24,
             "h": 10
           }
@@ -6348,7 +6228,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 121,
+            "y": 130,
             "w": 12,
             "h": 9
           }
@@ -6531,7 +6411,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 121,
+            "y": 130,
             "w": 12,
             "h": 9
           }
@@ -6690,7 +6570,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 130,
+            "y": 139,
             "w": 12,
             "h": 9
           }
@@ -6828,7 +6708,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 130,
+            "y": 139,
             "w": 12,
             "h": 9
           }
@@ -6930,7 +6810,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 139,
+            "y": 148,
             "w": 12,
             "h": 9
           }
@@ -7113,7 +6993,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 139,
+            "y": 148,
             "w": 12,
             "h": 9
           }
@@ -7190,7 +7070,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 148,
+            "y": 157,
             "w": 12,
             "h": 9
           }
@@ -7373,7 +7253,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 148,
+            "y": 157,
             "w": 12,
             "h": 9
           }
@@ -7450,7 +7330,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 157,
+            "y": 166,
             "w": 6,
             "h": 5
           }
@@ -7526,7 +7406,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 157,
+            "y": 166,
             "w": 6,
             "h": 5
           }
@@ -7603,7 +7483,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 157,
+            "y": 166,
             "w": 6,
             "h": 5
           }
@@ -7680,7 +7560,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 157,
+            "y": 166,
             "w": 6,
             "h": 5
           }
@@ -7757,7 +7637,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 162,
+            "y": 171,
             "w": 6,
             "h": 5
           }
@@ -7834,7 +7714,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 162,
+            "y": 171,
             "w": 6,
             "h": 5
           }
@@ -7911,7 +7791,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 162,
+            "y": 171,
             "w": 6,
             "h": 5
           }
@@ -7988,7 +7868,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 162,
+            "y": 171,
             "w": 6,
             "h": 5
           }
@@ -8102,7 +7982,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 167,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -8216,7 +8096,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 167,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -8315,7 +8195,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 176,
+            "y": 185,
             "w": 12,
             "h": 9
           }
@@ -8392,7 +8272,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 176,
+            "y": 185,
             "w": 12,
             "h": 9
           }
@@ -8576,7 +8456,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 185,
+            "y": 194,
             "w": 12,
             "h": 7
           }
@@ -8760,7 +8640,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 185,
+            "y": 194,
             "w": 12,
             "h": 7
           }
@@ -8943,7 +8823,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 192,
+            "y": 201,
             "w": 12,
             "h": 9
           }
@@ -9020,7 +8900,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 192,
+            "y": 201,
             "w": 12,
             "h": 9
           }
@@ -9028,7 +8908,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 110,
+        "y": 119,
         "w": 24,
         "h": 1
       }

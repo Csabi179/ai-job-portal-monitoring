@@ -7,8 +7,9 @@ cd "$repo"
 ref="${1:?Usage: bash install-service-dashboards.sh FULL_COMMIT_SHA}"
 [[ "$ref" =~ ^[0-9a-f]{40}$ ]] || { printf 'Expected full pinned commit SHA.\n' >&2; exit 2; }
 baseline=900002e74e6889515b44bf4ac2d4a6ecd110e0b4
-service_previous=8433198c9ce09e328fa51044e4bf186303e3eee7
-known_refs=("$baseline" "$service_previous" 9437a1d7a2d8f01f9633bfbf7c2689a94aab3d34 75c65c454e89e6528bb93a46bdccaf3a597317b7 f42a936b6c4446b8cbb14d60a98d0aef837cdb83 829ccc54ffaadeb6c1191c11db4839342df17a01)
+service_previous=5ca71a7a0c3d46209e87bdb3e18d467b6904125e
+service_original=8433198c9ce09e328fa51044e4bf186303e3eee7
+known_refs=("$baseline" "$service_previous" "$service_original" 9437a1d7a2d8f01f9633bfbf7c2689a94aab3d34 75c65c454e89e6528bb93a46bdccaf3a597317b7 f42a936b6c4446b8cbb14d60a98d0aef837cdb83 829ccc54ffaadeb6c1191c11db4839342df17a01)
 folder=grafana/provisioning/dashboards/json
 files=(matchwise-unified-monitoring.json matchwise-unified-monitoring-en.json matchwise-service-comparison.json matchwise-service-comparison-en.json)
 stage=$(mktemp -d /tmp/matchwise-service-dashboards.XXXXXX)
@@ -54,10 +55,10 @@ MATCHWISE_DASHBOARD_BASELINE_DIR="$stage/baseline" python3 "$stage/scripts/test_
 prom_test="/tmp/matchwise-service-query-parse.$$.yml"
 sudo -n docker cp "$stage/parse-only.yml" "monitoring-prometheus:$prom_test"
 sudo -n docker exec monitoring-prometheus promtool check rules "$prom_test"
-python3 - "$folder" "$stage" "$service_previous" <<'PY'
+python3 - "$folder" "$stage" "$service_previous" "$service_original" <<'PY'
 import json,sys
 from pathlib import Path
-live,stage=map(Path,sys.argv[1:3]);previous=sys.argv[3]
+live,stage=map(Path,sys.argv[1:3]);previous,original=sys.argv[3:5]
 files=['matchwise-unified-monitoring.json','matchwise-unified-monitoring-en.json','matchwise-service-comparison.json','matchwise-service-comparison-en.json']
 candidate=baseline=ready=0
 for name in files:
@@ -72,8 +73,9 @@ for name in files:
     allowed=[new]+[json.loads(p.read_text(encoding='utf-8')) for p in (stage/'known').glob('*/'+name)]
     if current not in allowed: raise SystemExit('STOP: unknown live changes in '+name+'; no trial files installed.')
     previous_model=json.loads((stage/'known'/previous/name).read_text(encoding='utf-8'))
+    original_model=json.loads((stage/'known'/original/name).read_text(encoding='utf-8'))
     candidate+=int(current==new);baseline+=int(current==old)
-    ready+=int(current in (old,new,previous_model))
+    ready+=int(current in (old,new,previous_model,original_model))
 if candidate and candidate!=4: raise SystemExit('STOP: partial service-dashboard install; restore the printed backup before retrying.')
 (stage/'prepare-needed').write_text('0' if ready==4 else '1')
 print('Live dashboard files match reviewed versions.')
