@@ -847,7 +847,9 @@ def build_comparison(base):
         b.line([base.leg('comparison', i, 24, 8)])
 
     b.row(L('08 · Frontend · útvonalak, hibák és kézbesítés', '08 · Frontend · routes, errors and delivery'), True)
-    b.nested_legacy([base.leg('comparison', i) for i in range(62, 87)])
+    details = [base.leg('comparison', i) for i in range(62, 87)]
+    details[0]['_h'] = 10  # The full explanation must fit with the navigation open.
+    b.nested_legacy(details)
 
     m = copy.deepcopy(base.models[('comparison', LANG)])
     m['panels'] = b.build()
@@ -858,6 +860,103 @@ def build_comparison(base):
         'Side-by-side service comparison with an identical structure: scorecard, availability, load, errors, security signals. '
         'Fixed service colours, shared units, n/a where no data is collected.')
     return m
+
+
+def polish_display(model, kind):
+    """Presentation-only fixes confirmed against the actual Grafana renderer."""
+    prefixes = ('Frontend · ', 'Backend · ', 'Database · ', 'Adatbázis · ', 'Oracle · ')
+    short = {
+        'Check success rate': 'Success (%)', 'Check duration': 'Check time',
+        'Data freshness': 'Sample age', 'Connection slots (%)': 'Connections',
+        'PostgREST waiting': 'Pool waiting', 'Latest HTTP event': 'Last request',
+        'API calls / min': 'API calls', 'Transactions / min': 'Transactions',
+        'Requests / min': 'Requests', 'Telemetry age': 'Batch age',
+        'Root filesystem (%)': 'Root disk (%)', 'Available disk space': 'Free disk',
+        'Rollbacks / min':'Rollbacks','Deadlock / min':'Deadlocks','Collector error':'Textfile error',
+        'Ellenőrzési idő':'Mérési idő','API-hívás / perc':'API-hívások',
+        'Tranzakció / perc':'Tranzakciók','Rollback / perc':'Rollback',
+        'Deadlock / perc':'Deadlock','Késleltetés P95':'P95 idő','Telemetria kora':'Csomag kora',
+        'Utolsó HTTP-hívás':'Utolsó hívás','Kapcsolatok (%)':'Kapcsolatok',
+        'Rendszerterhelés · 1 perc':'Terhelés · 1p','Gyökérlemez (%)':'Gyökérlemez',
+        'Elérhető memória':'Szabad RAM','Szabad lemezterület':'Szabad lemez',
+        'Textfile collector error': 'Textfile error', 'System load · 1 minute': 'Load · 1 min',
+        'Available memory': 'Free memory', 'Available disk': 'Free disk',
+        'Visszagörgetés / perc': 'Rollback', 'PostgREST várakozók': 'Pool-sor',
+        'Utolsó HTTP-esemény': 'Utolsó hívás', 'Textfile-gyűjtő hiba': 'Gyűjtőhiba',
+        'Adatfrissesség':'Minta kora','Hibaarány (%)':'Hibaarány',
+        'Log collector · age since successful run': 'Log collector · Sample age',
+        'Backend logs · Age since successful collection': 'Backend logs · Sample age',
+        'Log collector · Age since successful run': 'Log collector · Sample age',
+        'Backend · HTTP 5xx · Selected period': 'Backend · 5xx in period',
+        'Backend · HTTP 5xx · Kiválasztott időszak': 'Backend · 5xx (időszak)',
+        'Log collector · HTTP events · Selected period': 'Log collector · HTTP events',
+        'Loki · Latest HTTP event · Last hour': 'Loki · Last HTTP event',
+        'Naplógyűjtő · utolsó sikeres futás kora': 'Naplógyűjtő · minta kora',
+        'Backendnaplók · sikeres gyűjtés kora': 'Backendnaplók · minta kora',
+        'Naplógyűjtő · HTTP-események · Kiválasztott időszak':'Naplógyűjtő · HTTP-események',
+        'Loki · Legutóbbi HTTP-esemény · Utolsó óra':'Loki · Utolsó HTTP-esemény',
+    }
+    def strip_prefix(title):
+        return next((title[len(p):] for p in prefixes if title.startswith(p)), title)
+    def visit(panels, in_service=False):
+        for panel in panels:
+            if panel['type'] == 'row':
+                in_service = kind == 'unified' and panel['title'][:2] in ('01','02','03','04')
+                visit(panel.get('panels', []), in_service)
+                continue
+            old = panel['title']
+            if panel['type'] == 'stat':
+                title = strip_prefix(old) if in_service else old
+                title = short.get(title, title)
+                title = title.replace(' · Check success rate',' · Check success').replace(' · Data freshness',' · Sample age')
+                title = title.replace(' · Ellenőrzések sikeressége',' · Sikeresség')
+                title = title.replace('403 · Hozzáférés megtagadva','403 · Tiltott')
+                if in_service:
+                    title=title.replace(' · Selected period','').replace(' · Kiválasztott időszak','')
+                    if panel['id'] in range(69,75):
+                        labels=L(['Belépés · 200','Belépés · 401','Belépés · 400','Belépés · 5xx','Kilépés · 204','Regisztráció'],
+                                 ['Login · 200','Login · 401','Login · 400','Login · 5xx','Logout · 204','Signup · 201'])
+                        title=labels[panel['id']-69]
+                if kind=='comparison' and panel['id'] in range(71,79):
+                    title=L(['Folyamatban','Csomagkésés','Összesítési ablak','Fogadó sémaverzió','Sikeres küldések','Sikertelen küldések','Elveszett csomagok','Elveszett minták'],
+                            ['Requests in flight','Batch delay','Batch window','Receiver schema','Successful deliveries','Failed attempts','Dropped batches','Dropped observations'])[panel['id']-71]
+                if ' · 5 minutes' in title: title = title.replace(' · 5 minutes', '')
+                if ' · 5 perc' in title: title = title.replace(' · 5 perc', '')
+                panel['title'] = title
+                if title != old:
+                    panel['description'] = old+'\n\n'+panel.get('description','')
+            if panel['type'] == 'state-timeline':
+                # Threshold colouring produces '< 1 / 1+' instead of mapped UP/DOWN.
+                panel['fieldConfig']['defaults']['color'] = {'mode':'fixed','fixedColor':'green'}
+            if panel['type'] == 'timeseries' and 2 <= len(panel.get('targets',[])) <= 4:
+                legend=panel.setdefault('options',{}).setdefault('legend',{})
+                legend.update(displayMode='list',placement='bottom',showLegend=True)
+            defaults=panel.get('fieldConfig',{}).get('defaults',{})
+            if defaults.get('unit')=='percent':
+                invalid={'text':L('Hibás minta','Invalid sample'),'color':'gray'}
+                defaults.setdefault('mappings',[]).extend([
+                    {'type':'range','options':{'from':-1e30,'to':-0.000001,'result':invalid}},
+                    {'type':'range','options':{'from':100.000001,'to':1e30,'result':invalid}},
+                ])
+                panel['description']=panel.get('description','')+'\n\n'+L(
+                    'A 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.',
+                    'A value outside 0–100% is an invalid sample; it is not replaced with zero.')
+    visit(model['panels'])
+    if kind == 'comparison':
+        cards=[p for p in model['panels'] if p['type']=='stat'][:24]
+        labels=[None,L('Mérési idő','Check time'),L('Forgalom','Traffic / min'),
+                L('Hibaarány','Errors (%)'),'CPU (%)',L('Memória (%)','Memory (%)')]
+        for i,panel in enumerate(cards):
+            old=panel['title']
+            panel['title']=S(('fe','be','db','or')[i//6]) if i%6==0 else labels[i%6]
+            panel['description']=old+'\n\n'+panel.get('description','')
+    # Grafana automatically scales milliseconds to seconds. Keep the column label unit-neutral.
+    def relabel(value):
+        if isinstance(value,str): return value.replace('P95 (ms)','P95')
+        if isinstance(value,list): return [relabel(x) for x in value]
+        if isinstance(value,dict): return {relabel(k):v if k=='expr' else relabel(v) for k,v in value.items()}
+        return value
+    return relabel(model)
 
 
 # ---------------------------------------------------------------------- main
@@ -875,7 +974,7 @@ def main():
         IDS.n = 300
         for kind, builder in (('unified', build_unified), ('comparison', build_comparison)):
             IDS.n = 300
-            model = builder(base)
+            model = polish_display(builder(base), kind)
             path = args.output / FILES[(kind, lang)]
             path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
             print('wrote', path, len(list(walk(model['panels']))), 'panels')

@@ -79,8 +79,8 @@
     {
       "id": 302,
       "type": "stat",
-      "title": "Frontend · Állapot",
-      "description": "Az utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
+      "title": "Frontend",
+      "description": "Frontend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -167,8 +167,8 @@
     {
       "id": 308,
       "type": "stat",
-      "title": "Frontend · Ellenőrzés időtartama",
-      "description": "HTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "Mérési idő",
+      "description": "Frontend · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -247,8 +247,8 @@
     {
       "id": 309,
       "type": "stat",
-      "title": "Frontend · Forgalom / perc",
-      "description": "Böngészős API-hívások percenként.",
+      "title": "Forgalom",
+      "description": "Frontend · Forgalom / perc\n\nBöngészős API-hívások percenként.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -323,8 +323,8 @@
     {
       "id": 310,
       "type": "stat",
-      "title": "Frontend · Hibaarány (%)",
-      "description": "4xx+5xx a böngészőben látott HTTP-válaszok között.",
+      "title": "Hibaarány",
+      "description": "Frontend · Hibaarány (%)\n\n4xx+5xx a böngészőben látott HTTP-válaszok között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -352,6 +352,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -404,8 +426,8 @@
     {
       "id": 314,
       "type": "stat",
-      "title": "Frontend · CPU (%)",
-      "description": "A Vercel host CPU-ja nincs gyűjtve.",
+      "title": "CPU (%)",
+      "description": "Frontend · CPU (%)\n\nA Vercel host CPU-ja nincs gyűjtve.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -464,8 +486,8 @@
     {
       "id": 315,
       "type": "stat",
-      "title": "Frontend · Memória (%)",
-      "description": "A Vercel host memóriája nincs gyűjtve.",
+      "title": "Memória (%)",
+      "description": "Frontend · Memória (%)\n\nA Vercel host memóriája nincs gyűjtve.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -524,8 +546,8 @@
     {
       "id": 316,
       "type": "stat",
-      "title": "Backend · Állapot",
-      "description": "Az utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
+      "title": "Backend",
+      "description": "Backend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -612,8 +634,8 @@
     {
       "id": 322,
       "type": "stat",
-      "title": "Backend · Ellenőrzés időtartama",
-      "description": "HTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "Mérési idő",
+      "description": "Backend · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -692,8 +714,8 @@
     {
       "id": 323,
       "type": "stat",
-      "title": "Backend · Forgalom / perc",
-      "description": "Naplózott API-kérések percenként (health nélkül).",
+      "title": "Forgalom",
+      "description": "Backend · Forgalom / perc\n\nNaplózott API-kérések percenként (health nélkül).",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -770,8 +792,8 @@
     {
       "id": 324,
       "type": "stat",
-      "title": "Backend · Hibaarány (%)",
-      "description": "4xx+5xx a naplózott API-kérések között.",
+      "title": "Hibaarány",
+      "description": "Backend · Hibaarány (%)\n\n4xx+5xx a naplózott API-kérések között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -801,6 +823,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -853,8 +897,8 @@
     {
       "id": 328,
       "type": "stat",
-      "title": "Backend · CPU (%)",
-      "description": "CPU-kihasználtság (Render Metrics API, külön gyűjtő).",
+      "title": "CPU (%)",
+      "description": "Backend · CPU (%)\n\nCPU-kihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -882,6 +926,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -935,8 +1001,8 @@
     {
       "id": 329,
       "type": "stat",
-      "title": "Backend · Memória (%)",
-      "description": "Memóriakihasználtság (Render Metrics API, külön gyűjtő).",
+      "title": "Memória (%)",
+      "description": "Backend · Memória (%)\n\nMemóriakihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -964,6 +1030,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -1017,8 +1105,8 @@
     {
       "id": 330,
       "type": "stat",
-      "title": "Adatbázis · Állapot",
-      "description": "PostgreSQL elérhetőség (pg_up), csak sikeres Supabase-scrape mellett.",
+      "title": "Adatbázis",
+      "description": "Adatbázis · Állapot\n\nPostgreSQL elérhetőség (pg_up), csak sikeres Supabase-scrape mellett.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1105,8 +1193,8 @@
     {
       "id": 336,
       "type": "stat",
-      "title": "Adatbázis · Ellenőrzés időtartama",
-      "description": "HTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "Mérési idő",
+      "description": "Adatbázis · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1185,8 +1273,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Adatbázis · Forgalom / perc",
-      "description": "Lezárt PostgreSQL-tranzakciók percenként. Nem HTTP-kérés.",
+      "title": "Forgalom",
+      "description": "Adatbázis · Forgalom / perc\n\nLezárt PostgreSQL-tranzakciók percenként. Nem HTTP-kérés.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1261,8 +1349,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Adatbázis · Hibaarány (%)",
-      "description": "Visszagörgetett tranzakciók aránya. Nem HTTP-hibaarány.",
+      "title": "Hibaarány",
+      "description": "Adatbázis · Hibaarány (%)\n\nVisszagörgetett tranzakciók aránya. Nem HTTP-hibaarány.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1290,6 +1378,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -1342,8 +1452,8 @@
     {
       "id": 342,
       "type": "stat",
-      "title": "Adatbázis · CPU (%)",
-      "description": "CPU-kihasználtság",
+      "title": "CPU (%)",
+      "description": "Adatbázis · CPU (%)\n\nCPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1371,6 +1481,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -1424,8 +1556,8 @@
     {
       "id": 343,
       "type": "stat",
-      "title": "Adatbázis · Memória (%)",
-      "description": "Memóriakihasználtság",
+      "title": "Memória (%)",
+      "description": "Adatbázis · Memória (%)\n\nMemóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1453,6 +1585,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -1506,8 +1660,8 @@
     {
       "id": 344,
       "type": "stat",
-      "title": "Oracle · Állapot",
-      "description": "A Node Exporter scrape sikeressége az Oracle gépen.",
+      "title": "Oracle",
+      "description": "Oracle · Állapot\n\nA Node Exporter scrape sikeressége az Oracle gépen.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1594,8 +1748,8 @@
     {
       "id": 350,
       "type": "stat",
-      "title": "Oracle · Ellenőrzés időtartama",
-      "description": "HTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "Mérési idő",
+      "description": "Oracle · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1674,8 +1828,8 @@
     {
       "id": 351,
       "type": "stat",
-      "title": "Oracle · Forgalom / perc",
-      "description": "Az Oracle VM a monitoring gazdagép; alkalmazásforgalmat nem szolgál ki.",
+      "title": "Forgalom",
+      "description": "Oracle · Forgalom / perc\n\nAz Oracle VM a monitoring gazdagép; alkalmazásforgalmat nem szolgál ki.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1734,8 +1888,8 @@
     {
       "id": 352,
       "type": "stat",
-      "title": "Oracle · Hibaarány (%)",
-      "description": "Nincs alkalmazásszintű hibaarány az Oracle VM-en.",
+      "title": "Hibaarány",
+      "description": "Oracle · Hibaarány (%)\n\nNincs alkalmazásszintű hibaarány az Oracle VM-en.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1794,8 +1948,8 @@
     {
       "id": 356,
       "type": "stat",
-      "title": "Oracle · CPU (%)",
-      "description": "CPU-kihasználtság",
+      "title": "CPU (%)",
+      "description": "Oracle · CPU (%)\n\nCPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1823,6 +1977,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -1876,8 +2052,8 @@
     {
       "id": 357,
       "type": "stat",
-      "title": "Oracle · Memória (%)",
-      "description": "Memóriakihasználtság",
+      "title": "Memória (%)",
+      "description": "Oracle · Memória (%)\n\nMemóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1905,6 +2081,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2053,7 +2251,8 @@
             }
           ],
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "green"
           },
           "thresholds": {
             "mode": "absolute",
@@ -2106,8 +2305,8 @@
     {
       "id": 359,
       "type": "stat",
-      "title": "Frontend · Ellenőrzések sikeressége",
-      "description": "Sikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.",
+      "title": "Frontend · Sikeresség",
+      "description": "Frontend · Ellenőrzések sikeressége\n\nSikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2135,6 +2334,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2188,8 +2409,8 @@
     {
       "id": 360,
       "type": "stat",
-      "title": "Backend · Ellenőrzések sikeressége",
-      "description": "Sikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.",
+      "title": "Backend · Sikeresség",
+      "description": "Backend · Ellenőrzések sikeressége\n\nSikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2217,6 +2438,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2270,8 +2513,8 @@
     {
       "id": 361,
       "type": "stat",
-      "title": "Adatbázis · Ellenőrzések sikeressége",
-      "description": "Sikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.",
+      "title": "Adatbázis · Sikeresség",
+      "description": "Adatbázis · Ellenőrzések sikeressége\n\nSikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2299,6 +2542,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2352,8 +2617,8 @@
     {
       "id": 362,
       "type": "stat",
-      "title": "Oracle · Ellenőrzések sikeressége",
-      "description": "Sikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.",
+      "title": "Oracle · Sikeresség",
+      "description": "Oracle · Ellenőrzések sikeressége\n\nSikeres ellenőrzések aránya a kiválasztott időszakban. Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2381,6 +2646,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2861,7 +3148,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -2962,7 +3249,7 @@
       "id": 369,
       "type": "timeseries",
       "title": "CPU (%)",
-      "description": "Saját kapacitáshoz viszonyított CPU-kihasználtság. A Vercel host CPU-ja nincs gyűjtve, ezért a frontend nem szerepel.",
+      "description": "Saját kapacitáshoz viszonyított CPU-kihasználtság. A Vercel host CPU-ja nincs gyűjtve, ezért a frontend nem szerepel.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3028,7 +3315,31 @@
           },
           "noValue": "Nincs adat",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3080,7 +3391,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3104,7 +3415,7 @@
       "id": 370,
       "type": "timeseries",
       "title": "Memória (%)",
-      "description": "Saját kapacitáshoz viszonyított memóriakihasználtság. A Vercel host memóriája nincs gyűjtve.",
+      "description": "Saját kapacitáshoz viszonyított memóriakihasználtság. A Vercel host memóriája nincs gyűjtve.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3170,7 +3481,31 @@
           },
           "noValue": "Nincs adat",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3222,7 +3557,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3390,7 +3725,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3507,7 +3842,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3531,7 +3866,7 @@
       "id": 373,
       "type": "bargauge",
       "title": "Telítettség · a saját határ százalékában",
-      "description": "Egy nézetben minden mért kapacitásérték. Zöld < 75%, narancs 75–90%, piros ≥ 90%. A frontend nem szerepel (host-metrika nincs).",
+      "description": "Egy nézetben minden mért kapacitásérték. Zöld < 75%, narancs 75–90%, piros ≥ 90%. A frontend nem szerepel (host-metrika nincs).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3654,6 +3989,28 @@
                   "color": "gray"
                 }
               }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
             }
           ],
           "color": {
@@ -3720,7 +4077,7 @@
       "id": 374,
       "type": "timeseries",
       "title": "Hibaarány (%) · minden szolgáltatás",
-      "description": "Frontend és backend: 4xx+5xx az HTTP-válaszok között. Adatbázis: visszagörgetett tranzakciók aránya (nem HTTP-hiba). Forgalom nélkül nincs adat.",
+      "description": "Frontend és backend: 4xx+5xx az HTTP-válaszok között. Adatbázis: visszagörgetett tranzakciók aránya (nem HTTP-hiba). Forgalom nélkül nincs adat.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
@@ -3787,7 +4144,31 @@
             }
           },
           "noValue": "Nincs adat",
-          "min": 0
+          "min": 0,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3839,7 +4220,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3956,7 +4337,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4073,7 +4454,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4214,7 +4595,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4265,8 +4646,8 @@
     {
       "id": 29,
       "type": "stat",
-      "title": "401 · Nincs hitelesítés · 5 perc",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "401 · Nincs hitelesítés",
+      "description": "401 · Nincs hitelesítés · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4346,8 +4727,8 @@
     {
       "id": 30,
       "type": "stat",
-      "title": "403 · Hozzáférés megtagadva · 5 perc",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "403 · Tiltott",
+      "description": "403 · Hozzáférés megtagadva · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4427,8 +4808,8 @@
     {
       "id": 31,
       "type": "stat",
-      "title": "404 · Nem található · 5 perc",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "404 · Nem található",
+      "description": "404 · Nem található · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4508,8 +4889,8 @@
     {
       "id": 32,
       "type": "stat",
-      "title": "429 · Korlátozott kérés · 5 perc",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "429 · Korlátozott kérés",
+      "description": "429 · Korlátozott kérés · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4676,7 +5057,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4764,7 +5145,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -5429,7 +5810,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -5453,7 +5834,7 @@
           "id": 45,
           "type": "timeseries",
           "title": "Backend CPU ↔ DB-tranzakciók · Két tengely",
-          "description": "Render CPU % (left, API sample) and database-wide committed transactions/s (right, 5m average). CPU-heavy application work may legitimately cause little database activity; the graph is context, not an anomaly verdict.",
+          "description": "Render CPU % (left, API sample) and database-wide committed transactions/s (right, 5m average). CPU-heavy application work may legitimately cause little database activity; the graph is context, not an anomaly verdict.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5509,7 +5890,31 @@
               },
               "min": 0,
               "max": 100,
-              "noValue": "Nincs adat"
+              "noValue": "Nincs adat",
+              "mappings": [
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
             },
             "overrides": [
               {
@@ -5570,7 +5975,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -5648,7 +6053,7 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": "Backend feldolgozás P95 (ms)"
+                "axisLabel": "Backend feldolgozás P95"
               },
               "min": 0,
               "noValue": "Nincs adat"
@@ -5716,7 +6121,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -5762,7 +6167,7 @@
             "x": 0,
             "y": 111,
             "w": 24,
-            "h": 8
+            "h": 10
           }
         },
         {
@@ -5943,7 +6348,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 119,
+            "y": 121,
             "w": 12,
             "h": 9
           }
@@ -6126,7 +6531,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 119,
+            "y": 121,
             "w": 12,
             "h": 9
           }
@@ -6285,7 +6690,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 128,
+            "y": 130,
             "w": 12,
             "h": 9
           }
@@ -6423,7 +6828,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 128,
+            "y": 130,
             "w": 12,
             "h": 9
           }
@@ -6432,7 +6837,7 @@
           "id": 67,
           "type": "timeseries",
           "title": "HTTP-hibaarány · 4xx és 5xx",
-          "description": "Csak a megfigyelt HTTP-válaszok között. Hálózati hibák és megszakítások nélkül. Pozitív válaszforgalom hiányában nincs arány; nem mutatunk mesterséges 0%-ot.",
+          "description": "Csak a megfigyelt HTTP-válaszok között. Hálózati hibák és megszakítások nélkül. Pozitív válaszforgalom hiányában nincs arány; nem mutatunk mesterséges 0%-ot.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -6480,7 +6885,31 @@
               "color": {
                 "mode": "palette-classic"
               },
-              "max": 100
+              "max": 100,
+              "mappings": [
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
             },
             "overrides": []
           },
@@ -6501,7 +6930,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 137,
+            "y": 139,
             "w": 12,
             "h": 9
           }
@@ -6684,7 +7113,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 137,
+            "y": 139,
             "w": 12,
             "h": 9
           }
@@ -6761,7 +7190,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 146,
+            "y": 148,
             "w": 12,
             "h": 9
           }
@@ -6944,7 +7373,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 146,
+            "y": 148,
             "w": 12,
             "h": 9
           }
@@ -6952,8 +7381,8 @@
         {
           "id": 71,
           "type": "stat",
-          "title": "Folyamatban · Az utoljára jelentő lapon",
-          "description": "Az utolsó csomag készítésekor még folyamatban lévő API-kérések az adott böngészőlapon. Nem az összes böngésző együttes állapota.",
+          "title": "Folyamatban",
+          "description": "Folyamatban · Az utoljára jelentő lapon\n\nAz utolsó csomag készítésekor még folyamatban lévő API-kérések az adott böngészőlapon. Nem az összes böngésző együttes állapota.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7021,7 +7450,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7029,8 +7458,8 @@
         {
           "id": 72,
           "type": "stat",
-          "title": "Csomagkésés · Óraeltéréssel együtt",
-          "description": "Fogadási idő mínusz a kliens által jelentett ablakvég. Újraküldési késést és kliensóra-eltérést is tartalmazhat, negatív is lehet.",
+          "title": "Csomagkésés",
+          "description": "Csomagkésés · Óraeltéréssel együtt\n\nFogadási idő mínusz a kliens által jelentett ablakvég. Újraküldési késést és kliensóra-eltérést is tartalmazhat, negatív is lehet.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7097,7 +7526,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7105,8 +7534,8 @@
         {
           "id": 73,
           "type": "stat",
-          "title": "Összesítési ablak · Utolsó csomag",
-          "description": "A jelentett ablak vége mínusz kezdete. A névleges 60 másodpercet háttérlap, hálózati várakozás és újraküldés befolyásolhatja.",
+          "title": "Összesítési ablak",
+          "description": "Összesítési ablak · Utolsó csomag\n\nA jelentett ablak vége mínusz kezdete. A névleges 60 másodpercet háttérlap, hálózati várakozás és újraküldés befolyásolhatja.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7174,7 +7603,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7182,8 +7611,8 @@
         {
           "id": 74,
           "type": "stat",
-          "title": "Fogadó · Bővített metrikák verziója",
-          "description": "2 = bővített metrikákat adó fogadó. A frontend csomagsémája továbbra is 1; nem szükséges frontenddeploy.",
+          "title": "Fogadó sémaverzió",
+          "description": "Fogadó · Bővített metrikák verziója\n\n2 = bővített metrikákat adó fogadó. A frontend csomagsémája továbbra is 1; nem szükséges frontenddeploy.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7251,7 +7680,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7259,8 +7688,8 @@
         {
           "id": 75,
           "type": "stat",
-          "title": "Sikeres küldések · Utolsó lapjelentés",
-          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "title": "Sikeres küldések",
+          "description": "Sikeres küldések · Utolsó lapjelentés\n\nAz utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7328,7 +7757,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7336,8 +7765,8 @@
         {
           "id": 76,
           "type": "stat",
-          "title": "Sikertelen küldések · Utolsó lapjelentés",
-          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "title": "Sikertelen küldések",
+          "description": "Sikertelen küldések · Utolsó lapjelentés\n\nAz utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7405,7 +7834,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7413,8 +7842,8 @@
         {
           "id": 77,
           "type": "stat",
-          "title": "Elveszett csomagok · Utolsó lapjelentés",
-          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "title": "Elveszett csomagok",
+          "description": "Elveszett csomagok · Utolsó lapjelentés\n\nAz utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7482,7 +7911,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7490,8 +7919,8 @@
         {
           "id": 78,
           "type": "stat",
-          "title": "Elveszett megfigyelések · Utolsó lapjelentés",
-          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "title": "Elveszett minták",
+          "description": "Elveszett megfigyelések · Utolsó lapjelentés\n\nAz utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7559,7 +7988,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7673,7 +8102,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 165,
+            "y": 167,
             "w": 12,
             "h": 9
           }
@@ -7787,7 +8216,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 165,
+            "y": 167,
             "w": 12,
             "h": 9
           }
@@ -7871,7 +8300,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7886,7 +8315,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 174,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -7963,7 +8392,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 174,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -8147,7 +8576,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 183,
+            "y": 185,
             "w": 12,
             "h": 7
           }
@@ -8331,7 +8760,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 183,
+            "y": 185,
             "w": 12,
             "h": 7
           }
@@ -8514,7 +8943,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 190,
+            "y": 192,
             "w": 12,
             "h": 9
           }
@@ -8591,7 +9020,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 190,
+            "y": 192,
             "w": 12,
             "h": 9
           }

@@ -155,12 +155,12 @@ def check_consistency(models, errors):
             ys = {p['gridPos']['y'] for p in first}
             if len(first) != STRIP or len(ys) != 1 or any(p['gridPos']['w'] != 4 for p in first):
                 errors.append(f'unified {lang}: {svc} does not open with a {STRIP}-tile strip')
-            kinds = [p['title'].split('·', 1)[1].strip() for p in first]
+            kinds = [p['title'].split('·', 1)[-1].strip() for p in first]
             ref = [k.replace('(%)', '').strip() for k in kinds]
             if svc in ('Frontend', 'Backend', 'Oracle', 'Adatbázis', 'Database'):
                 if len(set(p['type'] for p in first)) != 1:
                     errors.append(f'unified {lang}: {svc} strip mixes panel types')
-        titles = [[p['title'].split('·', 1)[1].strip() for p in sorted(panels, key=lambda p: (p['gridPos']['y'], p['gridPos']['x']))[:STRIP]] for panels in wanted.values()]
+        titles = [[p['title'].split('·', 1)[-1].strip() for p in sorted(panels, key=lambda p: (p['gridPos']['y'], p['gridPos']['x']))[:STRIP]] for panels in wanted.values()]
         expected_services={'Frontend','Backend','Oracle','Adatbázis' if lang=='hu' else 'Database'}
         if set(wanted)!=expected_services:
             errors.append(f'unified {lang}: missing or unexpected service sections: {sorted(set(wanted)^expected_services)}')
@@ -171,8 +171,12 @@ def check_consistency(models, errors):
         rows = {}
         for p in score:
             rows.setdefault(p['gridPos']['y'], []).append(p)
-        shape = [tuple(q['title'].split('·', 1)[1].strip() for q in sorted(r, key=lambda p: p['gridPos']['x'])) for r in rows.values()]
-        if len(rows) != 4 or any(s != shape[0] for s in shape) or len(shape[0]) != STRIP:
+        shape = [tuple(q['title'] for q in sorted(r, key=lambda p: p['gridPos']['x'])) for r in rows.values()]
+        services=['Frontend','Backend','Adatbázis' if lang=='hu' else 'Database','Oracle']
+        if [s[0] for s in shape] != services:
+            errors.append(f'comparison {lang}: missing scorecard service labels')
+        shape=[s[1:] for s in shape]
+        if len(rows) != 4 or any(s != shape[0] for s in shape) or len(shape[0]) != STRIP-1:
             errors.append(f'comparison {lang}: scorecard is not 4 identical rows of {STRIP}: {shape}')
 
 

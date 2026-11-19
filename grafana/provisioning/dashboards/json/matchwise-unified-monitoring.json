@@ -407,7 +407,7 @@
       "id": 326,
       "type": "stat",
       "title": "Backend · Hibaarány (%)",
-      "description": "4xx+5xx a naplózott kérések között, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.",
+      "description": "4xx+5xx a naplózott kérések között, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -437,6 +437,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -490,7 +512,7 @@
       "id": 327,
       "type": "stat",
       "title": "Frontend · Hibaarány (%)",
-      "description": "4xx+5xx a böngészőben látott HTTP-válaszok között, 5 perces ablak.",
+      "description": "4xx+5xx a böngészőben látott HTTP-válaszok között, 5 perces ablak.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -518,6 +540,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -570,8 +614,8 @@
     {
       "id": 328,
       "type": "stat",
-      "title": "Naplógyűjtő · utolsó sikeres futás kora",
-      "description": "Az utolsó sikeres naplógyűjtő-futás kora. Nem az utolsó üzleti kérés kora.",
+      "title": "Naplógyűjtő · minta kora",
+      "description": "Naplógyűjtő · utolsó sikeres futás kora\n\nAz utolsó sikeres naplógyűjtő-futás kora. Nem az utolsó üzleti kérés kora.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -650,8 +694,8 @@
     {
       "id": 10,
       "type": "stat",
-      "title": "Backend · HTTP 5xx · Kiválasztott időszak",
-      "description": "HTTP 5xx responses found in Pino application logs within the selected dashboard time range. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+      "title": "Backend · 5xx (időszak)",
+      "description": "Backend · HTTP 5xx · Kiválasztott időszak\n\nHTTP 5xx responses found in Pino application logs within the selected dashboard time range. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -748,8 +792,8 @@
     {
       "id": 329,
       "type": "stat",
-      "title": "Frontend · Állapot",
-      "description": "Az utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
+      "title": "Állapot",
+      "description": "Frontend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -836,8 +880,8 @@
     {
       "id": 330,
       "type": "stat",
-      "title": "Frontend · Sikeresség",
-      "description": "A sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.",
+      "title": "Sikeresség",
+      "description": "Frontend · Sikeresség\n\nA sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -865,6 +909,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -918,8 +984,8 @@
     {
       "id": 331,
       "type": "stat",
-      "title": "Frontend · Ellenőrzési idő",
-      "description": "Az Oracle gépről indított HTTP-próba utolsó időtartama (DNS, kapcsolat, hálózat). Nem böngészős válaszidő.",
+      "title": "Mérési idő",
+      "description": "Frontend · Ellenőrzési idő\n\nAz Oracle gépről indított HTTP-próba utolsó időtartama (DNS, kapcsolat, hálózat). Nem böngészős válaszidő.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -998,8 +1064,8 @@
     {
       "id": 332,
       "type": "stat",
-      "title": "Frontend · Adatfrissesség",
-      "description": "A legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
+      "title": "Minta kora",
+      "description": "Frontend · Adatfrissesség\n\nA legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1078,8 +1144,8 @@
     {
       "id": 333,
       "type": "stat",
-      "title": "Frontend · CPU (%)",
-      "description": "A Vercel host CPU-ja nincs gyűjtve.",
+      "title": "CPU (%)",
+      "description": "Frontend · CPU (%)\n\nA Vercel host CPU-ja nincs gyűjtve.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1138,8 +1204,8 @@
     {
       "id": 334,
       "type": "stat",
-      "title": "Frontend · Memória (%)",
-      "description": "A Vercel host memóriája nincs gyűjtve.",
+      "title": "Memória (%)",
+      "description": "Frontend · Memória (%)\n\nA Vercel host memóriája nincs gyűjtve.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1198,8 +1264,8 @@
     {
       "id": 335,
       "type": "stat",
-      "title": "Frontend · API-hívás / perc",
-      "description": "Böngészőből indított API-hívások percenként.",
+      "title": "API-hívások",
+      "description": "Frontend · API-hívás / perc\n\nBöngészőből indított API-hívások percenként.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1274,8 +1340,8 @@
     {
       "id": 336,
       "type": "stat",
-      "title": "Frontend · 4xx / perc",
-      "description": "Böngészőben látott 4xx HTTP-válaszok percenként.",
+      "title": "4xx / perc",
+      "description": "Frontend · 4xx / perc\n\nBöngészőben látott 4xx HTTP-válaszok percenként.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1350,8 +1416,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Frontend · 5xx / perc",
-      "description": "Böngészőben látott 5xx HTTP-válaszok percenként.",
+      "title": "5xx / perc",
+      "description": "Frontend · 5xx / perc\n\nBöngészőben látott 5xx HTTP-válaszok percenként.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1426,8 +1492,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Frontend · Hibaarány (%)",
-      "description": "4xx+5xx a böngészőben látott HTTP-válaszok között, 5 perces ablak.",
+      "title": "Hibaarány",
+      "description": "Frontend · Hibaarány (%)\n\n4xx+5xx a böngészőben látott HTTP-válaszok között, 5 perces ablak.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1455,6 +1521,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -1507,8 +1595,8 @@
     {
       "id": 339,
       "type": "stat",
-      "title": "Frontend · Késleltetés P95",
-      "description": "Becsült P95 a válaszfejlécekig (böngészős telemetria hisztogramból).",
+      "title": "P95 idő",
+      "description": "Frontend · Késleltetés P95\n\nBecsült P95 a válaszfejlécekig (böngészős telemetria hisztogramból).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1587,8 +1675,8 @@
     {
       "id": 340,
       "type": "stat",
-      "title": "Frontend · Telemetria kora",
-      "description": "Az utolsó böngészős telemetriacsomag kora.",
+      "title": "Csomag kora",
+      "description": "Frontend · Telemetria kora\n\nAz utolsó böngészős telemetriacsomag kora.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1863,7 +1951,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -1892,8 +1980,8 @@
         {
           "id": 29,
           "type": "stat",
-          "title": "Frontend · Legutóbbi HTTP-kód",
-          "description": "A legutóbbi, három percnél frissebb HTTP-próba mért értéke. Csak elérhető exporter mellett látszik. Az időtartam DNS-, kapcsolat- és hálózati időt is tartalmaz; nem backend-feldolgozási idő.",
+          "title": "Legutóbbi HTTP-kód",
+          "description": "Frontend · Legutóbbi HTTP-kód\n\nA legutóbbi, három percnél frissebb HTTP-próba mért értéke. Csak elérhető exporter mellett látszik. Az időtartam DNS-, kapcsolat- és hálózati időt is tartalmaz; nem backend-feldolgozási idő.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1959,8 +2047,8 @@
         {
           "id": 58,
           "type": "stat",
-          "title": "Frontend · Legutóbbi HTTP-próba ideje",
-          "description": "Timestamp of the latest stored frontend probe sample.",
+          "title": "Legutóbbi HTTP-próba ideje",
+          "description": "Frontend · Legutóbbi HTTP-próba ideje\n\nTimestamp of the latest stored frontend probe sample.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -2026,8 +2114,8 @@
         {
           "id": 54,
           "type": "stat",
-          "title": "Frontend · Mért próbák száma · Kiválasztott időszak",
-          "description": "Counts actual stored frontend probe samples in the selected range, per URL.",
+          "title": "Mért próbák száma",
+          "description": "Frontend · Mért próbák száma · Kiválasztott időszak\n\nCounts actual stored frontend probe samples in the selected range, per URL.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -2093,8 +2181,8 @@
         {
           "id": 56,
           "type": "stat",
-          "title": "Frontend · Exporter scrape",
-          "description": "A value of 1 means Prometheus could scrape the probe exporter.",
+          "title": "Exporter scrape",
+          "description": "Frontend · Exporter scrape\n\nA value of 1 means Prometheus could scrape the probe exporter.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -2345,8 +2433,8 @@
     {
       "id": 343,
       "type": "stat",
-      "title": "Backend · Állapot",
-      "description": "Az utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
+      "title": "Állapot",
+      "description": "Backend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2433,8 +2521,8 @@
     {
       "id": 344,
       "type": "stat",
-      "title": "Backend · Sikeresség",
-      "description": "A sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.",
+      "title": "Sikeresség",
+      "description": "Backend · Sikeresség\n\nA sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2462,6 +2550,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2515,8 +2625,8 @@
     {
       "id": 345,
       "type": "stat",
-      "title": "Backend · Ellenőrzési idő",
-      "description": "Az Oracle gépről indított HTTP-próba utolsó időtartama (DNS, kapcsolat, hálózat). Nem alkalmazásszintű feldolgozási idő.",
+      "title": "Mérési idő",
+      "description": "Backend · Ellenőrzési idő\n\nAz Oracle gépről indított HTTP-próba utolsó időtartama (DNS, kapcsolat, hálózat). Nem alkalmazásszintű feldolgozási idő.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2595,8 +2705,8 @@
     {
       "id": 346,
       "type": "stat",
-      "title": "Backend · Adatfrissesség",
-      "description": "A legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
+      "title": "Minta kora",
+      "description": "Backend · Adatfrissesség\n\nA legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2675,8 +2785,8 @@
     {
       "id": 347,
       "type": "stat",
-      "title": "Backend · CPU (%)",
-      "description": "CPU-kihasználtság (Render Metrics API, külön gyűjtő).",
+      "title": "CPU (%)",
+      "description": "Backend · CPU (%)\n\nCPU-kihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2704,6 +2814,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2757,8 +2889,8 @@
     {
       "id": 348,
       "type": "stat",
-      "title": "Backend · Memória (%)",
-      "description": "Memóriakihasználtság (Render Metrics API, külön gyűjtő).",
+      "title": "Memória (%)",
+      "description": "Backend · Memória (%)\n\nMemóriakihasználtság (Render Metrics API, külön gyűjtő).\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2786,6 +2918,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -2839,8 +2993,8 @@
     {
       "id": 349,
       "type": "stat",
-      "title": "Backend · Kérés / perc",
-      "description": "Naplózott HTTP-kérések percenként, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.",
+      "title": "Kérés / perc",
+      "description": "Backend · Kérés / perc\n\nNaplózott HTTP-kérések percenként, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2917,8 +3071,8 @@
     {
       "id": 350,
       "type": "stat",
-      "title": "Backend · 4xx / perc",
-      "description": "4xx válaszok percenként. A Traffic és Route contains szűrők érvényesek.",
+      "title": "4xx / perc",
+      "description": "Backend · 4xx / perc\n\n4xx válaszok percenként. A Traffic és Route contains szűrők érvényesek.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2995,8 +3149,8 @@
     {
       "id": 351,
       "type": "stat",
-      "title": "Backend · 5xx / perc",
-      "description": "5xx válaszok percenként. A Traffic és Route contains szűrők érvényesek.",
+      "title": "5xx / perc",
+      "description": "Backend · 5xx / perc\n\n5xx válaszok percenként. A Traffic és Route contains szűrők érvényesek.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3073,8 +3227,8 @@
     {
       "id": 352,
       "type": "stat",
-      "title": "Backend · Hibaarány (%)",
-      "description": "4xx+5xx a naplózott kérések között, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.",
+      "title": "Hibaarány",
+      "description": "Backend · Hibaarány (%)\n\n4xx+5xx a naplózott kérések között, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3104,6 +3258,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -3156,8 +3332,8 @@
     {
       "id": 353,
       "type": "stat",
-      "title": "Backend · Késleltetés P95",
-      "description": "Feldolgozási idő P95 a naplókból, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.",
+      "title": "P95 idő",
+      "description": "Backend · Késleltetés P95\n\nFeldolgozási idő P95 a naplókból, 5 perces ablak. A Traffic és Route contains szűrők érvényesek.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3238,8 +3414,8 @@
     {
       "id": 354,
       "type": "stat",
-      "title": "Backend · Utolsó HTTP-esemény",
-      "description": "Az utolsó Lokiban látható HTTP-esemény ideje (utolsó óra). Forgalom nélkül nem frissül.",
+      "title": "Utolsó hívás",
+      "description": "Backend · Utolsó HTTP-esemény\n\nAz utolsó Lokiban látható HTTP-esemény ideje (utolsó óra). Forgalom nélkül nem frissül.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3456,7 +3632,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3571,7 +3747,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3670,7 +3846,7 @@
       "id": 355,
       "type": "timeseries",
       "title": "Backend · CPU és memória (%)",
-      "description": "Saját kapacitáshoz viszonyított kihasználtság.",
+      "description": "Saját kapacitáshoz viszonyított kihasználtság.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3725,7 +3901,31 @@
           },
           "noValue": "Nincs adat",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3762,7 +3962,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3869,8 +4069,8 @@
         {
           "id": 35,
           "type": "stat",
-          "title": "HTTP-kérések · Kiválasztott időszak",
-          "description": "Count of Pino HTTP request logs during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "title": "HTTP-kérések",
+          "description": "HTTP-kérések · Kiválasztott időszak\n\nCount of Pino HTTP request logs during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -3945,8 +4145,8 @@
         {
           "id": 36,
           "type": "stat",
-          "title": "HTTP 4xx · Kiválasztott időszak",
-          "description": "Client error responses (HTTP 4xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "title": "HTTP 4xx",
+          "description": "HTTP 4xx · Kiválasztott időszak\n\nClient error responses (HTTP 4xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4030,8 +4230,8 @@
         {
           "id": 37,
           "type": "stat",
-          "title": "HTTP 5xx · Kiválasztott időszak",
-          "description": "Server error responses (HTTP 5xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "title": "HTTP 5xx",
+          "description": "HTTP 5xx · Kiválasztott időszak\n\nServer error responses (HTTP 5xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4116,7 +4316,7 @@
           "id": 38,
           "type": "stat",
           "title": "HTTP-hibaarány · 4xx és 5xx",
-          "description": "Share of Pino HTTP requests with a 4xx or 5xx response. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "description": "Share of Pino HTTP requests with a 4xx or 5xx response. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4166,6 +4366,28 @@
                       "color": "gray"
                     }
                   }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
                 }
               ],
               "links": [
@@ -4205,8 +4427,8 @@
         {
           "id": 60,
           "type": "stat",
-          "title": "Backend · HTTP 401 · Kiválasztott időszak",
-          "description": "Matching HTTP 401 responses in the selected period. May be an expected authentication rejection. Click to inspect.",
+          "title": "HTTP 401",
+          "description": "Backend · HTTP 401 · Kiválasztott időszak\n\nMatching HTTP 401 responses in the selected period. May be an expected authentication rejection. Click to inspect.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4281,8 +4503,8 @@
         {
           "id": 61,
           "type": "stat",
-          "title": "Backend · HTTP 404 · Kiválasztott időszak",
-          "description": "Matching HTTP 404 responses in the selected period. Click to inspect.",
+          "title": "HTTP 404",
+          "description": "Backend · HTTP 404 · Kiválasztott időszak\n\nMatching HTTP 404 responses in the selected period. Click to inspect.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4357,8 +4579,8 @@
         {
           "id": 62,
           "type": "stat",
-          "title": "Backend · Health-kérések · Kiválasztott időszak",
-          "description": "Health request count in the selected range, independent of Traffic and Route contains filters.",
+          "title": "Health-kérések",
+          "description": "Backend · Health-kérések · Kiválasztott időszak\n\nHealth request count in the selected range, independent of Traffic and Route contains filters.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4426,8 +4648,8 @@
         {
           "id": 59,
           "type": "stat",
-          "title": "Backend · Időmérési minták · Utolsó 15 perc",
-          "description": "Number of matching logs with nonnegative numeric responseTimeMs in the P50/P95 rolling window.",
+          "title": "Időmérési minták · Utolsó 15 perc",
+          "description": "Backend · Időmérési minták · Utolsó 15 perc\n\nNumber of matching logs with nonnegative numeric responseTimeMs in the P50/P95 rolling window.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4706,7 +4928,7 @@
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "P95 (ms)"
+                  "options": "P95"
                 },
                 "properties": [
                   {
@@ -4823,8 +5045,8 @@
                   "Value": 3
                 },
                 "renameByName": {
-                  "Value #D": "P95 (ms)",
-                  "Value": "P95 (ms)"
+                  "Value #D": "P95",
+                  "Value": "P95"
                 }
               }
             },
@@ -4871,7 +5093,7 @@
                   "Kérések": 2,
                   "4xx": 3,
                   "5xx": 4,
-                  "P95 (ms)": 5,
+                  "P95": 5,
                   "Időminták": 6
                 },
                 "renameByName": {
@@ -4905,8 +5127,8 @@
         {
           "id": 69,
           "type": "stat",
-          "title": "Sikeres belépések · 200",
-          "description": "Login completed successfully and returned a token. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Belépés · 200",
+          "description": "Sikeres belépések · 200\n\nLogin completed successfully and returned a token. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4994,8 +5216,8 @@
         {
           "id": 70,
           "type": "stat",
-          "title": "Elutasított belépések · 401",
-          "description": "Login was rejected, for example because the credentials were incorrect. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Belépés · 401",
+          "description": "Elutasított belépések · 401\n\nLogin was rejected, for example because the credentials were incorrect. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5083,8 +5305,8 @@
         {
           "id": 71,
           "type": "stat",
-          "title": "Hibás belépési adatok · 400",
-          "description": "Login input was missing or invalid. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Belépés · 400",
+          "description": "Hibás belépési adatok · 400\n\nLogin input was missing or invalid. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5172,8 +5394,8 @@
         {
           "id": 72,
           "type": "stat",
-          "title": "Belépési szolgáltatáshibák · 5xx",
-          "description": "Login failed with a server-side or dependency error, including unavailable authentication configuration. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Belépés · 5xx",
+          "description": "Belépési szolgáltatáshibák · 5xx\n\nLogin failed with a server-side or dependency error, including unavailable authentication configuration. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5261,8 +5483,8 @@
         {
           "id": 73,
           "type": "stat",
-          "title": "Sikeres kilépések · 204",
-          "description": "The current session was successfully revoked. Counts POST /api/auth/logout (logged as /auth/logout or /api/auth/logout) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Kilépés · 204",
+          "description": "Sikeres kilépések · 204\n\nThe current session was successfully revoked. Counts POST /api/auth/logout (logged as /auth/logout or /api/auth/logout) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5350,8 +5572,8 @@
         {
           "id": 74,
           "type": "stat",
-          "title": "Sikeres regisztrációk · 201",
-          "description": "Registration completed successfully. The current backend also signs the new account in automatically. Counts POST /api/auth/register (logged as /auth/register or /api/auth/register) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Regisztráció",
+          "description": "Sikeres regisztrációk · 201\n\nRegistration completed successfully. The current backend also signs the new account in automatically. Counts POST /api/auth/register (logged as /auth/register or /api/auth/register) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5453,8 +5675,8 @@
         {
           "id": 23,
           "type": "stat",
-          "title": "Backend · Legutóbbi HTTP-kód",
-          "description": "A legutóbbi, három percnél frissebb HTTP-próba mért értéke. Csak elérhető exporter mellett látszik. Az időtartam DNS-, kapcsolat- és hálózati időt is tartalmaz; nem backend-feldolgozási idő.",
+          "title": "Legutóbbi HTTP-kód",
+          "description": "Backend · Legutóbbi HTTP-kód\n\nA legutóbbi, három percnél frissebb HTTP-próba mért értéke. Csak elérhető exporter mellett látszik. Az időtartam DNS-, kapcsolat- és hálózati időt is tartalmaz; nem backend-feldolgozási idő.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5520,8 +5742,8 @@
         {
           "id": 57,
           "type": "stat",
-          "title": "Backend · Legutóbbi HTTP-próba ideje",
-          "description": "Timestamp of the latest stored backend probe sample.",
+          "title": "Legutóbbi HTTP-próba ideje",
+          "description": "Backend · Legutóbbi HTTP-próba ideje\n\nTimestamp of the latest stored backend probe sample.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5587,8 +5809,8 @@
         {
           "id": 53,
           "type": "stat",
-          "title": "Backend · Mért próbák száma · Kiválasztott időszak",
-          "description": "Counts actual stored probe samples in the selected range, per URL. Display points in a range graph may repeat these samples.",
+          "title": "Mért próbák száma",
+          "description": "Backend · Mért próbák száma · Kiválasztott időszak\n\nCounts actual stored probe samples in the selected range, per URL. Display points in a range graph may repeat these samples.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5654,8 +5876,8 @@
         {
           "id": 55,
           "type": "stat",
-          "title": "Backend · Exporter scrape",
-          "description": "A value of 1 means Prometheus could scrape the probe exporter. HTTP probe success is shown separately.",
+          "title": "Exporter scrape",
+          "description": "Backend · Exporter scrape\n\nA value of 1 means Prometheus could scrape the probe exporter. HTTP probe success is shown separately.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5829,8 +6051,8 @@
     {
       "id": 357,
       "type": "stat",
-      "title": "Adatbázis · Állapot",
-      "description": "PostgreSQL elérhetőség (pg_up), csak sikeres Supabase-scrape mellett.",
+      "title": "Állapot",
+      "description": "Adatbázis · Állapot\n\nPostgreSQL elérhetőség (pg_up), csak sikeres Supabase-scrape mellett.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -5917,8 +6139,8 @@
     {
       "id": 358,
       "type": "stat",
-      "title": "Adatbázis · Sikeresség",
-      "description": "A sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.",
+      "title": "Sikeresség",
+      "description": "Adatbázis · Sikeresség\n\nA sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -5946,6 +6168,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -5999,8 +6243,8 @@
     {
       "id": 359,
       "type": "stat",
-      "title": "Adatbázis · Ellenőrzési idő",
-      "description": "A Prometheus-scrape utolsó időtartama a Supabase metrikavégpontról. Nem SQL-lekérdezési idő.",
+      "title": "Mérési idő",
+      "description": "Adatbázis · Ellenőrzési idő\n\nA Prometheus-scrape utolsó időtartama a Supabase metrikavégpontról. Nem SQL-lekérdezési idő.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6079,8 +6323,8 @@
     {
       "id": 360,
       "type": "stat",
-      "title": "Adatbázis · Adatfrissesség",
-      "description": "A legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
+      "title": "Minta kora",
+      "description": "Adatbázis · Adatfrissesség\n\nA legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6159,8 +6403,8 @@
     {
       "id": 361,
       "type": "stat",
-      "title": "Adatbázis · CPU (%)",
-      "description": "CPU-kihasználtság",
+      "title": "CPU (%)",
+      "description": "Adatbázis · CPU (%)\n\nCPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6188,6 +6432,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -6241,8 +6507,8 @@
     {
       "id": 362,
       "type": "stat",
-      "title": "Adatbázis · Memória (%)",
-      "description": "Memóriakihasználtság",
+      "title": "Memória (%)",
+      "description": "Adatbázis · Memória (%)\n\nMemóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6270,6 +6536,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -6323,8 +6611,8 @@
     {
       "id": 363,
       "type": "stat",
-      "title": "Adatbázis · Tranzakció / perc",
-      "description": "Lezárt PostgreSQL-tranzakciók percenként; belső szolgáltatásokat is tartalmaz. Nem HTTP-kérésszám.",
+      "title": "Tranzakciók",
+      "description": "Adatbázis · Tranzakció / perc\n\nLezárt PostgreSQL-tranzakciók percenként; belső szolgáltatásokat is tartalmaz. Nem HTTP-kérésszám.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6399,8 +6687,8 @@
     {
       "id": 364,
       "type": "stat",
-      "title": "Adatbázis · Visszagörgetés / perc",
-      "description": "Visszagörgetett tranzakciók percenként.",
+      "title": "Rollback",
+      "description": "Adatbázis · Visszagörgetés / perc\n\nVisszagörgetett tranzakciók percenként.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6475,8 +6763,8 @@
     {
       "id": 365,
       "type": "stat",
-      "title": "Adatbázis · Deadlock / perc",
-      "description": "PostgreSQL deadlockok percenként.",
+      "title": "Deadlock",
+      "description": "Adatbázis · Deadlock / perc\n\nPostgreSQL deadlockok percenként.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6551,8 +6839,8 @@
     {
       "id": 366,
       "type": "stat",
-      "title": "Adatbázis · Hibaarány (%)",
-      "description": "Visszagörgetett tranzakciók aránya. Nem HTTP-hibaarány; a visszagörgetés önmagában nem feltétlenül hiba.",
+      "title": "Hibaarány",
+      "description": "Adatbázis · Hibaarány (%)\n\nVisszagörgetett tranzakciók aránya. Nem HTTP-hibaarány; a visszagörgetés önmagában nem feltétlenül hiba.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6580,6 +6868,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -6632,8 +6942,8 @@
     {
       "id": 367,
       "type": "stat",
-      "title": "Adatbázis · Kapcsolatok (%)",
-      "description": "Használt kapcsolati helyek a maximumhoz képest.",
+      "title": "Kapcsolatok",
+      "description": "Adatbázis · Kapcsolatok (%)\n\nHasznált kapcsolati helyek a maximumhoz képest.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6661,6 +6971,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -6714,8 +7046,8 @@
     {
       "id": 368,
       "type": "stat",
-      "title": "Adatbázis · PostgREST várakozók",
-      "description": "A PostgREST kapcsolatkészletre várakozó kérések. Nem minden PostgreSQL-várakozás.",
+      "title": "Pool-sor",
+      "description": "Adatbázis · PostgREST várakozók\n\nA PostgREST kapcsolatkészletre várakozó kérések. Nem minden PostgreSQL-várakozás.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6855,7 +7187,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -6952,7 +7284,7 @@
       "id": 83,
       "type": "timeseries",
       "title": "Adatbázis · CPU és memória (%)",
-      "description": "Database host CPU and memory utilization for the selected Supabase target.",
+      "description": "Database host CPU and memory utilization for the selected Supabase target.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -7007,13 +7339,37 @@
           },
           "min": 0,
           "noValue": "Nincs adat",
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -7037,7 +7393,7 @@
       "id": 84,
       "type": "timeseries",
       "title": "Adatbázis · Fájlrendszerek telítettsége",
-      "description": "Root and data filesystem usage shown separately. The root filesystem contains operating-system files. The data filesystem holds database storage. Values describe allocated filesystem capacity.",
+      "description": "Root and data filesystem usage shown separately. The root filesystem contains operating-system files. The data filesystem holds database storage. Values describe allocated filesystem capacity.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -7081,7 +7437,31 @@
           },
           "min": 0,
           "noValue": "Nincs adat",
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
@@ -7116,8 +7496,8 @@
         {
           "id": 78,
           "type": "stat",
-          "title": "Adatbázis · Adatlemez (%)",
-          "description": "Allocated /data filesystem utilization, using space available to unprivileged users. Display thresholds are 80% and 90%. This measures filesystem capacity. Plan storage allowances must be checked separately in Supabase. A missing /data mount remains No data.",
+          "title": "Adatlemez (%)",
+          "description": "Adatbázis · Adatlemez (%)\n\nAllocated /data filesystem utilization, using space available to unprivileged users. Display thresholds are 80% and 90%. This measures filesystem capacity. Plan storage allowances must be checked separately in Supabase. A missing /data mount remains No data.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7146,6 +7526,28 @@
                     "match": "null",
                     "result": {
                       "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Hibás minta",
                       "color": "gray"
                     }
                   }
@@ -7201,8 +7603,8 @@
         {
           "id": 81,
           "type": "stat",
-          "title": "Adatbázis · Nyitott kapcsolatok",
-          "description": "Exported PostgreSQL connection count summed across database roles. Includes internal Supabase services and pooled server connections. This counts database connections, independently of application logins.",
+          "title": "Nyitott kapcsolatok",
+          "description": "Adatbázis · Nyitott kapcsolatok\n\nExported PostgreSQL connection count summed across database roles. Includes internal Supabase services and pooled server connections. This counts database connections, independently of application logins.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7268,8 +7670,8 @@
         {
           "id": 82,
           "type": "stat",
-          "title": "Adatbázis · Adatméret",
-          "description": "Database size in bytes, summed across exported databases except template0 and template1. Includes database objects such as tables and indexes. WAL and filesystem usage are separate measures.",
+          "title": "Adatméret",
+          "description": "Adatbázis · Adatméret\n\nDatabase size in bytes, summed across exported databases except template0 and template1. Includes database objects such as tables and indexes. WAL and filesystem usage are separate measures.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7335,8 +7737,8 @@
         {
           "id": 75,
           "type": "stat",
-          "title": "Adatbázis · Metrikagyűjtés",
-          "description": "Prometheus scrape status for the selected Supabase target. UP confirms the Metrics API scrape. PostgreSQL reachability is shown separately.",
+          "title": "Metrikagyűjtés",
+          "description": "Adatbázis · Metrikagyűjtés\n\nPrometheus scrape status for the selected Supabase target. UP confirms the Metrics API scrape. PostgreSQL reachability is shown separately.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7428,7 +7830,7 @@
           "id": 87,
           "type": "timeseries",
           "title": "Adatbázis · PostgreSQL puffer-találati arány",
-          "description": "Block hits / (block hits + block reads), calculated from five-minute rates. A zero denominator produces no ratio. PostgreSQL buffer cache hits exclude operating-system cache effects. Interpret changes alongside traffic and I/O, especially on a new database.",
+          "description": "Block hits / (block hits + block reads), calculated from five-minute rates. A zero denominator produces no ratio. PostgreSQL buffer cache hits exclude operating-system cache effects. Interpret changes alongside traffic and I/O, especially on a new database.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7472,7 +7874,31 @@
               },
               "min": 0,
               "noValue": "Nincs adat",
-              "max": 100
+              "max": 100,
+              "mappings": [
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Hibás minta",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
             },
             "overrides": []
           },
@@ -7712,7 +8138,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7796,7 +8222,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7880,7 +8306,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7924,8 +8350,8 @@
     {
       "id": 369,
       "type": "stat",
-      "title": "Oracle · Állapot",
-      "description": "A Node Exporter scrape sikeressége az Oracle gépen.",
+      "title": "Állapot",
+      "description": "Oracle · Állapot\n\nA Node Exporter scrape sikeressége az Oracle gépen.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8012,8 +8438,8 @@
     {
       "id": 370,
       "type": "stat",
-      "title": "Oracle · Sikeresség",
-      "description": "A sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.",
+      "title": "Sikeresség",
+      "description": "Oracle · Sikeresség\n\nA sikeres ellenőrzések aránya a kiválasztott időszakban (HTTP-próba vagy scrape). Nem szerződéses SLA.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8041,6 +8467,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -8094,8 +8542,8 @@
     {
       "id": 371,
       "type": "stat",
-      "title": "Oracle · Ellenőrzési idő",
-      "description": "A Prometheus-scrape utolsó időtartama a Node Exporterről. Nem alkalmazásválaszidő.",
+      "title": "Mérési idő",
+      "description": "Oracle · Ellenőrzési idő\n\nA Prometheus-scrape utolsó időtartama a Node Exporterről. Nem alkalmazásválaszidő.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8174,8 +8622,8 @@
     {
       "id": 372,
       "type": "stat",
-      "title": "Oracle · Adatfrissesség",
-      "description": "A legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
+      "title": "Minta kora",
+      "description": "Oracle · Adatfrissesség\n\nA legutóbbi tényleges minta kora (1 perces mintavétel). Hiányzó minta: nincs adat, nem nulla.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8254,8 +8702,8 @@
     {
       "id": 373,
       "type": "stat",
-      "title": "Oracle · CPU (%)",
-      "description": "CPU-kihasználtság",
+      "title": "CPU (%)",
+      "description": "Oracle · CPU (%)\n\nCPU-kihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8283,6 +8731,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -8336,8 +8806,8 @@
     {
       "id": 374,
       "type": "stat",
-      "title": "Oracle · Memória (%)",
-      "description": "Memóriakihasználtság",
+      "title": "Memória (%)",
+      "description": "Oracle · Memória (%)\n\nMemóriakihasználtság\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8365,6 +8835,28 @@
                 "match": "null",
                 "result": {
                   "text": "Nincs adat",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
                   "color": "gray"
                 }
               }
@@ -8418,8 +8910,8 @@
     {
       "id": 12,
       "type": "stat",
-      "title": "Oracle · Üzemidő",
-      "description": "Seconds since the Oracle VM last booted.",
+      "title": "Üzemidő",
+      "description": "Oracle · Üzemidő\n\nSeconds since the Oracle VM last booted.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8484,8 +8976,8 @@
     {
       "id": 15,
       "type": "stat",
-      "title": "Oracle · Rendszerterhelés · 1 perc",
-      "description": "One-minute system load average.",
+      "title": "Terhelés · 1p",
+      "description": "Oracle · Rendszerterhelés · 1 perc\n\nOne-minute system load average.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8550,8 +9042,8 @@
     {
       "id": 9,
       "type": "stat",
-      "title": "Oracle · Gyökérlemez (%)",
-      "description": "Root filesystem utilization on the Oracle VM.",
+      "title": "Gyökérlemez",
+      "description": "Oracle · Gyökérlemez (%)\n\nRoot filesystem utilization on the Oracle VM.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8599,6 +9091,28 @@
                   "color": "gray"
                 }
               }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
             }
           ],
           "min": 0,
@@ -8631,8 +9145,8 @@
     {
       "id": 13,
       "type": "stat",
-      "title": "Oracle · Elérhető memória",
-      "description": "Available system memory, excluding reclaimable/cached memory that is in use.",
+      "title": "Szabad RAM",
+      "description": "Oracle · Elérhető memória\n\nAvailable system memory, excluding reclaimable/cached memory that is in use.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8697,8 +9211,8 @@
     {
       "id": 14,
       "type": "stat",
-      "title": "Oracle · Szabad lemezterület",
-      "description": "Available storage on the Oracle VM root filesystem.",
+      "title": "Szabad lemez",
+      "description": "Oracle · Szabad lemezterület\n\nAvailable storage on the Oracle VM root filesystem.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8763,8 +9277,8 @@
     {
       "id": 375,
       "type": "stat",
-      "title": "Oracle · Textfile-gyűjtő hiba",
-      "description": "Node Exporter textfile-scrape hibajelző: 0 = rendben, 1 = hiba.",
+      "title": "Gyűjtőhiba",
+      "description": "Oracle · Textfile-gyűjtő hiba\n\nNode Exporter textfile-scrape hibajelző: 0 = rendben, 1 = hiba.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8852,7 +9366,7 @@
       "id": 376,
       "type": "timeseries",
       "title": "Oracle · CPU és memória (%)",
-      "description": "Saját kapacitáshoz viszonyított kihasználtság.",
+      "description": "Saját kapacitáshoz viszonyított kihasználtság.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8907,7 +9421,31 @@
           },
           "noValue": "Nincs adat",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -8944,7 +9482,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -8968,7 +9506,7 @@
       "id": 18,
       "type": "timeseries",
       "title": "Oracle · Gyökérlemez (%)",
-      "description": "Root filesystem used space percentage.",
+      "description": "Root filesystem used space percentage.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -9016,7 +9554,31 @@
           "color": {
             "mode": "fixed",
             "fixedColor": "#B28CD9"
-          }
+          },
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
@@ -9115,7 +9677,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -9202,7 +9764,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -9300,7 +9862,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -9423,8 +9985,8 @@
     {
       "id": 63,
       "type": "stat",
-      "title": "Naplógyűjtő · HTTP-események · Kiválasztott időszak",
-      "description": "Unfiltered HTTP events in Loki for the selected range. Compare with filtered request totals to distinguish filter effects from lack of data.",
+      "title": "Naplógyűjtő · HTTP-események",
+      "description": "Naplógyűjtő · HTTP-események · Kiválasztott időszak\n\nUnfiltered HTTP events in Loki for the selected range. Compare with filtered request totals to distinguish filter effects from lack of data.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -9492,8 +10054,8 @@
     {
       "id": 64,
       "type": "stat",
-      "title": "Loki · Legutóbbi HTTP-esemény · Utolsó óra",
-      "description": "Most recent original HTTP event timestamp available in Loki within the last hour. No matching logs can mean no traffic or an ingestion issue. Independent of dashboard filters. This is event freshness, not measured ingestion delay.",
+      "title": "Loki · Utolsó HTTP-esemény",
+      "description": "Loki · Legutóbbi HTTP-esemény · Utolsó óra\n\nMost recent original HTTP event timestamp available in Loki within the last hour. No matching logs can mean no traffic or an ingestion issue. Independent of dashboard filters. This is event freshness, not measured ingestion delay.",
       "datasource": {
         "type": "loki",
         "uid": "loki"

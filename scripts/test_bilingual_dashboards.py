@@ -71,9 +71,11 @@ class ServiceDashboardTests(unittest.TestCase):
             root = self.copy_models(tmp)
             for name in ('matchwise-unified-monitoring.json', 'matchwise-unified-monitoring-en.json'):
                 d = read(root / name)
+                oracle=False
                 for p in d['panels']:
-                    if p['type'] == 'stat' and p['title'].startswith('Oracle') and '(%)' in p['title'] and 'CPU' in p['title']:
-                        p['title'] = 'Oracle · CPU load'
+                    if p['type']=='row': oracle=p['title'].startswith('04 · Oracle')
+                    if oracle and p['type']=='stat' and p['title']=='CPU (%)':
+                        p['title']='Different CPU load'
                 (root / name).write_text(json.dumps(d), encoding='utf-8')
             self.assertEqual(run_checker(root), 1)
 

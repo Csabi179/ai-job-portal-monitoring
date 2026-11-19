@@ -78,8 +78,8 @@
     {
       "id": 302,
       "type": "stat",
-      "title": "Frontend · Status",
-      "description": "Latest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "title": "Frontend",
+      "description": "Frontend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -166,8 +166,8 @@
     {
       "id": 308,
       "type": "stat",
-      "title": "Frontend · Check duration",
-      "description": "Latest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Check time",
+      "description": "Frontend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -246,8 +246,8 @@
     {
       "id": 309,
       "type": "stat",
-      "title": "Frontend · Traffic / min",
-      "description": "Browser API calls per minute.",
+      "title": "Traffic / min",
+      "description": "Frontend · Traffic / min\n\nBrowser API calls per minute.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -322,8 +322,8 @@
     {
       "id": 310,
       "type": "stat",
-      "title": "Frontend · Error rate (%)",
-      "description": "4xx+5xx share of browser-observed HTTP responses.",
+      "title": "Errors (%)",
+      "description": "Frontend · Error rate (%)\n\n4xx+5xx share of browser-observed HTTP responses.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -351,6 +351,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -403,8 +425,8 @@
     {
       "id": 314,
       "type": "stat",
-      "title": "Frontend · CPU (%)",
-      "description": "Vercel host CPU is not collected.",
+      "title": "CPU (%)",
+      "description": "Frontend · CPU (%)\n\nVercel host CPU is not collected.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -463,8 +485,8 @@
     {
       "id": 315,
       "type": "stat",
-      "title": "Frontend · Memory (%)",
-      "description": "Vercel host memory is not collected.",
+      "title": "Memory (%)",
+      "description": "Frontend · Memory (%)\n\nVercel host memory is not collected.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -523,8 +545,8 @@
     {
       "id": 316,
       "type": "stat",
-      "title": "Backend · Status",
-      "description": "Latest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "title": "Backend",
+      "description": "Backend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -611,8 +633,8 @@
     {
       "id": 322,
       "type": "stat",
-      "title": "Backend · Check duration",
-      "description": "Latest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Check time",
+      "description": "Backend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -691,8 +713,8 @@
     {
       "id": 323,
       "type": "stat",
-      "title": "Backend · Traffic / min",
-      "description": "Logged API requests per minute (health checks excluded).",
+      "title": "Traffic / min",
+      "description": "Backend · Traffic / min\n\nLogged API requests per minute (health checks excluded).",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -769,8 +791,8 @@
     {
       "id": 324,
       "type": "stat",
-      "title": "Backend · Error rate (%)",
-      "description": "4xx+5xx share of logged API requests.",
+      "title": "Errors (%)",
+      "description": "Backend · Error rate (%)\n\n4xx+5xx share of logged API requests.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -800,6 +822,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -852,8 +896,8 @@
     {
       "id": 328,
       "type": "stat",
-      "title": "Backend · CPU (%)",
-      "description": "CPU utilisation (Render Metrics API, separate collector).",
+      "title": "CPU (%)",
+      "description": "Backend · CPU (%)\n\nCPU utilisation (Render Metrics API, separate collector).\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -881,6 +925,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -934,8 +1000,8 @@
     {
       "id": 329,
       "type": "stat",
-      "title": "Backend · Memory (%)",
-      "description": "Memory utilisation (Render Metrics API, separate collector).",
+      "title": "Memory (%)",
+      "description": "Backend · Memory (%)\n\nMemory utilisation (Render Metrics API, separate collector).\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -963,6 +1029,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -1016,8 +1104,8 @@
     {
       "id": 330,
       "type": "stat",
-      "title": "Database · Status",
-      "description": "PostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.",
+      "title": "Database",
+      "description": "Database · Status\n\nPostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1104,8 +1192,8 @@
     {
       "id": 336,
       "type": "stat",
-      "title": "Database · Check duration",
-      "description": "Latest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Check time",
+      "description": "Database · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1184,8 +1272,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Database · Traffic / min",
-      "description": "Committed PostgreSQL transactions per minute. Not HTTP requests.",
+      "title": "Traffic / min",
+      "description": "Database · Traffic / min\n\nCommitted PostgreSQL transactions per minute. Not HTTP requests.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1260,8 +1348,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Database · Error rate (%)",
-      "description": "Rolled-back share of transactions. Not an HTTP error rate.",
+      "title": "Errors (%)",
+      "description": "Database · Error rate (%)\n\nRolled-back share of transactions. Not an HTTP error rate.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1289,6 +1377,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -1341,8 +1451,8 @@
     {
       "id": 342,
       "type": "stat",
-      "title": "Database · CPU (%)",
-      "description": "CPU utilisation",
+      "title": "CPU (%)",
+      "description": "Database · CPU (%)\n\nCPU utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1370,6 +1480,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -1423,8 +1555,8 @@
     {
       "id": 343,
       "type": "stat",
-      "title": "Database · Memory (%)",
-      "description": "Memory utilisation",
+      "title": "Memory (%)",
+      "description": "Database · Memory (%)\n\nMemory utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1452,6 +1584,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -1505,8 +1659,8 @@
     {
       "id": 344,
       "type": "stat",
-      "title": "Oracle · Status",
-      "description": "Node Exporter scrape success on the Oracle machine.",
+      "title": "Oracle",
+      "description": "Oracle · Status\n\nNode Exporter scrape success on the Oracle machine.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1593,8 +1747,8 @@
     {
       "id": 350,
       "type": "stat",
-      "title": "Oracle · Check duration",
-      "description": "Latest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Check time",
+      "description": "Oracle · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1673,8 +1827,8 @@
     {
       "id": 351,
       "type": "stat",
-      "title": "Oracle · Traffic / min",
-      "description": "The Oracle VM is the monitoring host; it serves no application traffic.",
+      "title": "Traffic / min",
+      "description": "Oracle · Traffic / min\n\nThe Oracle VM is the monitoring host; it serves no application traffic.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1733,8 +1887,8 @@
     {
       "id": 352,
       "type": "stat",
-      "title": "Oracle · Error rate (%)",
-      "description": "There is no application-level error rate on the Oracle VM.",
+      "title": "Errors (%)",
+      "description": "Oracle · Error rate (%)\n\nThere is no application-level error rate on the Oracle VM.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1793,8 +1947,8 @@
     {
       "id": 356,
       "type": "stat",
-      "title": "Oracle · CPU (%)",
-      "description": "CPU utilisation",
+      "title": "CPU (%)",
+      "description": "Oracle · CPU (%)\n\nCPU utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1822,6 +1976,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -1875,8 +2051,8 @@
     {
       "id": 357,
       "type": "stat",
-      "title": "Oracle · Memory (%)",
-      "description": "Memory utilisation",
+      "title": "Memory (%)",
+      "description": "Oracle · Memory (%)\n\nMemory utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1904,6 +2080,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2052,7 +2250,8 @@
             }
           ],
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "green"
           },
           "thresholds": {
             "mode": "absolute",
@@ -2105,8 +2304,8 @@
     {
       "id": 359,
       "type": "stat",
-      "title": "Frontend · Check success rate",
-      "description": "Share of successful checks in the selected period. Not a contractual SLA.",
+      "title": "Frontend · Check success",
+      "description": "Frontend · Check success rate\n\nShare of successful checks in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2134,6 +2333,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2187,8 +2408,8 @@
     {
       "id": 360,
       "type": "stat",
-      "title": "Backend · Check success rate",
-      "description": "Share of successful checks in the selected period. Not a contractual SLA.",
+      "title": "Backend · Check success",
+      "description": "Backend · Check success rate\n\nShare of successful checks in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2216,6 +2437,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2269,8 +2512,8 @@
     {
       "id": 361,
       "type": "stat",
-      "title": "Database · Check success rate",
-      "description": "Share of successful checks in the selected period. Not a contractual SLA.",
+      "title": "Database · Check success",
+      "description": "Database · Check success rate\n\nShare of successful checks in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2298,6 +2541,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2351,8 +2616,8 @@
     {
       "id": 362,
       "type": "stat",
-      "title": "Oracle · Check success rate",
-      "description": "Share of successful checks in the selected period. Not a contractual SLA.",
+      "title": "Oracle · Check success",
+      "description": "Oracle · Check success rate\n\nShare of successful checks in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2380,6 +2645,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2433,8 +2720,8 @@
     {
       "id": 363,
       "type": "stat",
-      "title": "Frontend · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling).",
+      "title": "Frontend · Sample age",
+      "description": "Frontend · Data freshness\n\nAge of the latest actual sample (one-minute sampling).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2513,8 +2800,8 @@
     {
       "id": 364,
       "type": "stat",
-      "title": "Backend · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling).",
+      "title": "Backend · Sample age",
+      "description": "Backend · Data freshness\n\nAge of the latest actual sample (one-minute sampling).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2593,8 +2880,8 @@
     {
       "id": 365,
       "type": "stat",
-      "title": "Database · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling).",
+      "title": "Database · Sample age",
+      "description": "Database · Data freshness\n\nAge of the latest actual sample (one-minute sampling).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2673,8 +2960,8 @@
     {
       "id": 366,
       "type": "stat",
-      "title": "Oracle · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling).",
+      "title": "Oracle · Sample age",
+      "description": "Oracle · Data freshness\n\nAge of the latest actual sample (one-minute sampling).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2860,7 +3147,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -2961,7 +3248,7 @@
       "id": 369,
       "type": "timeseries",
       "title": "CPU (%)",
-      "description": "CPU utilisation relative to each service's own capacity. Vercel host CPU is not collected, so the frontend is absent.",
+      "description": "CPU utilisation relative to each service's own capacity. Vercel host CPU is not collected, so the frontend is absent.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3027,7 +3314,31 @@
           },
           "noValue": "No data",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3079,7 +3390,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3103,7 +3414,7 @@
       "id": 370,
       "type": "timeseries",
       "title": "Memory (%)",
-      "description": "Memory utilisation relative to each service's own capacity. Vercel host memory is not collected.",
+      "description": "Memory utilisation relative to each service's own capacity. Vercel host memory is not collected.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3169,7 +3480,31 @@
           },
           "noValue": "No data",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3221,7 +3556,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3389,7 +3724,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3506,7 +3841,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3530,7 +3865,7 @@
       "id": 373,
       "type": "bargauge",
       "title": "Saturation · percent of own limit",
-      "description": "Every measured capacity value in one view. Green < 75%, orange 75–90%, red ≥ 90%. Frontend is absent (no host metrics).",
+      "description": "Every measured capacity value in one view. Green < 75%, orange 75–90%, red ≥ 90%. Frontend is absent (no host metrics).\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3653,6 +3988,28 @@
                   "color": "gray"
                 }
               }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
             }
           ],
           "color": {
@@ -3719,7 +4076,7 @@
       "id": 374,
       "type": "timeseries",
       "title": "Error rate (%) · all services",
-      "description": "Frontend and backend: 4xx+5xx share of HTTP responses. Database: rolled-back transaction share (not an HTTP error). No data without traffic.",
+      "description": "Frontend and backend: 4xx+5xx share of HTTP responses. Database: rolled-back transaction share (not an HTTP error). No data without traffic.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "datasource",
         "uid": "-- Mixed --"
@@ -3786,7 +4143,31 @@
             }
           },
           "noValue": "No data",
-          "min": 0
+          "min": 0,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3838,7 +4219,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3955,7 +4336,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4072,7 +4453,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4213,7 +4594,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4264,8 +4645,8 @@
     {
       "id": 29,
       "type": "stat",
-      "title": "401 · Unauthenticated · 5 minutes",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "401 · Unauthenticated",
+      "description": "401 · Unauthenticated · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4345,8 +4726,8 @@
     {
       "id": 30,
       "type": "stat",
-      "title": "403 · Access denied · 5 minutes",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "403 · Access denied",
+      "description": "403 · Access denied · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4426,8 +4807,8 @@
     {
       "id": 31,
       "type": "stat",
-      "title": "404 · Not found · 5 minutes",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "404 · Not found",
+      "description": "404 · Not found · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4507,8 +4888,8 @@
     {
       "id": 32,
       "type": "stat",
-      "title": "429 · Rate limited · 5 minutes",
-      "description": "Logged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "title": "429 · Rate limited",
+      "description": "429 · Rate limited · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -4675,7 +5056,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -4763,7 +5144,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -5040,8 +5421,8 @@
     {
       "id": 47,
       "type": "stat",
-      "title": "Backend logs · Age since successful collection",
-      "description": "Age since the last successful log collector run, not since the last business request.",
+      "title": "Backend logs · Sample age",
+      "description": "Backend logs · Age since successful collection\n\nAge since the last successful log collector run, not since the last business request.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -5428,7 +5809,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -5452,7 +5833,7 @@
           "id": 45,
           "type": "timeseries",
           "title": "Backend CPU ↔ Database transactions · Two axes",
-          "description": "Render CPU % (left, API sample) and database-wide committed transactions/s (right, 5m average). CPU-heavy application work may legitimately cause little database activity; the graph is context, not an anomaly verdict.",
+          "description": "Render CPU % (left, API sample) and database-wide committed transactions/s (right, 5m average). CPU-heavy application work may legitimately cause little database activity; the graph is context, not an anomaly verdict.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5508,7 +5889,31 @@
               },
               "min": 0,
               "max": 100,
-              "noValue": "No data"
+              "noValue": "No data",
+              "mappings": [
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
             },
             "overrides": [
               {
@@ -5569,7 +5974,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -5647,7 +6052,7 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": "Backend processing P95 (ms)"
+                "axisLabel": "Backend processing P95"
               },
               "min": 0,
               "noValue": "No data"
@@ -5715,7 +6120,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -5761,7 +6166,7 @@
             "x": 0,
             "y": 111,
             "w": 24,
-            "h": 8
+            "h": 10
           }
         },
         {
@@ -5942,7 +6347,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 119,
+            "y": 121,
             "w": 12,
             "h": 9
           }
@@ -6125,7 +6530,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 119,
+            "y": 121,
             "w": 12,
             "h": 9
           }
@@ -6284,7 +6689,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 128,
+            "y": 130,
             "w": 12,
             "h": 9
           }
@@ -6422,7 +6827,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 128,
+            "y": 130,
             "w": 12,
             "h": 9
           }
@@ -6431,7 +6836,7 @@
           "id": 67,
           "type": "timeseries",
           "title": "HTTP error rate · 4xx and 5xx",
-          "description": "Share of observed HTTP responses only. Excludes network errors and aborts. No ratio is shown without a positive response rate; no artificial 0% is displayed.",
+          "description": "Share of observed HTTP responses only. Excludes network errors and aborts. No ratio is shown without a positive response rate; no artificial 0% is displayed.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -6479,7 +6884,31 @@
               "color": {
                 "mode": "palette-classic"
               },
-              "max": 100
+              "max": 100,
+              "mappings": [
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
             },
             "overrides": []
           },
@@ -6500,7 +6929,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 137,
+            "y": 139,
             "w": 12,
             "h": 9
           }
@@ -6683,7 +7112,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 137,
+            "y": 139,
             "w": 12,
             "h": 9
           }
@@ -6760,7 +7189,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 146,
+            "y": 148,
             "w": 12,
             "h": 9
           }
@@ -6943,7 +7372,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 146,
+            "y": 148,
             "w": 12,
             "h": 9
           }
@@ -6951,8 +7380,8 @@
         {
           "id": 71,
           "type": "stat",
-          "title": "In-flight requests · Last reporting page",
-          "description": "API requests still in flight on the last reporting page when its batch was created. Not total simultaneous requests across all browsers.",
+          "title": "Requests in flight",
+          "description": "In-flight requests · Last reporting page\n\nAPI requests still in flight on the last reporting page when its batch was created. Not total simultaneous requests across all browsers.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7020,7 +7449,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7028,8 +7457,8 @@
         {
           "id": 72,
           "type": "stat",
-          "title": "Batch delay · Includes clock skew",
-          "description": "Receiver arrival time minus the client-reported window end. May include retry delay and client clock skew; can be negative.",
+          "title": "Batch delay",
+          "description": "Batch delay · Includes clock skew\n\nReceiver arrival time minus the client-reported window end. May include retry delay and client clock skew; can be negative.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7096,7 +7525,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7104,8 +7533,8 @@
         {
           "id": 73,
           "type": "stat",
-          "title": "Aggregation window · Last batch",
-          "description": "Reported window end minus start. Background tabs, pending delivery and retries can affect the nominal 60-second interval.",
+          "title": "Batch window",
+          "description": "Aggregation window · Last batch\n\nReported window end minus start. Background tabs, pending delivery and retries can affect the nominal 60-second interval.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7173,7 +7602,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7181,8 +7610,8 @@
         {
           "id": 74,
           "type": "stat",
-          "title": "Receiver · Extended metrics version",
-          "description": "2 = receiver with extended metrics. The frontend batch schema is still version 1; no frontend deployment is required.",
+          "title": "Receiver schema",
+          "description": "Receiver · Extended metrics version\n\n2 = receiver with extended metrics. The frontend batch schema is still version 1; no frontend deployment is required.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7250,7 +7679,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 155,
+            "y": 157,
             "w": 6,
             "h": 5
           }
@@ -7258,8 +7687,8 @@
         {
           "id": 75,
           "type": "stat",
-          "title": "Successful deliveries · Last page report",
-          "description": "Cumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
+          "title": "Successful deliveries",
+          "description": "Successful deliveries · Last page report\n\nCumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7327,7 +7756,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7335,8 +7764,8 @@
         {
           "id": 76,
           "type": "stat",
-          "title": "Failed delivery attempts · Last page report",
-          "description": "Cumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
+          "title": "Failed attempts",
+          "description": "Failed delivery attempts · Last page report\n\nCumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7404,7 +7833,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7412,8 +7841,8 @@
         {
           "id": 77,
           "type": "stat",
-          "title": "Dropped batches · Last page report",
-          "description": "Cumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
+          "title": "Dropped batches",
+          "description": "Dropped batches · Last page report\n\nCumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7481,7 +7910,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7489,8 +7918,8 @@
         {
           "id": 78,
           "type": "stat",
-          "title": "Dropped observations · Last page report",
-          "description": "Cumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
+          "title": "Dropped observations",
+          "description": "Dropped observations · Last page report\n\nCumulative value since the last reporting page started, captured when the batch was created. Do not sum across batches or browsers. Does not yet include the delivery result of this batch.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7558,7 +7987,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 160,
+            "y": 162,
             "w": 6,
             "h": 5
           }
@@ -7672,7 +8101,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 165,
+            "y": 167,
             "w": 12,
             "h": 9
           }
@@ -7786,7 +8215,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 165,
+            "y": 167,
             "w": 12,
             "h": 9
           }
@@ -7870,7 +8299,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7885,7 +8314,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 174,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -7962,7 +8391,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 174,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -8146,7 +8575,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 183,
+            "y": 185,
             "w": 12,
             "h": 7
           }
@@ -8330,7 +8759,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 183,
+            "y": 185,
             "w": 12,
             "h": 7
           }
@@ -8513,7 +8942,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 190,
+            "y": 192,
             "w": 12,
             "h": 9
           }
@@ -8590,7 +9019,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 190,
+            "y": 192,
             "w": 12,
             "h": 9
           }

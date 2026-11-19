@@ -29,7 +29,7 @@ The installer:
 
 On a trial installation failure it attempts to restore and verify the previous four models automatically. On success it prints a **one-command rollback** with the exact backup path. Keep that path. Rollback stops if unrelated dashboard edits were made after installation, instead of overwriting them.
 
-After `PASS`, refresh Grafana with **Ctrl+F5** and check both languages. Model/layout validation cannot establish actual browser rendering. No authenticated visual rendering or live Oracle query audit was available on the development machine; server checks run when this installer is executed.
+After `PASS`, refresh Grafana with **Ctrl+F5** and check both languages. An authenticated browser audit subsequently identified and corrected presentation problems; see [visual audit](DASHBOARD_VISUAL_AUDIT.md). Candidate models were previewed with read-response substitution in an isolated browser, without writing server models. The installer still runs its full server-side query/provisioning checks on Oracle.
 
 ## Package and integration checks
 

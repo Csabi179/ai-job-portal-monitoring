@@ -407,7 +407,7 @@
       "id": 326,
       "type": "stat",
       "title": "Backend · Error rate (%)",
-      "description": "4xx+5xx share of logged requests, 5-minute window. Traffic and Route contains filters apply.",
+      "description": "4xx+5xx share of logged requests, 5-minute window. Traffic and Route contains filters apply.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -437,6 +437,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -490,7 +512,7 @@
       "id": 327,
       "type": "stat",
       "title": "Frontend · Error rate (%)",
-      "description": "4xx+5xx share of browser-observed HTTP responses, 5-minute window.",
+      "description": "4xx+5xx share of browser-observed HTTP responses, 5-minute window.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -518,6 +540,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -570,8 +614,8 @@
     {
       "id": 328,
       "type": "stat",
-      "title": "Log collector · age since successful run",
-      "description": "Seconds since the last successful log collector run. Not the age of the last business request.",
+      "title": "Log collector · Sample age",
+      "description": "Log collector · age since successful run\n\nSeconds since the last successful log collector run. Not the age of the last business request.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -650,8 +694,8 @@
     {
       "id": 10,
       "type": "stat",
-      "title": "Backend · HTTP 5xx · Selected period",
-      "description": "HTTP 5xx responses found in Pino application logs within the selected dashboard time range. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+      "title": "Backend · 5xx in period",
+      "description": "Backend · HTTP 5xx · Selected period\n\nHTTP 5xx responses found in Pino application logs within the selected dashboard time range. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -748,8 +792,8 @@
     {
       "id": 329,
       "type": "stat",
-      "title": "Frontend · Status",
-      "description": "Latest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "title": "Status",
+      "description": "Frontend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -836,8 +880,8 @@
     {
       "id": 330,
       "type": "stat",
-      "title": "Frontend · Check success rate",
-      "description": "Share of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.",
+      "title": "Success (%)",
+      "description": "Frontend · Check success rate\n\nShare of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -865,6 +909,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -918,8 +984,8 @@
     {
       "id": 331,
       "type": "stat",
-      "title": "Frontend · Check duration",
-      "description": "Latest HTTP probe duration from the Oracle machine (DNS, connection, network). Not a browser response time.",
+      "title": "Check time",
+      "description": "Frontend · Check duration\n\nLatest HTTP probe duration from the Oracle machine (DNS, connection, network). Not a browser response time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -998,8 +1064,8 @@
     {
       "id": 332,
       "type": "stat",
-      "title": "Frontend · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
+      "title": "Sample age",
+      "description": "Frontend · Data freshness\n\nAge of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1078,8 +1144,8 @@
     {
       "id": 333,
       "type": "stat",
-      "title": "Frontend · CPU (%)",
-      "description": "Vercel host CPU is not collected.",
+      "title": "CPU (%)",
+      "description": "Frontend · CPU (%)\n\nVercel host CPU is not collected.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1138,8 +1204,8 @@
     {
       "id": 334,
       "type": "stat",
-      "title": "Frontend · Memory (%)",
-      "description": "Vercel host memory is not collected.",
+      "title": "Memory (%)",
+      "description": "Frontend · Memory (%)\n\nVercel host memory is not collected.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1198,8 +1264,8 @@
     {
       "id": 335,
       "type": "stat",
-      "title": "Frontend · API calls / min",
-      "description": "Browser-initiated API calls per minute.",
+      "title": "API calls",
+      "description": "Frontend · API calls / min\n\nBrowser-initiated API calls per minute.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1274,8 +1340,8 @@
     {
       "id": 336,
       "type": "stat",
-      "title": "Frontend · 4xx / min",
-      "description": "4xx HTTP responses seen in the browser per minute.",
+      "title": "4xx / min",
+      "description": "Frontend · 4xx / min\n\n4xx HTTP responses seen in the browser per minute.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1350,8 +1416,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Frontend · 5xx / min",
-      "description": "5xx HTTP responses seen in the browser per minute.",
+      "title": "5xx / min",
+      "description": "Frontend · 5xx / min\n\n5xx HTTP responses seen in the browser per minute.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1426,8 +1492,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Frontend · Error rate (%)",
-      "description": "4xx+5xx share of browser-observed HTTP responses, 5-minute window.",
+      "title": "Error rate (%)",
+      "description": "Frontend · Error rate (%)\n\n4xx+5xx share of browser-observed HTTP responses, 5-minute window.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1455,6 +1521,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -1507,8 +1595,8 @@
     {
       "id": 339,
       "type": "stat",
-      "title": "Frontend · Latency P95",
-      "description": "Estimated P95 time to response headers (from browser telemetry histogram).",
+      "title": "Latency P95",
+      "description": "Frontend · Latency P95\n\nEstimated P95 time to response headers (from browser telemetry histogram).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1587,8 +1675,8 @@
     {
       "id": 340,
       "type": "stat",
-      "title": "Frontend · Telemetry age",
-      "description": "Age of the latest browser telemetry batch.",
+      "title": "Batch age",
+      "description": "Frontend · Telemetry age\n\nAge of the latest browser telemetry batch.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1863,7 +1951,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -1892,8 +1980,8 @@
         {
           "id": 29,
           "type": "stat",
-          "title": "Frontend · Latest HTTP status code",
-          "description": "Latest HTTP probe observation within three minutes, shown only while its exporter is reachable. Probe duration includes DNS, connection and network time; it is not backend application processing time.",
+          "title": "Latest HTTP status code",
+          "description": "Frontend · Latest HTTP status code\n\nLatest HTTP probe observation within three minutes, shown only while its exporter is reachable. Probe duration includes DNS, connection and network time; it is not backend application processing time.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1959,8 +2047,8 @@
         {
           "id": 58,
           "type": "stat",
-          "title": "Frontend · Latest HTTP probe time",
-          "description": "Timestamp of the latest stored frontend probe sample.",
+          "title": "Latest HTTP probe time",
+          "description": "Frontend · Latest HTTP probe time\n\nTimestamp of the latest stored frontend probe sample.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -2026,8 +2114,8 @@
         {
           "id": 54,
           "type": "stat",
-          "title": "Frontend · Probe samples · Selected period",
-          "description": "Counts actual stored frontend probe samples in the selected range, per URL.",
+          "title": "Probe samples",
+          "description": "Frontend · Probe samples · Selected period\n\nCounts actual stored frontend probe samples in the selected range, per URL.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -2093,8 +2181,8 @@
         {
           "id": 56,
           "type": "stat",
-          "title": "Frontend · Exporter scrape",
-          "description": "A value of 1 means Prometheus could scrape the probe exporter.",
+          "title": "Exporter scrape",
+          "description": "Frontend · Exporter scrape\n\nA value of 1 means Prometheus could scrape the probe exporter.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -2345,8 +2433,8 @@
     {
       "id": 343,
       "type": "stat",
-      "title": "Backend · Status",
-      "description": "Latest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "title": "Status",
+      "description": "Backend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2433,8 +2521,8 @@
     {
       "id": 344,
       "type": "stat",
-      "title": "Backend · Check success rate",
-      "description": "Share of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.",
+      "title": "Success (%)",
+      "description": "Backend · Check success rate\n\nShare of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2462,6 +2550,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2515,8 +2625,8 @@
     {
       "id": 345,
       "type": "stat",
-      "title": "Backend · Check duration",
-      "description": "Latest HTTP probe duration from the Oracle machine (DNS, connection, network). Not application processing time.",
+      "title": "Check time",
+      "description": "Backend · Check duration\n\nLatest HTTP probe duration from the Oracle machine (DNS, connection, network). Not application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2595,8 +2705,8 @@
     {
       "id": 346,
       "type": "stat",
-      "title": "Backend · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
+      "title": "Sample age",
+      "description": "Backend · Data freshness\n\nAge of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2675,8 +2785,8 @@
     {
       "id": 347,
       "type": "stat",
-      "title": "Backend · CPU (%)",
-      "description": "CPU utilisation (Render Metrics API, separate collector).",
+      "title": "CPU (%)",
+      "description": "Backend · CPU (%)\n\nCPU utilisation (Render Metrics API, separate collector).\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2704,6 +2814,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2757,8 +2889,8 @@
     {
       "id": 348,
       "type": "stat",
-      "title": "Backend · Memory (%)",
-      "description": "Memory utilisation (Render Metrics API, separate collector).",
+      "title": "Memory (%)",
+      "description": "Backend · Memory (%)\n\nMemory utilisation (Render Metrics API, separate collector).\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -2786,6 +2918,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -2839,8 +2993,8 @@
     {
       "id": 349,
       "type": "stat",
-      "title": "Backend · Requests / min",
-      "description": "Logged HTTP requests per minute, 5-minute window. Traffic and Route contains filters apply.",
+      "title": "Requests",
+      "description": "Backend · Requests / min\n\nLogged HTTP requests per minute, 5-minute window. Traffic and Route contains filters apply.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2917,8 +3071,8 @@
     {
       "id": 350,
       "type": "stat",
-      "title": "Backend · 4xx / min",
-      "description": "4xx responses per minute. Traffic and Route contains filters apply.",
+      "title": "4xx / min",
+      "description": "Backend · 4xx / min\n\n4xx responses per minute. Traffic and Route contains filters apply.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -2995,8 +3149,8 @@
     {
       "id": 351,
       "type": "stat",
-      "title": "Backend · 5xx / min",
-      "description": "5xx responses per minute. Traffic and Route contains filters apply.",
+      "title": "5xx / min",
+      "description": "Backend · 5xx / min\n\n5xx responses per minute. Traffic and Route contains filters apply.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3073,8 +3227,8 @@
     {
       "id": 352,
       "type": "stat",
-      "title": "Backend · Error rate (%)",
-      "description": "4xx+5xx share of logged requests, 5-minute window. Traffic and Route contains filters apply.",
+      "title": "Error rate (%)",
+      "description": "Backend · Error rate (%)\n\n4xx+5xx share of logged requests, 5-minute window. Traffic and Route contains filters apply.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3104,6 +3258,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -3156,8 +3332,8 @@
     {
       "id": 353,
       "type": "stat",
-      "title": "Backend · Latency P95",
-      "description": "Processing time P95 from logs, 5-minute window. Traffic and Route contains filters apply.",
+      "title": "Latency P95",
+      "description": "Backend · Latency P95\n\nProcessing time P95 from logs, 5-minute window. Traffic and Route contains filters apply.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3238,8 +3414,8 @@
     {
       "id": 354,
       "type": "stat",
-      "title": "Backend · Latest HTTP event",
-      "description": "Time of the latest HTTP event visible in Loki (last hour). It does not advance without traffic.",
+      "title": "Last request",
+      "description": "Backend · Latest HTTP event\n\nTime of the latest HTTP event visible in Loki (last hour). It does not advance without traffic.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -3456,7 +3632,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3571,7 +3747,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3670,7 +3846,7 @@
       "id": 355,
       "type": "timeseries",
       "title": "Backend · CPU and memory (%)",
-      "description": "Utilisation relative to the service's own capacity.",
+      "description": "Utilisation relative to the service's own capacity.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -3725,7 +3901,31 @@
           },
           "noValue": "No data",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -3762,7 +3962,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -3869,8 +4069,8 @@
         {
           "id": 35,
           "type": "stat",
-          "title": "HTTP requests · Selected period",
-          "description": "Count of Pino HTTP request logs during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "title": "HTTP requests",
+          "description": "HTTP requests · Selected period\n\nCount of Pino HTTP request logs during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -3945,8 +4145,8 @@
         {
           "id": 36,
           "type": "stat",
-          "title": "HTTP 4xx · Selected period",
-          "description": "Client error responses (HTTP 4xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "title": "HTTP 4xx",
+          "description": "HTTP 4xx · Selected period\n\nClient error responses (HTTP 4xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4030,8 +4230,8 @@
         {
           "id": 37,
           "type": "stat",
-          "title": "HTTP 5xx · Selected period",
-          "description": "Server error responses (HTTP 5xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "title": "HTTP 5xx",
+          "description": "HTTP 5xx · Selected period\n\nServer error responses (HTTP 5xx) during the selected period. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4116,7 +4316,7 @@
           "id": 38,
           "type": "stat",
           "title": "HTTP error rate · 4xx and 5xx",
-          "description": "Share of Pino HTTP requests with a 4xx or 5xx response. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.",
+          "description": "Share of Pino HTTP requests with a 4xx or 5xx response. Traffic and Route contains controls apply. An empty result means no matching logs. Check collector health and newest event before interpreting zero errors.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4166,6 +4366,28 @@
                       "color": "gray"
                     }
                   }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
                 }
               ],
               "links": [
@@ -4205,8 +4427,8 @@
         {
           "id": 60,
           "type": "stat",
-          "title": "Backend · HTTP 401 · Selected period",
-          "description": "Matching HTTP 401 responses in the selected period. May be an expected authentication rejection. Click to inspect.",
+          "title": "HTTP 401",
+          "description": "Backend · HTTP 401 · Selected period\n\nMatching HTTP 401 responses in the selected period. May be an expected authentication rejection. Click to inspect.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4281,8 +4503,8 @@
         {
           "id": 61,
           "type": "stat",
-          "title": "Backend · HTTP 404 · Selected period",
-          "description": "Matching HTTP 404 responses in the selected period. Click to inspect.",
+          "title": "HTTP 404",
+          "description": "Backend · HTTP 404 · Selected period\n\nMatching HTTP 404 responses in the selected period. Click to inspect.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4357,8 +4579,8 @@
         {
           "id": 62,
           "type": "stat",
-          "title": "Backend · Health requests · Selected period",
-          "description": "Health request count in the selected range, independent of Traffic and Route contains filters.",
+          "title": "Health requests",
+          "description": "Backend · Health requests · Selected period\n\nHealth request count in the selected range, independent of Traffic and Route contains filters.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4426,8 +4648,8 @@
         {
           "id": 59,
           "type": "stat",
-          "title": "Backend · Timing samples · Last 15 minutes",
-          "description": "Number of matching logs with nonnegative numeric responseTimeMs in the P50/P95 rolling window.",
+          "title": "Timing samples · Last 15 minutes",
+          "description": "Backend · Timing samples · Last 15 minutes\n\nNumber of matching logs with nonnegative numeric responseTimeMs in the P50/P95 rolling window.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4706,7 +4928,7 @@
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "P95 (ms)"
+                  "options": "P95"
                 },
                 "properties": [
                   {
@@ -4823,8 +5045,8 @@
                   "Value": 3
                 },
                 "renameByName": {
-                  "Value #D": "P95 (ms)",
-                  "Value": "P95 (ms)"
+                  "Value #D": "P95",
+                  "Value": "P95"
                 }
               }
             },
@@ -4871,7 +5093,7 @@
                   "Requests": 2,
                   "4xx": 3,
                   "5xx": 4,
-                  "P95 (ms)": 5,
+                  "P95": 5,
                   "Timing samples": 6
                 },
                 "renameByName": {
@@ -4905,8 +5127,8 @@
         {
           "id": 69,
           "type": "stat",
-          "title": "Successful logins · 200",
-          "description": "Login completed successfully and returned a token. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Login · 200",
+          "description": "Successful logins · 200\n\nLogin completed successfully and returned a token. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -4994,8 +5216,8 @@
         {
           "id": 70,
           "type": "stat",
-          "title": "Rejected logins · 401",
-          "description": "Login was rejected, for example because the credentials were incorrect. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Login · 401",
+          "description": "Rejected logins · 401\n\nLogin was rejected, for example because the credentials were incorrect. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5083,8 +5305,8 @@
         {
           "id": 71,
           "type": "stat",
-          "title": "Invalid login data · 400",
-          "description": "Login input was missing or invalid. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Login · 400",
+          "description": "Invalid login data · 400\n\nLogin input was missing or invalid. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5172,8 +5394,8 @@
         {
           "id": 72,
           "type": "stat",
-          "title": "Login service errors · 5xx",
-          "description": "Login failed with a server-side or dependency error, including unavailable authentication configuration. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Login · 5xx",
+          "description": "Login service errors · 5xx\n\nLogin failed with a server-side or dependency error, including unavailable authentication configuration. Counts POST /api/auth/login (logged as /auth/login or /api/auth/login) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5261,8 +5483,8 @@
         {
           "id": 73,
           "type": "stat",
-          "title": "Successful logouts · 204",
-          "description": "The current session was successfully revoked. Counts POST /api/auth/logout (logged as /auth/logout or /api/auth/logout) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Logout · 204",
+          "description": "Successful logouts · 204\n\nThe current session was successfully revoked. Counts POST /api/auth/logout (logged as /auth/logout or /api/auth/logout) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5350,8 +5572,8 @@
         {
           "id": 74,
           "type": "stat",
-          "title": "Successful registrations · 201",
-          "description": "Registration completed successfully. The current backend also signs the new account in automatically. Counts POST /api/auth/register (logged as /auth/register or /api/auth/register) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
+          "title": "Signup · 201",
+          "description": "Successful registrations · 201\n\nRegistration completed successfully. The current backend also signs the new account in automatically. Counts POST /api/auth/register (logged as /auth/register or /api/auth/register) during the selected dashboard time range. These six auth counters use the whole HTTP log stream and are independent of Traffic, Route contains, Log status and Request ID controls. Zero means HTTP events were observed in the interval but no matching outcome was found. No matching logs means the HTTP baseline is absent. Query failures remain visible as panel errors.",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -5453,8 +5675,8 @@
         {
           "id": 23,
           "type": "stat",
-          "title": "Backend · Latest HTTP status code",
-          "description": "Latest HTTP probe observation within three minutes, shown only while its exporter is reachable. Probe duration includes DNS, connection and network time; it is not backend application processing time.",
+          "title": "Latest HTTP status code",
+          "description": "Backend · Latest HTTP status code\n\nLatest HTTP probe observation within three minutes, shown only while its exporter is reachable. Probe duration includes DNS, connection and network time; it is not backend application processing time.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5520,8 +5742,8 @@
         {
           "id": 57,
           "type": "stat",
-          "title": "Backend · Latest HTTP probe time",
-          "description": "Timestamp of the latest stored backend probe sample.",
+          "title": "Latest HTTP probe time",
+          "description": "Backend · Latest HTTP probe time\n\nTimestamp of the latest stored backend probe sample.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5587,8 +5809,8 @@
         {
           "id": 53,
           "type": "stat",
-          "title": "Backend · Probe samples · Selected period",
-          "description": "Counts actual stored probe samples in the selected range, per URL. Display points in a range graph may repeat these samples.",
+          "title": "Probe samples",
+          "description": "Backend · Probe samples · Selected period\n\nCounts actual stored probe samples in the selected range, per URL. Display points in a range graph may repeat these samples.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5654,8 +5876,8 @@
         {
           "id": 55,
           "type": "stat",
-          "title": "Backend · Exporter scrape",
-          "description": "A value of 1 means Prometheus could scrape the probe exporter. HTTP probe success is shown separately.",
+          "title": "Exporter scrape",
+          "description": "Backend · Exporter scrape\n\nA value of 1 means Prometheus could scrape the probe exporter. HTTP probe success is shown separately.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -5829,8 +6051,8 @@
     {
       "id": 357,
       "type": "stat",
-      "title": "Database · Status",
-      "description": "PostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.",
+      "title": "Status",
+      "description": "Database · Status\n\nPostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -5917,8 +6139,8 @@
     {
       "id": 358,
       "type": "stat",
-      "title": "Database · Check success rate",
-      "description": "Share of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.",
+      "title": "Success (%)",
+      "description": "Database · Check success rate\n\nShare of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -5946,6 +6168,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -5999,8 +6243,8 @@
     {
       "id": 359,
       "type": "stat",
-      "title": "Database · Check duration",
-      "description": "Latest Prometheus scrape duration for the Supabase metrics endpoint. Not SQL query time.",
+      "title": "Check time",
+      "description": "Database · Check duration\n\nLatest Prometheus scrape duration for the Supabase metrics endpoint. Not SQL query time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6079,8 +6323,8 @@
     {
       "id": 360,
       "type": "stat",
-      "title": "Database · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
+      "title": "Sample age",
+      "description": "Database · Data freshness\n\nAge of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6159,8 +6403,8 @@
     {
       "id": 361,
       "type": "stat",
-      "title": "Database · CPU (%)",
-      "description": "CPU utilisation",
+      "title": "CPU (%)",
+      "description": "Database · CPU (%)\n\nCPU utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6188,6 +6432,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -6241,8 +6507,8 @@
     {
       "id": 362,
       "type": "stat",
-      "title": "Database · Memory (%)",
-      "description": "Memory utilisation",
+      "title": "Memory (%)",
+      "description": "Database · Memory (%)\n\nMemory utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6270,6 +6536,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -6323,8 +6611,8 @@
     {
       "id": 363,
       "type": "stat",
-      "title": "Database · Transactions / min",
-      "description": "Committed PostgreSQL transactions per minute; includes internal services. Not an HTTP request count.",
+      "title": "Transactions",
+      "description": "Database · Transactions / min\n\nCommitted PostgreSQL transactions per minute; includes internal services. Not an HTTP request count.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6399,8 +6687,8 @@
     {
       "id": 364,
       "type": "stat",
-      "title": "Database · Rollbacks / min",
-      "description": "Rolled-back transactions per minute.",
+      "title": "Rollbacks",
+      "description": "Database · Rollbacks / min\n\nRolled-back transactions per minute.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6475,8 +6763,8 @@
     {
       "id": 365,
       "type": "stat",
-      "title": "Database · Deadlock / min",
-      "description": "PostgreSQL deadlocks per minute.",
+      "title": "Deadlocks",
+      "description": "Database · Deadlock / min\n\nPostgreSQL deadlocks per minute.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6551,8 +6839,8 @@
     {
       "id": 366,
       "type": "stat",
-      "title": "Database · Error rate (%)",
-      "description": "Rolled-back share of transactions. Not an HTTP error rate; a rollback alone is not necessarily a fault.",
+      "title": "Error rate (%)",
+      "description": "Database · Error rate (%)\n\nRolled-back share of transactions. Not an HTTP error rate; a rollback alone is not necessarily a fault.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6580,6 +6868,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -6632,8 +6942,8 @@
     {
       "id": 367,
       "type": "stat",
-      "title": "Database · Connection slots (%)",
-      "description": "Connection slots used versus the maximum.",
+      "title": "Connections",
+      "description": "Database · Connection slots (%)\n\nConnection slots used versus the maximum.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6661,6 +6971,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -6714,8 +7046,8 @@
     {
       "id": 368,
       "type": "stat",
-      "title": "Database · PostgREST waiting",
-      "description": "Requests waiting for a PostgREST pool connection. Not all PostgreSQL waiting.",
+      "title": "Pool waiting",
+      "description": "Database · PostgREST waiting\n\nRequests waiting for a PostgREST pool connection. Not all PostgreSQL waiting.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -6855,7 +7187,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -6952,7 +7284,7 @@
       "id": 83,
       "type": "timeseries",
       "title": "Database · CPU and memory (%)",
-      "description": "Database host CPU and memory utilization for the selected Supabase target.",
+      "description": "Database host CPU and memory utilization for the selected Supabase target.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -7007,13 +7339,37 @@
           },
           "min": 0,
           "noValue": "No data",
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -7037,7 +7393,7 @@
       "id": 84,
       "type": "timeseries",
       "title": "Database · Filesystem utilization",
-      "description": "Root and data filesystem usage shown separately. The root filesystem contains operating-system files. The data filesystem holds database storage. Values describe allocated filesystem capacity.",
+      "description": "Root and data filesystem usage shown separately. The root filesystem contains operating-system files. The data filesystem holds database storage. Values describe allocated filesystem capacity.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -7081,7 +7437,31 @@
           },
           "min": 0,
           "noValue": "No data",
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
@@ -7116,8 +7496,8 @@
         {
           "id": 78,
           "type": "stat",
-          "title": "Database · Data filesystem used (%)",
-          "description": "Allocated /data filesystem utilization, using space available to unprivileged users. Display thresholds are 80% and 90%. This measures filesystem capacity. Plan storage allowances must be checked separately in Supabase. A missing /data mount remains No data.",
+          "title": "Data filesystem used (%)",
+          "description": "Database · Data filesystem used (%)\n\nAllocated /data filesystem utilization, using space available to unprivileged users. Display thresholds are 80% and 90%. This measures filesystem capacity. Plan storage allowances must be checked separately in Supabase. A missing /data mount remains No data.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7146,6 +7526,28 @@
                     "match": "null",
                     "result": {
                       "text": "No data",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Invalid sample",
                       "color": "gray"
                     }
                   }
@@ -7201,8 +7603,8 @@
         {
           "id": 81,
           "type": "stat",
-          "title": "Database · Open connections",
-          "description": "Exported PostgreSQL connection count summed across database roles. Includes internal Supabase services and pooled server connections. This counts database connections, independently of application logins.",
+          "title": "Open connections",
+          "description": "Database · Open connections\n\nExported PostgreSQL connection count summed across database roles. Includes internal Supabase services and pooled server connections. This counts database connections, independently of application logins.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7268,8 +7670,8 @@
         {
           "id": 82,
           "type": "stat",
-          "title": "Database · Database size",
-          "description": "Database size in bytes, summed across exported databases except template0 and template1. Includes database objects such as tables and indexes. WAL and filesystem usage are separate measures.",
+          "title": "Database size",
+          "description": "Database · Database size\n\nDatabase size in bytes, summed across exported databases except template0 and template1. Includes database objects such as tables and indexes. WAL and filesystem usage are separate measures.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7335,8 +7737,8 @@
         {
           "id": 75,
           "type": "stat",
-          "title": "Database · Metrics scrape",
-          "description": "Prometheus scrape status for the selected Supabase target. UP confirms the Metrics API scrape. PostgreSQL reachability is shown separately.",
+          "title": "Metrics scrape",
+          "description": "Database · Metrics scrape\n\nPrometheus scrape status for the selected Supabase target. UP confirms the Metrics API scrape. PostgreSQL reachability is shown separately.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7428,7 +7830,7 @@
           "id": 87,
           "type": "timeseries",
           "title": "Database · PostgreSQL buffer cache hit ratio",
-          "description": "Block hits / (block hits + block reads), calculated from five-minute rates. A zero denominator produces no ratio. PostgreSQL buffer cache hits exclude operating-system cache effects. Interpret changes alongside traffic and I/O, especially on a new database.",
+          "description": "Block hits / (block hits + block reads), calculated from five-minute rates. A zero denominator produces no ratio. PostgreSQL buffer cache hits exclude operating-system cache effects. Interpret changes alongside traffic and I/O, especially on a new database.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -7472,7 +7874,31 @@
               },
               "min": 0,
               "noValue": "No data",
-              "max": 100
+              "max": 100,
+              "mappings": [
+                {
+                  "type": "range",
+                  "options": {
+                    "from": -1e+30,
+                    "to": -1e-06,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                },
+                {
+                  "type": "range",
+                  "options": {
+                    "from": 100.000001,
+                    "to": 1e+30,
+                    "result": {
+                      "text": "Invalid sample",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ]
             },
             "overrides": []
           },
@@ -7712,7 +8138,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7796,7 +8222,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7880,7 +8306,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -7924,8 +8350,8 @@
     {
       "id": 369,
       "type": "stat",
-      "title": "Oracle · Status",
-      "description": "Node Exporter scrape success on the Oracle machine.",
+      "title": "Status",
+      "description": "Oracle · Status\n\nNode Exporter scrape success on the Oracle machine.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8012,8 +8438,8 @@
     {
       "id": 370,
       "type": "stat",
-      "title": "Oracle · Check success rate",
-      "description": "Share of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.",
+      "title": "Success (%)",
+      "description": "Oracle · Check success rate\n\nShare of successful checks (HTTP probe or scrape) in the selected period. Not a contractual SLA.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8041,6 +8467,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -8094,8 +8542,8 @@
     {
       "id": 371,
       "type": "stat",
-      "title": "Oracle · Check duration",
-      "description": "Latest Prometheus scrape duration of Node Exporter. Not an application response time.",
+      "title": "Check time",
+      "description": "Oracle · Check duration\n\nLatest Prometheus scrape duration of Node Exporter. Not an application response time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8174,8 +8622,8 @@
     {
       "id": 372,
       "type": "stat",
-      "title": "Oracle · Data freshness",
-      "description": "Age of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
+      "title": "Sample age",
+      "description": "Oracle · Data freshness\n\nAge of the latest actual sample (one-minute sampling). A missing sample is no data, not zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8254,8 +8702,8 @@
     {
       "id": 373,
       "type": "stat",
-      "title": "Oracle · CPU (%)",
-      "description": "CPU utilisation",
+      "title": "CPU (%)",
+      "description": "Oracle · CPU (%)\n\nCPU utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8283,6 +8731,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -8336,8 +8806,8 @@
     {
       "id": 374,
       "type": "stat",
-      "title": "Oracle · Memory (%)",
-      "description": "Memory utilisation",
+      "title": "Memory (%)",
+      "description": "Oracle · Memory (%)\n\nMemory utilisation\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8365,6 +8835,28 @@
                 "match": "null",
                 "result": {
                   "text": "No data",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
                   "color": "gray"
                 }
               }
@@ -8418,8 +8910,8 @@
     {
       "id": 12,
       "type": "stat",
-      "title": "Oracle · Uptime",
-      "description": "Seconds since the Oracle VM last booted.",
+      "title": "Uptime",
+      "description": "Oracle · Uptime\n\nSeconds since the Oracle VM last booted.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8484,8 +8976,8 @@
     {
       "id": 15,
       "type": "stat",
-      "title": "Oracle · System load · 1 minute",
-      "description": "One-minute system load average.",
+      "title": "Load · 1 min",
+      "description": "Oracle · System load · 1 minute\n\nOne-minute system load average.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8550,8 +9042,8 @@
     {
       "id": 9,
       "type": "stat",
-      "title": "Oracle · Root filesystem (%)",
-      "description": "Root filesystem utilization on the Oracle VM.",
+      "title": "Root disk (%)",
+      "description": "Oracle · Root filesystem (%)\n\nRoot filesystem utilization on the Oracle VM.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8599,6 +9091,28 @@
                   "color": "gray"
                 }
               }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
             }
           ],
           "min": 0,
@@ -8631,8 +9145,8 @@
     {
       "id": 13,
       "type": "stat",
-      "title": "Oracle · Available memory",
-      "description": "Available system memory, excluding reclaimable/cached memory that is in use.",
+      "title": "Free memory",
+      "description": "Oracle · Available memory\n\nAvailable system memory, excluding reclaimable/cached memory that is in use.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8697,8 +9211,8 @@
     {
       "id": 14,
       "type": "stat",
-      "title": "Oracle · Available disk space",
-      "description": "Available storage on the Oracle VM root filesystem.",
+      "title": "Free disk",
+      "description": "Oracle · Available disk space\n\nAvailable storage on the Oracle VM root filesystem.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8763,8 +9277,8 @@
     {
       "id": 375,
       "type": "stat",
-      "title": "Oracle · Textfile collector error",
-      "description": "Node Exporter textfile scrape error flag: 0 = OK, 1 = error.",
+      "title": "Textfile error",
+      "description": "Oracle · Textfile collector error\n\nNode Exporter textfile scrape error flag: 0 = OK, 1 = error.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8852,7 +9366,7 @@
       "id": 376,
       "type": "timeseries",
       "title": "Oracle · CPU and memory (%)",
-      "description": "Utilisation relative to the service's own capacity.",
+      "description": "Utilisation relative to the service's own capacity.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -8907,7 +9421,31 @@
           },
           "noValue": "No data",
           "min": 0,
-          "max": 100
+          "max": 100,
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": [
           {
@@ -8944,7 +9482,7 @@
       },
       "options": {
         "legend": {
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
@@ -8968,7 +9506,7 @@
       "id": 18,
       "type": "timeseries",
       "title": "Oracle · Root filesystem (%)",
-      "description": "Root filesystem used space percentage.",
+      "description": "Root filesystem used space percentage.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -9016,7 +9554,31 @@
           "color": {
             "mode": "fixed",
             "fixedColor": "#B28CD9"
-          }
+          },
+          "mappings": [
+            {
+              "type": "range",
+              "options": {
+                "from": -1e+30,
+                "to": -1e-06,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 100.000001,
+                "to": 1e+30,
+                "result": {
+                  "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
@@ -9115,7 +9677,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -9202,7 +9764,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -9300,7 +9862,7 @@
           },
           "options": {
             "legend": {
-              "displayMode": "table",
+              "displayMode": "list",
               "placement": "bottom",
               "showLegend": true,
               "calcs": [
@@ -9344,8 +9906,8 @@
     {
       "id": 67,
       "type": "stat",
-      "title": "Log collector · Age since successful run",
-      "description": "Seconds since the last successful log collector run. This is not the age of the last business request.",
+      "title": "Log collector · Sample age",
+      "description": "Log collector · Age since successful run\n\nSeconds since the last successful log collector run. This is not the age of the last business request.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -9423,8 +9985,8 @@
     {
       "id": 63,
       "type": "stat",
-      "title": "Log collector · HTTP events · Selected period",
-      "description": "Unfiltered HTTP events in Loki for the selected range. Compare with filtered request totals to distinguish filter effects from lack of data.",
+      "title": "Log collector · HTTP events",
+      "description": "Log collector · HTTP events · Selected period\n\nUnfiltered HTTP events in Loki for the selected range. Compare with filtered request totals to distinguish filter effects from lack of data.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -9492,8 +10054,8 @@
     {
       "id": 64,
       "type": "stat",
-      "title": "Loki · Latest HTTP event · Last hour",
-      "description": "Most recent original HTTP event timestamp available in Loki within the last hour. No matching logs can mean no traffic or an ingestion issue. Independent of dashboard filters. This is event freshness, not measured ingestion delay.",
+      "title": "Loki · Last HTTP event",
+      "description": "Loki · Latest HTTP event · Last hour\n\nMost recent original HTTP event timestamp available in Loki within the last hour. No matching logs can mean no traffic or an ingestion issue. Independent of dashboard filters. This is event freshness, not measured ingestion delay.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
