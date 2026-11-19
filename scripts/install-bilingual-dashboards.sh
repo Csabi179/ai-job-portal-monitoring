@@ -85,10 +85,10 @@ done
 printf 'Backup: %s\n' "$backup"
 restore=1
 if [[ "$(cat "$stage/preparation-needed")" == 1 ]]; then
-  printf 'Completing the previously requested final audit using its pinned installer...\n'
-  git show "$preparation:scripts/install-dashboard-final-audit.sh" > "$stage/prepare.sh"
+  printf 'Completing the final audit with the current Grafana-13-aware verifier...\n'
+  git show "$ref:scripts/install-dashboard-final-audit.sh" > "$stage/prepare.sh"
   bash -n "$stage/prepare.sh"
-  bash "$stage/prepare.sh" "$preparation" | tee "$backup/preparation-audit.txt"
+  bash "$stage/prepare.sh" "$ref" | tee "$backup/preparation-audit.txt"
   printf 'HU/English expanded queries are identical; reusing the successful source datasource audit.\n'
 else
   python3 "$stage/check-bilingual-dashboards.py" "$stage" --live | tee "$backup/datasource-audit.txt"
@@ -112,7 +112,7 @@ done
 verification=0
 printf 'Waiting up to 75 seconds for all four Grafana models...\n'
 sudo -n python3 "$stage/verify-provisioned-dashboards.py" "$stage" --files "${files[@]}" --wait 75 || verification=$?
-if [[ "$verification" != 0 && "$verification" != 3 ]]; then exit "$verification"; fi
+if [[ "$verification" != 0 ]]; then exit "$verification"; fi
 curl --max-time 10 -fsS http://127.0.0.1:3000/api/health | python3 -c 'import json,sys; assert json.load(sys.stdin).get("database")=="ok"; print("Grafana database=ok")'
 restore=0
 printf '\nPASS: two HU dashboards retained; two English dashboards added. Backup: %s\n' "$backup"

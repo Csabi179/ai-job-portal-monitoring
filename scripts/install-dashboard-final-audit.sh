@@ -8,6 +8,7 @@ ref="${1:?Usage: bash install-dashboard-final-audit.sh COMMIT_SHA}"
 [[ "$ref" =~ ^[0-9a-f]{40}$ ]] || { printf 'Expected pinned full commit SHA.\n' >&2; exit 2; }
 baseline=f42a936b6c4446b8cbb14d60a98d0aef837cdb83
 previous=829ccc54ffaadeb6c1191c11db4839342df17a01
+reviewed=75c65c454e89e6528bb93a46bdccaf3a597317b7
 folder=grafana/provisioning/dashboards/json
 stage=$(mktemp -d /tmp/matchwise-final-audit.XXXXXX)
 backup=
@@ -38,6 +39,7 @@ for name in unified comparison; do
   [[ "$name" != unified ]] || file=matchwise-unified-monitoring.json
   git show "$ref:$folder/$file" > "$stage/$file"
   git show "$baseline:$folder/$file" > "$stage/baseline-$name.json"
+  git show "$reviewed:$folder/$file" > "$stage/reviewed-$name.json"
 done
 git show "$previous:$folder/matchwise-service-comparison.json" > "$stage/previous-comparison.json"
 python3 "$stage/check-dashboard-final-audit.py" "$stage"
@@ -52,6 +54,7 @@ live,stage=map(Path,sys.argv[1:])
 for name,file in [('unified','matchwise-unified-monitoring.json'),('comparison','matchwise-service-comparison.json')]:
     current=json.loads((live/file).read_text(encoding='utf-8'))
     allowed=[json.loads((stage/('baseline-'+name+'.json')).read_text(encoding='utf-8')),json.loads((stage/file).read_text(encoding='utf-8'))]
+    allowed.append(json.loads((stage/('reviewed-'+name+'.json')).read_text(encoding='utf-8')))
     if name=='comparison': allowed.append(json.loads((stage/'previous-comparison.json').read_text(encoding='utf-8')))
     if current not in allowed:
         def walk(ps):
@@ -96,7 +99,7 @@ cmp -- "$stage/matchwise-service-comparison.json" "$folder/matchwise-service-com
 verification=0
 printf 'Waiting up to 75 seconds for Grafana to provision both reviewed dashboard models...\n'
 sudo -n python3 "$stage/verify-provisioned-dashboards.py" "$stage" --wait 75 || verification=$?
-if [[ "$verification" != 0 && "$verification" != 3 ]]; then exit "$verification"; fi
+if [[ "$verification" != 0 ]]; then exit "$verification"; fi
 curl --max-time 10 -fsS http://127.0.0.1:3000/api/health | python3 -c 'import json,sys; assert json.load(sys.stdin).get("database")=="ok"; print("Grafana database=ok")'
 restore=0
 printf '\nPASS: both dashboard files installed; datasource audit passed. Backup: %s\n' "$backup"

@@ -1,5 +1,8 @@
 # Két dashboard végső felülvizsgálata · 2026-11-19
 
+> **Grafana 13 fix:** the previous retry restored its files after checking the obsolete legacy dashboard table. Use the latest pinned bilingual installer with the [current-storage verifier fix](GRAFANA13_PROVISIONING_VERIFICATION.md); it also updates the preparation call. The four requested names and dashboard models are unchanged.
+
+
 > **Kétnyelvű változatok:** a két magyar dashboard megmarad `HU` névvégződéssel; két külön angol dashboard készült jelzés nélküli alapnévvel. Az előző parancs helyett a [kétnyelvű telepítőt](DASHBOARD_LANGUAGES.md) használd; az elmaradt végső auditot is elvégzi. A régi magyar linkek megmaradnak.
 
 

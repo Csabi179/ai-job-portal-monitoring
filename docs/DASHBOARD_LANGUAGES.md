@@ -1,5 +1,8 @@
 # MatchWise dashboard languages
 
+> **Grafana 13 fix:** the previous retry restored its files after checking the obsolete legacy dashboard table. Use the latest pinned bilingual installer with the [current-storage verifier fix](GRAFANA13_PROVISIONING_VERIFICATION.md); it also updates the preparation call. The four requested names and dashboard models are unchanged.
+
+
 The two Hungarian dashboards are retained. Separate English dashboards use the same measurements, defaults and layout. Only the Hungarian titles have a `HU` suffix; the English titles have no language suffix.
 
 | Language | Dashboard title | UID |
@@ -29,7 +32,7 @@ Run the new pinned `scripts/install-bilingual-dashboards.sh FULL_COMMIT_SHA` hel
 
 1. Stage and validate all four models; refuse unknown live file changes and symlinks. Existing unknown English files are not overwritten.
 2. Back up all four file slots under `/home/ubuntu/monitoring-backups/dashboard-languages.*`, recording which English files did not previously exist.
-3. If the prior final audit is still pending, invoke its pinned `75c65c454e89e6528bb93a46bdccaf3a597317b7` installer. It finishes the authorized audit, including the 12 offline promtool scenarios and read-only checks of the 180 original targets; it upgrades the receiver only if the earlier v2 upgrade is still missing. A receiver upgrade restarts its memory counters. If already prepared, the bilingual helper audits the four models directly, reusing identical datasource queries.
+3. If the prior final audit is still pending, invoke the final-audit installer from the same current pinned revision (the `75c65c454e89e6528bb93a46bdccaf3a597317b7` models remain comparison baselines). It finishes the authorized audit, including the 12 offline promtool scenarios and read-only checks of the 180 original targets; it upgrades the receiver only if the earlier v2 upgrade is still missing. A receiver upgrade restarts its memory counters. If already prepared, the bilingual helper audits the four models directly, reusing identical datasource queries.
 4. First install the two HU names and confirm them in Grafana's local SQLite dashboard storage using read-only access. Only then create the two English files under the unmarked base names, avoiding a provisioning-order/title conflict. If this rename cannot be confirmed automatically, restore the files rather than guessing that the old base names are free.
 5. Confirm all four stored models, and check Grafana database health. This is provisioning verification, not a screenshot/rendering test.
 6. On failure, restore existing files and remove only newly created English files. A separately completed receiver preparation remains installed and has its own printed backup. No Git reset, main merge, Caddy/Prometheus configuration change or paid service is involved.
