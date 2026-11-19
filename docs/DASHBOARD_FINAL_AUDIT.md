@@ -1,5 +1,8 @@
 # Két dashboard végső felülvizsgálata · 2026-11-19
 
+> **Kétnyelvű változatok:** a két magyar dashboard megmarad `HU` névvégződéssel; két külön angol dashboard készült jelzés nélküli alapnévvel. Az előző parancs helyett a [kétnyelvű telepítőt](DASHBOARD_LANGUAGES.md) használd; az elmaradt végső auditot is elvégzi. A régi magyar linkek megmaradnak.
+
+
 **Kész forrásváltozat:** Unified v10; Szolgáltatások összehasonlítása v8. Az Oracle-telepítés és az éles lekérdezésellenőrzés a pinned telepítővel történik. Az élő Grafana-URL-ek bejelentkezésre irányítanak, ezért nincs közvetlenül ellenőrzött böngészős képernyőkép. A helyi előnézetek csak elrendezési rajzok, kitalált mérési értékek nélkül.
 
 ## Szolgáltatások összehasonlítása

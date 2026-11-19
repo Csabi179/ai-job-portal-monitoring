@@ -1,0 +1,32 @@
+{
+  "dashboards": [
+    {
+      "file": "matchwise-unified-monitoring.json",
+      "uid": "matchwise-unified-overview",
+      "title": "MatchWise | Unified Monitoring HU",
+      "language": "hu",
+      "kind": "unified"
+    },
+    {
+      "file": "matchwise-unified-monitoring-en.json",
+      "uid": "matchwise-unified-overview-en",
+      "title": "MatchWise | Unified Monitoring",
+      "language": "en",
+      "kind": "unified"
+    },
+    {
+      "file": "matchwise-service-comparison.json",
+      "uid": "matchwise-service-comparison",
+      "title": "MatchWise · Szolgáltatások összehasonlítása HU",
+      "language": "hu",
+      "kind": "comparison"
+    },
+    {
+      "file": "matchwise-service-comparison-en.json",
+      "uid": "matchwise-service-comparison-en",
+      "title": "MatchWise · Service Comparison",
+      "language": "en",
+      "kind": "comparison"
+    }
+  ]
+}

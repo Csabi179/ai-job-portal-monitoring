@@ -1,5 +1,8 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
+> **Kétnyelvű változatok:** a két magyar dashboard megmarad `HU` névvégződéssel; két külön angol dashboard készült jelzés nélküli alapnévvel. Az előző parancs helyett a [kétnyelvű telepítőt](DASHBOARD_LANGUAGES.md) használd; az elmaradt végső auditot is elvégzi. A régi magyar linkek megmaradnak.
+
+
 > **Végső felülvizsgálat (2026-11-19):** elkészült a Unified v10 és az összehasonlító v8. Az összehasonlítóból a felhasználó kérésére törölve a backend-naplók és az adatforrás/mérési útmutató sora; a frontend részletei most a 06-os szakaszban vannak. Javítva a HTTP-próba- és erőforrásadatok scrape-feltételei. Oracle-telepítés és éles ellenőrzés: [végső audit](DASHBOARD_FINAL_AUDIT.md). Az alábbi régi felépítésleírás történeti háttér.
 
 > **Korábbi v5 állapot / Historical state (2026-11-19):** 45 panel telepítve. A frontend main-be összevonva; éles 204-es küldés és nem üres API-csomag, valamint friss Grafana fogadási adatok igazoltak. Pozitív frontendgörbék az SSH-tesztben igazoltak; az utolsó éles képen nulla frontendráta és hiányzó frontend-latencia látszik. A monitoringág külön marad.

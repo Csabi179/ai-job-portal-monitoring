@@ -1,8 +1,8 @@
 {
   "uid": "matchwise-service-comparison",
-  "title": "MatchWise · Szolgáltatások összehasonlítása",
+  "title": "MatchWise · Szolgáltatások összehasonlítása HU",
   "schemaVersion": 42,
-  "version": 8,
+  "version": 9,
   "editable": false,
   "tags": [
     "matchwise",
@@ -6750,6 +6750,12 @@
     }
   ],
   "links": [
+    {
+      "title": "Angol változat",
+      "url": "/d/matchwise-service-comparison-en/matchwise-service-comparison?${__url_time_range}",
+      "type": "link",
+      "targetBlank": false
+    },
     {
       "title": "Üzemeltetési áttekintés",
       "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read only the two provisioned dashboard models from the local Grafana SQLite DB."""
+"""Read only the requested provisioned dashboard models from the local Grafana SQLite DB."""
 import argparse
 import json
 from pathlib import Path
@@ -44,8 +44,9 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory',type=Path)
     parser.add_argument('--wait',type=int,default=75)
+    parser.add_argument('--files',nargs='+',default=['matchwise-unified-monitoring.json','matchwise-service-comparison.json'])
     args=parser.parse_args()
-    expected=[json.loads((args.directory/f).read_text(encoding='utf-8')) for f in ['matchwise-unified-monitoring.json','matchwise-service-comparison.json']]
+    expected=[json.loads((args.directory/f).read_text(encoding='utf-8')) for f in args.files]
     try:
         db=locate_database()
     except (OSError,subprocess.SubprocessError,ValueError):
@@ -59,12 +60,12 @@ def main():
             connection=sqlite3.connect(db.resolve().as_uri()+'?mode=ro',uri=True,timeout=5)
             try:
                 connection.execute('PRAGMA query_only=ON')
-                rows=connection.execute('SELECT uid, data FROM dashboard WHERE uid IN (?,?)',tuple(d['uid'] for d in expected)).fetchall()
+                rows=connection.execute('SELECT uid, data FROM dashboard WHERE uid IN ('+','.join('?' for _ in expected)+')',tuple(d['uid'] for d in expected)).fetchall()
             finally:
                 connection.close()
             actual={uid:json.loads(data) for uid,data in rows}
             if all(d['uid'] in actual and matches(actual[d['uid']],d) for d in expected):
-                print('PASS: Grafana stored both expected dashboard models, including panel layout, titles, collapsed rows and queries.')
+                print(f'PASS: Grafana stored all {len(expected)} expected dashboard models, including panel layout, titles, collapsed rows and queries.')
                 print('This verifies provisioning, not browser rendering or positive business traffic.')
                 return 0
         except sqlite3.OperationalError:
