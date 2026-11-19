@@ -1,5 +1,7 @@
 # Forgalmi összehasonlítás – aktuális állapot
 
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
+
 Frissítve: 2026-11-19. **Az éles frontend → Oracle → Prometheus → Grafana adatút működése igazolt.**
 
 ## Elkészült és működik
@@ -74,11 +76,11 @@ Az új dashboard Viewer-hozzáférése nincs külön igazolva.
 ## Verziózás és üzemeltetés
 
 - Frontend: ernoking/job-portal-frontend; a tesztelt fejlesztési ág main-be összevonva, PR #11.
-- Monitoring: Csabi179/ai-job-portal-monitoring, feat/service-comparison továbbra is külön.
+- Monitoring: Csabi179/ai-job-portal-monitoring; a feat/service-comparison ág 2026-11-19-én bekerült a main ágba, a 10f43d1c6b770a0ac5ca91a297d83d0b3dad3062 commitig.
 - Kód és dokumentáció Gitben verziózott.
-- Oracle monitoring checkout az utolsó igazolás szerint main,
+- Az Oracle checkout korábbi Git-leltára szerint main,
   7ac0229c8384e55a23551b86f6d6db6002608b4b, helyi módosításokkal.
-  A telepítés fájlonkénti másolással történt: nincs pull/ágváltás.
+  A telepített fájlok az átadott segédekkel frissültek; a checkout régi HEAD-je nem a futó konfiguráció verziójának bizonyítéka. Az üzemeltető minden változás azonnali alkalmazását visszaigazolta; a merge miatt nincs újratelepítési feladat.
   Későbbi frissítés előtt git status; helyi fájlokat nem dobunk el.
 - A külön telepített Python és systemd példányokat a Git-frissítés önmagában nem frissíti.
 

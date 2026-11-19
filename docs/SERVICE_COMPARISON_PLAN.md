@@ -1,10 +1,10 @@
 # Service comparison implementation / Megvalósítási állapot
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
-Updated / Frissítve: 2026-11-18.
+Updated / Frissítve: 2026-11-19.
 Repository: Csabi179/ai-job-portal-monitoring.
-Branch / Ág: feat/service-comparison.
+Branch / Ág: main; feat/service-comparison merged / összevonva 2026-11-19.
 Baseline / Kiindulási commit: c12e4041776545428717647ad3947efe22036e0e.
 
 ## Delivered / Elkészült
@@ -31,9 +31,9 @@ Baseline / Kiindulási commit: c12e4041776545428717647ad3947efe22036e0e.
 
 ## Operational state / Üzemeltetési állapot
 
-The existing twelve outage/monitoring rules remain; service-comparison-security adds three, making fifteen permanent rules. TEST rules are temporary fixtures, not permanent provisioning source. Cleanup was confirmed by the operator; no separate post-cleanup API inventory was supplied.
+The existing twelve outage/monitoring rules remain; service-comparison-security contains four rules, making sixteen permanent rules. The 404 addition and one-minute backend cadence were applied before the merge. TEST rules are temporary fixtures, not permanent provisioning source. Cleanup was confirmed by the operator; no separate post-cleanup API inventory was supplied.
 
-A meglévő 12 kiesési/monitoring-szabály mellé három új került, összesen 15 állandó szabállyal. A TEST szabályok ideiglenesek; az eltávolítás visszaigazolt, külön API-leltár nem érkezett róla.
+A meglévő 12 kiesési/monitoring-szabály mellé négy erőforrás/biztonsági szabály került, összesen 16 állandó szabállyal. A 404-bővítés és a percenkénti backendmérés alkalmazása a merge előtt megtörtént. A TEST szabályok ideiglenesek; az eltávolítás visszaigazolt, külön API-leltár nem érkezett róla.
 
 Oracle rollout used reviewed git show/file-copy commands from this feature branch. The resource script is installed at /usr/local/lib/matchwise/render-metrics-poll.py; service/timer units are installed under /etc/systemd/system. Changing the repository copy alone does not update the installed script. Dashboard and alert JSON were copied into the live checkout. Inspect local changes/untracked files before later branch switching or pulling. Do not use reset --hard or discard live files to resolve collisions.
 
@@ -50,17 +50,17 @@ Az Oracle-telepítés ellenőrzött fájlmásolásokkal történt a fejlesztési
 - New-dashboard Viewer access is unverified. / Az új dashboard Viewer-hozzáférése nincs ellenőrizve.
 - Real CPU/5xx threshold breaches and missing-data/error branches are unverified. Synthetic tests prove the notification path, not source threshold behavior. / A valódi CPU/5xx küszöbpróbák és adathiányos ágak nem teszteltek.
 - Exact real-login pending/receipt times and its resolved message were not supplied. / A valódi login-próba pontos idői és resolved üzenete nem érkezett.
-- The original promtool suite was not rerun here because required tools were unavailable. Local collector/helper tests and structure checks passed. / A régi promtool csomag itt nem futott újra; helyi collector/helper tesztek és szerkezeti ellenőrzések sikeresek.
+- The merge review passed 52 Python tests, 38 alert PromQL scenarios, dashboard guard scenarios, 106 dashboard PromQL expressions, Prometheus configuration syntax and shell syntax. / A merge előtti ellenőrzésen 52 Python-teszt, 38 riasztási PromQL-eset, dashboardvédelmi tesztek, 106 dashboardkifejezés, a Prometheus-konfiguráció és a shellszintaxis is sikeres volt.
 - Existing draw.io/SVG remains the twelve-rule baseline; current addition is documented in text. / A régi ábra a 12 szabályos kiindulást mutatja, az új rész szövegesen dokumentált.
-- Main merge, final pull request review and exact current live checkout HEAD are not established. / Main merge, végső PR-ellenőrzés és az éles checkout pontos HEAD-je nincs igazolva.
+- Main integration completed on 2026-11-19 by fast-forward to 10f43d1 after validation. No PR was needed. Runtime deployment was confirmed by the operator; the current Oracle Git checkout HEAD was not re-inventoried. / A main összevonás 2026-11-19-én, ellenőrzések után fast-forwarddal megtörtént. Külön PR nem kellett; a telepítést az üzemeltető visszaigazolta. Az Oracle checkout aktuális HEAD-jéről nem készült új leltár.
 
 No secrets or raw application logs are recorded in these guides. / Titkos értékek és nyers alkalmazásnaplók nem kerültek a dokumentációba.
 
-## Next requested revision / Következő kért módosítás
+## Completed revision / Elkészült bővítés
 
-Implemented on the same branch: eight security panels, guarded 404 burst rule, one-minute backend cadence, shorter timeout and three-minute freshness across rules/dashboards. Full updated promtool suite and live Loki checks are the next operator step. No merge is planned now, as requested. / Ugyanazon az ágon elkészült a nyolc biztonsági panel, a 404-riasztás és a percenkénti backend-próba. Következő lépés a frissített tesztcsomag és lekérdezések Oracle-ellenőrzése. Összevonás most nincs tervben.
+Implemented on the same branch: eight security panels, guarded 404 burst rule, one-minute backend cadence, shorter timeout and three-minute freshness across rules/dashboards. The later validation and operator rollout completed; the monitoring merge was explicitly authorized and completed on November 19. No replay is required because of that merge. / Ugyanazon az ágon elkészült a nyolc biztonsági panel, a 404-riasztás és a percenkénti backend-próba. A későbbi ellenőrzések és az üzemeltetői alkalmazás megtörténtek; a monitoring main összevonása külön engedéllyel november 19-én lezárult. Emiatt nincs újrafuttatási feladat.
 
-## Backend cadence rollout confirmed / Backend-gyakoriság igazolt
+## Historical backend cadence evidence — November 18 / Korábbi backend-gyakorisági bizonyíték
 
 Operator supplied post-apply output: Grafana /api/health returned database=ok, version=13.2.1. Both blackbox_render_backend and blackbox_vercel_frontend targets report scrapeInterval=1m, scrapeTimeout=15s and health=up. Backend probe_success=1 at query timestamp 1795025266.993. This verifies active target configuration and a successful current HTTP probe; a long-term no-sleep guarantee is not claimed. New security panel rendering, four-rule group health and an actual 404 threshold trigger remain to be verified. No main merge was performed.
 

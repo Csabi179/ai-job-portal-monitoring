@@ -1,10 +1,14 @@
 # Frontend API-forgalom mérése – megvalósítási terv
 
-Dátum: 2026-11-18.
-Állapot: fejlesztési frontendkód és Oracle-fogadó elkészült, helyi tesztekkel. Nincs élesben telepítve. [Megvalósítás, fájlok és bevezetés](FRONTEND_TRAFFIC_RECEIVER.md).
-Monitoringág: feat/service-comparison. Main összevonás nincs.
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
 
-## Ellenőrzött kiindulás
+Dátum: 2026-11-18.
+Aktuális állapot: az éles frontendmérés és az Oracle-adatút működik, az üzemeltető minden átadott frissítést alkalmazott. Az alábbi terv a november 18-i megvalósítási előzményt őrzi. [Megvalósítás, fájlok és bevezetés](FRONTEND_TRAFFIC_RECEIVER.md).
+Monitoringág: main; a feat/service-comparison összevonása 2026-11-19-én megtörtént. Az alábbi lépések történeti tervek, nem új merge utáni teendők.
+
+## Történeti terv — 2026-11-18
+
+### Ellenőrzött kiindulás
 
 A felhasználó szerint minden szolgáltatás ingyenes csomagban van, nincs közvetlen Vercel-hozzáférése, a frontend forrását módosíthatja. A felhasználó megerősítette, hogy a frontendnél automatikus deploy működik. A deployt indító ágak és a fejlesztési ág preview telepítése még nincs igazolva.
 

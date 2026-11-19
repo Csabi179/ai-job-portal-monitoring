@@ -1,14 +1,22 @@
 # Monitoring Verification
 
-## Current documented state — reviewed November 18, 2026
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
-- Fifteen permanent rules: original twelve outage/monitoring rules plus three resource/security signals.
+## Current documented state — reviewed November 19, 2026
+
+- Sixteen permanent rules: original twelve outage/monitoring rules plus four resource/security signals. Applied rollout is confirmed by the operator.
 - Render resource API collection, .prom ingestion, systemd timer and Prometheus ingestion confirmed by operator output; Service Comparison dashboard confirmed by screenshots.
 - All three new synthetic tests delivered firing and resolved to the team Telegram group. Operator confirmed cleanup and a real ten-failed-login trigger.
 - Earlier collector and Node Exporter delivery evidence remains valid; the other ten original rules have not been individually verified live.
 - Viewer access is confirmed only for Unified Monitoring, not the new comparison dashboard. Four-hour repetition, full-host failure protection and missing-data branches are not established.
-- Work is versioned on feat/service-comparison and deployed by file copies. No main merge or exact live checkout HEAD is established.
+- Monitoring main was fast-forwarded to 10f43d1 on November 19. The operator confirmed every supplied runtime change was already applied with the provided helpers. No additional deployment is required due to this merge; the current live Git checkout HEAD was not re-inventoried.
 - Historical records retain their original scope/dates. CV/AI preparation is not proof of production deployment.
+
+## TEST-24 — Deployment confirmation and monitoring main merge, 2026-11-19
+
+**Result: operator-confirmed deployment; independently verified GitHub merge.** The operator clarified in chat that every supplied change was run immediately on Oracle. This includes the latest selected-period API count and removal of unavailable frontend host resource cards. No new deployment is required merely because the existing feature history was merged into main.
+
+GitHub main was verified at 10f43d1c6b770a0ac5ca91a297d83d0b3dad3062 after a conflict-free fast-forward of 113 commits. Before merging, 52 Python tests, 38 alert PromQL scenarios, dashboard guard scenarios, 106 dashboard PromQL expressions, Prometheus configuration syntax and all shell syntax checks passed. This does not assert a new SSH audit, a new Oracle Git HEAD inventory or completion of every optional fault-injection test.
 
 <a id="test-23-real-404-alert"></a>
 ## TEST-23 — Real HTTP 404 alert cycle, 2026-11-18

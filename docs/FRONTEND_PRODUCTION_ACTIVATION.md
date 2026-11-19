@@ -1,10 +1,12 @@
 # Az éles frontendmérés bekapcsolása
 
-Állapot (2026-11-19): a frontend main merge, CI/deploy, az éles automatikus 204-es küldés, a tényleges API-csomag és a Grafana fogadási adatai igazoltak. Az aktuális éles ablakban a frontendráta nulla, pozitív frontend-latenciagörbe nem látszik; részletek az aktuális állapotban. A monitoringág külön marad.
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
+
+Állapot (2026-11-19): a frontend main merge, CI/deploy, az éles automatikus 204-es küldés, a tényleges API-csomag és a Grafana fogadási adatai igazoltak. Az aktuális éles ablakban a frontendráta nulla, pozitív frontend-latenciagörbe nem látszik; részletek az aktuális állapotban. A monitoringág azóta a main ágba került; a már alkalmazott Oracle-frissítéseket nem kell megismételni.
 A fogadó, HTTPS, Prometheus és a 45 paneles dashboard működik az Oracle-on.
 Az SSH/Vite teszt lezárva; a localhost CORS-engedély visszavonva.
 
-## Szükséges forrás
+## A korábbi élesítéshez használt forrás
 
 Frontend: ernoking/job-portal-frontend, feat/frontend-api-traffic.
 Utolsó tesztelt/pusholt commit: e48661ef58be096bf1ff970368432ebd16e5e9ca.

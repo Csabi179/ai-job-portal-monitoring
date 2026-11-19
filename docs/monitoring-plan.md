@@ -1,6 +1,6 @@
 # MatchWise monitoringterv
 
-> **Új, még nem telepített frissítés (2026-11-18):** a fejlesztési ág 16 állandó szabályt, 35 Service Comparison panelt és percenkénti backendpróbát tartalmaz (60s/15s/10s, 3 perces frissesség). A korábban igazolt éles állapot 15 szabályos; az új frissítés éles ellenőrzése és telepítése még hátravan. [Ellenőrzés és alkalmazás](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
 
 [English version](monitoring-plan.en.md) · [Dokumentációjegyzék](README.md)
 
@@ -69,7 +69,7 @@ Fő dashboard: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overvi
 
 A három részletes dashboard megmarad üzemeltetési használatra: Infrastructure Overview, Application Availability és Backend Logs. A hat auth-számláló login-, logout- és regisztrációs eredményeket mutat; nem aktív felhasználók vagy munkamenetek számát. A legutóbbi auth-teszt statikus szövegét eltávolítottuk a bevezető panelből; a teszteredmény a tesztnaplóban marad.
 
-A korábbi **12 kiesési/monitoring-szabály** csoportjai: infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2), vercel-frontend-monitoring (2). Ehhez a service-comparison-security csoport 3 szabálya csatlakozik: Render CPU >80% 5 percig, legalább 5 nem health 5xx/5 perc 2 perces kivárással, illetve legalább 10 POST login 401/5 perc 2 perces kivárással. A 404-bővítéssel a fejlesztési ágban **16 állandó szabály** szerepel; az új szabály még telepítésre vár. RAM/lemez, P95, általános 4xx és a csendes alkalmazás továbbra sem aktív riasztási ok.
+A korábbi **12 kiesési/monitoring-szabály** csoportjai: infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2), vercel-frontend-monitoring (2). Ehhez a service-comparison-security csoport 3 szabálya csatlakozik: Render CPU >80% 5 percig, legalább 5 nem health 5xx/5 perc 2 perces kivárással, illetve legalább 10 POST login 401/5 perc 2 perces kivárással. A 404-bővítéssel a fejlesztési ágban **16 állandó szabály** szerepel; az üzemeltető az új szabály alkalmazását is visszaigazolta. RAM/lemez, P95, általános 4xx és a csendes alkalmazás továbbra sem aktív riasztási ok.
 
 Új dashboard: **MatchWise · Service Comparison**. A működés, frissességi feltételek és korlátok a [dashboardleírásban](SERVICE_COMPARISON_DASHBOARD.md), a gördülő ablak példája a [riasztásleírásban](SERVICE_COMPARISON_ALERTS.md) található.
 
@@ -109,10 +109,10 @@ A teljes Oracle VM vagy Grafana kiesésekor a helyi Grafana nem tud megbízható
 
 ## Üzemeltetés és változáskövetés
 
-Konfigurációmódosítás → validálás → GitHub-commit → Oracle `git pull --ff-only` → az érintett szolgáltatás alkalmazása → működés ellenőrzése. Konfliktust nem oldunk meg `reset --hard` paranccsal; volume-ot, SQLite-ot vagy kurzort nem törlünk rutinszerűen.
+Későbbi futásidejű változásnál: ellenőrzött forrás validálása, helyi Oracle-módosítások megőrzése, az érintett komponens frissítése a pinned fájlmásoló telepítővel, majd működésellenőrzés. A mostani merge miatt a már alkalmazott frissítést nem kell megismételni. Konfliktust nem oldunk meg `reset --hard` paranccsal; volume-ot, SQLite-ot vagy kurzort nem törlünk rutinszerűen.
 
 Az egyedi fájl-bind mount módosítása konténer-újralétrehozást igényelhet. A dashboard-JSON-t a Grafana 30 másodpercenként figyeli; a környezeti változók módosításához Grafana-újralétrehozás kell. Az Oracle `.env` nem módosítja a Render Environment értékeit. Tervezett projektlezárás: legkésőbb 2026. december 15.
 
 ## November 18-i telepítési kiegészítés
 
-A fejlesztés a feat/service-comparison ágon verziózott. Az Oracle-re ellenőrzött fájlmásolással került fel; main merge és az éles checkout átváltása nem igazolt. A telepített erőforrásgyűjtő külön példánya /usr/local/lib/matchwise/render-metrics-poll.py; későbbi frissítéskor ezt is telepíteni kell. Az új dashboard Viewer-hozzáférése külön ellenőrzendő. Részletek: [megvalósítási állapot](SERVICE_COMPARISON_PLAN.md).
+A feat/service-comparison fejlesztése 2026-11-19-én bekerült a main ágba a 10f43d1 commitig. Az üzemeltető minden átadott Oracle-frissítést azonnal alkalmazott; a merge miatt nincs újratelepítési feladat. Az összevonás nem jelent Oracle checkout-ágváltást. A telepített erőforrásgyűjtő külön példánya /usr/local/lib/matchwise/render-metrics-poll.py; későbbi frissítéskor ezt is telepíteni kell. Az új dashboard Viewer-hozzáférése külön ellenőrzendő. Részletek: [megvalósítási állapot](SERVICE_COMPARISON_PLAN.md).

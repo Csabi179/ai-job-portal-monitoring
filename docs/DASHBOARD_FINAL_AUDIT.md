@@ -1,9 +1,11 @@
 # Két dashboard végső felülvizsgálata · 2026-11-19
 
-> **Grafana 13 fix:** the previous retry restored its files after checking the obsolete legacy dashboard table. Use the latest pinned bilingual installer with the [current-storage verifier fix](GRAFANA13_PROVISIONING_VERIFICATION.md); it also updates the preparation call. The four requested names and dashboard models are unchanged.
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
+
+> **Historical Grafana 13 incident:** an earlier retry restored its files after checking the obsolete legacy table. The [current-storage verifier fix](GRAFANA13_PROVISIONING_VERIFICATION.md) corrected that path; the operator subsequently applied the supplied updates. This is not an outstanding retry request.
 
 
-> **Kétnyelvű változatok:** a két magyar dashboard megmarad `HU` névvégződéssel; két külön angol dashboard készült jelzés nélküli alapnévvel. Az előző parancs helyett a [kétnyelvű telepítőt](DASHBOARD_LANGUAGES.md) használd; az elmaradt végső auditot is elvégzi. A régi magyar linkek megmaradnak.
+> **Kétnyelvű változatok:** a két magyar dashboard megmarad `HU` névvégződéssel; két külön angol dashboard készült jelzés nélküli alapnévvel. A [kétnyelvű bevezetés](DASHBOARD_LANGUAGES.md) és a későbbi frissítések alkalmazását az üzemeltető visszaigazolta; nincs a merge miatt elmaradt telepítési feladat. A régi magyar linkek megmaradnak.
 
 
 **Kész forrásváltozat:** Unified v10; Szolgáltatások összehasonlítása v8. Az Oracle-telepítés és az éles lekérdezésellenőrzés a pinned telepítővel történik. Az élő Grafana-URL-ek bejelentkezésre irányítanak, ezért nincs közvetlenül ellenőrzött böngészős képernyőkép. A helyi előnézetek csak elrendezési rajzok, kitalált mérési értékek nélkül.

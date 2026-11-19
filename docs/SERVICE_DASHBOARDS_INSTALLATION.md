@@ -1,10 +1,12 @@
 # Installing the supplied service-grouped dashboards
 
-This trial updates both MatchWise dashboards in Hungarian and English. Existing UIDs, bookmarks, names and language links remain unchanged. Hungarian names end in `HU`; English names have no suffix. The monitoring branch remains `feat/service-comparison`.
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
-## Oracle installation
+The supplied installer updated both MatchWise dashboards in Hungarian and English; the operator confirmed every supplied change was applied on Oracle. Existing UIDs, bookmarks, names and language links remain unchanged. Hungarian names end in `HU`; English names have no suffix. The implementation is now merged into `main` through commit `10f43d1c6b770a0ac5ca91a297d83d0b3dad3062`. The merge does not require reinstallation.
 
-Use the full integration commit SHA supplied with the release instructions:
+## Future installation or recovery only
+
+The existing installation is complete according to the operator. Do not run the following block just because the branch was merged. It is retained for a fresh host, a deliberately chosen future update or recovery; use the full reviewed runtime commit SHA for that operation:
 
 ```bash
 (
@@ -44,4 +46,4 @@ The layout follows [the supplied service-grouped design](SERVICE_DASHBOARDS_REDE
 
 ## Magyar röviden
 
-A fenti egyetlen parancsblokk telepíti a négy új nézetet. A korábbi kétnyelvű telepítőt külön nem kell futtatni. Ismeretlen helyi dashboard-módosításnál megáll; telepítés előtt mentést készít, hiba esetén megpróbál visszaállni. A sikeres futás végén kiírja az egysoros visszaállítási parancsot. A magyar nevek végén megmarad a `HU`, az angol neveken nincs jelzés. Sikeres ellenőrzés után frissítsd a Grafanát **Ctrl+F5**-tel; a tényleges böngészős megjelenést ezután lehet véglegesen megítélni.
+Az üzemeltető a négy nézet frissítéseit már alkalmazta; a main merge miatt sem ezt, sem a korábbi telepítőt nem kell ismét futtatni. A fenti parancsblokk új gép, későbbi frissítés vagy helyreállítás esetére marad meg. A korábbi kétnyelvű telepítőt külön nem kell futtatni. Ismeretlen helyi dashboard-módosításnál megáll; telepítés előtt mentést készít, hiba esetén megpróbál visszaállni. A sikeres futás végén kiírja az egysoros visszaállítási parancsot. A magyar nevek végén megmarad a `HU`, az angol neveken nincs jelzés. Sikeres ellenőrzés után frissítsd a Grafanát **Ctrl+F5**-tel; a tényleges böngészős megjelenést ezután lehet véglegesen megítélni.

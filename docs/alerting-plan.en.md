@@ -1,6 +1,6 @@
 # MatchWise – alerting plan and Oracle deployment procedure
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
 [Magyar változat](alerting-plan.md) · [Documentation index](README.md)
 
@@ -26,7 +26,7 @@ Outage and monitoring alerts are joined by three backend signals. High Render CP
 | Frontend Monitoring Data Missing / matchwise_frontend_probe_missing | Modify | 3-minute freshness and scrape failure |
 | Render Log Collector Stale / matchwise_render_collector_stale | Modify | Heartbeat/textfile processing, conditional on Node Exporter availability |
 
-The original backend/frontend rules required the latest two probes to fail; this could add another 30 minutes for the backend. The earlier replacement used a 100-second timeout and thirty-minute interval. The pending update probes every minute with a ten-second timeout and two minutes pending. A cold start longer than ten seconds can therefore fail a probe.
+The original backend/frontend rules required the latest two probes to fail; this could add another 30 minutes for the backend. The earlier replacement used a 100-second timeout and thirty-minute interval. The applied update probes every minute with a ten-second timeout and two minutes pending. A cold start longer than ten seconds can therefore fail a probe.
 
 The three removed UIDs appear explicitly under `deleteRules`: deleting a provisioning file alone would not delete the stored rule. The earlier outage/monitoring set contains **12 rules**; with the three additions there are **15 permanent rules**, evaluated **every minute**.
 
@@ -67,7 +67,7 @@ These are estimates, not SLAs. Scrape phase, prober runtime, staleness and Grafa
 
 ### Important distinctions
 
-`up=1, probe_success=0`: the Blackbox scrape works but the HTTP probe failed. `up=0`: scraping failed; target application availability is unknown. The backend now uses a three-minute freshness range for its pending one-minute sampling cadence. Repeated graph values are not additional probes.
+`up=1, probe_success=0`: the Blackbox scrape works but the HTTP probe failed. `up=0`: scraping failed; target application availability is unknown. The backend now uses a three-minute freshness range for its applied one-minute sampling cadence. Repeated graph values are not additional probes.
 
 `up{job="supabase"}=0`: a Metrics API, authentication or network problem is possible. `pg_up=0` with successful scraping means the exporter cannot connect to PostgreSQL. This is exporter-to-database connectivity evidence, not an independent database test. The existing dashboard and documented metric inventory include pg_up.
 
@@ -336,4 +336,4 @@ Syntax-only checking does not validate private password files or file_sd content
 
 ## One-minute backend and a fourth security rule
 
-Updated backend outage and monitoring-failure rules accept samples from the last three minutes and keep the two-minute pending period. Scrape 60s, scrape timeout 15s, prober timeout 10s. The old thirty-/forty-minute settings belong to the earlier rollout; [current update instructions](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) define the new values and deployment order. New UID: matchwise_backend_404_burst, at least twenty non-health 404 responses in five minutes with a two-minute pending period. The new set has sixteen permanent rules; live rollout is not yet established.
+Updated backend outage and monitoring-failure rules accept samples from the last three minutes and keep the two-minute pending period. Scrape 60s, scrape timeout 15s, prober timeout 10s. The old thirty-/forty-minute settings belong to the earlier rollout; [current update instructions](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md) define the new values and deployment order. New UID: matchwise_backend_404_burst, at least twenty non-health 404 responses in five minutes with a two-minute pending period. The new set has sixteen permanent rules; the operator confirmed the rollout; no additional application is required because of the main merge.

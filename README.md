@@ -1,12 +1,12 @@
 # MatchWise — AI Job Portal Monitoring
 
-> **Rollout status (November 18, 2026):** sixteen-rule configuration applied; one-minute backend/frontend targets and backend success confirmed by Oracle output. Panels and the real 404 procedure were confirmed by the operator. Earlier rollout notes below retain their dated scope. [Reusable tests](docs/testing/README.md).
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](docs/DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
 DevOps monitoring for the university AI-assisted job portal project.
 
 ## Main dashboard
 
-The supplied service-grouped redesign is available in both languages through the [pinned Oracle installer with backup and rollback](docs/SERVICE_DASHBOARDS_INSTALLATION.md). Hungarian dashboard names retain the `HU` suffix; English copies have no suffix. Existing dashboard UIDs and bookmarks are preserved.
+The operator-confirmed service-grouped redesign is installed in both languages. For future updates or recovery, use the [pinned Oracle installer with backup and rollback](docs/SERVICE_DASHBOARDS_INSTALLATION.md). Hungarian dashboard names retain the `HU` suffix; English copies have no suffix. Existing dashboard UIDs and bookmarks are preserved.
 
 **MatchWise | Unified Monitoring** (Grafana UID: `matchwise-unified-overview`) is the default operations view. It combines:
 
@@ -34,14 +34,14 @@ The first three added rules cover high Render CPU (>80% for 5 minutes), at least
 - [Controlled test and cleanup (HU/EN)](docs/SERVICE_COMPARISON_ALERT_TEST.md)
 - [Implementation and deployment status (HU/EN)](docs/SERVICE_COMPARISON_PLAN.md)
 
-November 18 evidence: resource ingestion/timer and dashboard confirmed; all three synthetic tests delivered firing/resolved to Telegram; test cleanup confirmed by the operator. The operator also reported a successful real ten-failed-login test and supplied the production alert text. Viewer access to this new dashboard remains unverified. Work is versioned on `feat/service-comparison`; Oracle was updated by reviewed file copies, not a confirmed branch switch or main merge.
+November 18 evidence: resource ingestion/timer and dashboard confirmed; all three synthetic tests delivered firing/resolved to Telegram; test cleanup confirmed by the operator. The operator also reported a successful real ten-failed-login test and supplied the production alert text. Viewer access to this new dashboard remains unverified. The changes were applied on Oracle with the supplied helpers and are now merged into `main`. The operator confirmed all supplied updates were run as they were delivered; this merge requires no additional deployment.
 
 ## Stack and ingestion
 
 - **Docker Compose:** six base services (Grafana, Prometheus, Node Exporter, Blackbox Exporter, Loki and Alloy), plus deployed Caddy in the opt-in `public` profile.
 - **Render logs:** Pino JSON → Render Logs API → Python systemd collector → deduplicated JSONL → Alloy → Loki.
 - **Metrics:** Node Exporter and Blackbox Exporter → Prometheus → Grafana.
-- **Alerting:** 16 permanent English rules in branch configuration: 12 outage/monitoring-failure rules plus four backend resource/security signals, with Firing/Resolved notifications sent to the team's Telegram group. Collector and Node Exporter delivery were verified; the other ten rules have not been individually fired live. See the [alerting plan](docs/alerting-plan.en.md).
+- **Alerting:** 16 permanent English rules in the merged configuration: 12 outage/monitoring-failure rules plus four backend resource/security signals, with Firing/Resolved notifications sent to the team's Telegram group. Collector and Node Exporter delivery were verified; the other ten rules have not been individually fired live. See the [alerting plan](docs/alerting-plan.en.md).
 - **Retention:** Prometheus 7 days or 2 GB; logrotate rotates the local JSONL at 20 MB with seven archives. Loki retention is separate.
 
 Oracle VM: Ubuntu 24.04 on ARM64 (Always Free). Internal monitoring web services bind to loopback. Team access uses Caddy HTTPS at https://grafana-r0cecq.duckdns.org/ with Grafana authentication; no Oracle or SSH access is granted to teammates.
@@ -71,15 +71,14 @@ sudo docker compose ps
 sudo systemctl list-timers --all | grep matchwise-render
 ```
 
-To get new GitHub commits on the VM:
+For future repository maintenance only (not required after the completed merge):
 
 ```bash
 cd ~/ai-job-monitoring
-git status --short
-git pull --ff-only
+git status --short --branch
 ```
 
-If `git pull --ff-only` reports a conflict or untracked-file collision, **stop and inspect the local files**. Do not use `git reset --hard`.
+The existing Oracle checkout has locally applied files. Do not run a pull/reset merely to match GitHub after this merge. For a future runtime change, review local modifications and use the guarded update procedure; stop on unknown changes. Never discard working files or persistent state.
 
 ## Backend migration
 
@@ -87,7 +86,7 @@ On November 9, the existing Render service was switched to the team's backend re
 
 ## Security and limits
 
-Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. Render CPU/RAM telemetry is collected through its Metrics API. Vercel host CPU/RAM and frontend browser-performance data are not collected. The pending update samples Render availability every minute, so the latest UP result is not a continuous-uptime guarantee.
+Never commit `.env`, Render API keys, Telegram tokens, TLS private keys, SQLite state, real backend logs or archives. Render CPU/RAM telemetry is collected through its Metrics API. Vercel host CPU/RAM and frontend browser-performance data are not collected. The applied configuration samples Render availability every minute, so the latest UP result is not a continuous-uptime guarantee.
 
 Project target completion/shutdown: no later than **December 15, 2026**.
 

@@ -1,8 +1,8 @@
 # MatchWise documentation / dokumentáció
 
-Current dashboard trial: [service-grouped HU/EN installation with backup and rollback](SERVICE_DASHBOARDS_INSTALLATION.md).
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
-> **Rollout status (November 18, 2026):** sixteen-rule configuration applied; one-minute backend/frontend targets and backend success confirmed by Oracle output. Panels and the real 404 procedure were confirmed by the operator. Earlier rollout notes below retain their dated scope. [Reusable tests](testing/README.md).
+Current dashboard trial: [service-grouped HU/EN installation with backup and rollback](SERVICE_DASHBOARDS_INSTALLATION.md).
 
 Updated November 18, 2026. The guides describe current repository configuration and operator-confirmed deployment; dated test records preserve what was actually checked. Hungarian originals and English editions are listed below.
 

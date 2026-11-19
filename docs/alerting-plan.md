@@ -1,6 +1,6 @@
 # MatchWise – riasztási terv és Oracle-frissítési eljárás
 
-> **Új, még nem telepített frissítés (2026-11-18):** a fejlesztési ág 16 állandó szabályt, 35 Service Comparison panelt és percenkénti backendpróbát tartalmaz (60s/15s/10s, 3 perces frissesség). A korábban igazolt éles állapot 15 szabályos; az új frissítés éles ellenőrzése és telepítése még hátravan. [Ellenőrzés és alkalmazás](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
 
 [English version](alerting-plan.en.md) · [Dokumentációjegyzék](README.md)
 

@@ -1,5 +1,7 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
+
 > **Kétnyelvű változatok:** a két magyar dashboard megmarad `HU` névvégződéssel; két külön angol dashboard készült jelzés nélküli alapnévvel. Az előző parancs helyett a [kétnyelvű telepítőt](DASHBOARD_LANGUAGES.md) használd; az elmaradt végső auditot is elvégzi. A régi magyar linkek megmaradnak.
 
 
@@ -29,7 +31,7 @@ CPU and memory panels use the same 0–100% scale. Each percentage uses the serv
 
 Render usage is shown only when collection succeeds, the attempt is under four minutes old, the source is under five minutes old, Node Exporter is available and textfile reading has no errors. Missing data leaves a gap. Frontend CPU/RAM says Not collected. The status row uses different checks: HTTP probes for backend/frontend, database connectivity for Supabase, metrics collection for Oracle.
 
-Backend traffic, errors, response times and error logs use the same time range and exclude health requests. Logs from other services are not collected here. An empty backend log panel can mean no traffic or missing logs; check collector age. In the pending update, backend probes run every minute and results are used for up to three minutes. Frontend results are used for up to three minutes.
+Backend traffic, errors, response times and error logs use the same time range and exclude health requests. Logs from other services are not collected here. An empty backend log panel can mean no traffic or missing logs; check collector age. In the applied configuration, backend probes run every minute and results are used for up to three minutes. Frontend results are used for up to three minutes.
 
 Live evidence: operator output confirms the Render timer is active and Prometheus stores collection_success=1 on 2026-11-18. Dashboard structure checks passed: JSON parsing, unique panel IDs, no grid overlaps and resolved filters. Operator screenshots confirm live display and visible panel data. This dashboard does not install alerts.
 

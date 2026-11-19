@@ -1,5 +1,7 @@
 # Frontend API count and resource visibility
 
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
+
 The Unified Monitoring `API calls` / `API-hívások` card now shows the estimated number of real browser API starts in the selected dashboard time range. It is an instant query at the selected range end:
 
 ```promql

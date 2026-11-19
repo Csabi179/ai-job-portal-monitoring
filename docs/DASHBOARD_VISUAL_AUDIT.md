@@ -1,5 +1,7 @@
 # Dashboard visual audit — 2026-11-19
 
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
+
 The English Unified Monitoring and Service Comparison dashboards were inspected in an authenticated Chromium session at 1600×1050 with the Grafana navigation open. The inspection included overview/KPI sections, graphs, routes and endpoint table, database/Oracle details, security/collection health and frontend details. Candidate display changes were tested in the actual Grafana renderer by substituting read responses in an isolated browser. This preview does not save production dashboards; rollout uses the pinned Oracle installer.
 
 Observed problems and corrections:

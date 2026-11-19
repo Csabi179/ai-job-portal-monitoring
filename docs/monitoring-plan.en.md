@@ -1,6 +1,6 @@
 # MatchWise monitoring plan
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
 [Magyar változat](monitoring-plan.md) · [Documentation index](README.md)
 
@@ -69,7 +69,7 @@ Main dashboard: **MatchWise | Unified Monitoring**, UID `matchwise-unified-overv
 
 Three specialist dashboards remain for operator use: Infrastructure Overview, Application Availability and Backend Logs. The six authentication counters show login, logout and registration outcomes, not active-user/session counts. The static latest-auth-test note was removed from the introductory panel; its evidence remains in the test log.
 
-The original **12 outage/monitoring rules** are grouped into infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2) and vercel-frontend-monitoring (2). The service-comparison-security group adds three rules: Render CPU >80% for 5 minutes, at least five non-health 5xx/5 minutes with a 2-minute pending period, and at least ten POST login 401/5 minutes with a 2-minute pending period. The 404 addition brings branch configuration to **16 permanent rules**; rollout of the new rule is pending. RAM/disk, P95, general 4xx and a quiet application are still not active alert conditions.
+The original **12 outage/monitoring rules** are grouped into infrastructure-monitoring (3), monitoring-components (2), render-backend-monitoring (2), render-log-collector-monitoring (1), supabase-monitoring (2) and vercel-frontend-monitoring (2). The service-comparison-security group adds three rules: Render CPU >80% for 5 minutes, at least five non-health 5xx/5 minutes with a 2-minute pending period, and at least ten POST login 401/5 minutes with a 2-minute pending period. The 404 addition brings branch configuration to **16 permanent rules**; the operator confirmed the new rule was applied; no post-merge rollout is pending. RAM/disk, P95, general 4xx and a quiet application are still not active alert conditions.
 
 New dashboard: **MatchWise · Service Comparison**. See the [dashboard guide](SERVICE_COMPARISON_DASHBOARD.md) for freshness and comparison limits, and the [alert guide](SERVICE_COMPARISON_ALERTS.md) for the rolling-window example.
 
@@ -109,10 +109,10 @@ The local Grafana cannot reliably notify during complete Oracle VM or Grafana fa
 
 ## Operations and change tracking
 
-Configuration change → validation → GitHub commit → Oracle `git pull --ff-only` → apply the affected service → verify behavior. Do not bypass conflicts with `reset --hard`; do not delete volumes, SQLite or cursor state during routine maintenance.
+For a future runtime change: validate the reviewed source, preserve local Oracle changes, use the guarded pinned file-copy installer for the affected component, and verify behavior. The completed merge does not require repeating an already applied update. Do not bypass conflicts with `reset --hard`; do not delete volumes, SQLite or cursor state during routine maintenance.
 
 Single-file bind-mount changes can require container recreation. Grafana scans dashboard JSON every 30 seconds; changed environment values require Grafana recreation. Oracle `.env` changes do not alter Render Environment settings. Planned project completion/shutdown: no later than December 15, 2026.
 
 ## November 18 deployment note
 
-Work is versioned on feat/service-comparison. Oracle was updated using reviewed file copies; no main merge or live checkout switch is established. The installed resource collector is a separate copy at /usr/local/lib/matchwise/render-metrics-poll.py and must also be updated during future deployments. Viewer access to the new dashboard needs a separate check. See [implementation status](SERVICE_COMPARISON_PLAN.md).
+Work developed on feat/service-comparison is now merged into main through 10f43d1. The operator confirmed all supplied Oracle updates had already been applied. The merge requires no reinstallation and does not imply a live checkout switch. The installed resource collector is a separate copy at /usr/local/lib/matchwise/render-metrics-poll.py and must also be updated during future deployments. Viewer access to the new dashboard needs a separate check. See [implementation status](SERVICE_COMPARISON_PLAN.md).

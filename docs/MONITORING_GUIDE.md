@@ -1,6 +1,6 @@
 # MatchWise Monitoring — Architecture and Operations Guide
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
 [Documentation index](README.md) · [English monitoring plan](monitoring-plan.en.md) · [English alerting plan](alerting-plan.en.md)
 
@@ -50,7 +50,7 @@ Internal monitoring endpoints remain on loopback. The deployed team URL is **htt
 
 Prometheus configuration: **prometheus/prometheus.yml**; HTTP probe modules: **blackbox/blackbox.yml**. The Prometheus TSDB retention configuration is **7 days or 2 GB**. Loki retention is configured separately in **loki/loki-config.yaml**; it is not the same as JSONL log rotation.
 
-**Important interpretation:** A Blackbox probe measures an end-to-end HTTP request including Render cold-start delay. The Pino responseTimeMs field measures server-side request processing and does **not** include the entire client-to-server round trip. A successful Render HTTP probe is the **latest sampled probe**, not a guarantee of continuous availability between 30-minute checks.
+**Important interpretation:** A Blackbox probe measures an end-to-end HTTP request including Render cold-start delay. The Pino responseTimeMs field measures server-side request processing and does **not** include the entire client-to-server round trip. A successful Render HTTP probe is the **latest sampled probe**, not a guarantee of continuous availability between one-minute checks.
 
 **Resource update:** Render CPU/RAM is collected by the separate [resource collector](RENDER_METRICS_COLLECTOR.md). Vercel platform CPU/RAM, frontend browser errors, Web Vitals and frontend application logs are **not currently collected**. Do not read these as zero; they are outside monitoring coverage.
 
@@ -81,9 +81,9 @@ For changes, edit and version the JSON in Git, update the Oracle working tree, a
 
 ## 4. Alerting
 
-The repository contains **15 permanent rules**: 12 outage/monitoring-failure rules and three backend resource/security signals. High RAM/disk usage and the old local Grafana test rule are explicitly deleted from the provisioned state. Render CPU >80% for 5 minutes, at least five 5xx/5 minutes and at least ten rejected POST logins/5 minutes now alert; the two log rules have a 2-minute pending period. General 4xx and other performance values remain dashboard diagnostics.
+The merged repository contains **16 permanent rules**: 12 outage/monitoring-failure rules and four backend resource/security signals, including the 404 burst rule. High RAM/disk usage and the old local Grafana test rule are explicitly deleted from the provisioned state. Render CPU >80% for 5 minutes, at least five 5xx/5 minutes and at least ten rejected POST logins/5 minutes now alert; the two log rules have a 2-minute pending period. General 4xx and other performance values remain dashboard diagnostics.
 
-The authoritative [alerting plan](alerting-plan.en.md) documents exact conditions, pending times, No Data/Error handling, Telegram grouping, deployment, rollback and unexecuted live tests. HTTP/database/collector rules keep their last state when evidence disappears. Separate monitoring rules report telemetry failures. The backend retains 30-minute probing and uses a 40-minute freshness window; one failed completed probe with 2-minute pending now suffices, replacing the earlier two-failure requirement.
+The authoritative [alerting plan](alerting-plan.en.md) documents exact conditions, pending times, No Data/Error handling, Telegram grouping, deployment, rollback and unexecuted live tests. HTTP/database/collector rules keep their last state when evidence disappears. Separate monitoring rules report telemetry failures. The applied backend configuration probes every minute and uses a three-minute freshness window; one failed completed probe with 2-minute pending now suffices, replacing the earlier two-failure requirement.
 
 The **AI Job Telegram** contact point sends English Firing/Resolved messages to the team group selected by the private `GRAFANA_TELEGRAM_CHAT_ID`. Collector and Node Exporter Firing/Resolved are evidenced; the other ten rules have not been individually verified live. The group switch was operator-confirmed (TEST-13). Full Oracle/Grafana failure cannot be reported reliably by the same host.
 
@@ -183,7 +183,7 @@ To sync changes committed directly to GitHub on Oracle:
 
 Verified in the project: Oracle and HTTP availability measurements, Pino structured logs, Render Logs API collection, SQLite duplicate suppression, local file ingestion by Alloy, Grafana dashboard visualizations, Telegram test notification, and a healthy collector alert provisioned in Grafana.
 
-Limitations: previously coarse 30-minute Render HTTP probing (one-minute replacement pending); Render Free sleeping; frontend HTTP-only probing; lack of Vercel CPU/RAM and browser performance telemetry; collector API pagination cap; no automatic retry inside the Python collector; log rotation is not a proof of perfect delivery; Grafana/Prometheus outages reduce monitoring visibility.
+Limitations: one-minute HTTP sampling can miss shorter outages; Render Free sleeping; frontend HTTP-only probing; lack of Vercel CPU/RAM and browser performance telemetry; collector API pagination cap; no automatic retry inside the Python collector; log rotation is not a proof of perfect delivery; Grafana/Prometheus outages reduce monitoring visibility.
 
 For installation, test history and monitoring planning, see **docs/installation-guide.md**, **docs/monitoring-tests.md**, and **docs/monitoring-plan.md**.
 
@@ -197,4 +197,4 @@ The operator supplied November 15 main and CV-profile feature-branch source arch
 
 The two collectors are separate. The resource collector runs as matchwise-render-metrics.service/timer from /usr/local/lib/matchwise/render-metrics-poll.py, writes ~/monitoring-exporter-metrics/matchwise_render_resources.prom, and uses the existing private render-logs.env. Timer interval: two minutes after completion, four Render API requests per run. A Git update alone does not replace the installed script. The earlier log collector still writes its own heartbeat and JSONL.
 
-The feature was deployed through file copies from feat/service-comparison while preserving the live checkout. Review git status and any untracked-file collisions before later branch integration. Do not overwrite deployed files blindly. New-dashboard Viewer access, architecture diagram refresh and final branch/main integration remain separate follow-ups. Diagram references in this guide show the earlier twelve-rule baseline.
+The feature was deployed through file copies from feat/service-comparison while preserving the live checkout. Review git status and any untracked-file collisions before later branch integration. Do not overwrite deployed files blindly. New-dashboard Viewer access and architecture diagram refresh remain separate follow-ups. Branch/main integration completed on November 19, after the runtime changes had already been applied; no post-merge deployment is outstanding. Diagram references in this guide show the earlier twelve-rule baseline.

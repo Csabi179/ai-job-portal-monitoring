@@ -1,6 +1,8 @@
 # Supabase metrics on the Oracle monitoring VM
 
-> Current rollout note (2026-11-18): the existing Oracle checkout is on main with local modifications. Do not rerun the historical first-deployment pull/recreation commands on that checkout. The current service-comparison changes use pinned git show copies, backups and validation; no branch switch or main merge.
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
+
+> Current rollout note (2026-11-18): the existing Oracle checkout is on main with local modifications. Do not rerun the historical first-deployment pull/recreation commands on that checkout. The current service-comparison changes use pinned git show copies, backups and validation; the file-copy rollout did not require a checkout switch. The feature was subsequently merged into main on November 19; existing installed files do not need to be reapplied because of that merge.
 
 On 2026-11-09 the operator verified direct HTTP 200 access, successful promtool validation, and automated Prometheus collection. The active target was uvopvarvelpabhmrqaaw.supabase.co:443 with health up and no last error at 21:26:43 UTC. The project replacement was intentional. The inventory contained 323 metric names, including Prometheus-generated scrape health series.
 

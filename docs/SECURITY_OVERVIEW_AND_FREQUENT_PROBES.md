@@ -1,6 +1,8 @@
 # Security overview and frequent probes / Biztonsági panelek és percenkénti próbák
 
-Updated / Frissítve: 2026-11-18. Branch: feat/service-comparison. Merge is deferred by user request / Összevonás a felhasználó kérésére később.
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
+
+Updated / Frissítve: 2026-11-19. Branch: main; the feature merge completed / az összevonás megtörtént. The applied update needs no post-merge reinstallation / a már alkalmazott frissítést nem kell a merge után újratelepíteni.
 
 ## Magyar
 

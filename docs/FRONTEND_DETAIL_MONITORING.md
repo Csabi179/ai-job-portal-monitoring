@@ -1,6 +1,8 @@
 # Frontend részletmérés · dashboard v8 / fogadómetrikák v2
 
-Az éles frontend meglévő, 60 másodpercenként küldött v1 csomagjait használjuk. Nincs frontendkód-, Vercel- vagy környezetiváltozó-módosítás. A monitoring továbbra is a `feat/service-comparison` ágon marad.
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
+
+Az éles frontend meglévő, 60 másodpercenként küldött v1 csomagjait használjuk. Nincs frontendkód-, Vercel- vagy környezetiváltozó-módosítás. A monitoring fejlesztése azóta bekerült a `main` ágba; az üzemeltető a telepítést már elvégezte.
 
 ## Megjelenítés
 
@@ -59,7 +61,7 @@ Minden kliensadat `mode=real|partial_mock` szerint különül el. Az új címké
 
 A részletes route/method/outcome/status kombinációk száma legfeljebb 4096, ezen felül legfeljebb 6 mode/outcome tartalék sor. A korlát felett a részletcímkék `route=other, method=OTHER, status=other` értékre váltanak. Az eredményösszegek megmaradnak, a részletes dimenziók részben elvesznek és ezt külön számláló jelzi. A régi pontos összesített HTTP-státusz-, útvonal/kimenetel- és hisztogrammetrikák változatlanok.
 
-## Telepítés az Oracle-on
+## Későbbi frissítés vagy helyreállítás az Oracle-on
 
 A két dashboardhoz a `scripts/install-dashboard-final-audit.sh FULL_COMMIT_SHA` pinned telepítője használható. [Teljes végső audit és telepítés](DASHBOARD_FINAL_AUDIT.md).
 

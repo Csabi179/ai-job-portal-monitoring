@@ -1,5 +1,7 @@
 # Service-grouped dashboards / Szolgáltatás szerinti dashboardok
 
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
+
 Applies to **MatchWise | Unified Monitoring** and **MatchWise · Service Comparison** (HU and EN copies; UIDs, filenames and the language links are unchanged).
 
 > **Current update:** [selected-period frontend counts and removed host placeholders](FRONTEND_SELECTED_RANGE_COUNT.md). The original six-card design described below is superseded for frontend health (four cards) and the comparison scorecard (four common columns; collected CPU/memory cards in Load).

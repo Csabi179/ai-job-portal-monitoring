@@ -1,6 +1,6 @@
 # Service comparison alerts / Összehasonlító riasztások
 
-> **Pending update (November 18, 2026):** branch configuration now has sixteen permanent rules, thirty-five Service Comparison panels and one-minute backend probes (60s/15s/10s, three-minute freshness). The previously verified live deployment has fifteen rules; validation and rollout of this update are pending. [Validation and rollout](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
 **Állapot / Status — 2026-11-18:** telepítve / deployed. Három szintetikus Firing/Resolved kör igazolt; teszteltávolítás visszaigazolva; valódi login-riasztás az üzemeltető próbája alapján működik. Three synthetic firing/resolved cycles confirmed; cleanup confirmed; real login alert confirmed by operator test. Earlier rollout notes below preserve their status at that step.
 
@@ -155,4 +155,4 @@ A hibajavítás után a Grafana elindult. A három szintetikus teszt értesíté
 
 matchwise_backend_404_burst: at least twenty non-health 404 responses in a rolling five-minute window, sustained for two minutes. Uses the same monitoring gate and KeepLast as the 5xx rule. It is an investigation signal, not proof of scanning. Branch total is sixteen permanent rules; this addition is pending live rollout. See [security update](SECURITY_OVERVIEW_AND_FREQUENT_PROBES.md).
 
-Az új 404-szabály legalább 20 nem health 404-et figyel az előző öt percben, kétperces pendinggel. Kapuja és KeepLast kezelése az 5xx-szabályéval egyezik. A fejlesztési ág összesen 16 állandó szabályt tartalmaz; az új szabály még telepítésre vár.
+Az új 404-szabály legalább 20 nem health 404-et figyel az előző öt percben, kétperces pendinggel. Kapuja és KeepLast kezelése az 5xx-szabályéval egyezik. A fejlesztési ág összesen 16 állandó szabályt tartalmaz; az üzemeltető az új szabály alkalmazását is visszaigazolta; nem a main merge utáni feladat.

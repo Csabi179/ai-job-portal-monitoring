@@ -1,8 +1,10 @@
 # MatchWise dashboard languages
 
-> **Current service-grouped trial:** use [the new installer](SERVICE_DASHBOARDS_INSTALLATION.md). It preserves the four names/UIDs below and completes the earlier bilingual setup first if necessary. The older layout/generation procedure below is retained as rollout history; frontend details are section 08 in the new comparison layout.
+> **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
-> **Grafana 13 fix:** the previous retry restored its files after checking the obsolete legacy dashboard table. Use the latest pinned bilingual installer with the [current-storage verifier fix](GRAFANA13_PROVISIONING_VERIFICATION.md); it also updates the preparation call. The four requested names and dashboard models are unchanged.
+> **Installed service-grouped layout:** the operator confirmed the four dashboards were applied. The [installer](SERVICE_DASHBOARDS_INSTALLATION.md) is retained for future changes or recovery, not as a post-merge task. The older layout/generation procedure below is rollout history; frontend details are section 08 in the new comparison layout.
+
+> **Historical Grafana 13 incident:** an earlier retry restored its files after checking the obsolete legacy table. The [current-storage verifier fix](GRAFANA13_PROVISIONING_VERIFICATION.md) corrected that path; the operator subsequently applied the supplied updates. This is not an outstanding retry request.
 
 
 The two Hungarian dashboards are retained. Separate English dashboards use the same measurements, defaults and layout. Only the Hungarian titles have a `HU` suffix; the English titles have no language suffix.
@@ -43,6 +45,6 @@ Run the new pinned `scripts/install-bilingual-dashboards.sh FULL_COMMIT_SHA` hel
 
 The source audit is reused after the first preparation because every translated expanded query is verified identical to its Hungarian counterpart. Four dashboard objects do not create new collectors or generate business requests; normal panel queries run when dashboards are viewed.
 
-After success, refresh Grafana with Ctrl+F5. Check the four names in the dashboard list, then use the language link to switch. Actual authenticated browser rendering still needs confirmation; the session has no Grafana login access. Raw application logs and credentials are not printed by the checks.
+After success, refresh Grafana with Ctrl+F5. Check the four names in the dashboard list, then use the language link to switch. Authenticated browser rendering was subsequently audited, and the operator later confirmed all supplied updates were applied. This historical installation procedure is not a new post-merge requirement. Raw application logs and credentials are not printed by the checks.
 
-Magyar üzemeltetési megjegyzés: az előző telepítőparancsot nem kell külön futtatni. Az új telepítő az elmaradt előkészítést is elvégzi, majd a két HU és két angol dashboardot telepíti. Az angolok neve után nincs `EN` jelzés.
+Magyar üzemeltetési megjegyzés: a telepítés azóta megtörtént; a main merge miatt egyik telepítőparancsot sem kell újra futtatni. Az itt megőrzött eljárás későbbi frissítéshez vagy helyreállításhoz használható. Az angol dashboardnevek után nincs `EN` jelzés.

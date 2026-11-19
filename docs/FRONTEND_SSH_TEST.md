@@ -1,5 +1,7 @@
 # Teljes frontendteszt SSH-alagúton
 
+> **Aktuális telepítési állapot — 2026-11-19:** Az üzemeltető minden átadott módosítást már alkalmazott az Oracle-on. A monitoringág bekerült a `main` ágba (`10f43d1`); emiatt nincs újratelepítési feladat. [Aktuális állapot](DEPLOYMENT_STATUS.md). A korábbi bevezetési bejegyzések történeti állapotok; a parancsok későbbi frissítéshez vagy helyreállításhoz maradnak meg.
+
 > Aktuális összefoglaló: [SERVICE_COMPARISON_STATUS.md](SERVICE_COMPARISON_STATUS.md). Az alábbi dátumozott lépések korábbi, köztes állapotokat is rögzítenek.
 
 Állapot: a Vite-indítás, az SSH-alagúton történő oldalbetöltés és az ismétlődő automatikus telemetriaküldés felhasználói kimenettel/képpel igazolt.
