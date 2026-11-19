@@ -1,6 +1,6 @@
 # Az éles frontendmérés bekapcsolása
 
-Állapot (2026-11-19): a frontend main merge, CI/deploy, az éles automatikus 204-es küldés és a tényleges API-csomag igazolt. A Grafana éles megjelenésének utolsó ellenőrzése még hátravan. A monitoringág külön marad.
+Állapot (2026-11-19): a frontend main merge, CI/deploy, az éles automatikus 204-es küldés, a tényleges API-csomag és a Grafana fogadási adatai igazoltak. Az aktuális éles ablakban a frontendráta nulla, pozitív frontend-latenciagörbe nem látszik; részletek az aktuális állapotban. A monitoringág külön marad.
 A fogadó, HTTPS, Prometheus és a 45 paneles dashboard működik az Oracle-on.
 Az SSH/Vite teszt lezárva; a localhost CORS-engedély visszavonva.
 
@@ -203,3 +203,20 @@ majd a Grafana frontend/backend paneljei és a fogadás frissességének ellenő
 A kezdeti counter-idősorok és az 5 perces ráták miatt további normál kérések/minták
 szükségesek lehetnek a forgalmi görbékhez. Ez az ellenőrzés még nincs visszaigazolva.
 Nincs localhost-engedély vagy SSH/Vite teszt újraindítva.
+
+## Éles Grafana ellenőrzés képpel visszaigazolva – 2026-11-19
+
+A felhasználó képei: receiver UP, 9 elfogadott csomag, utolsó fogadás kora 1,11 perc.
+A frontend indítás-/HTTP-válasz rátaidősorok nullán látszanak; pozitív éles
+frontendráta vagy frontend-latenciagörbe ezen az utolsó képen nem látható.
+A backend API-ráta és P95, a Supabase commit-sebesség, a Render CPU és
+PostgREST waiting grafikonjai megjelennek. Az utóbbi mintavételezett értékei 0.
+
+A friss életjel nem jelent új API-műveletet. Az első counter-minta kezdőérték;
+a rate és a pozitív elemszámra kapuzott latency újabb megfigyelések nélkül
+maradhat nulla/üres. Ez összhangban van a képpel, nem bizonyított rendellenesség.
+Az éles, valódi API-csomag korábban 4 HTTP 200 eseményt és 60s időablakot
+igazolt; a fogadási adatok és a frontend idősorok együtt az éles adatút működését
+alátámasztják. Nem állítunk az utolsó képen nem látható pozitív frontendlatenciát.
+További mesterséges teszt vagy módosítás nem szükséges; normál használati adatot gyűjtünk.
+Aktuális összefoglaló: [SERVICE_COMPARISON_STATUS.md](SERVICE_COMPARISON_STATUS.md).
