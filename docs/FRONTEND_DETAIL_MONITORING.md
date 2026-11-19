@@ -1,10 +1,10 @@
-# Frontend részletmérés · dashboard v7 / fogadómetrikák v2
+# Frontend részletmérés · dashboard v8 / fogadómetrikák v2
 
 Az éles frontend meglévő, 60 másodpercenként küldött v1 csomagjait használjuk. Nincs frontendkód-, Vercel- vagy környezetiváltozó-módosítás. A monitoring továbbra is a `feat/service-comparison` ágon marad.
 
 ## Megjelenítés
 
-A dashboard korábbi 59 JSON-eleme és a fő nézet változatlan. Új, alapból csukott `08 · Frontend részletek · útvonalak, hibák és adatküldés` szakasz került alulra: 25 tartalmi panel, 26 Prometheus-lekérdezés. A frissítés 1 perc; a sebességek 5 perces átlagok. A részletes útvonalpanelek egységes útvonalcsoport-színeket használnak.
+A fő nézet megmaradt; a felhasználó kérésére a backend-naplók és az általános adatforrás/mérési útmutató külön sorai kikerültek. Új, alapból csukott `06 · Frontend részletek · útvonalak, hibák és adatküldés` szakasz került alulra: 25 tartalmi panel, 26 Prometheus-lekérdezés. A frissítés 1 perc; a sebességek 5 perces átlagok. A részletes útvonalpanelek egységes útvonalcsoport-színeket használnak.
 
 | Küldött adat | Felhasználás |
 | --- | --- |
@@ -61,16 +61,8 @@ A részletes route/method/outcome/status kombinációk száma legfeljebb 4096, e
 
 ## Telepítés az Oracle-on
 
-`bash scripts/install-frontend-details.sh FULL_COMMIT_SHA` a monitoring checkoutból futtatandó, vagy a script pinned `git show` kimenetét futtasd ideiglenes fájlból. Kiinduló dashboard és fogadó: `829ccc54ffaadeb6c1191c11db4839342df17a01`. Ismeretlen helyi fájlmódosításnál megáll; semmit nem resetel vagy von össze.
+A két dashboardhoz a `scripts/install-dashboard-final-audit.sh FULL_COMMIT_SHA` pinned telepítője használható. [Teljes végső audit és telepítés](DASHBOARD_FINAL_AUDIT.md).
 
-1. Megőrzi az eredeti fő nézetet, ellenőrzi a layoutot és az összes korábbi lekérdezést.
-2. Lefuttatja a 10 fogadótesztet egy külön, ideiglenes localhost porton; ezek nem érintik az élő fogadót.
-3. Az éles Prometheus/Loki API-n olvasási ellenőrzést végez: fő nézet és az új részletek. Az új metrikák kezdetben hiányozhatnak; ez nem szintaktikai hiba és nem bizonyít nulla forgalmat.
-4. Mentést készít `/home/ubuntu/monitoring-backups/frontend-details.*` alá.
-5. Lecseréli a fogadó Python-fájlját, **újraindítja csak a matchwise-frontend-traffic szolgáltatást**, és megvárja a v2 marker első sikeres Prometheus-scrape-jét (legfeljebb 90 másodperc).
-6. Ismét ellenőrzi az új lekérdezéseket, majd csak az összehasonlító dashboardfájlt cseréli. A Grafana legfeljebb 60 másodperc után beolvassa.
-7. Hiba esetén visszaállítja a fogadót és a dashboardot a mentésből. A kézi visszaállítási parancsokat is kiírja.
+Ez a korábban kért v2 fogadófrissítést csak akkor pótolja a régi, rögzített telepítővel, ha még nincs fenn. Ekkor a fogadó egyszer újraindul és memóriában élő számlálói újrakezdődnek. Ha a v2 már fut, nincs fogadó-újraindítás. Frontenddeploy vagy Vercel-változtatás nem szükséges.
 
-Az újraindítás a fogadó memóriában élő számlálóit és deduplikációs tárolóját újrakezdi; új metrikák a következő valódi csomagtól jelennek meg. Frissítéskor egy folyamatban lévő kézbesítés újrapróbálkozhat; ez a meglévő retry mechanizmusra támaszkodik. Nem generálunk üzleti tesztforgalmat az éles fogadó felé. Caddy, Origin-lista, rendszeres scrape, portok, systemd-korlátok és Vercel-konfiguráció nem változnak.
-
-Nyisd meg az éles oldalt, végezz szokásos API-műveleteket, tartsd aktívan 2–3 percig, majd nyisd le a Grafana 08-as sorát. Várt: real csomagfrissesség, útvonalösszegek, új pillanatképek. Forgalom nélküli lapnál üres életjelek jöhetnek és a sebességgrafikonok lehetnek nullák vagy üresek. Ellenőrizd képernyőképen az elrendezést; a helyi JSON-ellenőrzés nem bizonyít Grafana-renderelést vagy pozitív éles forgalmat.
+A telepítő mentést készít és olvasási lekérdezésekkel ellenőriz. Nem generál éles üzleti forgalmat. Az új metrikákhoz az első valódi böngészőcsomag szükséges; a Prometheus korábbi idősorai megmaradnak. Nyisd meg az éles oldalt, végezz szokásos műveleteket és tartsd aktívan 2–3 percig, majd a Grafanában nyisd le a **06 · Frontend részletek** sort. Az üres életjel nem API-kérés, a hiányzó adat nem nulla forgalom.

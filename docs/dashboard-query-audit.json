@@ -1,0 +1,427 @@
+{
+  "baseline": "f42a936b6c4446b8cbb14d60a98d0aef837cdb83",
+  "changes": [
+    {
+      "dashboard": "unified",
+      "id": 4,
+      "refId": "A",
+      "before": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
+      "after": "(last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "unified",
+      "id": 23,
+      "refId": "A",
+      "before": "last_over_time(probe_http_status_code{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
+      "after": "(last_over_time(probe_http_status_code{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "unified",
+      "id": 24,
+      "refId": "A",
+      "before": "last_over_time(probe_duration_seconds{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
+      "after": "(last_over_time(probe_duration_seconds{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "unified",
+      "id": 5,
+      "refId": "A",
+      "before": "last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m])",
+      "after": "(last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "unified",
+      "id": 29,
+      "refId": "A",
+      "before": "last_over_time(probe_http_status_code{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m])",
+      "after": "(last_over_time(probe_http_status_code{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "unified",
+      "id": 30,
+      "refId": "A",
+      "before": "last_over_time(probe_duration_seconds{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m])",
+      "after": "(last_over_time(probe_duration_seconds{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "unified",
+      "id": 52,
+      "refId": "A",
+      "before": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[5m:30s])",
+      "after": "time() - max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[3m:30s])",
+      "reason": "Egységes háromperces frontend-próbaablak."
+    },
+    {
+      "dashboard": "unified",
+      "id": 58,
+      "refId": "A",
+      "before": "1000 * max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[5m:30s])",
+      "after": "1000 * max_over_time(timestamp(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"})[3m:30s])",
+      "reason": "Egységes háromperces frontend-próbaablak."
+    },
+    {
+      "dashboard": "unified",
+      "id": 56,
+      "refId": "A",
+      "before": "last_over_time(up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[5m])",
+      "after": "last_over_time(up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])",
+      "reason": "Egységes háromperces frontend-próbaablak."
+    },
+    {
+      "dashboard": "comparison",
+      "id": 6,
+      "refId": "A",
+      "before": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
+      "after": "(last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "comparison",
+      "id": 8,
+      "refId": "A",
+      "before": "last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])",
+      "after": "(last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1)",
+      "reason": "Aktuális exporter scrape nélkül ne látszódjon korábbi siker aktuális elérhetőségként."
+    },
+    {
+      "dashboard": "unified",
+      "id": 77,
+      "refId": "A",
+      "before": "100 * sum(connection_stats_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"}) / (max(max_connections_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"}) > 0)",
+      "after": "(100 * sum(connection_stats_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"}) / (max(max_connections_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"}) > 0)) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 78,
+      "refId": "A",
+      "before": "max(100 * (1 - node_filesystem_avail_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=\"/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} / (node_filesystem_size_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=\"/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} > 0)))",
+      "after": "(max(100 * (1 - node_filesystem_avail_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=\"/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} / (node_filesystem_size_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=\"/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} > 0)))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 79,
+      "refId": "A",
+      "before": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))",
+      "after": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 80,
+      "refId": "A",
+      "before": "100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))",
+      "after": "(100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 81,
+      "refId": "A",
+      "before": "sum(connection_stats_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"})",
+      "after": "(sum(connection_stats_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 82,
+      "refId": "A",
+      "before": "sum(pg_database_size_bytes{job=\"supabase\",instance=\"${supabase_instance}\",datname!~\"template[01]\"})",
+      "after": "(sum(pg_database_size_bytes{job=\"supabase\",instance=\"${supabase_instance}\",datname!~\"template[01]\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 83,
+      "refId": "A",
+      "before": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))",
+      "after": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 83,
+      "refId": "B",
+      "before": "100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))",
+      "after": "(100 * (1 - sum(node_memory_MemAvailable_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}) / sum(node_memory_MemTotal_bytes{job=\"supabase\",instance=\"${supabase_instance}\"}))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 84,
+      "refId": "A",
+      "before": "100 * (1 - node_filesystem_avail_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=~\"/|/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} / (node_filesystem_size_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=~\"/|/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} > 0))",
+      "after": "(100 * (1 - node_filesystem_avail_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=~\"/|/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} / (node_filesystem_size_bytes{job=\"supabase\",instance=\"${supabase_instance}\",mountpoint=~\"/|/data\",fstype!~\"rootfs|tmpfs|devtmpfs\"} > 0))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 85,
+      "refId": "A",
+      "before": "sum by (username) (connection_stats_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"})",
+      "after": "(sum by (username) (connection_stats_connection_count{job=\"supabase\",instance=\"${supabase_instance}\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 86,
+      "refId": "A",
+      "before": "sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))",
+      "after": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 86,
+      "refId": "B",
+      "before": "sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))",
+      "after": "(sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 87,
+      "refId": "A",
+      "before": "100 * sum(rate(pg_stat_database_blks_hit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) / ((sum(rate(pg_stat_database_blks_hit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) + sum(rate(pg_stat_database_blks_read_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) > 0)",
+      "after": "(100 * sum(rate(pg_stat_database_blks_hit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) / ((sum(rate(pg_stat_database_blks_hit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) + sum(rate(pg_stat_database_blks_read_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) > 0)) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 88,
+      "refId": "A",
+      "before": "sum(rate(pg_stat_database_temp_bytes_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))",
+      "after": "(sum(rate(pg_stat_database_temp_bytes_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 89,
+      "refId": "A",
+      "before": "sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"${supabase_instance}\"})",
+      "after": "(sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"${supabase_instance}\"})) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 90,
+      "refId": "A",
+      "before": "sum(rate(pg_stat_database_deadlocks_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) * 60",
+      "after": "(sum(rate(pg_stat_database_deadlocks_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) * 60) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 90,
+      "refId": "B",
+      "before": "sum(rate(pgrst_db_pool_timeouts_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) * 60",
+      "after": "(sum(rate(pgrst_db_pool_timeouts_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) * 60) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 91,
+      "refId": "A",
+      "before": "sum by (device) (rate(node_disk_read_bytes_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m]))",
+      "after": "(sum by (device) (rate(node_disk_read_bytes_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m]))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 91,
+      "refId": "B",
+      "before": "sum by (device) (rate(node_disk_written_bytes_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m]))",
+      "after": "(sum by (device) (rate(node_disk_written_bytes_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m]))) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 92,
+      "refId": "A",
+      "before": "1000 * sum by (device) (rate(node_disk_read_time_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) / (sum by (device) (rate(node_disk_reads_completed_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) > 0)",
+      "after": "(1000 * sum by (device) (rate(node_disk_read_time_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) / (sum by (device) (rate(node_disk_reads_completed_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) > 0)) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 92,
+      "refId": "B",
+      "before": "1000 * sum by (device) (rate(node_disk_write_time_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) / (sum by (device) (rate(node_disk_writes_completed_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) > 0)",
+      "after": "(1000 * sum by (device) (rate(node_disk_write_time_seconds_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) / (sum by (device) (rate(node_disk_writes_completed_total{job=\"supabase\",instance=\"${supabase_instance}\",device!~\"^(loop|ram|sr|fd).*\"}[5m])) > 0)) and on() (min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1)",
+      "reason": "Supabase-adat csak elérhető scrape mellett; DB-műveleteknél PostgreSQL-kapcsolat is szükséges."
+    },
+    {
+      "dashboard": "unified",
+      "id": 7,
+      "refId": "A",
+      "before": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))",
+      "after": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 8,
+      "refId": "A",
+      "before": "100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})",
+      "after": "(100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 9,
+      "refId": "A",
+      "before": "100 * (1 - node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}/node_filesystem_size_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"})",
+      "after": "(100 * (1 - node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}/node_filesystem_size_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 12,
+      "refId": "A",
+      "before": "time() - max(node_boot_time_seconds{job=\"node_exporter\"})",
+      "after": "(time() - max(node_boot_time_seconds{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 13,
+      "refId": "A",
+      "before": "node_memory_MemAvailable_bytes{job=\"node_exporter\"}",
+      "after": "(node_memory_MemAvailable_bytes{job=\"node_exporter\"}) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 14,
+      "refId": "A",
+      "before": "node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}",
+      "after": "(node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 15,
+      "refId": "A",
+      "before": "node_load1{job=\"node_exporter\"}",
+      "after": "(node_load1{job=\"node_exporter\"}) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 16,
+      "refId": "A",
+      "before": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))",
+      "after": "(100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node_exporter\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 17,
+      "refId": "A",
+      "before": "100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})",
+      "after": "(100 * (1 - node_memory_MemAvailable_bytes{job=\"node_exporter\"}/node_memory_MemTotal_bytes{job=\"node_exporter\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 18,
+      "refId": "A",
+      "before": "100 * (1 - node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}/node_filesystem_size_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"})",
+      "after": "(100 * (1 - node_filesystem_avail_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"}/node_filesystem_size_bytes{job=\"node_exporter\",mountpoint=\"/\",fstype=\"ext4\"})) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 19,
+      "refId": "A",
+      "before": "sum(rate(node_disk_read_bytes_total{job=\"node_exporter\",device!~\"^(loop|ram|sr|fd|dm-|md).*\"}[5m]))",
+      "after": "(sum(rate(node_disk_read_bytes_total{job=\"node_exporter\",device!~\"^(loop|ram|sr|fd|dm-|md).*\"}[5m]))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 19,
+      "refId": "B",
+      "before": "sum(rate(node_disk_written_bytes_total{job=\"node_exporter\",device!~\"^(loop|ram|sr|fd|dm-|md).*\"}[5m]))",
+      "after": "(sum(rate(node_disk_written_bytes_total{job=\"node_exporter\",device!~\"^(loop|ram|sr|fd|dm-|md).*\"}[5m]))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 20,
+      "refId": "A",
+      "before": "sum(rate(node_network_receive_bytes_total{job=\"node_exporter\",device!~\"^(lo|docker.*|veth.*|br-.*|virbr.*)$\"}[5m]))",
+      "after": "(sum(rate(node_network_receive_bytes_total{job=\"node_exporter\",device!~\"^(lo|docker.*|veth.*|br-.*|virbr.*)$\"}[5m]))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 20,
+      "refId": "B",
+      "before": "sum(rate(node_network_transmit_bytes_total{job=\"node_exporter\",device!~\"^(lo|docker.*|veth.*|br-.*|virbr.*)$\"}[5m]))",
+      "after": "(sum(rate(node_network_transmit_bytes_total{job=\"node_exporter\",device!~\"^(lo|docker.*|veth.*|br-.*|virbr.*)$\"}[5m]))) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 21,
+      "refId": "A",
+      "before": "node_load1{job=\"node_exporter\"}",
+      "after": "(node_load1{job=\"node_exporter\"}) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 21,
+      "refId": "B",
+      "before": "node_load5{job=\"node_exporter\"}",
+      "after": "(node_load5{job=\"node_exporter\"}) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 21,
+      "refId": "C",
+      "before": "node_load15{job=\"node_exporter\"}",
+      "after": "(node_load15{job=\"node_exporter\"}) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 46,
+      "refId": "A",
+      "before": "node_textfile_scrape_error{job=\"node_exporter\"}",
+      "after": "(node_textfile_scrape_error{job=\"node_exporter\"}) and on() (min(up{job=\"node_exporter\"}) == 1)",
+      "reason": "Régi Oracle-erőforrásminta ne látszódjon aktuális adatként scrape-hibánál."
+    },
+    {
+      "dashboard": "unified",
+      "id": 48,
+      "refId": "A",
+      "before": "{job=\"matchwise_backend_render_api\"} | json | __error__=\"\" | event=\"http_request\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode=~\"${status_filter:raw}\" | statusCode >= 400 | reqId=~\".*${request_id:regex}.*\"",
+      "after": "{job=\"matchwise_backend_render_api\"} | json | __error__=\"\" | event=\"http_request\" | route!~\"${excluded_route:raw}\" | route=~\".*${route_filter:regex}.*\" | statusCode=~\"${status_filter:raw}\" | statusCode >= 400 | __error__=\"\" | reqId=~\".*${request_id:regex}.*\"",
+      "reason": "A numerikus státuszszűrés hibás sorai ne maradjanak a hibanaplóban."
+    }
+  ],
+  "comparison_removed_ids": [
+    2,
+    3,
+    4,
+    5,
+    12,
+    16,
+    22,
+    27,
+    36,
+    37,
+    58,
+    60
+  ]
+}

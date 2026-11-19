@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--frontend-details', action='store_true', help='Check all 26 metrics in the expanded frontend detail section')
     args = parser.parse_args()
     dashboard = json.loads(args.dashboard.read_text(encoding='utf-8'))
-    ids = {6, 7, 8, 38, 39, 40, 41, 42, 47, 50, 51, 52, 53, 54, 55} if args.overview else set(range(37, 47 if args.include_database else 43))
+    ids = {6, 7, 8, 38, 39, 40, 41, 42, 47, 50, 51, 52, 53, 54, 55} if args.overview else set(range(38, 47 if args.include_database else 43))
     if args.frontend_details:
         if args.overview or args.include_database:
             parser.error('--frontend-details is a separate mode')

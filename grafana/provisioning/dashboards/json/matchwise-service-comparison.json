@@ -2,7 +2,7 @@
   "uid": "matchwise-service-comparison",
   "title": "MatchWise · Szolgáltatások összehasonlítása",
   "schemaVersion": 42,
-  "version": 7,
+  "version": 8,
   "editable": false,
   "tags": [
     "matchwise",
@@ -55,18 +55,18 @@
         "x": 0,
         "y": 0,
         "w": 24,
-        "h": 3
+        "h": 4
       },
       "options": {
         "mode": "markdown",
-        "content": "### Állapot → forgalom → terhelés\n**Kék: frontend · Narancs: backend · Zöld: adatbázis · Lila: Oracle.** Közös időtengely, külön jelölt mértékegységek. A hiányzó adat nem nulla; a részletek lent lenyithatók."
+        "content": "**Állapot → forgalom → terhelés.** Kék: frontend · Narancs: backend · Zöld: adatbázis · Lila: Oracle.\n\nKözös időtengely, külön jelölt mértékegységek. Hiányzó adat ≠ nulla. A részletek lent lenyithatók."
       }
     },
     {
       "id": 8,
       "type": "stat",
       "title": "Frontend · HTTP-próba",
-      "description": "Last observed result of the 1-minute Blackbox HTTP probe; 5-minute freshness window. See probe age and actual sample counts below. Exporter scrape failures are shown in the availability section.",
+      "description": "Legutóbbi, három percnél frissebb HTTP-próba eredménye, csak aktuálisan sikeres exporter scrape mellett. A sikertelen HTTP-próba piros; a hiányzó mérés ismeretlen állapot, nem nulla forgalom.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -74,7 +74,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])",
+          "expr": "(last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1)",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -145,7 +145,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 3,
+        "y": 4,
         "w": 6,
         "h": 4
       }
@@ -154,7 +154,7 @@
       "id": 6,
       "type": "stat",
       "title": "Backend · HTTP-próba",
-      "description": "1 = latest HTTP probe passed, 0 = failed, no data = unknown. Probe every minute; 10-second prober timeout and 3-minute freshness.",
+      "description": "Legutóbbi, három percnél frissebb HTTP-próba eredménye, csak aktuálisan sikeres exporter scrape mellett. A sikertelen HTTP-próba piros; a hiányzó mérés ismeretlen állapot, nem nulla forgalom.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -162,7 +162,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])",
+          "expr": "(last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1)",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -233,7 +233,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 3,
+        "y": 4,
         "w": 6,
         "h": 4
       }
@@ -325,7 +325,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 3,
+        "y": 4,
         "w": 6,
         "h": 4
       }
@@ -413,7 +413,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 3,
+        "y": 4,
         "w": 6,
         "h": 4
       }
@@ -489,7 +489,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 7,
+        "y": 8,
         "w": 8,
         "h": 4
       }
@@ -566,7 +566,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 7,
+        "y": 8,
         "w": 8,
         "h": 4
       }
@@ -643,7 +643,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 7,
+        "y": 8,
         "w": 8,
         "h": 4
       }
@@ -655,7 +655,7 @@
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 11,
+        "y": 12,
         "w": 24,
         "h": 1
       },
@@ -817,7 +817,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 12,
+        "y": 13,
         "w": 12,
         "h": 10
       }
@@ -978,7 +978,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 12,
+        "y": 13,
         "w": 12,
         "h": 10
       }
@@ -990,7 +990,7 @@
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 22,
+        "y": 23,
         "w": 24,
         "h": 1
       },
@@ -1083,7 +1083,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 23,
+        "y": 24,
         "w": 8,
         "h": 8
       }
@@ -1173,7 +1173,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 23,
+        "y": 24,
         "w": 8,
         "h": 8
       }
@@ -1315,7 +1315,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 23,
+        "y": 24,
         "w": 8,
         "h": 8
       }
@@ -1407,7 +1407,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 31,
+        "y": 32,
         "w": 8,
         "h": 8
       }
@@ -1497,7 +1497,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 31,
+        "y": 32,
         "w": 8,
         "h": 8
       }
@@ -1639,7 +1639,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 31,
+        "y": 32,
         "w": 8,
         "h": 8
       }
@@ -1651,7 +1651,7 @@
       "collapsed": true,
       "gridPos": {
         "x": 0,
-        "y": 39,
+        "y": 40,
         "w": 24,
         "h": 1
       },
@@ -1739,7 +1739,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 40,
+            "y": 41,
             "w": 8,
             "h": 7
           }
@@ -1817,7 +1817,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 8,
-            "y": 40,
+            "y": 41,
             "w": 8,
             "h": 7
           }
@@ -1895,7 +1895,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 16,
-            "y": 40,
+            "y": 41,
             "w": 8,
             "h": 7
           }
@@ -1973,7 +1973,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 47,
+            "y": 48,
             "w": 8,
             "h": 7
           }
@@ -2051,7 +2051,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 8,
-            "y": 47,
+            "y": 48,
             "w": 8,
             "h": 7
           }
@@ -2129,7 +2129,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 16,
-            "y": 47,
+            "y": 48,
             "w": 8,
             "h": 7
           }
@@ -2207,7 +2207,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 54,
+            "y": 55,
             "w": 8,
             "h": 7
           }
@@ -2286,7 +2286,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 8,
-            "y": 54,
+            "y": 55,
             "w": 8,
             "h": 7
           }
@@ -2378,7 +2378,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 16,
-            "y": 54,
+            "y": 55,
             "w": 8,
             "h": 7
           }
@@ -2462,7 +2462,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 61,
+            "y": 62,
             "w": 8,
             "h": 7
           }
@@ -2536,7 +2536,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 8,
-            "y": 61,
+            "y": 62,
             "w": 8,
             "h": 7
           }
@@ -2613,7 +2613,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 16,
-            "y": 61,
+            "y": 62,
             "w": 8,
             "h": 7
           }
@@ -2627,7 +2627,7 @@
       "collapsed": true,
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 41,
         "w": 24,
         "h": 1
       },
@@ -2638,7 +2638,7 @@
           "title": "Biztonsági jelzések · Értelmezés",
           "gridPos": {
             "x": 0,
-            "y": 41,
+            "y": 42,
             "w": 24,
             "h": 4
           },
@@ -2723,7 +2723,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 45,
+            "y": 46,
             "w": 8,
             "h": 7
           }
@@ -2804,7 +2804,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 8,
-            "y": 45,
+            "y": 46,
             "w": 8,
             "h": 7
           }
@@ -2885,7 +2885,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 16,
-            "y": 45,
+            "y": 46,
             "w": 8,
             "h": 7
           }
@@ -2966,7 +2966,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 52,
+            "y": 53,
             "w": 8,
             "h": 7
           }
@@ -3045,7 +3045,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 8,
-            "y": 52,
+            "y": 53,
             "w": 8,
             "h": 7
           }
@@ -3133,7 +3133,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 16,
-            "y": 52,
+            "y": 53,
             "w": 8,
             "h": 7
           }
@@ -3225,7 +3225,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 59,
+            "y": 60,
             "w": 8,
             "h": 7
           }
@@ -3335,7 +3335,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 8,
-            "y": 59,
+            "y": 60,
             "w": 8,
             "h": 7
           }
@@ -3423,7 +3423,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 16,
-            "y": 59,
+            "y": 60,
             "w": 8,
             "h": 7
           }
@@ -3431,99 +3431,9 @@
       ]
     },
     {
-      "id": 58,
-      "type": "row",
-      "title": "05 · Backend-naplók",
-      "collapsed": true,
-      "gridPos": {
-        "x": 0,
-        "y": 41,
-        "w": 24,
-        "h": 1
-      },
-      "panels": [
-        {
-          "id": 22,
-          "type": "text",
-          "title": "Naplók · Lefedettség",
-          "gridPos": {
-            "x": 0,
-            "y": 42,
-            "w": 24,
-            "h": 4
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "Csak a backend alkalmazásnaplóit gyűjtjük. Az üres naplópanel jelenthet eseményhiányt vagy hiányzó naplókat; ellenőrizd a naplógyűjtés frissességét. A health kérések kimaradnak."
-          }
-        },
-        {
-          "id": 36,
-          "title": "Backend · Biztonsági válaszok naplója",
-          "type": "logs",
-          "gridPos": {
-            "x": 0,
-            "y": 46,
-            "w": 24,
-            "h": 10
-          },
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "{job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode=~\"401|403|404|429\" | __error__=\"\"",
-              "queryType": "range",
-              "editorMode": "code"
-            }
-          ],
-          "options": {
-            "showTime": true,
-            "showLabels": false,
-            "wrapLogMessage": true,
-            "sortOrder": "Descending",
-            "enableLogDetails": true
-          },
-          "description": "Logged 401/403/404/429 HTTP events, excluding health checks. Original route can be unmatched. No client IP/user attribution."
-        },
-        {
-          "id": 27,
-          "title": "Backend · HTTP-hibanapló",
-          "type": "logs",
-          "gridPos": {
-            "x": 0,
-            "y": 56,
-            "w": 24,
-            "h": 10
-          },
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"(/api/health|/health)\" | statusCode >= 400 | __error__=\"\"",
-              "queryType": "range",
-              "editorMode": "code"
-            }
-          ],
-          "options": {
-            "showTime": true,
-            "showLabels": false,
-            "wrapLogMessage": true,
-            "sortOrder": "Descending",
-            "enableLogDetails": true
-          }
-        }
-      ]
-    },
-    {
       "id": 59,
       "type": "row",
-      "title": "06 · Haladó összevetés · két külön tengely",
+      "title": "05 · Haladó összevetés · két külön tengely",
       "collapsed": true,
       "gridPos": {
         "x": 0,
@@ -3979,132 +3889,13 @@
       ]
     },
     {
-      "id": 60,
+      "id": 61,
       "type": "row",
-      "title": "07 · Adatforrások és mérési útmutató",
+      "title": "06 · Frontend részletek · útvonalak, hibák és adatküldés",
       "collapsed": true,
       "gridPos": {
         "x": 0,
         "y": 43,
-        "w": 24,
-        "h": 1
-      },
-      "panels": [
-        {
-          "id": 37,
-          "type": "text",
-          "title": "A mérés értelmezése",
-          "gridPos": {
-            "x": 0,
-            "y": 44,
-            "w": 24,
-            "h": 13
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "### Mit hasonlítunk össze?\n- **Frontend:** a mérőkódot futtató böngészők API-hívásai, 60 másodperces összesítésekben. Az üres csomag életjel, nem API-forgalom.\n- **Backend:** a naplózott API-kérések. Más kliensek, eltérő lefedettség és beérkezési késés miatt nem várunk pontos számegyezést.\n- **Válaszidő:** a böngésző a válaszfejlécekig, a backend a saját feldolgozását méri. A böngészős P95 hisztogramból becsült érték.\n- **Frissesség:** a frontend görbéi 3 percnél régebbi csomagnál elrejtődnek. Új számlálósor első mintájának eseményei a rate-görbén még nem feltétlenül jelennek meg.\n- **Erőforrások:** minden százalék az adott szolgáltatás saját kapacitásához viszonyít; a gépek mérete eltér. Oracle/Supabase CPU: 5 perces átlag, Render CPU: API-minta.\n- **Adatbázis:** a tranzakciók belső szolgáltatásokat és más klienseket is tartalmaznak. A PostgREST-sor nem az összes DB-várakozás.\n\n**Hiányzó adat ≠ nulla. Együttmozgás ≠ bizonyított ok-okozat.**"
-          }
-        },
-        {
-          "id": 2,
-          "type": "text",
-          "title": "Backend · Render",
-          "gridPos": {
-            "x": 0,
-            "y": 57,
-            "w": 24,
-            "h": 4
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "Render API-erőforrásminták, HTTP-próbák és strukturált alkalmazásnaplók. A backendforgalom a naplózott kéréseket mutatja."
-          }
-        },
-        {
-          "id": 3,
-          "type": "text",
-          "title": "Adatbázis · Supabase",
-          "gridPos": {
-            "x": 0,
-            "y": 61,
-            "w": 24,
-            "h": 4
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "Supabase Metrics API: PostgreSQL-elérhetőség, géperőforrások, lezárt tranzakciók és PostgREST-kapcsolatkészlet."
-          }
-        },
-        {
-          "id": 4,
-          "type": "text",
-          "title": "Frontend · Vercel",
-          "gridPos": {
-            "x": 0,
-            "y": 65,
-            "w": 24,
-            "h": 4
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "HTTP-próba és böngészőoldali API-mérés. A böngésző 60 másodpercenként küld összesítést. Vercel host CPU- és memóriamérés nincs."
-          }
-        },
-        {
-          "id": 5,
-          "type": "text",
-          "title": "Monitoring · Oracle",
-          "gridPos": {
-            "x": 0,
-            "y": 69,
-            "w": 24,
-            "h": 4
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "Oracle VM: Prometheus, Loki, Grafana és telemetriafogadó. A CPU- és memóriaadat a monitoringgép saját kapacitásához viszonyított."
-          }
-        },
-        {
-          "id": 12,
-          "type": "text",
-          "title": "Frontend · CPU",
-          "gridPos": {
-            "x": 0,
-            "y": 73,
-            "w": 24,
-            "h": 4
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "**Nincs gyűjtve.** Ebben a rendszerben nincs Vercel host CPU-adat."
-          }
-        },
-        {
-          "id": 16,
-          "type": "text",
-          "title": "Frontend · Memória",
-          "gridPos": {
-            "x": 0,
-            "y": 77,
-            "w": 24,
-            "h": 4
-          },
-          "options": {
-            "mode": "markdown",
-            "content": "**Nincs gyűjtve.** Ebben a rendszerben nincs Vercel host memóriaadat."
-          }
-        }
-      ]
-    },
-    {
-      "id": 61,
-      "type": "row",
-      "title": "08 · Frontend részletek · útvonalak, hibák és adatküldés",
-      "collapsed": true,
-      "gridPos": {
-        "x": 0,
-        "y": 44,
         "w": 24,
         "h": 1
       },
@@ -4115,7 +3906,7 @@
           "title": "Frontend részletek · Mit jelentenek az adatok?",
           "gridPos": {
             "x": 0,
-            "y": 45,
+            "y": 44,
             "w": 24,
             "h": 8
           },
@@ -4302,7 +4093,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 53,
+            "y": 52,
             "w": 12,
             "h": 9
           }
@@ -4485,7 +4276,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 53,
+            "y": 52,
             "w": 12,
             "h": 9
           }
@@ -4644,7 +4435,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 62,
+            "y": 61,
             "w": 12,
             "h": 9
           }
@@ -4782,7 +4573,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 62,
+            "y": 61,
             "w": 12,
             "h": 9
           }
@@ -4860,7 +4651,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 71,
+            "y": 70,
             "w": 12,
             "h": 9
           }
@@ -5043,7 +4834,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 71,
+            "y": 70,
             "w": 12,
             "h": 9
           }
@@ -5120,7 +4911,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 80,
+            "y": 79,
             "w": 12,
             "h": 9
           }
@@ -5303,7 +5094,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 80,
+            "y": 79,
             "w": 12,
             "h": 9
           }
@@ -5380,7 +5171,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 89,
+            "y": 88,
             "w": 6,
             "h": 5
           }
@@ -5456,7 +5247,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 89,
+            "y": 88,
             "w": 6,
             "h": 5
           }
@@ -5533,7 +5324,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 89,
+            "y": 88,
             "w": 6,
             "h": 5
           }
@@ -5610,7 +5401,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 89,
+            "y": 88,
             "w": 6,
             "h": 5
           }
@@ -5687,7 +5478,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 94,
+            "y": 93,
             "w": 6,
             "h": 5
           }
@@ -5764,7 +5555,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 94,
+            "y": 93,
             "w": 6,
             "h": 5
           }
@@ -5841,7 +5632,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 94,
+            "y": 93,
             "w": 6,
             "h": 5
           }
@@ -5918,7 +5709,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 94,
+            "y": 93,
             "w": 6,
             "h": 5
           }
@@ -6032,7 +5823,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 99,
+            "y": 98,
             "w": 12,
             "h": 9
           }
@@ -6146,7 +5937,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 99,
+            "y": 98,
             "w": 12,
             "h": 9
           }
@@ -6245,7 +6036,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 108,
+            "y": 107,
             "w": 12,
             "h": 9
           }
@@ -6322,7 +6113,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 108,
+            "y": 107,
             "w": 12,
             "h": 9
           }
@@ -6506,7 +6297,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 117,
+            "y": 116,
             "w": 12,
             "h": 7
           }
@@ -6690,7 +6481,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 117,
+            "y": 116,
             "w": 12,
             "h": 7
           }
@@ -6873,7 +6664,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 124,
+            "y": 123,
             "w": 12,
             "h": 9
           }
@@ -6950,12 +6741,20 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 124,
+            "y": 123,
             "w": 12,
             "h": 9
           }
         }
       ]
+    }
+  ],
+  "links": [
+    {
+      "title": "Üzemeltetési áttekintés",
+      "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}",
+      "type": "link",
+      "targetBlank": false
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
-> **Állapot (2026-11-19):** a v6 magyar fő nézet az Oracle-on telepítve, működését a felhasználó visszaigazolta. Elkészült a v7 lenyitható frontend-részletszakasza és a fogadómetrikák v2 bővítése; ennek Oracle-telepítése még hátravan. [Új részletek és telepítés](FRONTEND_DETAIL_MONITORING.md). A monitoringág külön marad a main-től. Az alábbi v5 leírás történeti háttér.
+> **Végső felülvizsgálat (2026-11-19):** elkészült a Unified v10 és az összehasonlító v8. Az összehasonlítóból a felhasználó kérésére törölve a backend-naplók és az adatforrás/mérési útmutató sora; a frontend részletei most a 06-os szakaszban vannak. Javítva a HTTP-próba- és erőforrásadatok scrape-feltételei. Oracle-telepítés és éles ellenőrzés: [végső audit](DASHBOARD_FINAL_AUDIT.md). Az alábbi régi felépítésleírás történeti háttér.
 
 > **Korábbi v5 állapot / Historical state (2026-11-19):** 45 panel telepítve. A frontend main-be összevonva; éles 204-es küldés és nem üres API-csomag, valamint friss Grafana fogadási adatok igazoltak. Pozitív frontendgörbék az SSH-tesztben igazoltak; az utolsó éles képen nulla frontendráta és hiányzó frontend-latencia látszik. A monitoringág külön marad.
 

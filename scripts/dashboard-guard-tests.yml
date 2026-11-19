@@ -1,0 +1,302 @@
+{
+  "rule_files": [],
+  "evaluation_interval": "1m",
+  "tests": [
+    {
+      "name": "blackbox_render_backend exporter down, stale successful probe",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}",
+          "values": "1 1 _"
+        },
+        {
+          "series": "up{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}",
+          "values": "1 0 0"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum(last_over_time(probe_success{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}[3m]))",
+          "eval_time": "2m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1))",
+          "eval_time": "2m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "blackbox_render_backend actual failed HTTP probe",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}",
+          "values": "0 0 0"
+        },
+        {
+          "series": "up{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}",
+          "values": "1 1 1"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1))",
+          "eval_time": "2m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "blackbox_render_backend probe missing",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "up{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}",
+          "values": "1 1 1"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1))",
+          "eval_time": "2m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "blackbox_render_backend probe older than three minutes",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}",
+          "values": "1 _ _ _ _"
+        },
+        {
+          "series": "up{job=\"blackbox_render_backend\",instance=\"https://example.test/\",service=\"matchwise_backend\"}",
+          "values": "1 1 1 1 1"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_render_backend\",service=\"matchwise_backend\"}[3m])) and on(job,instance) (up{job=\"blackbox_render_backend\",service=\"matchwise_backend\"} == 1))",
+          "eval_time": "4m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "blackbox_vercel_frontend exporter down, stale successful probe",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}",
+          "values": "1 1 _"
+        },
+        {
+          "series": "up{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}",
+          "values": "1 0 0"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum(last_over_time(probe_success{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}[3m]))",
+          "eval_time": "2m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1))",
+          "eval_time": "2m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "blackbox_vercel_frontend actual failed HTTP probe",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}",
+          "values": "0 0 0"
+        },
+        {
+          "series": "up{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}",
+          "values": "1 1 1"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1))",
+          "eval_time": "2m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "blackbox_vercel_frontend probe missing",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "up{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}",
+          "values": "1 1 1"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1))",
+          "eval_time": "2m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "blackbox_vercel_frontend probe older than three minutes",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "probe_success{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}",
+          "values": "1 _ _ _ _"
+        },
+        {
+          "series": "up{job=\"blackbox_vercel_frontend\",instance=\"https://example.test/\",service=\"matchwise_frontend\"}",
+          "values": "1 1 1 1 1"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((last_over_time(probe_success{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"}[3m])) and on(job,instance) (up{job=\"blackbox_vercel_frontend\",service=\"matchwise_frontend\"} == 1))",
+          "eval_time": "4m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "Supabase failed scrape hides retained CPU",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "node_cpu_seconds_total{job=\"supabase\",instance=\"db.example.test:443\",mode=\"idle\",cpu=\"0\"}",
+          "values": "100 130 160 190 220"
+        },
+        {
+          "series": "up{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "1 1 1 0 0"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"db.example.test:443\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"db.example.test:443\"}) == 1))",
+          "eval_time": "4m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "Supabase host CPU remains meaningful when PostgreSQL is down",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "node_cpu_seconds_total{job=\"supabase\",instance=\"db.example.test:443\",mode=\"idle\",cpu=\"0\"}",
+          "values": "100 130 160 190 220"
+        },
+        {
+          "series": "up{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "1 1 1 1 1"
+        },
+        {
+          "series": "pg_up{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "0 0 0 0 0"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((100 * (1 - avg(rate(node_cpu_seconds_total{job=\"supabase\",instance=\"db.example.test:443\",mode=\"idle\"}[5m])))) and on() (min(up{job=\"supabase\",instance=\"db.example.test:443\"}) == 1))",
+          "eval_time": "4m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PostgREST queue hidden when PostgreSQL is down",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "pgrst_db_pool_waiting{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "2 2 2"
+        },
+        {
+          "series": "up{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "1 1 1"
+        },
+        {
+          "series": "pg_up{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "0 0 0"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"db.example.test:443\"})) and on() ((min(up{job=\"supabase\",instance=\"db.example.test:443\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"db.example.test:443\"}) == 1)))",
+          "eval_time": "2m",
+          "exp_samples": []
+        }
+      ]
+    },
+    {
+      "name": "PostgREST measured zero remains visible",
+      "interval": "1m",
+      "input_series": [
+        {
+          "series": "pgrst_db_pool_waiting{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "0 0 0"
+        },
+        {
+          "series": "up{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "1 1 1"
+        },
+        {
+          "series": "pg_up{job=\"supabase\",instance=\"db.example.test:443\"}",
+          "values": "1 1 1"
+        }
+      ],
+      "promql_expr_test": [
+        {
+          "expr": "sum((sum(pgrst_db_pool_waiting{job=\"supabase\",instance=\"db.example.test:443\"})) and on() ((min(up{job=\"supabase\",instance=\"db.example.test:443\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"db.example.test:443\"}) == 1)))",
+          "eval_time": "2m",
+          "exp_samples": [
+            {
+              "labels": "{}",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
