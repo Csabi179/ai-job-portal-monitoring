@@ -1,5 +1,7 @@
 # MatchWise összehasonlító dashboard · 6. verzió
 
+> A v6 elrendezés telepítve, működését a felhasználó visszaigazolta. A fő nézetet megőrző v7 és fogadó-v2 bővítéshez az új [Frontend részletmérés](FRONTEND_DETAIL_MONITORING.md) telepítőjét használd. A lenti leírás a v6 kialakítását dokumentálja.
+
 Az alapnézet az állapotot, a forgalmat és a terhelést mutatja ebben a sorrendben. A fő nézetben nincs két külön függőleges tengely egy grafikonon. Kék: frontend; narancs: backend; zöld: adatbázis; lila: Oracle. Az elérhetőségi kártyák ettől függetlenül zöld/piros/szürke állapotszíneket használnak.
 
 ## Olvasási sorrend

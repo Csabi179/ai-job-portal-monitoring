@@ -19,9 +19,14 @@ def main():
     parser.add_argument('dashboard', type=Path)
     parser.add_argument('--include-database', action='store_true', help='Also check panels 43–46 using the dashboard default Supabase instance')
     parser.add_argument('--overview', action='store_true', help='Check all visible overview metrics in the redesigned dashboard')
+    parser.add_argument('--frontend-details', action='store_true', help='Check all 26 metrics in the expanded frontend detail section')
     args = parser.parse_args()
     dashboard = json.loads(args.dashboard.read_text(encoding='utf-8'))
     ids = {6, 7, 8, 38, 39, 40, 41, 42, 47, 50, 51, 52, 53, 54, 55} if args.overview else set(range(37, 47 if args.include_database else 43))
+    if args.frontend_details:
+        if args.overview or args.include_database:
+            parser.error('--frontend-details is a separate mode')
+        ids = set(range(62, 87))
     panels = [panel for panel in walk_panels(dashboard['panels']) if panel['id'] in ids]
     if {panel['id'] for panel in panels} != ids:
         raise SystemExit('Missing comparison panels; wrong dashboard version.')
@@ -49,12 +54,12 @@ def main():
                 rows = result['data']['result']
                 print(name, 'OK', 'series=' + str(len(rows)))
                 if not rows:
-                    print('  No matching observations: expected while automatic telemetry is inactive or stale.')
+                    print('  No matching observations: may mean no matching events, missing/stale input, or a newly installed metric. Not proof of zero traffic.')
             except Exception as error:
                 status = f' HTTP {error.code}' if isinstance(error, HTTPError) else ''
                 print(name, 'FAILED', type(error).__name__ + status)
                 failed = True
-    expected_queries = 23 if args.overview else (15 if args.include_database else 9)
+    expected_queries = 26 if args.frontend_details else (23 if args.overview else (15 if args.include_database else 9))
     if queries != expected_queries:
         raise SystemExit('Unexpected query count; expected ' + str(expected_queries))
     print('Preflight FAILED' if failed else 'Preflight PASS; empty series do not prove live frontend instrumentation.')

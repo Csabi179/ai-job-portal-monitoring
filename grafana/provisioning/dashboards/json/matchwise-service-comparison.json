@@ -2,7 +2,7 @@
   "uid": "matchwise-service-comparison",
   "title": "MatchWise · Szolgáltatások összehasonlítása",
   "schemaVersion": 42,
-  "version": 6,
+  "version": 7,
   "editable": false,
   "tags": [
     "matchwise",
@@ -4093,6 +4093,2866 @@
           "options": {
             "mode": "markdown",
             "content": "**Nincs gyűjtve.** Ebben a rendszerben nincs Vercel host memóriaadat."
+          }
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "type": "row",
+      "title": "08 · Frontend részletek · útvonalak, hibák és adatküldés",
+      "collapsed": true,
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 24,
+        "h": 1
+      },
+      "panels": [
+        {
+          "id": 62,
+          "type": "text",
+          "title": "Frontend részletek · Mit jelentenek az adatok?",
+          "gridPos": {
+            "x": 0,
+            "y": 45,
+            "w": 24,
+            "h": 8
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "**Valódi böngészőforgalom; 60 másodperces összesítés.** A sebességek 5 perces átlagok, az új számlálók első eseményei még nem feltétlenül látszanak rajtuk. A lenti összesített kérésszámok segítenek kis forgalomnál.\n\n**Hálózati hiba ≠ HTTP 4xx/5xx.** Megszakításkor nincs HTTP-válasz; a sikertelen kérések ezért külön látszanak. Az útvonalak csoportok (auth, cv, jobs…), nem teljes URL-ek.\n\n**Az utolsó csomag adatai egyetlen jelentő lap pillanatképei**, nem az összes nyitott böngésző összegei. A küldési számlálók az adott lap indulásától halmozódnak, és a csomag létrehozásakor rögzülnek; nincs biztonságos globális összegük. A megfigyelt maximum az Oracle-fogadó indulása óta értendő. A hibát jelző csomagok ismétlődő jelzést is jelenthetnek, nem új hibákat.\n\n**A csomagkésés tartalmazhat böngésző–Oracle óraeltérést**, ezért negatív is lehet; nem tiszta hálózati késleltetés. Hiányzó adat ≠ nulla. Három percnél régebbi valódi csomagnál a friss pillanatképek eltűnnek; az indulás óta mért maximumok és összegek a fogadó elérhetőségéhez kötöttek.\n\nAz útvonalankénti részletgrafikonok színei az útvonalcsoportokat jelölik, egységesen a különböző részletpanelek között."
+          }
+        },
+        {
+          "id": 63,
+          "type": "timeseries",
+          "title": "API-indítások · Útvonalcsoportonként",
+          "description": "Ötperces átlag. Az auth, cv, jobs és más csoportok megoszlása; nem felhasználószám.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (route) (rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{route}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:kérés/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "auth"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cv"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "jobs"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "profile"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#B28CD9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "preferences"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F0E442"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "me"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#CC79A7"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "other"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8DA0CB"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 53,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 64,
+          "type": "timeseries",
+          "title": "Fejlécekig mért P95 · Útvonalcsoportonként (becsült)",
+          "description": "Hisztogramból becsült, a HTTP-válasz fejléceiig tartó böngészős idő; nem backend-feldolgozási idő.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (route,le) (rate(frontend_api_fetch_headers_seconds_bucket{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m]))) * 1000 and on(route) (sum by (route) (rate(frontend_api_fetch_headers_seconds_count{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m])) > 0) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{route}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "auth"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cv"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "jobs"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "profile"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#B28CD9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "preferences"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F0E442"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "me"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#CC79A7"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "other"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8DA0CB"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 53,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 65,
+          "type": "timeseries",
+          "title": "Kimenetelek · HTTP-válasz, hálózati hiba, megszakítás",
+          "description": "http: megérkezett HTTP-válasz, hibakód esetén is; network_error: nem érkezett HTTP-válasz; aborted: megszakítás.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (outcome) (rate(frontend_api_outcomes_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{outcome}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:kérés/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "http"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "HTTP-válasz"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "network_error"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Hálózati hiba"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "aborted"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Megszakítva"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "http"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "network_error"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F2495C"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "aborted"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#9198A5"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 62,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 66,
+          "type": "timeseries",
+          "title": "HTTP-válaszok · Státuszkódonként",
+          "description": "",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (status) (rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "HTTP {{status}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:válasz/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^HTTP 2[0-9][0-9]$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^HTTP 3[0-9][0-9]$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^HTTP 4[0-9][0-9]$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "^HTTP 5[0-9][0-9]$"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F2495C"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 62,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 67,
+          "type": "timeseries",
+          "title": "HTTP-hibaarány · 4xx és 5xx",
+          "description": "Csak a megfigyelt HTTP-válaszok között. Hálózati hibák és megszakítások nélkül. Pozitív válaszforgalom hiányában nincs arány; nem mutatunk mesterséges 0%-ot.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(100 * ((sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\",status=~\"4..|5..\"}[5m])) or on() (0 * sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) / sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) and on() (sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) > 0) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "HTTP-hibák aránya",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              },
+              "max": 100
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 71,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 68,
+          "type": "timeseries",
+          "title": "HTTP-hibák · Útvonalcsoportonként",
+          "description": "4xx/5xx válaszok a fogadóbővítés óta. A régi adatokból nincs visszamenőleges útvonal–státuszkód kapcsolat.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (route) (rate(frontend_api_results_total{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\",status=~\"4..|5..\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{route}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:hiba/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "auth"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cv"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "jobs"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "profile"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#B28CD9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "preferences"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F0E442"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "me"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#CC79A7"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "other"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8DA0CB"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 71,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 69,
+          "type": "timeseries",
+          "title": "API-indítások · HTTP-metódusonként",
+          "description": "",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (method) (rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{method}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:kérés/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 80,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 70,
+          "type": "timeseries",
+          "title": "Legnagyobb fejlécekig mért idő · A fogadó indulása óta",
+          "description": "Pontos megfigyelt maximum a duration_max_ms mezőből, útvonalanként; nem P95 és nem az utolsó 5 perc maximuma. Fogadóújrainduláskor újraindul.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max by (route) (frontend_api_fetch_headers_max_seconds{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}) * 1000 and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "legendFormat": "{{route}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "auth"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cv"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "jobs"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "profile"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#B28CD9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "preferences"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F0E442"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "me"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#CC79A7"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "other"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8DA0CB"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 80,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 71,
+          "type": "stat",
+          "title": "Folyamatban · Az utoljára jelentő lapon",
+          "description": "Az utolsó csomag készítésekor még folyamatban lévő API-kérések az adott böngészőlapon. Nem az összes böngésző együttes állapota.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_reported_inflight{job=\"frontend_traffic\",mode=\"real\"}) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:kérés",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 89,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 72,
+          "type": "stat",
+          "title": "Csomagkésés · Óraeltéréssel együtt",
+          "description": "Fogadási idő mínusz a kliens által jelentett ablakvég. Újraküldési késést és kliensóra-eltérést is tartalmazhat, negatív is lehet.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_reported_window_end_age_seconds{job=\"frontend_traffic\",mode=\"real\"}) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 6,
+            "y": 89,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 73,
+          "type": "stat",
+          "title": "Összesítési ablak · Utolsó csomag",
+          "description": "A jelentett ablak vége mínusz kezdete. A névleges 60 másodpercet háttérlap, hálózati várakozás és újraküldés befolyásolhatja.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_reported_window_seconds{job=\"frontend_traffic\",mode=\"real\"}) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 89,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 74,
+          "type": "stat",
+          "title": "Fogadó · Bővített metrikák verziója",
+          "description": "2 = bővített metrikákat adó fogadó. A frontend csomagsémája továbbra is 1; nem szükséges frontenddeploy.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_receiver_schema_version{job=\"frontend_traffic\"}) and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 18,
+            "y": 89,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 75,
+          "type": "stat",
+          "title": "Sikeres küldések · Utolsó lapjelentés",
+          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_reported_delivery{job=\"frontend_traffic\",mode=\"real\",kind=\"sent_batches\"}) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 94,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 76,
+          "type": "stat",
+          "title": "Sikertelen küldések · Utolsó lapjelentés",
+          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_reported_delivery{job=\"frontend_traffic\",mode=\"real\",kind=\"failed_attempts\"}) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 6,
+            "y": 94,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 77,
+          "type": "stat",
+          "title": "Elveszett csomagok · Utolsó lapjelentés",
+          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_reported_delivery{job=\"frontend_traffic\",mode=\"real\",kind=\"dropped_batches\"}) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 94,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 78,
+          "type": "stat",
+          "title": "Elveszett megfigyelések · Utolsó lapjelentés",
+          "description": "Az utolsó jelentő lap indulása óta halmozott értéke, a csomag készítésekor rögzítve. Nem összesíthető a csomagok vagy böngészők között. A jelen csomag küldési eredményét még nem tartalmazza.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(frontend_telemetry_reported_delivery{job=\"frontend_traffic\",mode=\"real\",kind=\"dropped_observations\"}) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 18,
+            "y": 94,
+            "w": 6,
+            "h": 5
+          }
+        },
+        {
+          "id": 79,
+          "type": "timeseries",
+          "title": "Küldési problémák · Látott legnagyobb lapérték",
+          "description": "A fogadó indulása óta látott legnagyobb laponkénti halmozott diagnosztikai értékek. Nem a rendszer összes hibája és nem friss eseményszám.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max by (kind) (frontend_telemetry_reported_delivery_max{job=\"frontend_traffic\",mode=\"real\",kind!=\"sent_batches\"}) and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "legendFormat": "{{kind}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "failed_attempts"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Sikertelen küldési kísérletek"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "dropped_batches"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Elveszett csomagok"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "dropped_observations"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Elveszett megfigyelések"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 99,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 80,
+          "type": "timeseries",
+          "title": "Küldési problémát jelentő csomagok / perc",
+          "description": "Pozitív hibaszámlálót jelentő elfogadott, egyedi csomagok üteme. Egy régebbi hiba több későbbi csomagban is szerepelhet; nem új hibák száma.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (kind) (rate(frontend_telemetry_reports_with_delivery_issue_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{kind}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:csomag/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "failed_attempts"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Sikertelen küldési kísérletek"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "dropped_batches"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Elveszett csomagok"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "dropped_observations"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Elveszett megfigyelések"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 99,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 81,
+          "type": "timeseries",
+          "title": "Fogadási minőség · Duplikált, elutasított, korlátozott csomagok",
+          "description": "Az Oracle-fogadó saját számlálói, éles és tesztküldések együtt. Duplikáció esetén az üzleti számlálók nem nőnek újra.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(frontend_telemetry_duplicate_batches_total{job=\"frontend_traffic\"}[5m])) * 60 and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "legendFormat": "Duplikált",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "B",
+              "expr": "sum(rate(frontend_telemetry_rejected_total{job=\"frontend_traffic\"}[5m])) * 60 and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "legendFormat": "Elutasított",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            },
+            {
+              "refId": "C",
+              "expr": "sum(rate(frontend_telemetry_rate_limited_total{job=\"frontend_traffic\"}[5m])) * 60 and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "legendFormat": "Fogadó által korlátozott",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:csomag/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 108,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 82,
+          "type": "timeseries",
+          "title": "Részletes bontás · Korlát miatt összevont megfigyelések",
+          "description": "A részletes route/method/status/outcome kombinációk felső korlátja 4096. E fölött a részletek other/OTHER csoportba kerülnek; az összesített forgalom, státuszkódok és időhisztogramok megmaradnak. Hiányzó sor jelentheti, hogy a korlát még nem lépett életbe.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(frontend_telemetry_result_dimension_overflow_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "Összevont részletes megfigyelések",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:megfigyelés/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 108,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 83,
+          "type": "stat",
+          "title": "API-indítások · A fogadó indulása óta",
+          "description": "Csoportonkénti megfigyelt indítások. Újrainduláskor nullázódik. Kis forgalomnál az első események is látszanak; nem munkamenet- vagy felhasználószám.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (route) (frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}) and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false,
+              "legendFormat": "{{route}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "auth"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cv"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "jobs"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "profile"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#B28CD9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "preferences"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F0E442"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "me"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#CC79A7"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "other"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8DA0CB"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value_and_name",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 117,
+            "w": 12,
+            "h": 7
+          }
+        },
+        {
+          "id": 84,
+          "type": "stat",
+          "title": "Eredmények · A fogadó indulása óta",
+          "description": "A fogadóbővítés óta megfigyelt eredmények csoportonként, hálózati hibával és megszakítással együtt. Nem szükségszerűen egyezik az indításokkal.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (route) (frontend_api_results_total{job=\"frontend_traffic\",mode=\"real\"}) and on() (min(up{job=\"frontend_traffic\"}) == 1)",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": true,
+              "range": false,
+              "legendFormat": "{{route}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#56B4E9"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "special",
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "Nincs adat",
+                      "color": "gray"
+                    }
+                  }
+                }
+              ],
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "auth"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cv"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "jobs"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "profile"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#B28CD9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "preferences"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F0E442"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "me"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#CC79A7"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "other"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8DA0CB"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "value_and_name",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 117,
+            "w": 12,
+            "h": 7
+          }
+        },
+        {
+          "id": 85,
+          "type": "timeseries",
+          "title": "Fejlécekig mért átlag · Útvonalcsoportonként",
+          "description": "Csak a HTTP-választ kapott kérések fejlécekig mért átlaga, csoportonként.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(sum by (route) (rate(frontend_api_fetch_headers_seconds_sum{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m])) / sum by (route) (rate(frontend_api_fetch_headers_seconds_count{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m]))) * 1000 and on(route) (sum by (route) (rate(frontend_api_fetch_headers_seconds_count{job=\"frontend_traffic\",mode=\"real\",outcome=\"http\"}[5m])) > 0) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{route}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "auth"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#56B4E9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "cv"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#E69F00"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "jobs"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#009E73"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "profile"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#B28CD9"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "preferences"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#F0E442"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "me"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#CC79A7"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "other"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "mode": "fixed",
+                      "fixedColor": "#8DA0CB"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 0,
+            "y": 124,
+            "w": 12,
+            "h": 9
+          }
+        },
+        {
+          "id": 86,
+          "type": "timeseries",
+          "title": "Eredmények · Metódus és kimenetel szerint",
+          "description": "A részletes eredmények metódus és kimenetel szerinti bontása. A részletkorlát felett a metódus OTHER; az összesített eredményszám megmarad.",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (method,outcome) (rate(frontend_api_results_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60 and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+              "legendFormat": "{{method}} · {{outcome}}",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "instant": false,
+              "range": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "suffix:kérés/perc",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "fillOpacity": 3,
+                "showPoints": "never",
+                "pointSize": 4,
+                "spanNulls": false,
+                "axisPlacement": "auto",
+                "axisColorMode": "text",
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "stacking": {
+                  "mode": "none",
+                  "group": "A"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                },
+                "axisLabel": ""
+              },
+              "min": 0,
+              "noValue": "Nincs adat",
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "13.2.1",
+          "gridPos": {
+            "x": 12,
+            "y": 124,
+            "w": 12,
+            "h": 9
           }
         }
       ]

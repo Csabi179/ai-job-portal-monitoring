@@ -14,6 +14,8 @@ LIMITS = [100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000]
 ROUTES = {'auth', 'jobs', 'cv', 'profile', 'preferences', 'me', 'other'}
 METHODS = {'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'OTHER'}
 OUTCOMES = {'http', 'network_error', 'aborted'}
+MAX_RESULT_SERIES = 4096
+DELIVERY_FIELDS = ('sent_batches', 'failed_attempts', 'dropped_batches', 'dropped_observations')
 ORIGINS = frozenset(os.environ.get('FRONTEND_TRAFFIC_ORIGINS', 'https://www.matchwise.tech').split(','))
 
 
@@ -100,12 +102,20 @@ class State:
         self.requests = collections.deque()
         self.last_received = 0
         self.created = time.time()
+        self.result_series = set()
         for name in ['frontend_telemetry_batches_total', 'frontend_telemetry_duplicate_batches_total',
                      'frontend_telemetry_rejected_total', 'frontend_telemetry_rate_limited_total']:
             self.add(name)
 
     def add(self, name, value=0, **labels):
         self.metrics[(name, tuple(sorted(labels.items())))] += value
+
+    def set_value(self, name, value, **labels):
+        self.metrics[(name, tuple(sorted(labels.items())))] = value
+
+    def keep_max(self, name, value, **labels):
+        key = (name, tuple(sorted(labels.items())))
+        self.metrics[key] = max(self.metrics.get(key, 0), value)
 
     def allow(self):
         with self.lock:
@@ -139,11 +149,40 @@ class State:
                 self.seen.popitem(last=False)
             self.add('frontend_telemetry_batches_total', 1)
             mode = 'partial_mock' if batch['mock_api'] or batch['mock_jobs'] else 'real'
+            self.add('frontend_telemetry_result_dimension_overflow_total', mode=mode)
+            # Snapshots belong to the LAST reporting page, not all open browsers.
+            # No stable client identifier is sent: cumulative delivery snapshots
+            # cannot be summed or differenced safely across pages.
+            self.set_value('frontend_telemetry_mode_last_received_timestamp_seconds', self.last_received, mode=mode)
+            self.set_value('frontend_telemetry_reported_inflight', batch['inflight'], mode=mode)
+            self.set_value('frontend_telemetry_reported_window_start_timestamp_seconds', batch['window_start_ms'] / 1000, mode=mode)
+            self.set_value('frontend_telemetry_reported_window_end_timestamp_seconds', batch['window_end_ms'] / 1000, mode=mode)
+            self.set_value('frontend_telemetry_reported_window_seconds', (batch['window_end_ms'] - batch['window_start_ms']) / 1000, mode=mode)
+            # Signed, reception-time observation, including client clock skew.
+            self.set_value('frontend_telemetry_reported_window_end_age_seconds', self.last_received - batch['window_end_ms'] / 1000, mode=mode)
+            for field in DELIVERY_FIELDS:
+                value = batch['delivery'][field]
+                self.set_value('frontend_telemetry_reported_delivery', value, mode=mode, kind=field)
+                self.keep_max('frontend_telemetry_reported_delivery_max', value, mode=mode, kind=field)
+                if field != 'sent_batches':
+                    self.add('frontend_telemetry_reports_with_delivery_issue_total', int(value > 0), mode=mode, kind=field)
             for row in batch['starts']:
                 self.add('frontend_api_requests_started_total', row['count'], mode=mode,
                          route=row['route'], method=row['method'])
             for row in batch['results']:
                 labels = dict(mode=mode, route=row['route'], outcome=row['outcome'])
+                result_labels = dict(labels, method=row['method'], status=str(row['status']))
+                series = tuple(sorted(result_labels.items()))
+                if series not in self.result_series:
+                    if len(self.result_series) < MAX_RESULT_SERIES:
+                        self.result_series.add(series)
+                    else:
+                        # Keep overall outcomes/counts; fold only excess detailed dimensions.
+                        result_labels.update(route='other', method='OTHER', status='other')
+                        self.add('frontend_telemetry_result_dimension_overflow_total', row['count'], mode=mode)
+                self.add('frontend_api_results_total', row['count'], **result_labels)
+                if row['count']:
+                    self.keep_max('frontend_api_fetch_headers_max_seconds', row['duration_max_ms'] / 1000, **labels)
                 self.add('frontend_api_outcomes_total', row['count'], **labels)
                 if row['outcome'] == 'http':
                     self.add('frontend_api_http_responses_total', row['count'], mode=mode, status=str(row['status']))
@@ -157,7 +196,14 @@ class State:
 
     def render(self):
         with self.lock:
-            lines = ['# TYPE frontend_api_fetch_headers_seconds histogram']
+            lines = ['# TYPE frontend_api_fetch_headers_seconds histogram',
+                     'frontend_telemetry_receiver_schema_version 2',
+                     '# TYPE frontend_api_results_total counter',
+                     '# TYPE frontend_api_fetch_headers_max_seconds gauge',
+                     '# TYPE frontend_telemetry_reported_delivery gauge',
+                     '# TYPE frontend_telemetry_reported_delivery_max gauge',
+                     '# TYPE frontend_telemetry_reports_with_delivery_issue_total counter',
+                     '# TYPE frontend_telemetry_result_dimension_overflow_total counter']
             lines += ['frontend_telemetry_receiver_up 1',
                       f'frontend_telemetry_last_received_timestamp_seconds {self.last_received}',
                       f'frontend_telemetry_receiver_start_timestamp_seconds {self.created}']

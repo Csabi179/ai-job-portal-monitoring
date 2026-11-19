@@ -1,8 +1,8 @@
 # Service Comparison dashboard / Összehasonlító dashboard
 
-> **Új elrendezés / Layout v6 (2026-11-19):** elkészült a magyar, lenyitható részletekkel rendelkező új nézet. A fő grafikonokon nincs két eltérő függőleges tengely. [Olvasási és telepítési útmutató](SERVICE_COMPARISON_REDESIGN.md). Telepítése még az Oracle-on végzendő; az alábbi korábbi felépítésleírás a v5 állapotot dokumentálja.
+> **Állapot (2026-11-19):** a v6 magyar fő nézet az Oracle-on telepítve, működését a felhasználó visszaigazolta. Elkészült a v7 lenyitható frontend-részletszakasza és a fogadómetrikák v2 bővítése; ennek Oracle-telepítése még hátravan. [Új részletek és telepítés](FRONTEND_DETAIL_MONITORING.md). A monitoringág külön marad a main-től. Az alábbi v5 leírás történeti háttér.
 
-> **Állapot / State (2026-11-19):** 45 panel telepítve. A frontend main-be összevonva; éles 204-es küldés és nem üres API-csomag, valamint friss Grafana fogadási adatok igazoltak. Pozitív frontendgörbék az SSH-tesztben igazoltak; az utolsó éles képen nulla frontendráta és hiányzó frontend-latencia látszik. A monitoringág külön marad.
+> **Korábbi v5 állapot / Historical state (2026-11-19):** 45 panel telepítve. A frontend main-be összevonva; éles 204-es küldés és nem üres API-csomag, valamint friss Grafana fogadási adatok igazoltak. Pozitív frontendgörbék az SSH-tesztben igazoltak; az utolsó éles képen nulla frontendráta és hiányzó frontend-latencia látszik. A monitoringág külön marad.
 
 ## Magyar
 
