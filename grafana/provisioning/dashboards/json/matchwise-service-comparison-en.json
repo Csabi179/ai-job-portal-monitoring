@@ -4979,7 +4979,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {
@@ -5098,7 +5099,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {
@@ -5217,7 +5219,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {
@@ -5360,7 +5363,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {

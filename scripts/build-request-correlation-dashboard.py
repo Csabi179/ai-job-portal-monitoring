@@ -203,24 +203,30 @@ def main():
                       help='Update only period-summary cards and event chart scales; preserve request table/chart')
     mode.add_argument('--http-signals-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                       help='Refine only HTTP access/error signals; keep both graphs in this section')
+    mode.add_argument('--error-legends-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Show Last* and Max together on the English Errors section charts only')
     args = parser.parse_args()
-    directory = args.embed_only or args.summary_only or args.http_signals_only
+    directory = args.embed_only or args.summary_only or args.http_signals_only or args.error_legends_only
     if directory:
         candidates = []
         for lang in ('hu', 'en'):
+            if args.error_legends_only and lang != 'en':
+                continue
             suffix = '' if lang == 'hu' else '-en'
             path = directory / f'matchwise-service-comparison{suffix}.json'
             current = json.loads(path.read_text(encoding='utf-8'))
             expected_uid = 'matchwise-service-comparison' + suffix
             if current.get('uid') != expected_uid:
                 raise ValueError(f'Unexpected dashboard UID: {path}')
-            update = (readable_http_signals if args.http_signals_only else
+            update = (error_legend_summaries if args.error_legends_only else
+                      readable_http_signals if args.http_signals_only else
                       selected_period_summary if args.summary_only else embed_comparison_table)
             candidates.append((path, update(current, lang)))
         # Validate both destinations before writing either file.
         for path, model in candidates:
             path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
-            print('Updated HTTP access/error signals:' if args.http_signals_only else
+            print('Updated English error chart legends:' if args.error_legends_only else
+                  'Updated HTTP access/error signals:' if args.http_signals_only else
                   'Updated period summaries and event scales:' if args.summary_only else
                   'Updated request table and timing line chart:', path)
         return
@@ -369,7 +375,25 @@ def selected_period_summary(model, lang):
             custom.update(axisSoftMin=0, axisSoftMax=1)
             if panel['id'] in (33, 34):
                 defaults['unit'] = 'suffix:' + L('kérés/perc', 'requests/min')
-    return readable_http_signals(model, lang)
+    return error_legend_summaries(readable_http_signals(model, lang), lang)
+
+
+def error_legend_summaries(model, lang):
+    """Keep Last* semantics and add Max; change only the four English error legends."""
+    if lang != 'en':
+        return model
+    def walk(items):
+        for panel in items:
+            yield panel
+            yield from walk(panel.get('panels', []))
+    charts = [p for p in walk(model['panels']) if p['id'] in (374, 375, 376, 377)]
+    if not charts:
+        return model  # A custom dashboard may omit the Errors section entirely.
+    if len(charts) != 4 or any(p['type'] != 'timeseries' for p in charts):
+        raise ValueError('Expected the four existing Errors time-series panels (374–377)')
+    for panel in charts:
+        panel['options']['legend']['calcs'] = ['lastNotNull', 'max']
+    return model
 
 
 def readable_http_signals(model, lang):
