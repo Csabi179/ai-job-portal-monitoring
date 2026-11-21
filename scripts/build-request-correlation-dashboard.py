@@ -201,8 +201,10 @@ def main():
                         help='Insert the request table and timing line chart into existing HU/EN Service Comparison JSON')
     mode.add_argument('--summary-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                       help='Update only period-summary cards and event chart scales; preserve request table/chart')
+    mode.add_argument('--http-signals-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Refine only HTTP access/error signals; keep both graphs in this section')
     args = parser.parse_args()
-    directory = args.embed_only or args.summary_only
+    directory = args.embed_only or args.summary_only or args.http_signals_only
     if directory:
         candidates = []
         for lang in ('hu', 'en'):
@@ -212,12 +214,14 @@ def main():
             expected_uid = 'matchwise-service-comparison' + suffix
             if current.get('uid') != expected_uid:
                 raise ValueError(f'Unexpected dashboard UID: {path}')
-            update = selected_period_summary if args.summary_only else embed_comparison_table
+            update = (readable_http_signals if args.http_signals_only else
+                      selected_period_summary if args.summary_only else embed_comparison_table)
             candidates.append((path, update(current, lang)))
         # Validate both destinations before writing either file.
         for path, model in candidates:
             path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
-            print('Updated period summaries and event scales:' if args.summary_only else
+            print('Updated HTTP access/error signals:' if args.http_signals_only else
+                  'Updated period summaries and event scales:' if args.summary_only else
                   'Updated request table and timing line chart:', path)
         return
     for lang in ('hu', 'en'):
@@ -365,6 +369,90 @@ def selected_period_summary(model, lang):
             custom.update(axisSoftMin=0, axisSoftMax=1)
             if panel['id'] in (33, 34):
                 defaults['unit'] = 'suffix:' + L('kérés/perc', 'requests/min')
+    return readable_http_signals(model, lang)
+
+
+def readable_http_signals(model, lang):
+    """Show exact counts prominently, with a small separate average below each card."""
+    def L(hu, en):
+        return hu if lang == 'hu' else en
+    def walk(items):
+        for item in items:
+            yield item
+            yield from walk(item.get('panels', []))
+    panels = list(walk(model['panels']))
+    by_id = {p['id']: p for p in panels}
+    for panel in panels:
+        if panel['type'] == 'row' and panel['title'].startswith('05 ·'):
+            panel['title'] = L('05 · Backend · HTTP-hozzáférési és hibajelek',
+                               '05 · Backend · HTTP access and error signals')
+    header = by_id.get(28)
+    if header and header['type'] == 'text':
+        header['title'] = L('HTTP-hozzáférési és hibajelek', 'HTTP access and error signals')
+        header['options']['content'] = L(
+            'Összes esemény a kiválasztott időszakban; alatta az átlag percenként. Health checkek nélkül; a hiányzó adat nem nulla.',
+            'Total events in the selected period; the average per minute is shown below. Health checks excluded; missing data is not zero.')
+        header['description'] = L(
+            'A 401/403/404/429 vizsgálati jel, nem támadás bizonyítéka. Nem gyűjtünk IP- vagy fiókazonosítást. '
+            'A 429 önmagában nem bizonyít rate limitinget. Nullát csak meglévő alapforgalom mellett jelzünk; hiányzó napló nem nulla.',
+            'HTTP 401/403/404/429 are investigation signals, not proof of an attack. No IP or account attribution is collected. '
+            'A 429 does not prove rate limiting is implemented. Zero is shown only when base traffic exists; absent logs are not zero.')
+        bottom = header['gridPos']['y'] + header['gridPos']['h']
+        delta = 3 - header['gridPos']['h']
+        header['gridPos']['h'] = 3
+        for panel in panels:
+            if panel is not header and panel['gridPos']['y'] >= bottom:
+                panel['gridPos']['y'] += delta
+    for offset, key in enumerate((29, 30, 31, 32)):
+        card = by_id.get(key)
+        if not card or card['type'] != 'stat':
+            continue
+        count = card['targets'][0]['expr'].replace('[5m]', '[$__range]')
+        suffix = ' * 60 / $__range_s'
+        if count.endswith(suffix):
+            count = count[:-len(suffix)][1:-1]  # Remove the prior average wrapper only.
+        card['targets'][0]['expr'] = count
+        defaults = card['fieldConfig']['defaults']
+        defaults.update(unit='suffix:' + L('esemény', 'events'), decimals=0,
+                        color={'mode': 'thresholds'}, thresholds={'mode': 'absolute', 'steps': [
+                            {'value': None, 'color': 'gray'}, {'value': 1, 'color': 'orange'}]})
+        defaults['mappings'] = [{'type': 'special', 'options': {'match': 'null', 'result': {
+            'text': L('Nincs eseményminta', 'No event sample'), 'color': 'gray'}}}]
+        card['description'] = L('Összes naplózott esemény a kiválasztott időablakban, health checkek nélkül.',
+                                'Total logged events in the selected time range, health checks excluded.')
+        card['options']['textSize'] = {'value': 32}
+        sub_id = 982 + offset
+        existing = by_id.get(sub_id)
+        if existing and not (existing.get('type') == 'stat' and '$__range_s' in json.dumps(existing.get('targets', []))
+                             and existing.get('title') == ''):
+            raise ValueError(f'Panel {sub_id} is already used by an unrelated panel')
+        if not existing:
+            card['gridPos']['h'] = max(2, card['gridPos']['h'] - 1)
+        average = copy.deepcopy(card)
+        average.update(id=sub_id, title='', transparent=True, description=L(
+            'Az eseményszám osztva a kiválasztott időablak hosszával percben.',
+            'Event count divided by the selected time range duration in minutes.'))
+        average['gridPos'] = dict(card['gridPos'], y=card['gridPos']['y'] + card['gridPos']['h'], h=1)
+        average['targets'][0]['expr'] = f'({count}) * 60 / $__range_s'
+        average['fieldConfig']['defaults'].update(
+            unit='suffix:' + L('esemény/perc · átlag', 'events/min · avg'), decimals=4,
+            color={'mode': 'fixed', 'fixedColor': 'gray'})
+        average['options']['textSize'] = {'value': 16}
+        if existing:
+            existing.clear()
+            existing.update(average)
+        else:
+            # Keep count panels first so the four-column layout remains easy to inspect.
+            model['panels'].insert(next(i for i, p in enumerate(model['panels']) if p['id'] == 33), average)
+    for key in (33, 34):
+        panel = by_id.get(key)
+        if not panel:
+            continue
+        panel['options']['legend'].update(calcs=[], displayMode='list')
+        labels = (['401', '403', '404', '429'] if key == 33 else
+                  L(['Aktuális · 5p', 'Korábbi · 30p (−5p)'], ['Current · 5m', 'Previous · 30m (−5m)']))
+        for target, label in zip(panel['targets'], labels):
+            target['legendFormat'] = label
     return model
 
 

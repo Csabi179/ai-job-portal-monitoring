@@ -268,3 +268,22 @@ and Grafana rendering must be checked after deployment.
 References: [Grafana time-range variables](https://grafana.com/docs/grafana/latest/visualizations/dashboards/variables/built-in-variables/),
 [Prometheus rate](https://prometheus.io/docs/prometheus/latest/querying/functions/#rate),
 [Grafana soft axis limits](https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/visualizations/time-series/).
+
+### HTTP access and error signals presentation
+
+The HTTP-signal section now promotes exact selected-period event counts to the
+four main cards. A smaller stat directly below each count retains the average
+in events/minute, using the same count divided by the selected duration. Zero
+counts are gray; positive counts are orange; absent samples remain gray and
+unavailable. No new zero-filling is introduced. Both existing time-series graphs
+stay together in the section, with unchanged expressions and shorter legends
+without last-non-null statistics. The header is reduced from four grid units to
+three, with two brief sentences and detailed caveats in its information tooltip.
+The section is labelled HTTP access and error signals, rather than security.
+
+`--http-signals-only DIRECTORY` updates just this section in both languages,
+preserving scorecard queries and the request timing table/chart. Four reserved
+panels (982–985) hold the small average values; the original count-card area is
+split into a count and an average without increasing its total height. Updates
+are idempotent, and unrelated uses of the reserved IDs are rejected. Live visual
+verification remains necessary after deployment.

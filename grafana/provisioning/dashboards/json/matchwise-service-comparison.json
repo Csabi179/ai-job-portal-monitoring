@@ -5380,7 +5380,7 @@
     {
       "id": 905,
       "type": "row",
-      "title": "05 · Backend · biztonsági jelek",
+      "title": "05 · Backend · HTTP-hozzáférési és hibajelek",
       "collapsed": false,
       "panels": [],
       "gridPos": {
@@ -5393,23 +5393,364 @@
     {
       "id": 28,
       "type": "text",
-      "title": "Biztonsági jelzések · Értelmezés",
+      "title": "HTTP-hozzáférési és hibajelek",
       "options": {
         "mode": "markdown",
-        "content": "**A kiválasztott teljes időablak átlaga, esemény/percben; health checkek nélkül.** A 401/403/404/429 vizsgálati jel, nem támadás bizonyítéka. Hiányzó napló nem nulla esemény. Nincs IP- vagy fiókazonosítás; a 429 önmagában nem bizonyít rate limitinget."
+        "content": "Összes esemény a kiválasztott időszakban; alatta az átlag percenként. Health checkek nélkül; a hiányzó adat nem nulla."
       },
       "gridPos": {
         "x": 0,
         "y": 113,
         "w": 24,
-        "h": 4
-      }
+        "h": 3
+      },
+      "description": "A 401/403/404/429 vizsgálati jel, nem támadás bizonyítéka. Nem gyűjtünk IP- vagy fiókazonosítást. A 429 önmagában nem bizonyít rate limitinget. Nullát csak meglévő alapforgalom mellett jelzünk; hiányzó napló nem nulla."
     },
     {
       "id": 29,
       "type": "stat",
       "title": "401 · Nincs hitelesítés",
-      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
+      "description": "Összes naplózott esemény a kiválasztott időablakban, health checkek nélkül.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:esemény",
+          "min": 0,
+          "noValue": "Nincs eseményminta",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs eseményminta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 116,
+        "w": 6,
+        "h": 3
+      }
+    },
+    {
+      "id": 30,
+      "type": "stat",
+      "title": "403 · Tiltott",
+      "description": "Összes naplózott esemény a kiválasztott időablakban, health checkek nélkül.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:esemény",
+          "min": 0,
+          "noValue": "Nincs eseményminta",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs eseményminta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 6,
+        "y": 116,
+        "w": 6,
+        "h": 3
+      }
+    },
+    {
+      "id": 31,
+      "type": "stat",
+      "title": "404 · Nem található",
+      "description": "Összes naplózott esemény a kiválasztott időablakban, health checkek nélkül.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:esemény",
+          "min": 0,
+          "noValue": "Nincs eseményminta",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs eseményminta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 116,
+        "w": 6,
+        "h": 3
+      }
+    },
+    {
+      "id": 32,
+      "type": "stat",
+      "title": "429 · Korlátozott kérés",
+      "description": "Összes naplózott esemény a kiválasztott időablakban, health checkek nélkül.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:esemény",
+          "min": 0,
+          "noValue": "Nincs eseményminta",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs eseményminta",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 18,
+        "y": 116,
+        "w": 6,
+        "h": 3
+      }
+    },
+    {
+      "id": 982,
+      "type": "stat",
+      "title": "",
+      "description": "Az eseményszám osztva a kiválasztott időablak hosszával percben.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5430,23 +5771,23 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix:esemény/perc",
+          "unit": "suffix:esemény/perc · átlag",
           "min": 0,
           "noValue": "Nincs eseményminta",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#E69F00"
+            "fixedColor": "gray"
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5456,13 +5797,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs eseményminta",
                   "color": "gray"
                 }
               }
             }
           ],
-          "decimals": 2
+          "decimals": 4
         },
         "overrides": []
       },
@@ -5478,21 +5819,25 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 117,
+        "y": 119,
         "w": 6,
-        "h": 4
-      }
+        "h": 1
+      },
+      "transparent": true
     },
     {
-      "id": 30,
+      "id": 983,
       "type": "stat",
-      "title": "403 · Tiltott",
-      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
+      "title": "",
+      "description": "Az eseményszám osztva a kiválasztott időablak hosszával percben.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5513,23 +5858,23 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix:esemény/perc",
+          "unit": "suffix:esemény/perc · átlag",
           "min": 0,
           "noValue": "Nincs eseményminta",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#E69F00"
+            "fixedColor": "gray"
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5539,13 +5884,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs eseményminta",
                   "color": "gray"
                 }
               }
             }
           ],
-          "decimals": 2
+          "decimals": 4
         },
         "overrides": []
       },
@@ -5561,21 +5906,25 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 117,
+        "y": 119,
         "w": 6,
-        "h": 4
-      }
+        "h": 1
+      },
+      "transparent": true
     },
     {
-      "id": 31,
+      "id": 984,
       "type": "stat",
-      "title": "404 · Nem található",
-      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
+      "title": "",
+      "description": "Az eseményszám osztva a kiválasztott időablak hosszával percben.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5596,23 +5945,23 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix:esemény/perc",
+          "unit": "suffix:esemény/perc · átlag",
           "min": 0,
           "noValue": "Nincs eseményminta",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#E69F00"
+            "fixedColor": "gray"
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5622,13 +5971,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs eseményminta",
                   "color": "gray"
                 }
               }
             }
           ],
-          "decimals": 2
+          "decimals": 4
         },
         "overrides": []
       },
@@ -5644,21 +5993,25 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 117,
+        "y": 119,
         "w": 6,
-        "h": 4
-      }
+        "h": 1
+      },
+      "transparent": true
     },
     {
-      "id": 32,
+      "id": 985,
       "type": "stat",
-      "title": "429 · Korlátozott kérés",
-      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
+      "title": "",
+      "description": "Az eseményszám osztva a kiválasztott időablak hosszával percben.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5679,23 +6032,23 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "suffix:esemény/perc",
+          "unit": "suffix:esemény/perc · átlag",
           "min": 0,
           "noValue": "Nincs eseményminta",
           "color": {
             "mode": "fixed",
-            "fixedColor": "#E69F00"
+            "fixedColor": "gray"
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5705,13 +6058,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs eseményminta",
                   "color": "gray"
                 }
               }
             }
           ],
-          "decimals": 2
+          "decimals": 4
         },
         "overrides": []
       },
@@ -5727,15 +6080,19 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 117,
+        "y": 119,
         "w": 6,
-        "h": 4
-      }
+        "h": 1
+      },
+      "transparent": true
     },
     {
       "id": 33,
@@ -5754,7 +6111,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 401/min",
+          "legendFormat": "401",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5766,7 +6123,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 403/min",
+          "legendFormat": "403",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5778,7 +6135,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 404/min",
+          "legendFormat": "404",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5790,7 +6147,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 429/min",
+          "legendFormat": "429",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5832,9 +6189,7 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
+          "calcs": []
         },
         "tooltip": {
           "mode": "multi",
@@ -5844,7 +6199,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 121,
+        "y": 120,
         "w": 12,
         "h": 8
       }
@@ -5868,7 +6223,7 @@
           },
           "editorMode": "code",
           "queryType": "range",
-          "legendFormat": "Jelenlegi 5 perces átlag",
+          "legendFormat": "Aktuális · 5p",
           "instant": false,
           "range": true
         },
@@ -5881,7 +6236,7 @@
           },
           "editorMode": "code",
           "queryType": "range",
-          "legendFormat": "Korábbi 30 perces átlag (5 perc eltolás)",
+          "legendFormat": "Korábbi · 30p (−5p)",
           "instant": false,
           "range": true
         }
@@ -5922,9 +6277,7 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
+          "calcs": []
         },
         "tooltip": {
           "mode": "multi",
@@ -5934,7 +6287,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 121,
+        "y": 120,
         "w": 12,
         "h": 8
       }
@@ -5947,7 +6300,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 129,
+        "y": 128,
         "w": 24,
         "h": 1
       }
@@ -6035,7 +6388,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 130,
+        "y": 129,
         "w": 8,
         "h": 4
       }
@@ -6111,7 +6464,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 130,
+        "y": 129,
         "w": 8,
         "h": 4
       }
@@ -6188,7 +6541,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 130,
+        "y": 129,
         "w": 8,
         "h": 4
       }
@@ -6265,7 +6618,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 134,
+        "y": 133,
         "w": 8,
         "h": 4
       }
@@ -6344,7 +6697,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 134,
+        "y": 133,
         "w": 8,
         "h": 4
       }
@@ -6436,7 +6789,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 134,
+        "y": 133,
         "w": 8,
         "h": 4
       }
@@ -6457,7 +6810,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 139,
+            "y": 138,
             "w": 24,
             "h": 4
           }
@@ -6599,7 +6952,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 143,
+            "y": 142,
             "w": 24,
             "h": 8
           }
@@ -6764,7 +7117,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 151,
+            "y": 150,
             "w": 24,
             "h": 8
           }
@@ -6910,7 +7263,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 159,
+            "y": 158,
             "w": 24,
             "h": 8
           }
@@ -6918,7 +7271,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 138,
+        "y": 137,
         "w": 24,
         "h": 1
       }
@@ -6939,7 +7292,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 140,
+            "y": 139,
             "w": 24,
             "h": 10
           }
@@ -7124,7 +7477,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 150,
+            "y": 149,
             "w": 12,
             "h": 9
           }
@@ -7307,7 +7660,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 150,
+            "y": 149,
             "w": 12,
             "h": 9
           }
@@ -7468,7 +7821,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 159,
+            "y": 158,
             "w": 12,
             "h": 9
           }
@@ -7608,7 +7961,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 159,
+            "y": 158,
             "w": 12,
             "h": 9
           }
@@ -7710,7 +8063,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 168,
+            "y": 167,
             "w": 12,
             "h": 9
           }
@@ -7895,7 +8248,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 168,
+            "y": 167,
             "w": 12,
             "h": 9
           }
@@ -7974,7 +8327,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 177,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -8157,7 +8510,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 177,
+            "y": 176,
             "w": 12,
             "h": 9
           }
@@ -8234,7 +8587,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 186,
+            "y": 185,
             "w": 6,
             "h": 5
           }
@@ -8310,7 +8663,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 186,
+            "y": 185,
             "w": 6,
             "h": 5
           }
@@ -8387,7 +8740,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 186,
+            "y": 185,
             "w": 6,
             "h": 5
           }
@@ -8464,7 +8817,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 186,
+            "y": 185,
             "w": 6,
             "h": 5
           }
@@ -8541,7 +8894,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 191,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8618,7 +8971,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 191,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8695,7 +9048,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 191,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8772,7 +9125,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 191,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8886,7 +9239,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 196,
+            "y": 195,
             "w": 12,
             "h": 9
           }
@@ -9002,7 +9355,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 196,
+            "y": 195,
             "w": 12,
             "h": 9
           }
@@ -9103,7 +9456,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 205,
+            "y": 204,
             "w": 12,
             "h": 9
           }
@@ -9182,7 +9535,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 205,
+            "y": 204,
             "w": 12,
             "h": 9
           }
@@ -9366,7 +9719,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 214,
+            "y": 213,
             "w": 12,
             "h": 7
           }
@@ -9550,7 +9903,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 214,
+            "y": 213,
             "w": 12,
             "h": 7
           }
@@ -9733,7 +10086,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 221,
+            "y": 220,
             "w": 12,
             "h": 9
           }
@@ -9812,7 +10165,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 221,
+            "y": 220,
             "w": 12,
             "h": 9
           }
@@ -9820,7 +10173,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 139,
+        "y": 138,
         "w": 24,
         "h": 1
       }

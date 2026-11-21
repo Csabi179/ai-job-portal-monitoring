@@ -48,6 +48,43 @@ def run_checker(directory):
 
 
 class ServiceDashboardTests(unittest.TestCase):
+    def test_http_signal_counts_secondary_averages_and_graphs_stay_together(self):
+        import copy
+        requests = module('http_signals', 'build-request-correlation-dashboard.py')
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            name = f'matchwise-service-comparison{suffix}.json'
+            old = json.loads(subprocess.check_output(
+                ['git', 'show', f'c9b21046093d85e16f039b2be91d5ff2f5d4a01f:grafana/provisioning/dashboards/json/{name}'],
+                cwd=REPO).decode('utf-8'))
+            new = requests.readable_http_signals(copy.deepcopy(old), lang)
+            self.assertEqual(new, requests.readable_http_signals(copy.deepcopy(new), lang))
+            before = {p['id']: p for p in checker.walk(old['panels'])}
+            after = {p['id']: p for p in checker.walk(new['panels'])}
+            for key in (29, 30, 31, 32):
+                count, average = after[key], after[982 + key - 29]
+                d = count['fieldConfig']['defaults']
+                self.assertEqual(d['thresholds']['steps'], [
+                    {'value': None, 'color': 'gray'}, {'value': 1, 'color': 'orange'}])
+                self.assertEqual(d['mappings'][0]['options']['result']['color'], 'gray')
+                self.assertNotIn('$__range_s', count['targets'][0]['expr'])
+                self.assertIn('$__range_s', average['targets'][0]['expr'])
+                self.assertLess(average['options']['textSize']['value'], count['options']['textSize']['value'])
+                self.assertEqual(average['gridPos']['y'], count['gridPos']['y'] + count['gridPos']['h'])
+                self.assertEqual(average['gridPos']['x'], count['gridPos']['x'])
+                self.assertEqual(count['gridPos']['h'] + average['gridPos']['h'], before[key]['gridPos']['h'])
+            self.assertLess(after[28]['gridPos']['h'], before[28]['gridPos']['h'])
+            self.assertLess(len(after[28]['options']['content']), len(before[28]['options']['content']))
+            self.assertIn('429', after[28]['description'])
+            for key in (33, 34):
+                self.assertEqual(after[key]['options']['legend']['calcs'], [])
+                self.assertEqual([t['expr'] for t in after[key]['targets']],
+                                 [t['expr'] for t in before[key]['targets']])
+                for axis in ('x', 'w', 'h'):
+                    self.assertEqual(after[key]['gridPos'][axis], before[key]['gridPos'][axis])
+            self.assertEqual(after[33]['gridPos']['y'], after[34]['gridPos']['y'])
+            self.assertEqual(after[980], before[980])
+            self.assertEqual(after[981], before[981])
+
     def test_period_summaries_upgrade_old_models_without_changing_other_queries(self):
         import copy
         requests = module('period_summaries', 'build-request-correlation-dashboard.py')
@@ -64,8 +101,9 @@ class ServiceDashboardTests(unittest.TestCase):
             after = {p['id']: p for p in checker.walk(result['panels'])}
             changed_queries = {29, 30, 31, 32, 309, 310, 323, 324, 337, 338}
             for key, panel in after.items():
-                if key not in changed_queries:
-                    self.assertEqual(panel.get('targets'), before[key].get('targets'))
+                if key not in changed_queries and key in before:
+                    self.assertEqual([t.get('expr') for t in panel.get('targets', [])],
+                                     [t.get('expr') for t in before[key].get('targets', [])])
             for key in changed_queries:
                 for target in after[key]['targets']:
                     expr = target['expr']
@@ -79,9 +117,11 @@ class ServiceDashboardTests(unittest.TestCase):
                     self.assertNotIn('$__', expanded)
                     self.assertNotIn('15m_s', expanded)
                     if key in (29, 30, 31, 32):
-                        self.assertIn('* 60 / $__range_s', expr)
+                        self.assertNotIn('$__range_s', expr)  # Main value is the exact count.
                         self.assertIn('route!~', expr)
-                        self.assertEqual(after[key]['fieldConfig']['defaults']['decimals'], 2)
+                        self.assertEqual(after[key]['fieldConfig']['defaults']['decimals'], 0)
+                        average = after[982 + key - 29]
+                        self.assertEqual(average['targets'][0]['expr'], f'({expr}) * 60 / $__range_s')
                     if key in (323, 324):
                         self.assertIn('route!~', expr)
                         self.assertIn('route=~', expr)
