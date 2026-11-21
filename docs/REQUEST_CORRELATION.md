@@ -57,6 +57,14 @@ matched a real `/auth/logout` request: frontend 485 ms, backend 390 ms, both
 HTTP 204. This confirms one real request correlation in Loki. It does not yet
 verify the Grafana table rendering, other error cases or missing-file recovery.
 
+The operator subsequently validated/applied dynamic discovery on Oracle and the
+same ID match remained successful. Frontend slow-request logs were visible in
+Grafana, but the table was empty with aggregate-suffixed column names. The table
+fix preserves Grafana's actual `field (lastNotNull)` identities through join,
+filter, conversion and sorting; presentation renames run last. The local checker
+now validates these field references. The corrected table still needs visual
+acceptance on the deployed Grafana instance.
+
 The receiver fsyncs the journal before acknowledging 204. A disk error returns
 503 for the existing browser retry policy. Journal writes do not add request
 counts to the original aggregate metrics: aggregates remain authoritative for
