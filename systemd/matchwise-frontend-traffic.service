@@ -5,6 +5,9 @@ After=network.target
 [Service]
 Type=simple
 DynamicUser=yes
+StateDirectory=matchwise-frontend-traffic
+StateDirectoryMode=0755
+UMask=0022
 ExecStart=/usr/bin/python3 /usr/local/lib/matchwise/frontend-traffic-receiver.py
 Environment=FRONTEND_TRAFFIC_ORIGINS=https://www.matchwise.tech
 Restart=on-failure

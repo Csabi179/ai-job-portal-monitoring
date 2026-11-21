@@ -982,7 +982,13 @@ def polish_display(model, kind):
         if isinstance(value,list): return [relabel(x) for x in value]
         if isinstance(value,dict): return {relabel(k):v if k=='expr' else relabel(v) for k,v in value.items()}
         return value
-    return relabel(model)
+    model = relabel(model)
+    model.setdefault('links', []).append({
+        'type': 'link', 'title': L('Kérések összekapcsolása', 'Request Correlation'),
+        'url': '/d/matchwise-request-correlation' + ('' if LANG == 'hu' else '-en'),
+        'keepTime': True,
+    })
+    return model
 
 
 # ---------------------------------------------------------------------- main

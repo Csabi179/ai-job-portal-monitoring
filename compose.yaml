@@ -102,6 +102,12 @@ services:
       - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
       - ../monitoring-private-tls:/etc/alloy/tls:ro
       - ./test-logs:/var/log/matchwise:ro
+      - type: bind
+        source: /var/lib/matchwise-frontend-traffic
+        target: /var/log/matchwise-frontend
+        read_only: true
+        bind:
+          create_host_path: false
       - alloy_data:/var/lib/alloy/data
     depends_on:
       - loki
