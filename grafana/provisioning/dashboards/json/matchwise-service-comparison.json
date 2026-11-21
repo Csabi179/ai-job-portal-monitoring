@@ -1421,12 +1421,314 @@
       }
     },
     {
+      "id": 981,
+      "type": "barchart",
+      "title": "Frontend és backend · a 20 leglassabb kérés",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 14
+      },
+      "description": "A táblázat azonos request ID-hoz tartozó pontos értékei, átlagolás nélkül. Kérésenként kék frontend- és narancssárga backend-sáv, közös időskálán. Frontendidő szerint csökkenő sorrend, legfeljebb 20 kérés; az összes rekord a táblázatban. Hiányzó backendpár esetén nincs backend-sáv.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "noValue": "—",
+          "custom": {
+            "lineWidth": 0,
+            "fillOpacity": 90,
+            "gradientMode": "none",
+            "axisPlacement": "auto",
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_ms (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backend_ms (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "xField": "request_id",
+        "stacking": "none",
+        "groupWidth": 0.8,
+        "barWidth": 0.8,
+        "barRadius": 0,
+        "showValue": "always",
+        "fullHighlight": false,
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "editorMode": "code",
+          "maxLines": 1000
+        },
+        {
+          "refId": "B",
+          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }}}`",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "editorMode": "code",
+          "maxLines": 1000
+        }
+      ],
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "transformations": [
+        {
+          "id": "extractFields",
+          "filter": {
+            "id": "byRefId",
+            "options": "A"
+          },
+          "options": {
+            "source": "Line",
+            "format": "json",
+            "replace": true,
+            "keepTime": false
+          }
+        },
+        {
+          "id": "groupBy",
+          "filter": {
+            "id": "byRefId",
+            "options": "A"
+          },
+          "options": {
+            "fields": {
+              "request_id": {
+                "operation": "groupby",
+                "aggregations": []
+              },
+              "frontend_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_route": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_status": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_outcome": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_started_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "extractFields",
+          "filter": {
+            "id": "byRefId",
+            "options": "B"
+          },
+          "options": {
+            "source": "Line",
+            "format": "json",
+            "replace": true,
+            "keepTime": false
+          }
+        },
+        {
+          "id": "groupBy",
+          "filter": {
+            "id": "byRefId",
+            "options": "B"
+          },
+          "options": {
+            "fields": {
+              "request_id": {
+                "operation": "groupby",
+                "aggregations": []
+              },
+              "backend_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "backend_route": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "backend_status": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "request_id",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "include",
+            "match": "all",
+            "filters": [
+              {
+                "fieldName": "frontend_route (lastNotNull)",
+                "config": {
+                  "id": "isNotNull",
+                  "options": {}
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "targetField": "frontend_ms (lastNotNull)",
+                "destinationType": "number"
+              },
+              {
+                "targetField": "backend_ms (lastNotNull)",
+                "destinationType": "number"
+              },
+              {
+                "targetField": "frontend_started_ms (lastNotNull)",
+                "destinationType": "number"
+              }
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "frontend_ms (lastNotNull)",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 20
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "request_id",
+                "frontend_ms (lastNotNull)",
+                "backend_ms (lastNotNull)"
+              ]
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "frontend_ms (lastNotNull)": "Frontend",
+              "backend_ms (lastNotNull)": "Backend"
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": 980,
       "type": "table",
       "title": "Kérésenkénti idő és státusz",
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 34,
         "w": 24,
         "h": 12
       },
@@ -1747,7 +2049,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 32,
+        "y": 46,
         "w": 24,
         "h": 1
       }
@@ -1883,7 +2185,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 33,
+        "y": 47,
         "w": 24,
         "h": 6
       }
@@ -1987,7 +2289,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 39,
+        "y": 53,
         "w": 6,
         "h": 4
       }
@@ -2091,7 +2393,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 39,
+        "y": 53,
         "w": 6,
         "h": 4
       }
@@ -2195,7 +2497,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 39,
+        "y": 53,
         "w": 6,
         "h": 4
       }
@@ -2299,7 +2601,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 39,
+        "y": 53,
         "w": 6,
         "h": 4
       }
@@ -2379,7 +2681,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 43,
+        "y": 57,
         "w": 6,
         "h": 4
       }
@@ -2459,7 +2761,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 43,
+        "y": 57,
         "w": 6,
         "h": 4
       }
@@ -2539,7 +2841,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 43,
+        "y": 57,
         "w": 6,
         "h": 4
       }
@@ -2619,7 +2921,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 43,
+        "y": 57,
         "w": 6,
         "h": 4
       }
@@ -2632,7 +2934,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 47,
+        "y": 61,
         "w": 24,
         "h": 1
       }
@@ -2736,7 +3038,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 62,
         "w": 8,
         "h": 3
       }
@@ -2840,7 +3142,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 48,
+        "y": 62,
         "w": 8,
         "h": 3
       }
@@ -2944,7 +3246,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 48,
+        "y": 62,
         "w": 8,
         "h": 3
       }
@@ -3048,7 +3350,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 51,
+        "y": 65,
         "w": 8,
         "h": 3
       }
@@ -3152,7 +3454,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 51,
+        "y": 65,
         "w": 8,
         "h": 3
       }
@@ -3256,7 +3558,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 51,
+        "y": 65,
         "w": 8,
         "h": 3
       }
@@ -3373,7 +3675,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 54,
+        "y": 68,
         "w": 12,
         "h": 8
       }
@@ -3450,7 +3752,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 54,
+        "y": 68,
         "w": 12,
         "h": 8
       }
@@ -3616,7 +3918,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 62,
+        "y": 76,
         "w": 12,
         "h": 8
       }
@@ -3782,7 +4084,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 62,
+        "y": 76,
         "w": 12,
         "h": 8
       }
@@ -3950,7 +4252,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 70,
+        "y": 84,
         "w": 12,
         "h": 8
       }
@@ -4067,7 +4369,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 70,
+        "y": 84,
         "w": 12,
         "h": 8
       }
@@ -4265,7 +4567,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 78,
+        "y": 92,
         "w": 24,
         "h": 9
       }
@@ -4278,7 +4580,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 87,
+        "y": 101,
         "w": 24,
         "h": 1
       }
@@ -4445,7 +4747,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 88,
+        "y": 102,
         "w": 12,
         "h": 8
       }
@@ -4562,7 +4864,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 88,
+        "y": 102,
         "w": 12,
         "h": 8
       }
@@ -4679,7 +4981,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 96,
+        "y": 110,
         "w": 12,
         "h": 8
       }
@@ -4820,7 +5122,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 96,
+        "y": 110,
         "w": 12,
         "h": 8
       }
@@ -4833,7 +5135,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 104,
+        "y": 118,
         "w": 24,
         "h": 1
       }
@@ -4848,7 +5150,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 105,
+        "y": 119,
         "w": 24,
         "h": 4
       }
@@ -4929,7 +5231,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 109,
+        "y": 123,
         "w": 6,
         "h": 4
       }
@@ -5010,7 +5312,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 109,
+        "y": 123,
         "w": 6,
         "h": 4
       }
@@ -5091,7 +5393,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 109,
+        "y": 123,
         "w": 6,
         "h": 4
       }
@@ -5172,7 +5474,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 109,
+        "y": 123,
         "w": 6,
         "h": 4
       }
@@ -5282,7 +5584,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 113,
+        "y": 127,
         "w": 12,
         "h": 8
       }
@@ -5370,7 +5672,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 113,
+        "y": 127,
         "w": 12,
         "h": 8
       }
@@ -5383,7 +5685,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 121,
+        "y": 135,
         "w": 24,
         "h": 1
       }
@@ -5471,7 +5773,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 122,
+        "y": 136,
         "w": 8,
         "h": 4
       }
@@ -5547,7 +5849,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 122,
+        "y": 136,
         "w": 8,
         "h": 4
       }
@@ -5624,7 +5926,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 122,
+        "y": 136,
         "w": 8,
         "h": 4
       }
@@ -5701,7 +6003,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 126,
+        "y": 140,
         "w": 8,
         "h": 4
       }
@@ -5780,7 +6082,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 126,
+        "y": 140,
         "w": 8,
         "h": 4
       }
@@ -5872,7 +6174,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 126,
+        "y": 140,
         "w": 8,
         "h": 4
       }
@@ -5893,7 +6195,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 131,
+            "y": 145,
             "w": 24,
             "h": 4
           }
@@ -6035,7 +6337,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 135,
+            "y": 149,
             "w": 24,
             "h": 8
           }
@@ -6200,7 +6502,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 143,
+            "y": 157,
             "w": 24,
             "h": 8
           }
@@ -6346,7 +6648,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 151,
+            "y": 165,
             "w": 24,
             "h": 8
           }
@@ -6354,7 +6656,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 130,
+        "y": 144,
         "w": 24,
         "h": 1
       }
@@ -6375,7 +6677,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 132,
+            "y": 146,
             "w": 24,
             "h": 10
           }
@@ -6558,7 +6860,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 142,
+            "y": 156,
             "w": 12,
             "h": 9
           }
@@ -6741,7 +7043,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 142,
+            "y": 156,
             "w": 12,
             "h": 9
           }
@@ -6900,7 +7202,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 151,
+            "y": 165,
             "w": 12,
             "h": 9
           }
@@ -7038,7 +7340,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 151,
+            "y": 165,
             "w": 12,
             "h": 9
           }
@@ -7140,7 +7442,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 160,
+            "y": 174,
             "w": 12,
             "h": 9
           }
@@ -7323,7 +7625,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 160,
+            "y": 174,
             "w": 12,
             "h": 9
           }
@@ -7400,7 +7702,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 169,
+            "y": 183,
             "w": 12,
             "h": 9
           }
@@ -7583,7 +7885,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 169,
+            "y": 183,
             "w": 12,
             "h": 9
           }
@@ -7660,7 +7962,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 178,
+            "y": 192,
             "w": 6,
             "h": 5
           }
@@ -7736,7 +8038,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 178,
+            "y": 192,
             "w": 6,
             "h": 5
           }
@@ -7813,7 +8115,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 178,
+            "y": 192,
             "w": 6,
             "h": 5
           }
@@ -7890,7 +8192,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 178,
+            "y": 192,
             "w": 6,
             "h": 5
           }
@@ -7967,7 +8269,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 183,
+            "y": 197,
             "w": 6,
             "h": 5
           }
@@ -8044,7 +8346,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 183,
+            "y": 197,
             "w": 6,
             "h": 5
           }
@@ -8121,7 +8423,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 183,
+            "y": 197,
             "w": 6,
             "h": 5
           }
@@ -8198,7 +8500,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 183,
+            "y": 197,
             "w": 6,
             "h": 5
           }
@@ -8312,7 +8614,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 188,
+            "y": 202,
             "w": 12,
             "h": 9
           }
@@ -8426,7 +8728,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 188,
+            "y": 202,
             "w": 12,
             "h": 9
           }
@@ -8525,7 +8827,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 197,
+            "y": 211,
             "w": 12,
             "h": 9
           }
@@ -8602,7 +8904,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 197,
+            "y": 211,
             "w": 12,
             "h": 9
           }
@@ -8786,7 +9088,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 206,
+            "y": 220,
             "w": 12,
             "h": 7
           }
@@ -8970,7 +9272,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 206,
+            "y": 220,
             "w": 12,
             "h": 7
           }
@@ -9153,7 +9455,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 213,
+            "y": 227,
             "w": 12,
             "h": 9
           }
@@ -9230,7 +9532,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 213,
+            "y": 227,
             "w": 12,
             "h": 9
           }
@@ -9238,7 +9540,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 131,
+        "y": 145,
         "w": 24,
         "h": 1
       }

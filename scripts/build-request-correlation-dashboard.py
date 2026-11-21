@@ -168,7 +168,7 @@ def build(lang):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
-                        help='Insert only the request table into existing HU/EN Service Comparison JSON')
+                        help='Insert the request table and paired bar chart into existing HU/EN Service Comparison JSON')
     args = parser.parse_args()
     if args.embed_only:
         candidates = []
@@ -183,7 +183,7 @@ def main():
         # Validate both destinations before writing either file.
         for path, model in candidates:
             path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
-            print('Inserted request table:', path)
+            print('Inserted request table and paired bar chart:', path)
         return
     for lang in ('hu', 'en'):
         suffix = '' if lang == 'hu' else '-en'
@@ -240,6 +240,64 @@ def embed_comparison_table(model, lang):
     variables = model.setdefault('templating', {}).setdefault('list', [])
     if not any(v['name'] == 'request_id' for v in variables):
         variables.append(copy.deepcopy(next(v for v in build(lang)['templating']['list'] if v['name'] == 'request_id')))
+    model = embed_comparison_chart(model, table, lang)
+    return model
+
+
+def embed_comparison_chart(model, table, lang):
+    """Compare exact request durations as horizontal, non-stacked paired bars."""
+    chart = copy.deepcopy(table)
+    chart.update(id=981, type='barchart', title=(
+        'Frontend és backend · a 20 leglassabb kérés' if lang == 'hu' else
+        'Frontend and backend · 20 slowest requests'))
+    chart['description'] = (
+        'A táblázat azonos request ID-hoz tartozó pontos értékei, átlagolás nélkül. '
+        'Kérésenként kék frontend- és narancssárga backend-sáv, közös időskálán. '
+        'Frontendidő szerint csökkenő sorrend, legfeljebb 20 kérés; az összes rekord a táblázatban. '
+        'Hiányzó backendpár esetén nincs backend-sáv.' if lang == 'hu' else
+        'Exact values for the same request IDs as the table, without averaging. '
+        'Each request has blue frontend and orange backend bars on one shared duration scale. '
+        'Sorted by frontend duration, showing at most 20 requests; all records remain in the table. '
+        'A missing backend match has no backend bar.')
+    duration_fields = [grouped_name(name) for name in ('frontend_ms', 'backend_ms')]
+    transforms = copy.deepcopy(table['transformations'])
+    transforms = [t for t in transforms if t['id'] != 'organize']
+    transforms.extend([
+        {'id': 'limit', 'options': {'limitField': 20}},
+        {'id': 'filterFieldsByName', 'options': {'include': {'names': ['request_id', *duration_fields]}}},
+        {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {}, 'renameByName': {
+            duration_fields[0]: 'Frontend', duration_fields[1]: 'Backend'}}},
+    ])
+    chart['transformations'] = transforms
+    chart['options'] = {'orientation': 'horizontal', 'xField': 'request_id', 'stacking': 'none',
+                        'groupWidth': 0.8, 'barWidth': 0.8, 'barRadius': 0, 'showValue': 'always',
+                        'fullHighlight': False, 'tooltip': {'mode': 'multi', 'sort': 'none'},
+                        'legend': {'showLegend': True, 'displayMode': 'list', 'placement': 'bottom'}}
+    chart['fieldConfig'] = {'defaults': {'unit': 'ms', 'min': 0, 'noValue': '—', 'custom': {
+        'lineWidth': 0, 'fillOpacity': 90, 'gradientMode': 'none', 'axisPlacement': 'auto',
+        'axisColorMode': 'text', 'scaleDistribution': {'type': 'linear'},
+        'hideFrom': {'tooltip': False, 'viz': False, 'legend': False}}}, 'overrides': [
+            {'matcher': {'id': 'byName', 'options': name}, 'properties': [
+                {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
+            for name, color in zip(duration_fields, ('#56B4E9', '#E69F00'))]}
+    panels = model['panels']
+    existing = next((i for i, p in enumerate(panels) if p['id'] == 981), None)
+    if existing is not None:
+        if panels[existing]['type'] not in ('barchart', 'timeseries') or 'matchwise_frontend_requests' not in json.dumps(panels[existing]):
+            raise ValueError('Panel 981 is already used by an unrelated panel')
+        chart['gridPos'] = copy.deepcopy(panels[existing]['gridPos'])
+        panels[existing] = chart
+        return model
+    index = next(i for i, p in enumerate(panels) if p['id'] == 980)
+    start = panels[index]['gridPos']['y']
+    def shift(items):
+        for panel in items:
+            if panel['gridPos']['y'] >= start:
+                panel['gridPos']['y'] += 14
+            shift(panel.get('panels', []))
+    shift(panels)
+    chart['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': 14}
+    panels.insert(index, chart)
     return model
 
 

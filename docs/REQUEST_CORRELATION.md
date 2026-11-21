@@ -186,6 +186,23 @@ evidence and UptimeRobot exclusion in `monitoring-tests.md` only after running.
 
 ## Local checks
 
+### Service Comparison placement and paired bars
+
+The request table is embedded below the section 01 scorecard and before section
+02 Availability and freshness in both Service Comparison language editions.
+An operator screenshot confirms the table's English placement and populated rows.
+The follow-up adds a horizontal grouped bar chart immediately above that table:
+one blue frontend and one orange backend bar per request ID on the same zero-based
+duration scale. It uses the exact same joined records and Request ID filter,
+without averaging or stacking; missing backend durations remain missing.
+The chart displays up to twenty requests, sorted by frontend duration, while
+the full queried records remain in the table. Live chart rendering remains pending.
+
+`build-request-correlation-dashboard.py --embed-only DIRECTORY` preserves existing
+Service Comparison panels/settings, inserts the table/chart idempotently and
+shifts subsequent grid positions. It validates both language destination UIDs
+before writing. No receiver, Alloy, Prometheus or Grafana restart is required.
+
 ```bash
 python3 -m unittest discover -s scripts -p 'test_frontend*.py'
 python3 scripts/build-request-correlation-dashboard.py
