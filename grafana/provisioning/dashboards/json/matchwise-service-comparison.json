@@ -43,6 +43,17 @@
           "value": "uvopvarvelpabhmrqaaw.supabase.co:443"
         },
         "options": []
+      },
+      {
+        "name": "request_id",
+        "label": "Request ID · üres = mind",
+        "type": "textbox",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "options": []
       }
     ]
   },
@@ -1410,6 +1421,325 @@
       }
     },
     {
+      "id": 980,
+      "type": "table",
+      "title": "Kérésenkénti idő és státusz",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 12
+      },
+      "description": "Külső összekapcsolás ID alapján. Üres frontend/backend cella: a kiválasztott ablakban nincs pár. Az ID nélküli rekordokat nem kapcsoljuk össze egymással.\n\nFrontend: fetch indításától a válaszfejlécekig; backend: szerveroldali feldolgozás. Health/próbakérések kizárva. Legfeljebb 1000 naplósor oldalanként; szűkítsd az időablakot vagy adj meg request ID-t.",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "—"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_ms (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "green"
+                    },
+                    {
+                      "value": 1000,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 5000,
+                      "color": "red"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backend_ms (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "green"
+                    },
+                    {
+                      "value": 1000,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 5000,
+                      "color": "red"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_started_ms (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "editorMode": "code",
+          "maxLines": 1000
+        },
+        {
+          "refId": "B",
+          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }}}`",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "editorMode": "code",
+          "maxLines": 1000
+        }
+      ],
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "transformations": [
+        {
+          "id": "extractFields",
+          "filter": {
+            "id": "byRefId",
+            "options": "A"
+          },
+          "options": {
+            "source": "Line",
+            "format": "json",
+            "replace": true,
+            "keepTime": false
+          }
+        },
+        {
+          "id": "groupBy",
+          "filter": {
+            "id": "byRefId",
+            "options": "A"
+          },
+          "options": {
+            "fields": {
+              "request_id": {
+                "operation": "groupby",
+                "aggregations": []
+              },
+              "frontend_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_route": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_status": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_outcome": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_started_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "extractFields",
+          "filter": {
+            "id": "byRefId",
+            "options": "B"
+          },
+          "options": {
+            "source": "Line",
+            "format": "json",
+            "replace": true,
+            "keepTime": false
+          }
+        },
+        {
+          "id": "groupBy",
+          "filter": {
+            "id": "byRefId",
+            "options": "B"
+          },
+          "options": {
+            "fields": {
+              "request_id": {
+                "operation": "groupby",
+                "aggregations": []
+              },
+              "backend_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "backend_route": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "backend_status": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "request_id",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "include",
+            "match": "all",
+            "filters": [
+              {
+                "fieldName": "frontend_route (lastNotNull)",
+                "config": {
+                  "id": "isNotNull",
+                  "options": {}
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "targetField": "frontend_ms (lastNotNull)",
+                "destinationType": "number"
+              },
+              {
+                "targetField": "backend_ms (lastNotNull)",
+                "destinationType": "number"
+              },
+              {
+                "targetField": "frontend_started_ms (lastNotNull)",
+                "destinationType": "number"
+              }
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "frontend_ms (lastNotNull)",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "frontend_ms (lastNotNull)": "frontend_ms",
+              "frontend_route (lastNotNull)": "frontend_route",
+              "frontend_status (lastNotNull)": "frontend_status",
+              "frontend_outcome (lastNotNull)": "frontend_outcome",
+              "frontend_started_ms (lastNotNull)": "frontend_started_ms",
+              "backend_ms (lastNotNull)": "backend_ms",
+              "backend_route (lastNotNull)": "backend_route",
+              "backend_status (lastNotNull)": "backend_status"
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": 902,
       "type": "row",
       "title": "02 · Elérhetőség és adatfrissesség",
@@ -1417,7 +1747,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 32,
         "w": 24,
         "h": 1
       }
@@ -1553,7 +1883,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 21,
+        "y": 33,
         "w": 24,
         "h": 6
       }
@@ -1657,7 +1987,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 27,
+        "y": 39,
         "w": 6,
         "h": 4
       }
@@ -1761,7 +2091,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 27,
+        "y": 39,
         "w": 6,
         "h": 4
       }
@@ -1865,7 +2195,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 27,
+        "y": 39,
         "w": 6,
         "h": 4
       }
@@ -1969,7 +2299,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 27,
+        "y": 39,
         "w": 6,
         "h": 4
       }
@@ -2049,7 +2379,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 31,
+        "y": 43,
         "w": 6,
         "h": 4
       }
@@ -2129,7 +2459,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 31,
+        "y": 43,
         "w": 6,
         "h": 4
       }
@@ -2209,7 +2539,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 31,
+        "y": 43,
         "w": 6,
         "h": 4
       }
@@ -2289,7 +2619,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 31,
+        "y": 43,
         "w": 6,
         "h": 4
       }
@@ -2302,7 +2632,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 35,
+        "y": 47,
         "w": 24,
         "h": 1
       }
@@ -2406,7 +2736,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 36,
+        "y": 48,
         "w": 8,
         "h": 3
       }
@@ -2510,7 +2840,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 36,
+        "y": 48,
         "w": 8,
         "h": 3
       }
@@ -2614,7 +2944,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 36,
+        "y": 48,
         "w": 8,
         "h": 3
       }
@@ -2718,7 +3048,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 39,
+        "y": 51,
         "w": 8,
         "h": 3
       }
@@ -2822,7 +3152,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 39,
+        "y": 51,
         "w": 8,
         "h": 3
       }
@@ -2926,7 +3256,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 39,
+        "y": 51,
         "w": 8,
         "h": 3
       }
@@ -3043,7 +3373,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 42,
+        "y": 54,
         "w": 12,
         "h": 8
       }
@@ -3120,7 +3450,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 42,
+        "y": 54,
         "w": 12,
         "h": 8
       }
@@ -3286,7 +3616,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 50,
+        "y": 62,
         "w": 12,
         "h": 8
       }
@@ -3452,7 +3782,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 50,
+        "y": 62,
         "w": 12,
         "h": 8
       }
@@ -3620,7 +3950,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 58,
+        "y": 70,
         "w": 12,
         "h": 8
       }
@@ -3737,7 +4067,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 58,
+        "y": 70,
         "w": 12,
         "h": 8
       }
@@ -3935,7 +4265,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 66,
+        "y": 78,
         "w": 24,
         "h": 9
       }
@@ -3948,7 +4278,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 75,
+        "y": 87,
         "w": 24,
         "h": 1
       }
@@ -4115,7 +4445,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 76,
+        "y": 88,
         "w": 12,
         "h": 8
       }
@@ -4232,7 +4562,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 76,
+        "y": 88,
         "w": 12,
         "h": 8
       }
@@ -4349,7 +4679,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 84,
+        "y": 96,
         "w": 12,
         "h": 8
       }
@@ -4490,7 +4820,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 84,
+        "y": 96,
         "w": 12,
         "h": 8
       }
@@ -4503,7 +4833,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 92,
+        "y": 104,
         "w": 24,
         "h": 1
       }
@@ -4518,7 +4848,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 93,
+        "y": 105,
         "w": 24,
         "h": 4
       }
@@ -4599,7 +4929,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 97,
+        "y": 109,
         "w": 6,
         "h": 4
       }
@@ -4680,7 +5010,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 97,
+        "y": 109,
         "w": 6,
         "h": 4
       }
@@ -4761,7 +5091,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 97,
+        "y": 109,
         "w": 6,
         "h": 4
       }
@@ -4842,7 +5172,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 97,
+        "y": 109,
         "w": 6,
         "h": 4
       }
@@ -4952,7 +5282,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 101,
+        "y": 113,
         "w": 12,
         "h": 8
       }
@@ -5040,7 +5370,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 101,
+        "y": 113,
         "w": 12,
         "h": 8
       }
@@ -5053,7 +5383,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 109,
+        "y": 121,
         "w": 24,
         "h": 1
       }
@@ -5141,7 +5471,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 110,
+        "y": 122,
         "w": 8,
         "h": 4
       }
@@ -5217,7 +5547,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 110,
+        "y": 122,
         "w": 8,
         "h": 4
       }
@@ -5294,7 +5624,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 110,
+        "y": 122,
         "w": 8,
         "h": 4
       }
@@ -5371,7 +5701,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 114,
+        "y": 126,
         "w": 8,
         "h": 4
       }
@@ -5450,7 +5780,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 114,
+        "y": 126,
         "w": 8,
         "h": 4
       }
@@ -5542,7 +5872,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 114,
+        "y": 126,
         "w": 8,
         "h": 4
       }
@@ -5563,7 +5893,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 119,
+            "y": 131,
             "w": 24,
             "h": 4
           }
@@ -5705,7 +6035,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 123,
+            "y": 135,
             "w": 24,
             "h": 8
           }
@@ -5870,7 +6200,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 131,
+            "y": 143,
             "w": 24,
             "h": 8
           }
@@ -6016,7 +6346,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 139,
+            "y": 151,
             "w": 24,
             "h": 8
           }
@@ -6024,7 +6354,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 118,
+        "y": 130,
         "w": 24,
         "h": 1
       }
@@ -6045,7 +6375,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 120,
+            "y": 132,
             "w": 24,
             "h": 10
           }
@@ -6228,7 +6558,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 130,
+            "y": 142,
             "w": 12,
             "h": 9
           }
@@ -6411,7 +6741,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 130,
+            "y": 142,
             "w": 12,
             "h": 9
           }
@@ -6570,7 +6900,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 139,
+            "y": 151,
             "w": 12,
             "h": 9
           }
@@ -6708,7 +7038,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 139,
+            "y": 151,
             "w": 12,
             "h": 9
           }
@@ -6810,7 +7140,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 148,
+            "y": 160,
             "w": 12,
             "h": 9
           }
@@ -6993,7 +7323,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 148,
+            "y": 160,
             "w": 12,
             "h": 9
           }
@@ -7070,7 +7400,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 157,
+            "y": 169,
             "w": 12,
             "h": 9
           }
@@ -7253,7 +7583,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 157,
+            "y": 169,
             "w": 12,
             "h": 9
           }
@@ -7330,7 +7660,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 166,
+            "y": 178,
             "w": 6,
             "h": 5
           }
@@ -7406,7 +7736,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 166,
+            "y": 178,
             "w": 6,
             "h": 5
           }
@@ -7483,7 +7813,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 166,
+            "y": 178,
             "w": 6,
             "h": 5
           }
@@ -7560,7 +7890,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 166,
+            "y": 178,
             "w": 6,
             "h": 5
           }
@@ -7637,7 +7967,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 171,
+            "y": 183,
             "w": 6,
             "h": 5
           }
@@ -7714,7 +8044,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 171,
+            "y": 183,
             "w": 6,
             "h": 5
           }
@@ -7791,7 +8121,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 171,
+            "y": 183,
             "w": 6,
             "h": 5
           }
@@ -7868,7 +8198,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 171,
+            "y": 183,
             "w": 6,
             "h": 5
           }
@@ -7982,7 +8312,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 176,
+            "y": 188,
             "w": 12,
             "h": 9
           }
@@ -8096,7 +8426,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 176,
+            "y": 188,
             "w": 12,
             "h": 9
           }
@@ -8195,7 +8525,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 185,
+            "y": 197,
             "w": 12,
             "h": 9
           }
@@ -8272,7 +8602,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 185,
+            "y": 197,
             "w": 12,
             "h": 9
           }
@@ -8456,7 +8786,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 194,
+            "y": 206,
             "w": 12,
             "h": 7
           }
@@ -8640,7 +8970,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 194,
+            "y": 206,
             "w": 12,
             "h": 7
           }
@@ -8823,7 +9153,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 201,
+            "y": 213,
             "w": 12,
             "h": 9
           }
@@ -8900,7 +9230,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 201,
+            "y": 213,
             "w": 12,
             "h": 9
           }
@@ -8908,7 +9238,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 119,
+        "y": 131,
         "w": 24,
         "h": 1
       }

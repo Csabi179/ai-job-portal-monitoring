@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Build a separate HU/EN request correlation view; preserve existing dashboards."""
 import json
+import copy
+import argparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -164,6 +166,25 @@ def build(lang):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                        help='Insert only the request table into existing HU/EN Service Comparison JSON')
+    args = parser.parse_args()
+    if args.embed_only:
+        candidates = []
+        for lang in ('hu', 'en'):
+            suffix = '' if lang == 'hu' else '-en'
+            path = args.embed_only / f'matchwise-service-comparison{suffix}.json'
+            current = json.loads(path.read_text(encoding='utf-8'))
+            expected_uid = 'matchwise-service-comparison' + suffix
+            if current.get('uid') != expected_uid:
+                raise ValueError(f'Unexpected dashboard UID: {path}')
+            candidates.append((path, embed_comparison_table(current, lang)))
+        # Validate both destinations before writing either file.
+        for path, model in candidates:
+            path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+            print('Inserted request table:', path)
+        return
     for lang in ('hu', 'en'):
         suffix = '' if lang == 'hu' else '-en'
         path = DEST / f'matchwise-request-correlation{suffix}.json'
@@ -171,6 +192,8 @@ def main():
         for kind in ('unified-monitoring', 'service-comparison'):
             existing = DEST / f'matchwise-{kind}{suffix}.json'
             model = json.loads(existing.read_text(encoding='utf-8'))
+            if kind == 'service-comparison':
+                model = embed_comparison_table(model, lang)
             url = '/d/matchwise-request-correlation' + suffix
             links = model.setdefault('links', [])
             if not any(link.get('url') == url for link in links):
@@ -180,6 +203,44 @@ def main():
             else:
                 # Keep generated files byte-identical on Windows and Linux.
                 existing.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+
+
+def embed_comparison_table(model, lang):
+    """Add only the proven table, preserving existing panels, filters and identities."""
+    model = copy.deepcopy(model)
+    table = copy.deepcopy(next(p for p in build(lang)['panels'] if p['type'] == 'table'))
+    table['id'] = 980
+    table['description'] += ('\n\nFrontend: fetch indításától a válaszfejlécekig; backend: szerveroldali feldolgozás. '
+                            'Health/próbakérések kizárva. Legfeljebb 1000 naplósor oldalanként; szűkítsd az időablakot vagy adj meg request ID-t.'
+                            if lang == 'hu' else
+                            '\n\nFrontend: fetch until response headers; backend: server processing. '
+                            'Health/backend-only probes excluded. At most 1000 log lines per side; narrow the range or filter by request ID.')
+    panels = model['panels']
+    existing = next((i for i, p in enumerate(panels) if p['id'] == 980), None)
+    if existing is not None:
+        if panels[existing]['type'] != 'table' or 'frontend_ms' not in json.dumps(panels[existing]):
+            raise ValueError('Panel 980 is already used by an unrelated panel')
+        table['gridPos'] = copy.deepcopy(panels[existing]['gridPos'])
+        panels[existing] = table
+    else:
+        index = next(i for i, p in enumerate(panels)
+                     if p['type'] == 'row' and p['title'].startswith('02 ·'))
+        if not any(p['type'] == 'row' and p['title'].startswith('01 ·') for p in panels[:index]):
+            raise ValueError('Scorecard row must precede availability')
+        start = panels[index]['gridPos']['y']
+        height = 12
+        def shift(items):
+            for panel in items:
+                if panel['gridPos']['y'] >= start:
+                    panel['gridPos']['y'] += height
+                shift(panel.get('panels', []))
+        shift(panels)
+        table['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': height}
+        panels.insert(index, table)
+    variables = model.setdefault('templating', {}).setdefault('list', [])
+    if not any(v['name'] == 'request_id' for v in variables):
+        variables.append(copy.deepcopy(next(v for v in build(lang)['templating']['list'] if v['name'] == 'request_id')))
+    return model
 
 
 if __name__ == '__main__':

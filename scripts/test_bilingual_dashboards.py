@@ -48,6 +48,36 @@ def run_checker(directory):
 
 
 class ServiceDashboardTests(unittest.TestCase):
+    def test_request_table_insertion_preserves_live_panels_and_is_idempotent(self):
+        requests = module('request_table', 'build-request-correlation-dashboard.py')
+        original = {
+            'uid': 'matchwise-service-comparison-en', 'custom_live_setting': 'keep',
+            'templating': {'list': [{'name': 'existing_filter', 'type': 'textbox'}]},
+            'panels': [
+                {'id': 901, 'type': 'row', 'title': '01 · Scorecard · now',
+                 'gridPos': {'x': 0, 'y': 0, 'w': 24, 'h': 1}},
+                {'id': 321, 'type': 'stat', 'title': 'Live custom card', 'custom': 'keep',
+                 'gridPos': {'x': 0, 'y': 1, 'w': 24, 'h': 3}},
+                {'id': 902, 'type': 'row', 'title': '02 · Availability and freshness',
+                 'gridPos': {'x': 0, 'y': 4, 'w': 24, 'h': 1}},
+                {'id': 903, 'type': 'row', 'title': 'Details', 'collapsed': True,
+                 'gridPos': {'x': 0, 'y': 5, 'w': 24, 'h': 1},
+                 'panels': [{'id': 30, 'type': 'text', 'title': 'Existing detail',
+                             'gridPos': {'x': 0, 'y': 6, 'w': 24, 'h': 3}}]},
+            ],
+        }
+        result = requests.embed_comparison_table(original, 'en')
+        self.assertEqual([p['id'] for p in result['panels']], [901, 321, 980, 902, 903])
+        self.assertEqual(result['panels'][2]['type'], 'table')
+        self.assertEqual(result['panels'][2]['gridPos'], {'x': 0, 'y': 4, 'w': 24, 'h': 12})
+        self.assertEqual(result['panels'][3]['gridPos']['y'], 16)
+        self.assertEqual(result['panels'][4]['panels'][0]['gridPos']['y'], 18)
+        self.assertEqual(result['panels'][1], original['panels'][1])
+        self.assertEqual(result['custom_live_setting'], 'keep')
+        self.assertEqual([v['name'] for v in result['templating']['list']], ['existing_filter', 'request_id'])
+        self.assertEqual(requests.embed_comparison_table(result, 'en'), result)
+        self.assertEqual(len(original['panels']), 4)
+
     def copy_models(self, tmp):
         for name in checker.FILES:
             (Path(tmp) / name).write_bytes((JSON_DIR / name).read_bytes())
