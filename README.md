@@ -1,5 +1,34 @@
 # MatchWise — AI Job Portal Monitoring
 
+## Frontend/backend request correlation — update prepared November 21, 2026
+
+The receiver now accepts the merged frontend's **schema v2** (`requests` plus
+`dropped_requests`) alongside legacy schema v1 aggregates. Its implementation
+version metric is **3**. Request IDs stay in bounded JSONL/Loki records, never
+Prometheus or Loki stream labels. Existing aggregate counts are not incremented
+again from request details.
+
+New HU/English **Request Correlation** dashboards compare frontend `request_id`
+with backend `reqId`, show both durations and statuses, and retain slow/failed
+and ID-less browser requests. The correlation table keeps browser-reported rows
+only; both sides exclude `/health` and `/api/health` (including trailing slashes).
+Health/UptimeRobot traffic is not application request traffic.
+
+**Prepared and locally tested, not deployed by this change.** See the
+[request correlation deployment and verification guide](docs/REQUEST_CORRELATION.md).
+After pulling the reviewed commit on Oracle:
+
+```bash
+cd ~/ai-job-monitoring
+bash scripts/install-request-correlation.sh
+python3 scripts/verify-request-correlation.py
+```
+
+The verifier requires a real browser request, its 60-second telemetry report and
+the corresponding backend log to have arrived. Installation alone is not proof
+of end-to-end delivery. No frontend/backend deployment or firewall change is
+performed by the installer.
+
 > **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](docs/DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
 DevOps monitoring for the university AI-assisted job portal project.

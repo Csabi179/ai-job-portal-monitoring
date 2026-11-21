@@ -10486,6 +10486,12 @@
       "url": "https://matchwise-backend-monitoring-test.onrender.com/api/health",
       "type": "link",
       "targetBlank": true
+    },
+    {
+      "type": "link",
+      "title": "Kérések összekapcsolása",
+      "url": "/d/matchwise-request-correlation",
+      "keepTime": true
     }
   ]
 }

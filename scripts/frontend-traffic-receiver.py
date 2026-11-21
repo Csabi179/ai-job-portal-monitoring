@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bounded browser aggregates -> local Prometheus; Python standard library only."""
+"""Browser v1/v2 telemetry -> Prometheus aggregates and bounded request JSONL."""
 import collections
 import json
 import math
@@ -7,6 +7,7 @@ import os
 import re
 import threading
 import time
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PATH = '/matchwise-telemetry/v1'
@@ -17,6 +18,72 @@ OUTCOMES = {'http', 'network_error', 'aborted'}
 MAX_RESULT_SERIES = 4096
 DELIVERY_FIELDS = ('sent_batches', 'failed_attempts', 'dropped_batches', 'dropped_observations')
 ORIGINS = frozenset(os.environ.get('FRONTEND_TRAFFIC_ORIGINS', 'https://www.matchwise.tech').split(','))
+REQUEST_ROUTES = {'/auth/register', '/auth/login', '/auth/logout', '/me', '/account',
+                  '/cv', '/cv/upload', '/profile', '/jobs', '/preferences', '/ai/usage',
+                  '/cv/:id/download', '/cv/:id/profile', '/jobs/:id', 'unmatched'}
+HEALTH_ROUTES = {'/health', '/api/health', '/health/', '/api/health/'}
+REQUEST_ID = re.compile(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', re.I)
+
+
+def validate_requests(batch):
+    rows = batch['requests']
+    if type(rows) is not list or len(rows) > 64:
+        raise ValueError('requests')
+    integer(batch['dropped_requests'])
+    for row in rows:
+        exact_keys(row, 'request_id started_at_ms finished_at_ms duration_ms route method status outcome')
+        rid = row['request_id']
+        if rid is not None and (type(rid) is not str or not REQUEST_ID.fullmatch(rid)):
+            raise ValueError('request id')
+        start = integer(row['started_at_ms'], 2**53 - 1)
+        end = integer(row['finished_at_ms'], 2**53 - 1)
+        duration = number(row['duration_ms'], 3_600_000)
+        # Browser duration uses a monotonic clock; finished_at is rounded to ms.
+        if end < start or abs(end - start - duration) > 1:
+            raise ValueError('request timing')
+        if row['route'] not in REQUEST_ROUTES | HEALTH_ROUTES or row['method'] not in METHODS:
+            raise ValueError('request dimensions')
+        if row['outcome'] not in OUTCOMES:
+            raise ValueError('request outcome')
+        status = row['status']
+        if row['outcome'] == 'http':
+            if status != 'other' and not (type(status) is int and 100 <= status <= 599):
+                raise ValueError('request status')
+        elif type(status) is not int or status != 0 or rid is not None:
+            raise ValueError('request failure')
+
+
+class RequestJournal:
+    """Bounded JSONL for Alloy. Never use request IDs as stream/metric labels."""
+    def __init__(self, path, max_bytes=20_000_000, backups=7):
+        self.path = Path(path)
+        self.max_bytes = max_bytes
+        self.backups = backups
+
+    def write(self, records):
+        if not records:
+            return
+        data = ''.join(json.dumps(row, separators=(',', ':'), allow_nan=False) + '\n'
+                       for row in records).encode('utf-8')
+        if self.path.exists() and self.path.stat().st_size + len(data) > self.max_bytes:
+            for index in range(self.backups, 0, -1):
+                source = self.path if index == 1 else Path(str(self.path) + f'.{index - 1}')
+                if source.exists():
+                    os.replace(source, Path(str(self.path) + f'.{index}'))
+        with self.path.open('ab', buffering=0) as output:
+            offset = output.tell()
+            try:
+                remaining = memoryview(data)
+                while remaining:
+                    written = output.write(remaining)
+                    if not written:
+                        raise OSError('incomplete journal write')
+                    remaining = remaining[written:]
+                os.fsync(output.fileno())
+            except OSError:
+                # Avoid concatenating a partial JSON line with the next retry.
+                os.ftruncate(output.fileno(), offset)
+                raise
 
 
 def integer(value, maximum=1_000_000_000):
@@ -37,9 +104,15 @@ def exact_keys(value, keys):
 
 
 def validate(batch):
-    exact_keys(batch, 'schema_version batch_id window_start_ms window_end_ms interval_ms timing mock_api mock_jobs inflight duration_limits_ms starts results delivery')
-    if type(batch['schema_version']) is not int or batch['schema_version'] != 1:
+    if type(batch) is not dict:
+        raise ValueError('batch')
+    version = batch.get('schema_version')
+    if type(version) is not int or version not in (1, 2):
         raise ValueError('version')
+    fields = 'schema_version batch_id window_start_ms window_end_ms interval_ms timing mock_api mock_jobs inflight duration_limits_ms starts results delivery'
+    exact_keys(batch, fields + (' requests dropped_requests' if version == 2 else ''))
+    if version == 2:
+        validate_requests(batch)
     if not isinstance(batch['batch_id'], str) or not re.fullmatch(r'[a-fA-F0-9-]{36}', batch['batch_id']):
         raise ValueError('id')
     start = integer(batch['window_start_ms'], 2**53 - 1)
@@ -95,7 +168,8 @@ def validate(batch):
 
 
 class State:
-    def __init__(self):
+    def __init__(self, journal=None):
+        self.journal = journal
         self.lock = threading.Lock()
         self.metrics = collections.defaultdict(float)
         self.seen = collections.OrderedDict()
@@ -140,15 +214,38 @@ class State:
             while self.seen and next(iter(self.seen.values())) < now - 600:
                 self.seen.popitem(last=False)
             batch_id = batch['batch_id']
-            self.last_received = time.time()
+            received = time.time()
             if batch_id in self.seen:
+                self.last_received = received
                 self.add('frontend_telemetry_duplicate_batches_total', 1)
                 return
+            mode = 'partial_mock' if batch['mock_api'] or batch['mock_jobs'] else 'real'
+            records = []
+            skipped = 0
+            for index, row in enumerate(batch.get('requests', [])):
+                if row['route'] in HEALTH_ROUTES:
+                    skipped += 1
+                    continue
+                rid = row['request_id'].lower() if row['request_id'] else None
+                records.append({**row, 'request_id': rid,
+                                'event_id': f'{batch_id.lower()}:{index}',
+                                'event': 'frontend_request', 'mode': mode,
+                                'received_at_ms': round(received * 1000)})
+            # Persist before acknowledging or counting the batch. Disk errors are retryable.
+            if records:
+                if self.journal is None:
+                    raise OSError('request journal not configured')
+                self.journal.write(records)
+            self.last_received = received
             self.seen[batch_id] = now
             while len(self.seen) > 8192:
                 self.seen.popitem(last=False)
             self.add('frontend_telemetry_batches_total', 1)
-            mode = 'partial_mock' if batch['mock_api'] or batch['mock_jobs'] else 'real'
+            if batch['schema_version'] == 2:
+                self.add('frontend_telemetry_request_records_total', len(records), mode=mode)
+                self.add('frontend_telemetry_request_records_without_id_total', sum(r['request_id'] is None for r in records), mode=mode)
+                self.add('frontend_telemetry_reported_dropped_requests_total', batch['dropped_requests'], mode=mode)
+                self.add('frontend_telemetry_excluded_health_records_total', skipped, mode=mode)
             self.add('frontend_telemetry_result_dimension_overflow_total', mode=mode)
             # Snapshots belong to the LAST reporting page, not all open browsers.
             # No stable client identifier is sent: cumulative delivery snapshots
@@ -197,7 +294,7 @@ class State:
     def render(self):
         with self.lock:
             lines = ['# TYPE frontend_api_fetch_headers_seconds histogram',
-                     'frontend_telemetry_receiver_schema_version 2',
+                     'frontend_telemetry_receiver_schema_version 3',
                      '# TYPE frontend_api_results_total counter',
                      '# TYPE frontend_api_fetch_headers_max_seconds gauge',
                      '# TYPE frontend_telemetry_reported_delivery gauge',
@@ -284,6 +381,9 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError('truncated')
             batch = json.loads(raw.decode('utf-8'))
             self.server.state.ingest(batch)
+        except OSError:
+            self.reply(503)
+            return
         except (ValueError, TypeError, KeyError, OverflowError, RecursionError):
             self.server.state.reject()
             self.reply(400)
@@ -294,8 +394,8 @@ class Handler(BaseHTTPRequestHandler):
 class Server(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, address):
-        self.state = State()
+    def __init__(self, address, journal=None):
+        self.state = State(journal=journal)
         self.slots = threading.BoundedSemaphore(16)
         super().__init__(address, Handler)
 
@@ -321,4 +421,6 @@ class Server(ThreadingHTTPServer):
 
 
 if __name__ == '__main__':
-    Server(('127.0.0.1', 9121)).serve_forever()
+    journal = RequestJournal(os.environ.get('FRONTEND_REQUEST_LOG',
+                                           '/var/lib/matchwise-frontend-traffic/requests.jsonl'))
+    Server(('127.0.0.1', 9121), journal=journal).serve_forever()

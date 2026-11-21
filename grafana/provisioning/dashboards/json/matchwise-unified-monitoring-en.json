@@ -10486,6 +10486,12 @@
       "url": "https://matchwise-backend-monitoring-test.onrender.com/api/health",
       "type": "link",
       "targetBlank": true
+    },
+    {
+      "type": "link",
+      "title": "Request Correlation",
+      "url": "/d/matchwise-request-correlation-en",
+      "keepTime": true
     }
   ]
 }

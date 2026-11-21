@@ -8926,6 +8926,12 @@
       "url": "/d/matchwise-unified-overview/matchwise-unified-monitoring?${__url_time_range}",
       "type": "link",
       "targetBlank": false
+    },
+    {
+      "type": "link",
+      "title": "Kérések összekapcsolása",
+      "url": "/d/matchwise-request-correlation",
+      "keepTime": true
     }
   ],
   "description": "Szolgáltatások egymás melletti összehasonlítása azonos felépítéssel: összegzőkártya, elérhetőség, terhelés, hibák, biztonsági jelek. Fix szolgáltatásszínek, azonos mértékegységek, n/a ahol nincs gyűjtött adat."
