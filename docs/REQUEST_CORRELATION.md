@@ -315,3 +315,28 @@ selection is preserved on repeat updates. Before installing, run
 `python3 scripts/verify-timing-trend.py DIRECTORY` against local Loki to exercise
 both modes at one- and five-minute intervals. Live rendering remains a separate
 check; earlier exact-request chart screenshots do not verify the new trend.
+
+### Low-traffic response-time presentation
+
+The timing trend now defaults to five-minute intervals (automatically coarser
+when the selected range requires it). Large points show actual interval means
+or P95 values; thin dashed lines connect them, including across empty periods.
+These connections do not represent additional observations. No zero latency is
+invented. Mean and Max in the legend summarize the displayed interval values;
+Mean is not a request-weighted whole-period average, and Max is not the slowest
+individual request. This distinction also applies when P95 is selected.
+
+A second full-width chart (986) directly below shows counts of the exact log
+sample populations used by the latency aggregations, using identical filters,
+interval settings and color assignments. Separate frontend/backend bars explain
+the sample size and collection delays. Empty intervals remain without bars;
+missing logged observations do not prove absence of actual traffic. Both charts
+use the same axis width so their time axes align. The request table is moved
+down by five grid units, retaining its settings and expressions.
+
+The scoped `--timing-trend-only DIRECTORY` updater installs both panels and
+preserves the existing selector state. Repeating it does not insert another
+count panel or shift the dashboard again. The local Loki verifier exercises
+Average/P95 and integer sample counts at five- and fifteen-minute resolutions.
+Live rendering must confirm dashed connections, point markers, bar placement,
+tooltips and alignment after deployment.

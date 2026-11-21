@@ -1453,7 +1453,7 @@
         "uid": "loki"
       },
       "title": "Frontend and backend · response time trend · ${timing_stat:text}",
-      "description": "Average / P95: mean / 95th percentile of all logged samples per interval. Automatic resolution, at least 1 minute; intervals without observations are gaps. X: Loki log time, not browser start time; collection delays may differ. Frontend: real browser requests with IDs. Backend: a separate API log population, excluding health paths and explicit UptimeRobot markers. The curves are not ID-paired; the table below provides exact matches. The table's 1000-line limit does not apply to these metric aggregations.",
+      "description": "Average / P95: mean / 95th percentile of all logged samples per interval. Intervals of at least 5 minutes. Large points are observed interval values; dashed lines only connect them, including across periods without requests. No latency was measured between points. Mean / Max summarize displayed interval values, not individual requests. X: Loki log time, not browser start time; collection delays may differ. Frontend: real browser requests with IDs. Backend: a separate API log population, excluding health paths and explicit UptimeRobot markers. The curves are not ID-paired; the table below provides exact matches. The table's 1000-line limit does not apply to these metric aggregations.",
       "targets": [
         {
           "refId": "A",
@@ -1483,7 +1483,7 @@
         }
       ],
       "transformations": [],
-      "interval": "1m",
+      "interval": "5m",
       "maxDataPoints": 600,
       "options": {
         "tooltip": {
@@ -1493,7 +1493,11 @@
         "legend": {
           "showLegend": true,
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max"
+          ]
         }
       },
       "fieldConfig": {
@@ -1504,12 +1508,20 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 2,
+            "lineWidth": 1,
             "fillOpacity": 0,
-            "showPoints": "auto",
-            "pointSize": 4,
-            "spanNulls": false,
+            "lineStyle": {
+              "fill": "dash",
+              "dash": [
+                5,
+                5
+              ]
+            },
+            "showPoints": "always",
+            "pointSize": 7,
+            "spanNulls": true,
             "axisPlacement": "auto",
+            "axisWidth": 72,
             "axisColorMode": "text",
             "scaleDistribution": {
               "type": "linear"
@@ -1564,12 +1576,146 @@
       }
     },
     {
+      "id": 986,
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "title": "Frontend and backend · requests per interval",
+      "description": "Number of logged requests used by the response-time summary above, with identical intervals and filters. At least 5-minute resolution, automatically coarser for longer time ranges. No bar means no logged sample; it does not establish zero actual traffic.",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | duration_ms >= 0 | __error__=\"\" [$__interval])) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Frontend"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} !~ \"(?i)uptimerobot\" | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" [$__interval])) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Backend"
+        }
+      ],
+      "transformations": [],
+      "interval": "5m",
+      "maxDataPoints": 600,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "—",
+          "custom": {
+            "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "fillOpacity": 80,
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "showPoints": "never",
+            "pointSize": 7,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisWidth": 72,
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "barWidthFactor": 0.4,
+            "axisSoftMax": 1
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              },
+              {
+                "id": "custom.barAlignment",
+                "value": -1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backend"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              },
+              {
+                "id": "custom.barAlignment",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 5
+      }
+    },
+    {
       "id": 980,
       "type": "table",
       "title": "Timing and status per request",
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 33,
         "w": 24,
         "h": 12
       },
@@ -2132,7 +2278,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 45,
         "w": 24,
         "h": 1
       }
@@ -2268,7 +2414,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 41,
+        "y": 46,
         "w": 24,
         "h": 6
       }
@@ -2372,7 +2518,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 47,
+        "y": 52,
         "w": 6,
         "h": 4
       }
@@ -2476,7 +2622,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 47,
+        "y": 52,
         "w": 6,
         "h": 4
       }
@@ -2580,7 +2726,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 47,
+        "y": 52,
         "w": 6,
         "h": 4
       }
@@ -2684,7 +2830,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 47,
+        "y": 52,
         "w": 6,
         "h": 4
       }
@@ -2764,7 +2910,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 51,
+        "y": 56,
         "w": 6,
         "h": 4
       }
@@ -2844,7 +2990,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 51,
+        "y": 56,
         "w": 6,
         "h": 4
       }
@@ -2924,7 +3070,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 51,
+        "y": 56,
         "w": 6,
         "h": 4
       }
@@ -3004,7 +3150,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 51,
+        "y": 56,
         "w": 6,
         "h": 4
       }
@@ -3017,7 +3163,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 55,
+        "y": 60,
         "w": 24,
         "h": 1
       }
@@ -3121,7 +3267,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 56,
+        "y": 61,
         "w": 8,
         "h": 3
       }
@@ -3225,7 +3371,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 56,
+        "y": 61,
         "w": 8,
         "h": 3
       }
@@ -3329,7 +3475,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 56,
+        "y": 61,
         "w": 8,
         "h": 3
       }
@@ -3433,7 +3579,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 59,
+        "y": 64,
         "w": 8,
         "h": 3
       }
@@ -3537,7 +3683,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 59,
+        "y": 64,
         "w": 8,
         "h": 3
       }
@@ -3641,7 +3787,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 59,
+        "y": 64,
         "w": 8,
         "h": 3
       }
@@ -3760,7 +3906,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 62,
+        "y": 67,
         "w": 12,
         "h": 8
       }
@@ -3839,7 +3985,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 62,
+        "y": 67,
         "w": 12,
         "h": 8
       }
@@ -4005,7 +4151,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 70,
+        "y": 75,
         "w": 12,
         "h": 8
       }
@@ -4171,7 +4317,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 70,
+        "y": 75,
         "w": 12,
         "h": 8
       }
@@ -4339,7 +4485,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 78,
+        "y": 83,
         "w": 12,
         "h": 8
       }
@@ -4456,7 +4602,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 78,
+        "y": 83,
         "w": 12,
         "h": 8
       }
@@ -4654,7 +4800,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 86,
+        "y": 91,
         "w": 24,
         "h": 9
       }
@@ -4667,7 +4813,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 95,
+        "y": 100,
         "w": 24,
         "h": 1
       }
@@ -4835,7 +4981,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 96,
+        "y": 101,
         "w": 12,
         "h": 8
       }
@@ -4955,7 +5101,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 96,
+        "y": 101,
         "w": 12,
         "h": 8
       }
@@ -5075,7 +5221,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 104,
+        "y": 109,
         "w": 12,
         "h": 8
       }
@@ -5219,7 +5365,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 104,
+        "y": 109,
         "w": 12,
         "h": 8
       }
@@ -5232,7 +5378,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 112,
+        "y": 117,
         "w": 24,
         "h": 1
       }
@@ -5247,7 +5393,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 113,
+        "y": 118,
         "w": 24,
         "h": 3
       },
@@ -5333,7 +5479,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 116,
+        "y": 121,
         "w": 6,
         "h": 3
       }
@@ -5418,7 +5564,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 116,
+        "y": 121,
         "w": 6,
         "h": 3
       }
@@ -5503,7 +5649,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 116,
+        "y": 121,
         "w": 6,
         "h": 3
       }
@@ -5588,7 +5734,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 116,
+        "y": 121,
         "w": 6,
         "h": 3
       }
@@ -5674,7 +5820,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 119,
+        "y": 124,
         "w": 6,
         "h": 1
       },
@@ -5761,7 +5907,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 119,
+        "y": 124,
         "w": 6,
         "h": 1
       },
@@ -5848,7 +5994,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 119,
+        "y": 124,
         "w": 6,
         "h": 1
       },
@@ -5935,7 +6081,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 119,
+        "y": 124,
         "w": 6,
         "h": 1
       },
@@ -6046,7 +6192,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 120,
+        "y": 125,
         "w": 12,
         "h": 8
       }
@@ -6134,7 +6280,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 120,
+        "y": 125,
         "w": 12,
         "h": 8
       }
@@ -6147,7 +6293,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 128,
+        "y": 133,
         "w": 24,
         "h": 1
       }
@@ -6235,7 +6381,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 129,
+        "y": 134,
         "w": 8,
         "h": 4
       }
@@ -6311,7 +6457,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 129,
+        "y": 134,
         "w": 8,
         "h": 4
       }
@@ -6388,7 +6534,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 129,
+        "y": 134,
         "w": 8,
         "h": 4
       }
@@ -6465,7 +6611,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 133,
+        "y": 138,
         "w": 8,
         "h": 4
       }
@@ -6544,7 +6690,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 133,
+        "y": 138,
         "w": 8,
         "h": 4
       }
@@ -6636,7 +6782,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 133,
+        "y": 138,
         "w": 8,
         "h": 4
       }
@@ -6657,7 +6803,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 138,
+            "y": 143,
             "w": 24,
             "h": 4
           }
@@ -6799,7 +6945,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 142,
+            "y": 147,
             "w": 24,
             "h": 8
           }
@@ -6964,7 +7110,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 150,
+            "y": 155,
             "w": 24,
             "h": 8
           }
@@ -7110,7 +7256,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 158,
+            "y": 163,
             "w": 24,
             "h": 8
           }
@@ -7118,7 +7264,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 137,
+        "y": 142,
         "w": 24,
         "h": 1
       }
@@ -7139,7 +7285,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 139,
+            "y": 144,
             "w": 24,
             "h": 10
           }
@@ -7324,7 +7470,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 149,
+            "y": 154,
             "w": 12,
             "h": 9
           }
@@ -7507,7 +7653,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 149,
+            "y": 154,
             "w": 12,
             "h": 9
           }
@@ -7668,7 +7814,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 158,
+            "y": 163,
             "w": 12,
             "h": 9
           }
@@ -7808,7 +7954,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 158,
+            "y": 163,
             "w": 12,
             "h": 9
           }
@@ -7910,7 +8056,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 167,
+            "y": 172,
             "w": 12,
             "h": 9
           }
@@ -8095,7 +8241,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 167,
+            "y": 172,
             "w": 12,
             "h": 9
           }
@@ -8174,7 +8320,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 176,
+            "y": 181,
             "w": 12,
             "h": 9
           }
@@ -8357,7 +8503,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 176,
+            "y": 181,
             "w": 12,
             "h": 9
           }
@@ -8434,7 +8580,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 185,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8510,7 +8656,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 185,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8587,7 +8733,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 185,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8664,7 +8810,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 185,
+            "y": 190,
             "w": 6,
             "h": 5
           }
@@ -8741,7 +8887,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 190,
+            "y": 195,
             "w": 6,
             "h": 5
           }
@@ -8818,7 +8964,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 190,
+            "y": 195,
             "w": 6,
             "h": 5
           }
@@ -8895,7 +9041,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 190,
+            "y": 195,
             "w": 6,
             "h": 5
           }
@@ -8972,7 +9118,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 190,
+            "y": 195,
             "w": 6,
             "h": 5
           }
@@ -9086,7 +9232,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 195,
+            "y": 200,
             "w": 12,
             "h": 9
           }
@@ -9202,7 +9348,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 195,
+            "y": 200,
             "w": 12,
             "h": 9
           }
@@ -9303,7 +9449,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 204,
+            "y": 209,
             "w": 12,
             "h": 9
           }
@@ -9382,7 +9528,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 204,
+            "y": 209,
             "w": 12,
             "h": 9
           }
@@ -9566,7 +9712,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 213,
+            "y": 218,
             "w": 12,
             "h": 7
           }
@@ -9750,7 +9896,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 213,
+            "y": 218,
             "w": 12,
             "h": 7
           }
@@ -9933,7 +10079,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 220,
+            "y": 225,
             "w": 12,
             "h": 9
           }
@@ -10012,7 +10158,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 220,
+            "y": 225,
             "w": 12,
             "h": 9
           }
@@ -10020,7 +10166,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 138,
+        "y": 143,
         "w": 24,
         "h": 1
       }

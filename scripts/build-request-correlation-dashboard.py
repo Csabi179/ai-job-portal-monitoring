@@ -206,7 +206,7 @@ def main():
     mode.add_argument('--error-legends-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                       help='Show Last* and Max together on the English Errors section charts only')
     mode.add_argument('--timing-trend-only', type=Path, metavar='DASHBOARD_DIRECTORY',
-                      help='Replace only the timing chart with an Average/P95 Loki trend in both languages')
+                      help='Update the Average/P95 timing trend and sample-count panel in both languages')
     args = parser.parse_args()
     directory = (args.embed_only or args.summary_only or args.http_signals_only or
                  args.error_legends_only or args.timing_trend_only)
@@ -548,16 +548,20 @@ def ensure_timing_variable(model):
                       'multi': False, 'includeAll': False, 'allowCustomValue': False, 'hide': 0})
 
 
-def timing_trend_panel(lang):
+def timing_sample_pipelines():
     frontend = (FE + f' | request_id=~"{UUID}" | request_id=~".*${{request_id:regex}}.*"'
-                + ' | duration_ms >= 0 | __error__="" | unwrap duration_ms | __error__=""')
+                + ' | duration_ms >= 0 | __error__=""')
     # Keep the API route scope used by the other comparison panels. Exclude explicit
     # UptimeRobot markers as well as health paths; no backend/frontend join is implied.
     backend = ('{job="matchwise_backend_render_api"} !~ "(?i)uptimerobot" | json'
                ' | event="http_request"' + f' | route!~"{HEALTH}"'
                + ' | route=~"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)"'
                + f' | reqId=~"{UUID}" | reqId=~".*${{request_id:regex}}.*"'
-               + ' | responseTimeMs >= 0 | __error__="" | unwrap responseTimeMs | __error__=""')
+               + ' | responseTimeMs >= 0 | __error__=""')
+    return [('A', frontend, 'duration_ms', 'Frontend'), ('B', backend, 'responseTimeMs', 'Backend')]
+
+
+def timing_trend_panel(lang):
     def metric(ref, pipeline, legend):
         window = pipeline + ' [$__interval]'
         # Group within the range aggregation: an average of stream averages or
@@ -575,31 +579,63 @@ def timing_trend_panel(lang):
                       'Frontend and backend · response time trend · ${timing_stat:text}'),
             'description': (
                 'Average / P95: az összes naplózott minta időablakonkénti átlaga / 95. percentilise. '
-                'Automatikus, legalább 1 perces felbontás; kérésmentes időablakban szünet. '
+                'Legalább 5 perces időablakok. A nagy pontok mért időszaki értékek; a szaggatott vonal '
+                'csak összeköti őket, a kérésmentes szakaszokon is. Köztes válaszidőt nem mértünk. '
+                'Mean / Max: a megjelenített időszaki értékek átlaga / maximuma, nem az egyedi kéréseké. '
                 'X: Loki naplóidő, nem a böngésző indítási ideje; a két gyűjtés késése eltérhet. '
                 'Frontend: valódi, ID-val rendelkező böngészős kérések. Backend: külön API-naplóminta; '
                 'health útvonalak és kifejezett UptimeRobot-jelölések nélkül. '
                 'A görbék nem ID-párosítottak; pontos párosítás a lenti táblázatban. '
                 'A táblázat 1000 soros korlátja nem vonatkozik erre az összesítésre.' if lang == 'hu' else
                 'Average / P95: mean / 95th percentile of all logged samples per interval. '
-                'Automatic resolution, at least 1 minute; intervals without observations are gaps. '
+                'Intervals of at least 5 minutes. Large points are observed interval values; dashed lines '
+                'only connect them, including across periods without requests. No latency was measured between points. '
+                'Mean / Max summarize displayed interval values, not individual requests. '
                 'X: Loki log time, not browser start time; collection delays may differ. '
                 'Frontend: real browser requests with IDs. Backend: a separate API log population, '
                 'excluding health paths and explicit UptimeRobot markers. '
                 'The curves are not ID-paired; the table below provides exact matches. '
                 'The table\'s 1000-line limit does not apply to these metric aggregations.'),
-            'targets': [metric('A', frontend, 'Frontend'), metric('B', backend, 'Backend')],
-            'transformations': [], 'interval': '1m', 'maxDataPoints': 600,
+            'targets': [metric(ref, pipeline + f' | unwrap {field} | __error__=""', legend)
+                        for ref, pipeline, field, legend in timing_sample_pipelines()],
+            'transformations': [], 'interval': '5m', 'maxDataPoints': 600,
             'options': {'tooltip': {'mode': 'multi', 'sort': 'none'},
-                        'legend': {'showLegend': True, 'displayMode': 'list', 'placement': 'bottom'}},
+                        'legend': {'showLegend': True, 'displayMode': 'list', 'placement': 'bottom',
+                                   'calcs': ['mean', 'max']}},
             'fieldConfig': {'defaults': {'unit': 'ms', 'min': 0, 'noValue': '—', 'custom': {
-                'drawStyle': 'line', 'lineInterpolation': 'linear', 'lineWidth': 2, 'fillOpacity': 0,
-                'showPoints': 'auto', 'pointSize': 4, 'spanNulls': False, 'axisPlacement': 'auto',
+                'drawStyle': 'line', 'lineInterpolation': 'linear', 'lineWidth': 1, 'fillOpacity': 0,
+                'lineStyle': {'fill': 'dash', 'dash': [5, 5]},
+                'showPoints': 'always', 'pointSize': 7, 'spanNulls': True, 'axisPlacement': 'auto', 'axisWidth': 72,
                 'axisColorMode': 'text', 'scaleDistribution': {'type': 'linear'},
                 'stacking': {'mode': 'none', 'group': 'A'}, 'thresholdsStyle': {'mode': 'off'}}},
                 'overrides': [{'matcher': {'id': 'byName', 'options': name}, 'properties': [
                     {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
                     for name, color in [('Frontend', '#56B4E9'), ('Backend', '#E69F00')]]}}
+
+
+def timing_count_panel(lang):
+    chart = timing_trend_panel(lang)
+    chart.update(id=986, title=('Frontend és backend · az összesítés mintaszáma' if lang == 'hu' else
+                                'Frontend and backend · requests per interval'), description=(
+        'A fenti válaszidő-összesítéshez használt naplózott kérések száma, azonos időablakokkal és szűrőkkel. '
+        'Legalább 5 perces felbontás; hosszabb időtartományban automatikusan nagyobb. '
+        'Nincs oszlop: nincs naplózott minta; ez önmagában nem bizonyít nulla tényleges forgalmat.' if lang == 'hu' else
+        'Number of logged requests used by the response-time summary above, with identical intervals and filters. '
+        'At least 5-minute resolution, automatically coarser for longer time ranges. '
+        'No bar means no logged sample; it does not establish zero actual traffic.'))
+    chart['targets'] = [{'refId': ref, 'expr': f'sum(count_over_time({pipeline} [$__interval])) or (vector(0) / vector(0))',
+                         'datasource': LOKI, 'queryType': 'range', 'instant': False, 'range': True,
+                         'editorMode': 'code', 'legendFormat': legend}
+                        for ref, pipeline, _, legend in timing_sample_pipelines()]
+    chart['options']['legend']['calcs'] = []
+    defaults = chart['fieldConfig']['defaults']
+    defaults.update(unit='short', decimals=0)
+    custom = defaults['custom']
+    custom.update(drawStyle='bars', lineWidth=0, fillOpacity=80, showPoints='never', spanNulls=False,
+                  lineStyle={'fill': 'solid'}, barWidthFactor=0.4, axisSoftMax=1)
+    for override, alignment in zip(chart['fieldConfig']['overrides'], (-1, 1)):
+        override['properties'].append({'id': 'custom.barAlignment', 'value': alignment})
+    return chart
 
 
 def update_timing_trend(model, lang):
@@ -610,11 +646,35 @@ def update_timing_trend(model, lang):
     current = next((p for p in walk(model['panels']) if p['id'] == 981), None)
     if not current or current['type'] != 'timeseries' or 'matchwise_frontend_requests' not in json.dumps(current):
         raise ValueError('Expected the existing request timing chart (981)')
+    count = next((p for p in walk(model['panels']) if p['id'] == 986), None)
+    if count and (count['type'] != 'timeseries' or 'matchwise_frontend_requests' not in json.dumps(count)
+                  or 'count_over_time' not in json.dumps(count)):
+        raise ValueError('Panel 986 is already used by an unrelated panel')
     chart = timing_trend_panel(lang)
     chart['gridPos'] = copy.deepcopy(current['gridPos'])
     ensure_timing_variable(model)
     current.clear()
     current.update(chart)
+    counts = timing_count_panel(lang)
+    counts['gridPos'] = dict(current['gridPos'], y=current['gridPos']['y'] + current['gridPos']['h'], h=5)
+    if count:
+        counts['gridPos'] = copy.deepcopy(count['gridPos'])
+        count.clear()
+        count.update(counts)
+    else:
+        bottom = counts['gridPos']['y']
+        for panel in walk(model['panels']):
+            if panel is not current and panel['gridPos']['y'] >= bottom:
+                panel['gridPos']['y'] += 5
+        def insert(items):
+            for i, panel in enumerate(items):
+                if panel is current:
+                    items.insert(i + 1, counts)
+                    return True
+                if insert(panel.get('panels', [])):
+                    return True
+            return False
+        insert(model['panels'])
     return model
 
 
@@ -638,7 +698,7 @@ def embed_comparison_chart(model, table, lang):
                 resize_following(panel.get('panels', []))
         resize_following(panels)
         panels[existing] = chart
-        return model
+        return update_timing_trend(model, lang)
     index = next(i for i, p in enumerate(panels) if p['id'] == 980)
     start = panels[index]['gridPos']['y']
     def shift(items):
@@ -649,7 +709,7 @@ def embed_comparison_chart(model, table, lang):
     shift(panels)
     chart['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': 8}
     panels.insert(index, chart)
-    return model
+    return update_timing_trend(model, lang)
 
 
 if __name__ == '__main__':

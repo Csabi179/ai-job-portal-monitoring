@@ -103,7 +103,11 @@ def check_semantics(model, uids, errors, name):
     panel_ids = {p['id'] for p in walk(model['panels'])}
     for p in walk(model['panels']):
         if p['type'] == 'timeseries':
-            if p['fieldConfig']['defaults']['custom'].get('spanNulls') is not False:
+            custom = p['fieldConfig']['defaults']['custom']
+            sparse_timing = (name.startswith('matchwise-service-comparison') and p['id'] == 981
+                             and custom.get('lineStyle', {}).get('fill') == 'dash'
+                             and custom.get('showPoints') == 'always')
+            if custom.get('spanNulls') is not False and not sparse_timing:
                 errors.append(f'{name}: {p["id"]} spanNulls must be false (missing data is not zero)')
         for t in p.get('targets', []):
             expr = t.get('expr', '')

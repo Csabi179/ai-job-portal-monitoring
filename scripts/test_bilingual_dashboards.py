@@ -61,15 +61,33 @@ class ServiceDashboardTests(unittest.TestCase):
             self.assertEqual(new, requests.update_timing_trend(copy.deepcopy(new), lang))
             before = {p['id']: p for p in checker.walk(old['panels'])}
             after = {p['id']: p for p in checker.walk(new['panels'])}
-            self.assertEqual(set(before), set(after))
+            self.assertEqual(set(before) | {986}, set(after))
+            bottom = before[981]['gridPos']['y'] + before[981]['gridPos']['h']
             for key in before:
                 if key != 981:
-                    self.assertEqual(after[key], before[key])
+                    expected = copy.deepcopy(before[key])
+                    def shift(items):
+                        for panel in items:
+                            if panel['gridPos']['y'] >= bottom:
+                                panel['gridPos']['y'] += 5
+                            shift(panel.get('panels', []))
+                    shift([expected])
+                    self.assertEqual(after[key], expected)
             chart = after[981]
             self.assertEqual(chart['gridPos'], before[981]['gridPos'])
             self.assertEqual(chart['transformations'], [])
-            self.assertFalse(chart['fieldConfig']['defaults']['custom']['spanNulls'])
-            self.assertEqual(chart['interval'], '1m')
+            self.assertTrue(chart['fieldConfig']['defaults']['custom']['spanNulls'])
+            self.assertEqual(chart['fieldConfig']['defaults']['custom']['lineStyle']['fill'], 'dash')
+            self.assertEqual(chart['interval'], '5m')
+            counts = after[986]
+            self.assertEqual(counts['gridPos']['y'], chart['gridPos']['y'] + chart['gridPos']['h'])
+            self.assertEqual(counts['interval'], chart['interval'])
+            self.assertEqual(counts['maxDataPoints'], chart['maxDataPoints'])
+            for latency, count in zip(chart['targets'], counts['targets']):
+                self.assertIn('count_over_time', count['expr'])
+                self.assertNotIn('unwrap', count['expr'])
+                pipeline = count['expr'].split('count_over_time(', 1)[1].split(' [$__interval]', 1)[0]
+                self.assertIn(pipeline, latency['expr'])
             variable = next(v for v in new['templating']['list'] if v['name'] == 'timing_stat')
             self.assertEqual(variable['current']['value'], '0')
             for mode in ('0', '1'):
@@ -230,24 +248,25 @@ class ServiceDashboardTests(unittest.TestCase):
             ],
         }
         result = requests.embed_comparison_table(original, 'en')
-        self.assertEqual([p['id'] for p in result['panels']], [901, 321, 981, 980, 902, 903])
-        chart, table = result['panels'][2:4]
+        self.assertEqual([p['id'] for p in result['panels']], [901, 321, 981, 986, 980, 902, 903])
+        chart, counts, table = result['panels'][2:5]
         self.assertEqual(chart['type'], 'timeseries')
         self.assertEqual(table['type'], 'table')
         self.assertEqual(chart['gridPos'], {'x': 0, 'y': 4, 'w': 24, 'h': 8})
-        self.assertEqual(table['gridPos'], {'x': 0, 'y': 12, 'w': 24, 'h': 12})
-        self.assertEqual(result['panels'][4]['gridPos']['y'], 24)
-        self.assertEqual(result['panels'][5]['panels'][0]['gridPos']['y'], 26)
+        self.assertEqual(counts['gridPos'], {'x': 0, 'y': 12, 'w': 24, 'h': 5})
+        self.assertEqual(table['gridPos'], {'x': 0, 'y': 17, 'w': 24, 'h': 12})
+        self.assertEqual(result['panels'][5]['gridPos']['y'], 29)
+        self.assertEqual(result['panels'][6]['panels'][0]['gridPos']['y'], 31)
         self.assertNotEqual(chart['targets'], table['targets'])
         self.assertEqual(chart['transformations'], [])
-        self.assertEqual(chart['interval'], '1m')
+        self.assertEqual(chart['interval'], '5m')
         self.assertEqual(chart['maxDataPoints'], 600)
         for target in chart['targets']:
             self.assertIn('avg_over_time(', target['expr'])
             self.assertIn('quantile_over_time(0.95,', target['expr'])
             self.assertIn('[$__interval]', target['expr'])
             self.assertNotIn('maxLines', target)
-        self.assertFalse(chart['fieldConfig']['defaults']['custom']['spanNulls'])
+        self.assertTrue(chart['fieldConfig']['defaults']['custom']['spanNulls'])
         self.assertEqual(chart['fieldConfig']['defaults']['min'], 0)
         self.assertEqual(result['panels'][1], original['panels'][1])
         self.assertEqual(result['custom_live_setting'], 'keep')

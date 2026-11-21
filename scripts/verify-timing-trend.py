@@ -27,15 +27,21 @@ def main():
         for p in items:
             yield p
             yield from walk(p.get('panels', []))
-    chart = next(p for p in walk(model['panels']) if p['id'] == 981)
+    charts = {p['id']: p for p in walk(model['panels']) if p['id'] in (981, 986)}
+    if set(charts) != {981, 986}:
+        raise RuntimeError('Expected the response-time and request-count panels')
     variable = next(v for v in model['templating']['list'] if v['name'] == 'timing_stat')
     opener = build_opener(ProxyHandler({}))
     now = time.time()
     for name, value in [('Average', '0'), ('P95', '1')]:
         variable['current']['value'] = value
-        for interval in (60, 300):
-            for target in chart['targets']:
-                expr = audit.expand(target['expr'], model, 3600).replace('[1m]', f'[{interval}s]')
+        for interval in (300, 900):
+            targets = [(t, False) for t in charts[981]['targets']]
+            if value == '0':
+                targets += [(t, True) for t in charts[986]['targets']]
+            for target, is_count in targets:
+                expanded = dict(target, expr=target['expr'].replace('[$__interval]', f'[{interval}s]'))
+                expr = audit.expand(expanded['expr'], model, 3600)
                 params = {'query': expr, 'start': int((now - 3600) * 1e9),
                           'end': int(now * 1e9), 'step': interval}
                 try:
@@ -51,11 +57,14 @@ def main():
                     raise RuntimeError('Expected one aggregated series, not per-request series')
                 values = [float(v) for s in series for _, v in s['values']]
                 if any(v < 0 for v in values if math.isfinite(v)):
-                    raise RuntimeError('Negative latency returned')
+                    raise RuntimeError('Negative sample returned')
+                if is_count and any(v != int(v) for v in values if math.isfinite(v)):
+                    raise RuntimeError('Request counts must be whole numbers')
                 finite = sum(math.isfinite(v) for v in values)
-                print(f'PASS: {name}, {interval}s, {target["legendFormat"]}: {finite} observed points, '
+                kind = 'count' if is_count else name
+                print(f'PASS: {kind}, {interval}s, {target["legendFormat"]}: {finite} observed points, '
                       f'{len(values) - finite} empty steps')
-    print('PASS: both modes and resolutions accepted by Loki. Inspect Grafana rendering separately.')
+    print('PASS: Average, P95 and sample counts accepted by Loki at both resolutions. Inspect Grafana rendering separately.')
 
 
 if __name__ == '__main__':
