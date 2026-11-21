@@ -1,5 +1,35 @@
 # Monitoring Verification
 
+## TEST-REQUEST-CORRELATION-2026-11-21 — Real browser/backend correlation
+
+**PASS for operator-supplied deployment output, one exact Loki ID match, and
+the English Grafana table screenshot.** The assistant did not access Oracle
+directly; commands were executed by the operator in their SSH session.
+
+- All 17 receiver tests passed on Oracle before deployment. Receiver v3 was
+  installed with its systemd state-directory drop-in; the service remained active.
+- Initial static Alloy source skipped the not-yet-created journal. Ten valid
+  ID-bearing records were readable in the container. Restarting Alloy after file
+  creation recovered delivery. Dynamic discovery was then validated/deployed;
+  Alloy reported healthy and the verifier continued to match a real request.
+- The verifier matched `/auth/logout`: frontend 485 ms, backend 390 ms, status
+  204 on both sides, using the same frontend request_id/backend reqId.
+- The first Grafana table was empty because downstream transformations referenced
+  unsuffixed aggregate names. Candidate `d3d06ab0d79bd0383e3f76226b2717793d26f7a1`
+  fixed field references and was installed only into the two new dashboards.
+- The subsequent English screenshot shows populated request ID, frontend/backend
+  timings, routes, statuses and timestamps with clean column names and duration
+  colouring. Both sides report HTTP 503 for `/cv/:id/profile` (one displayed pair
+  is approximately 1.68 s / 1.57 s), alongside successful login/logout requests.
+  The slow-request list is populated; ID-less and dropped-detail diagnostics are
+  zero in that observation.
+
+Health routes/backend-only probes are excluded by configuration; a separate
+controlled UptimeRobot exclusion test was not performed. Induced network failures,
+missing-file rediscovery, restart deduplication, Viewer permissions for the new
+dashboards and separate live Hungarian rendering remain unverified. The observed
+application 503s are not resolved by this monitoring change.
+
 > **Current deployment — 2026-11-19:** The operator confirmed all supplied changes were already applied on Oracle. Monitoring was merged into `main` (`10f43d1`); no reinstallation is required because of that merge. [Current status](DEPLOYMENT_STATUS.md). Earlier rollout entries are historical; commands are retained for future updates or recovery.
 
 ## Current documented state — reviewed November 19, 2026

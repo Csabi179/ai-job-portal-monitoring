@@ -14,9 +14,15 @@ and ID-less browser requests. The correlation table keeps browser-reported rows
 only; both sides exclude `/health` and `/api/health` (including trailing slashes).
 Health/UptimeRobot traffic is not application request traffic.
 
-**Prepared and locally tested, not deployed by this change.** See the
+**Operator-verified on Oracle on November 21:** receiver v3, healthy Alloy with
+dynamic file discovery, a real frontend/backend ID match in Loki, and a populated
+English Grafana table including HTTP 503 responses. See the
 [request correlation deployment and verification guide](docs/REQUEST_CORRELATION.md).
-After pulling the reviewed commit on Oracle:
+The commands below describe a clean-checkout installation. The operator's
+existing Oracle checkout contains older local configuration changes, so this
+rollout used pinned release directories and targeted file updates instead of a
+blanket pull or the clean-checkout installer. Preserve that distinction for
+future updates. For a clean checkout:
 
 ```bash
 cd ~/ai-job-monitoring

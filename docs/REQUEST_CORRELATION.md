@@ -1,6 +1,8 @@
 # Frontend/backend request correlation
 
-Prepared November 21, 2026. **Deployment and real Grafana rendering remain unverified.**
+Updated November 21, 2026. **Oracle deployment and the English Grafana request table are operator-verified.**
+The Hungarian dashboard has identical queries and transforms and passed local
+checks; its live rendering has not been separately evidenced.
 
 ## Contract verified against the merged frontend
 
@@ -50,7 +52,9 @@ feeding `loki.source.file.frontend_requests`, so startup without the file does
 not permanently skip collection. The operator observed this failure with the
 initial static target: ten valid ID-bearing records were readable inside Alloy
 but its startup log reported `failed to create source, skipping` because the
-file had not existed yet. The dynamic-discovery fix still requires live validation.
+file had not existed yet. The operator then validated/applied dynamic discovery
+and confirmed healthy Alloy plus continued real ID correlation. Reproducing a
+missing-file startup followed by delayed file creation has not been tested live.
 
 After the operator restarted Alloy with the file present, the read-only verifier
 matched a real `/auth/logout` request: frontend 485 ms, backend 390 ms, both
@@ -62,8 +66,13 @@ same ID match remained successful. Frontend slow-request logs were visible in
 Grafana, but the table was empty with aggregate-suffixed column names. The table
 fix preserves Grafana's actual `field (lastNotNull)` identities through join,
 filter, conversion and sorting; presentation renames run last. The local checker
-now validates these field references. The corrected table still needs visual
-acceptance on the deployed Grafana instance.
+now validates these field references. The operator's subsequent English dashboard
+screenshot shows populated, correctly named frontend/backend columns, matching
+routes and statuses, duration colouring and a separate slow-request log list.
+It includes `/cv/:id/profile` HTTP 503 on both sides, with displayed timings of
+approximately 1.68 s frontend / 1.57 s backend, and successful login/logout rows.
+The ID-less and dropped-detail diagnostics show zero in this observation; this
+does not prove behavior under induced network failures or dropped batches.
 
 The receiver fsyncs the journal before acknowledging 204. A disk error returns
 503 for the existing browser retry policy. Journal writes do not add request
