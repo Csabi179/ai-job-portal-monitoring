@@ -69,17 +69,20 @@ class ServiceDashboardTests(unittest.TestCase):
         result = requests.embed_comparison_table(original, 'en')
         self.assertEqual([p['id'] for p in result['panels']], [901, 321, 981, 980, 902, 903])
         chart, table = result['panels'][2:4]
-        self.assertEqual(chart['type'], 'barchart')
+        self.assertEqual(chart['type'], 'timeseries')
         self.assertEqual(table['type'], 'table')
-        self.assertEqual(chart['gridPos'], {'x': 0, 'y': 4, 'w': 24, 'h': 14})
-        self.assertEqual(table['gridPos'], {'x': 0, 'y': 18, 'w': 24, 'h': 12})
-        self.assertEqual(result['panels'][4]['gridPos']['y'], 30)
-        self.assertEqual(result['panels'][5]['panels'][0]['gridPos']['y'], 32)
+        self.assertEqual(chart['gridPos'], {'x': 0, 'y': 4, 'w': 24, 'h': 8})
+        self.assertEqual(table['gridPos'], {'x': 0, 'y': 12, 'w': 24, 'h': 12})
+        self.assertEqual(result['panels'][4]['gridPos']['y'], 24)
+        self.assertEqual(result['panels'][5]['panels'][0]['gridPos']['y'], 26)
         self.assertEqual(chart['targets'], table['targets'])
-        self.assertEqual(chart['options']['orientation'], 'horizontal')
-        self.assertEqual(chart['options']['stacking'], 'none')
-        self.assertEqual(chart['options']['xField'], 'request_id')
-        self.assertEqual(next(t for t in chart['transformations'] if t['id'] == 'limit')['options']['limitField'], 20)
+        self.assertFalse(any(t['id'] == 'limit' for t in chart['transformations']))
+        conversion = next(t for t in chart['transformations'] if t['id'] == 'convertFieldType')
+        self.assertTrue(any(c['targetField'] == 'frontend_started_ms (lastNotNull)' and c['destinationType'] == 'time'
+                            for c in conversion['options']['conversions']))
+        self.assertEqual(next(t for t in chart['transformations'] if t['id'] == 'sortBy')['options']['sort'],
+                         [{'field': 'frontend_started_ms (lastNotNull)', 'desc': False}])
+        self.assertFalse(chart['fieldConfig']['defaults']['custom']['spanNulls'])
         self.assertEqual(chart['fieldConfig']['defaults']['min'], 0)
         self.assertEqual(len([t for t in chart['transformations'] if t['id'] == 'groupBy']), 2)
         self.assertEqual(result['panels'][1], original['panels'][1])
@@ -87,6 +90,22 @@ class ServiceDashboardTests(unittest.TestCase):
         self.assertEqual([v['name'] for v in result['templating']['list']], ['existing_filter', 'request_id'])
         self.assertEqual(requests.embed_comparison_table(result, 'en'), result)
         self.assertEqual(len(original['panels']), 4)
+
+    def test_replacing_old_bars_reclaims_space_and_keeps_request_table(self):
+        requests = module('request_chart_replacement', 'build-request-correlation-dashboard.py')
+        current = read(JSON_DIR / 'matchwise-service-comparison-en.json')
+        old = json.loads(json.dumps(current))
+        graph = next(p for p in old['panels'] if p['id'] == 981)
+        old_bottom = graph['gridPos']['y'] + graph['gridPos']['h']
+        graph['type'] = 'barchart'
+        graph['gridPos']['h'] = 14
+        def shift(items):
+            for p in items:
+                if p['gridPos']['y'] >= old_bottom:
+                    p['gridPos']['y'] += 6
+                shift(p.get('panels', []))
+        shift(old['panels'])
+        self.assertEqual(requests.embed_comparison_table(old, 'en'), current)
 
     def copy_models(self, tmp):
         for name in checker.FILES:
