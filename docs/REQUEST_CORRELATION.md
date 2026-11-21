@@ -44,6 +44,19 @@ owned through the receiver's systemd StateDirectory, with a read-only Alloy bind
 The Docker daemon resolves the DynamicUser state directory symlink as root;
 verify actual readability on Oracle. No request IDs become ingestion labels.
 
+The frontend journal may not exist until the first v2 request batch arrives.
+Use `local.file_match.frontend_requests` with a ten-second discovery interval,
+feeding `loki.source.file.frontend_requests`, so startup without the file does
+not permanently skip collection. The operator observed this failure with the
+initial static target: ten valid ID-bearing records were readable inside Alloy
+but its startup log reported `failed to create source, skipping` because the
+file had not existed yet. The dynamic-discovery fix still requires live validation.
+
+After the operator restarted Alloy with the file present, the read-only verifier
+matched a real `/auth/logout` request: frontend 485 ms, backend 390 ms, both
+HTTP 204. This confirms one real request correlation in Loki. It does not yet
+verify the Grafana table rendering, other error cases or missing-file recovery.
+
 The receiver fsyncs the journal before acknowledging 204. A disk error returns
 503 for the existing browser retry policy. Journal writes do not add request
 counts to the original aggregate metrics: aggregates remain authoritative for

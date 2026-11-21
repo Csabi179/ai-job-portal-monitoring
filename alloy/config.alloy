@@ -6,14 +6,19 @@ logging {
 // Browser request details are separate from aggregate Prometheus metrics.
 // Keep only the active file: archived files must not be re-ingested after rotation.
 // Reception timestamps avoid trusting client wall clocks for Loki ordering.
-loki.source.file "frontend_requests" {
-  targets = [
+local.file_match "frontend_requests" {
+  sync_period = "10s"
+  path_targets = [
     {
       __path__ = "/var/log/matchwise-frontend/requests.jsonl",
       job = "matchwise_frontend_requests",
       service_name = "matchwise-frontend",
     },
   ]
+}
+
+loki.source.file "frontend_requests" {
+  targets = local.file_match.frontend_requests.targets
   forward_to = [loki.write.local.receiver]
 }
 
