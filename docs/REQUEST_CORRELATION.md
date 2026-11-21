@@ -200,8 +200,14 @@ with identical start timestamps retain their values and can overlap visually;
 the table remains available to inspect individual requests. The chart connects
 observed requests and does not imply continuous latency sampling between them.
 Updating an existing bar panel replaces it and reclaims the extra layout space,
-preserving the request table and all subsequent panels. Live line-chart rendering
-remains pending.
+preserving the request table and all subsequent panels. The operator's subsequent
+English screenshot confirms live rendering: browser request times on X, response
+duration on Y, blue Frontend and orange Backend lines, both series in the tooltip
+(one shown pair is 411 ms / 292 ms), and the request table directly below.
+Some older frontend records have no backend match within the selected query
+window; their backend cells remain empty. The screenshot does not establish the
+cause of each missing match. Long segments connect sparse request observations.
+Separate live Hungarian rendering remains unverified.
 
 `build-request-correlation-dashboard.py --embed-only DIRECTORY` preserves existing
 Service Comparison panels/settings, inserts or replaces the table/chart idempotently and
