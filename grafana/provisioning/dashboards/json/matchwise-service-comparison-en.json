@@ -53,6 +53,32 @@
           "value": ""
         },
         "options": []
+      },
+      {
+        "name": "timing_stat",
+        "label": "Response time",
+        "type": "custom",
+        "query": "Average : 0,P95 : 1",
+        "current": {
+          "text": "Average",
+          "value": "0"
+        },
+        "options": [
+          {
+            "text": "Average",
+            "value": "0",
+            "selected": true
+          },
+          {
+            "text": "P95",
+            "value": "1",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false,
+        "allowCustomValue": false,
+        "hide": 0
       }
     ]
   },
@@ -1422,14 +1448,54 @@
     {
       "id": 981,
       "type": "timeseries",
-      "title": "Frontend and backend · response time by request time",
-      "gridPos": {
-        "x": 0,
-        "y": 20,
-        "w": 24,
-        "h": 8
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
       },
-      "description": "X: browser-recorded request start time. Y: response time on one shared duration scale. Blue frontend, orange backend, paired by request ID using the exact table values. No averaging or top-20 limit; at most 1000 log lines per side. Requests with identical timestamps may overlap. Lines connect observed requests; a missing backend value is not zero.",
+      "title": "Frontend and backend · response time trend · ${timing_stat:text}",
+      "description": "Average / P95: mean / 95th percentile of all logged samples per interval. Automatic resolution, at least 1 minute; intervals without observations are gaps. X: Loki log time, not browser start time; collection delays may differ. Frontend: real browser requests with IDs. Backend: a separate API log population, excluding health paths and explicit UptimeRobot markers. The curves are not ID-paired; the table below provides exact matches. The table's 1000-line limit does not apply to these metric aggregations.",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "((avg_over_time({job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | duration_ms >= 0 | __error__=\"\" | unwrap duration_ms | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 0)) or (quantile_over_time(0.95, {job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | duration_ms >= 0 | __error__=\"\" | unwrap duration_ms | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 1))) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Frontend"
+        },
+        {
+          "refId": "B",
+          "expr": "((avg_over_time({job=\"matchwise_backend_render_api\"} !~ \"(?i)uptimerobot\" | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | unwrap responseTimeMs | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 0)) or (quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} !~ \"(?i)uptimerobot\" | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | unwrap responseTimeMs | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 1))) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Backend"
+        }
+      ],
+      "transformations": [],
+      "interval": "1m",
+      "maxDataPoints": 600,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "ms",
@@ -1439,9 +1505,9 @@
             "drawStyle": "line",
             "lineInterpolation": "linear",
             "lineWidth": 2,
-            "fillOpacity": 3,
-            "showPoints": "always",
-            "pointSize": 5,
+            "fillOpacity": 0,
+            "showPoints": "auto",
+            "pointSize": 4,
             "spanNulls": false,
             "axisPlacement": "auto",
             "axisColorMode": "text",
@@ -1454,11 +1520,6 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            },
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
             }
           }
         },
@@ -1466,7 +1527,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "frontend_ms (lastNotNull)"
+              "options": "Frontend"
             },
             "properties": [
               {
@@ -1481,7 +1542,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "backend_ms (lastNotNull)"
+              "options": "Backend"
             },
             "properties": [
               {
@@ -1495,229 +1556,12 @@
           }
         ]
       },
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "editorMode": "code",
-          "maxLines": 1000
-        },
-        {
-          "refId": "B",
-          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }}}`",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          },
-          "queryType": "range",
-          "editorMode": "code",
-          "maxLines": 1000
-        }
-      ],
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "transformations": [
-        {
-          "id": "extractFields",
-          "filter": {
-            "id": "byRefId",
-            "options": "A"
-          },
-          "options": {
-            "source": "Line",
-            "format": "json",
-            "replace": true,
-            "keepTime": false
-          }
-        },
-        {
-          "id": "groupBy",
-          "filter": {
-            "id": "byRefId",
-            "options": "A"
-          },
-          "options": {
-            "fields": {
-              "request_id": {
-                "operation": "groupby",
-                "aggregations": []
-              },
-              "frontend_ms": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "frontend_route": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "frontend_status": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "frontend_outcome": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "frontend_started_ms": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "id": "extractFields",
-          "filter": {
-            "id": "byRefId",
-            "options": "B"
-          },
-          "options": {
-            "source": "Line",
-            "format": "json",
-            "replace": true,
-            "keepTime": false
-          }
-        },
-        {
-          "id": "groupBy",
-          "filter": {
-            "id": "byRefId",
-            "options": "B"
-          },
-          "options": {
-            "fields": {
-              "request_id": {
-                "operation": "groupby",
-                "aggregations": []
-              },
-              "backend_ms": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "backend_route": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              },
-              "backend_status": {
-                "operation": "aggregate",
-                "aggregations": [
-                  "lastNotNull"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "id": "joinByField",
-          "options": {
-            "byField": "request_id",
-            "mode": "outerTabular"
-          }
-        },
-        {
-          "id": "filterByValue",
-          "options": {
-            "type": "include",
-            "match": "all",
-            "filters": [
-              {
-                "fieldName": "frontend_route (lastNotNull)",
-                "config": {
-                  "id": "isNotNull",
-                  "options": {}
-                }
-              }
-            ]
-          }
-        },
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "targetField": "frontend_ms (lastNotNull)",
-                "destinationType": "number"
-              },
-              {
-                "targetField": "backend_ms (lastNotNull)",
-                "destinationType": "number"
-              },
-              {
-                "targetField": "frontend_started_ms (lastNotNull)",
-                "destinationType": "time"
-              }
-            ]
-          }
-        },
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "frontend_started_ms (lastNotNull)",
-                "frontend_ms (lastNotNull)",
-                "backend_ms (lastNotNull)"
-              ]
-            }
-          }
-        },
-        {
-          "id": "sortBy",
-          "options": {
-            "fields": {},
-            "sort": [
-              {
-                "field": "frontend_started_ms (lastNotNull)",
-                "desc": false
-              }
-            ]
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "frontend_started_ms (lastNotNull)": "Time",
-              "frontend_ms (lastNotNull)": "Frontend",
-              "backend_ms (lastNotNull)": "Backend"
-            }
-          }
-        }
-      ]
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      }
     },
     {
       "id": 980,

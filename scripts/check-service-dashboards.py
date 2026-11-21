@@ -23,7 +23,7 @@ from pathlib import Path
 FILES = ['matchwise-unified-monitoring.json', 'matchwise-unified-monitoring-en.json',
          'matchwise-service-comparison.json', 'matchwise-service-comparison-en.json']
 SUBST = [('${excluded_route:raw}', '(/api/health|/health)'), ('${route_filter:regex}', ''),
-         ('${status_filter:raw}', '.*'), ('${request_id:regex}', ''),
+         ('${status_filter:raw}', '.*'), ('${request_id:regex}', ''), ('${timing_stat:raw}', '0'),
          ('${supabase_instance}', 'example.supabase.co:443'), ('$__range_s', '900'), ('$__range', '15m'),
          ('$__rate_interval', '5m'), ('$__interval', '1m')]
 SERVICES_UNIFIED = ('Frontend', 'Backend', 'Oracle')

@@ -48,6 +48,47 @@ def run_checker(directory):
 
 
 class ServiceDashboardTests(unittest.TestCase):
+    def test_timing_trend_updater_preserves_table_and_all_other_panels(self):
+        import copy
+        requests = module('timing_trend', 'build-request-correlation-dashboard.py')
+        audit = module('timing_expansion', 'check-dashboard-final-audit.py')
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            name = f'matchwise-service-comparison{suffix}.json'
+            old = json.loads(subprocess.check_output(
+                ['git', 'show', f'fc94f130d7aa50418dfd954205b7ea811c4464d1:grafana/provisioning/dashboards/json/{name}'],
+                cwd=REPO).decode('utf-8'))
+            new = requests.update_timing_trend(copy.deepcopy(old), lang)
+            self.assertEqual(new, requests.update_timing_trend(copy.deepcopy(new), lang))
+            before = {p['id']: p for p in checker.walk(old['panels'])}
+            after = {p['id']: p for p in checker.walk(new['panels'])}
+            self.assertEqual(set(before), set(after))
+            for key in before:
+                if key != 981:
+                    self.assertEqual(after[key], before[key])
+            chart = after[981]
+            self.assertEqual(chart['gridPos'], before[981]['gridPos'])
+            self.assertEqual(chart['transformations'], [])
+            self.assertFalse(chart['fieldConfig']['defaults']['custom']['spanNulls'])
+            self.assertEqual(chart['interval'], '1m')
+            variable = next(v for v in new['templating']['list'] if v['name'] == 'timing_stat')
+            self.assertEqual(variable['current']['value'], '0')
+            for mode in ('0', '1'):
+                variable['current']['value'] = mode
+                for target in chart['targets']:
+                    expr = audit.expand(target['expr'], new)
+                    self.assertTrue(checker.balanced(expr))
+                    self.assertNotIn('$', expr)
+                    self.assertIn('by ()', expr)
+                    self.assertIn('vector(0) / vector(0)', expr)  # Empty steps are NaN, not zero.
+                    self.assertNotIn('maxLines', target)
+                    self.assertIn('route!~', expr)
+                    self.assertIn('unwrap', expr)
+            self.assertIn('uptimerobot', chart['targets'][1]['expr'])
+            self.assertIn('mode="real"', chart['targets'][0]['expr'])
+            # Keep an existing P95 selection during subsequent idempotent updates.
+            again = requests.update_timing_trend(copy.deepcopy(new), lang)
+            self.assertEqual(again, new)
+
     def test_http_signal_counts_secondary_averages_and_graphs_stay_together(self):
         import copy
         requests = module('http_signals', 'build-request-correlation-dashboard.py')
@@ -197,19 +238,20 @@ class ServiceDashboardTests(unittest.TestCase):
         self.assertEqual(table['gridPos'], {'x': 0, 'y': 12, 'w': 24, 'h': 12})
         self.assertEqual(result['panels'][4]['gridPos']['y'], 24)
         self.assertEqual(result['panels'][5]['panels'][0]['gridPos']['y'], 26)
-        self.assertEqual(chart['targets'], table['targets'])
-        self.assertFalse(any(t['id'] == 'limit' for t in chart['transformations']))
-        conversion = next(t for t in chart['transformations'] if t['id'] == 'convertFieldType')
-        self.assertTrue(any(c['targetField'] == 'frontend_started_ms (lastNotNull)' and c['destinationType'] == 'time'
-                            for c in conversion['options']['conversions']))
-        self.assertEqual(next(t for t in chart['transformations'] if t['id'] == 'sortBy')['options']['sort'],
-                         [{'field': 'frontend_started_ms (lastNotNull)', 'desc': False}])
+        self.assertNotEqual(chart['targets'], table['targets'])
+        self.assertEqual(chart['transformations'], [])
+        self.assertEqual(chart['interval'], '1m')
+        self.assertEqual(chart['maxDataPoints'], 600)
+        for target in chart['targets']:
+            self.assertIn('avg_over_time(', target['expr'])
+            self.assertIn('quantile_over_time(0.95,', target['expr'])
+            self.assertIn('[$__interval]', target['expr'])
+            self.assertNotIn('maxLines', target)
         self.assertFalse(chart['fieldConfig']['defaults']['custom']['spanNulls'])
         self.assertEqual(chart['fieldConfig']['defaults']['min'], 0)
-        self.assertEqual(len([t for t in chart['transformations'] if t['id'] == 'groupBy']), 2)
         self.assertEqual(result['panels'][1], original['panels'][1])
         self.assertEqual(result['custom_live_setting'], 'keep')
-        self.assertEqual([v['name'] for v in result['templating']['list']], ['existing_filter', 'request_id'])
+        self.assertEqual([v['name'] for v in result['templating']['list']], ['existing_filter', 'request_id', 'timing_stat'])
         self.assertEqual(requests.embed_comparison_table(result, 'en'), result)
         self.assertEqual(len(original['panels']), 4)
 

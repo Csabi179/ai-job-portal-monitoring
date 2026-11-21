@@ -287,3 +287,31 @@ panels (982–985) hold the small average values; the original count-card area i
 split into a count and an average without increasing its total height. Updates
 are idempotent, and unrelated uses of the reserved IDs are rejected. Live visual
 verification remains necessary after deployment.
+
+### Aggregated response-time trend
+
+Panel 981 in Service Comparison now queries Loki metrics directly, replacing the
+individual-request polyline. The `Response time` selector offers Average (default)
+and P95. The interval adapts to dashboard range/width with a one-minute minimum
+and 600 target data points. Aggregation happens inside Loki across all retained
+matching log samples, not over the table's truncated 1000-row result. The range
+aggregation groups across streams directly, avoiding unweighted averages of
+stream averages or percentiles of stream percentiles. Empty evaluation steps
+are NaN (not zero), with null bridging disabled and automatic point visibility.
+
+This is an operational trend, not a request-ID join: frontend real-mode reports
+with UUIDs and backend API logs with UUIDs are separate populations. Both respect
+the request-ID filter. Health routes are excluded; backend logs containing an
+explicit UptimeRobot marker are excluded too. Unmarked non-browser API clients
+cannot be distinguished from browser requests using these fields. The chart's
+time axis is Loki log time, so browser batching and backend collection delay can
+shift the series. The unchanged table remains the exact request-ID comparison
+using browser start time. P95 from sparse intervals should be interpreted with
+care; it is not an individual matched request or a frontend/backend difference.
+
+Use `--timing-trend-only DIRECTORY` for a scoped in-place update of both language
+dashboards. Only panel 981 and the new selector are changed. Existing Average/P95
+selection is preserved on repeat updates. Before installing, run
+`python3 scripts/verify-timing-trend.py DIRECTORY` against local Loki to exercise
+both modes at one- and five-minute intervals. Live rendering remains a separate
+check; earlier exact-request chart screenshots do not verify the new trend.
