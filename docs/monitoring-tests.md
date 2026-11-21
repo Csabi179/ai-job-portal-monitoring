@@ -1,5 +1,24 @@
 # Monitoring Verification
 
+## TEST-COMPARISON-TIMING-LINES-2026-11-21 — Request chart placement and rendering
+
+**PASS for the operator's English Service Comparison screenshots.** The table
+was installed between the scorecard and availability sections. After approving
+an inline line-chart preview, the operator applied candidate
+`fbec24eeb2d7a9da839c377997e774bf798df94c` to replace the previous bar chart.
+The final screenshot shows time-ordered blue frontend and orange backend lines,
+a response-duration axis, a tooltip containing both values (411 ms / 292 ms in
+the visible example), and the populated request table immediately below.
+
+All twelve dashboard regression tests and the local layout/query checks passed.
+The source updater preserves custom live settings and replaces/resizes the chart
+without duplicating it or damaging subsequent layout. The operator performed
+the installation; the assistant did not directly operate the Oracle server.
+Sparse samples are connected by straight lines. Missing backend matches remain
+empty and are not evidence of zero latency or a confirmed backend outage.
+Separate Hungarian live rendering and exhaustive missing-data scenarios were
+not verified by these screenshots.
+
 ## TEST-REQUEST-CORRELATION-2026-11-21 — Real browser/backend correlation
 
 **PASS for operator-supplied deployment output, one exact Loki ID match, and

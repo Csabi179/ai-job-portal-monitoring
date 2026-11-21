@@ -15,6 +15,7 @@ Usage:
     scripts/build-service-dashboards.py OUTPUT_DIRECTORY [--baseline-ref REF | --baseline-dir DIR]
 """
 import argparse
+import importlib.util
 import copy
 import json
 import subprocess
@@ -1007,6 +1008,11 @@ def main():
         for kind, builder in (('unified', build_unified), ('comparison', build_comparison)):
             IDS.n = 300
             model = polish_display(builder(base), kind)
+            if kind == 'comparison':
+                spec = importlib.util.spec_from_file_location('request_correlation', REPO / 'scripts/build-request-correlation-dashboard.py')
+                request_correlation = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(request_correlation)
+                model = request_correlation.embed_comparison_table(model, lang)
             path = args.output / FILES[(kind, lang)]
             path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
             print('wrote', path, len(list(walk(model['panels']))), 'panels')

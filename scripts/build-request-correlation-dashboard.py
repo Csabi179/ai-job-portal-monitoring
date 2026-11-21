@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Build a separate HU/EN request correlation view; preserve existing dashboards."""
 import json
+import copy
+import argparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -164,6 +166,25 @@ def build(lang):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                        help='Insert the request table and timing line chart into existing HU/EN Service Comparison JSON')
+    args = parser.parse_args()
+    if args.embed_only:
+        candidates = []
+        for lang in ('hu', 'en'):
+            suffix = '' if lang == 'hu' else '-en'
+            path = args.embed_only / f'matchwise-service-comparison{suffix}.json'
+            current = json.loads(path.read_text(encoding='utf-8'))
+            expected_uid = 'matchwise-service-comparison' + suffix
+            if current.get('uid') != expected_uid:
+                raise ValueError(f'Unexpected dashboard UID: {path}')
+            candidates.append((path, embed_comparison_table(current, lang)))
+        # Validate both destinations before writing either file.
+        for path, model in candidates:
+            path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+            print('Updated request table and timing line chart:', path)
+        return
     for lang in ('hu', 'en'):
         suffix = '' if lang == 'hu' else '-en'
         path = DEST / f'matchwise-request-correlation{suffix}.json'
@@ -171,6 +192,8 @@ def main():
         for kind in ('unified-monitoring', 'service-comparison'):
             existing = DEST / f'matchwise-{kind}{suffix}.json'
             model = json.loads(existing.read_text(encoding='utf-8'))
+            if kind == 'service-comparison':
+                model = embed_comparison_table(model, lang)
             url = '/d/matchwise-request-correlation' + suffix
             links = model.setdefault('links', [])
             if not any(link.get('url') == url for link in links):
@@ -180,6 +203,114 @@ def main():
             else:
                 # Keep generated files byte-identical on Windows and Linux.
                 existing.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+
+
+def embed_comparison_table(model, lang):
+    """Add only the proven table, preserving existing panels, filters and identities."""
+    model = copy.deepcopy(model)
+    table = copy.deepcopy(next(p for p in build(lang)['panels'] if p['type'] == 'table'))
+    table['id'] = 980
+    table['description'] += ('\n\nFrontend: fetch indításától a válaszfejlécekig; backend: szerveroldali feldolgozás. '
+                            'Health/próbakérések kizárva. Legfeljebb 1000 naplósor oldalanként; szűkítsd az időablakot vagy adj meg request ID-t.'
+                            if lang == 'hu' else
+                            '\n\nFrontend: fetch until response headers; backend: server processing. '
+                            'Health/backend-only probes excluded. At most 1000 log lines per side; narrow the range or filter by request ID.')
+    panels = model['panels']
+    existing = next((i for i, p in enumerate(panels) if p['id'] == 980), None)
+    if existing is not None:
+        if panels[existing]['type'] != 'table' or 'frontend_ms' not in json.dumps(panels[existing]):
+            raise ValueError('Panel 980 is already used by an unrelated panel')
+        table['gridPos'] = copy.deepcopy(panels[existing]['gridPos'])
+        panels[existing] = table
+    else:
+        index = next(i for i, p in enumerate(panels)
+                     if p['type'] == 'row' and p['title'].startswith('02 ·'))
+        if not any(p['type'] == 'row' and p['title'].startswith('01 ·') for p in panels[:index]):
+            raise ValueError('Scorecard row must precede availability')
+        start = panels[index]['gridPos']['y']
+        height = 12
+        def shift(items):
+            for panel in items:
+                if panel['gridPos']['y'] >= start:
+                    panel['gridPos']['y'] += height
+                shift(panel.get('panels', []))
+        shift(panels)
+        table['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': height}
+        panels.insert(index, table)
+    variables = model.setdefault('templating', {}).setdefault('list', [])
+    if not any(v['name'] == 'request_id' for v in variables):
+        variables.append(copy.deepcopy(next(v for v in build(lang)['templating']['list'] if v['name'] == 'request_id')))
+    model = embed_comparison_chart(model, table, lang)
+    return model
+
+
+def embed_comparison_chart(model, table, lang):
+    """Plot exact paired request durations over browser request start time."""
+    chart = copy.deepcopy(table)
+    chart.update(id=981, type='timeseries', title=(
+        'Frontend és backend · válaszidő a kérések időpontjában' if lang == 'hu' else
+        'Frontend and backend · response time by request time'))
+    chart['description'] = (
+        'X: a kérés böngészőben rögzített indítási időpontja. Y: válaszidő, közös időskálán. '
+        'Kék frontend, narancssárga backend; azonos request ID alapján párosítva, a táblázat pontos értékeivel. '
+        'Nincs átlagolás vagy 20-as korlát; legfeljebb 1000 naplósor oldalanként. '
+        'Azonos időpontú kérések pontjai átfedhetnek. A vonal a megfigyelt kéréseket köti össze; hiányzó backendérték nem nulla.' if lang == 'hu' else
+        'X: browser-recorded request start time. Y: response time on one shared duration scale. '
+        'Blue frontend, orange backend, paired by request ID using the exact table values. '
+        'No averaging or top-20 limit; at most 1000 log lines per side. '
+        'Requests with identical timestamps may overlap. Lines connect observed requests; a missing backend value is not zero.')
+    time_field = grouped_name('frontend_started_ms')
+    duration_fields = [grouped_name(name) for name in ('frontend_ms', 'backend_ms')]
+    transforms = copy.deepcopy(table['transformations'])
+    transforms = [t for t in transforms if t['id'] not in ('organize', 'sortBy')]
+    conversion = next(t for t in transforms if t['id'] == 'convertFieldType')
+    next(c for c in conversion['options']['conversions'] if c['targetField'] == time_field)['destinationType'] = 'time'
+    transforms.extend([
+        {'id': 'filterFieldsByName', 'options': {'include': {'names': [time_field, *duration_fields]}}},
+        {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': time_field, 'desc': False}]}},
+        {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {}, 'renameByName': {
+            time_field: 'Time', duration_fields[0]: 'Frontend', duration_fields[1]: 'Backend'}}},
+    ])
+    chart['transformations'] = transforms
+    chart['options'] = {'tooltip': {'mode': 'multi', 'sort': 'none'},
+                        'legend': {'showLegend': True, 'displayMode': 'list', 'placement': 'bottom'}}
+    chart['fieldConfig'] = {'defaults': {'unit': 'ms', 'min': 0, 'noValue': '—', 'custom': {
+        'drawStyle': 'line', 'lineInterpolation': 'linear', 'lineWidth': 2, 'fillOpacity': 3,
+        'showPoints': 'always', 'pointSize': 5, 'spanNulls': False, 'axisPlacement': 'auto',
+        'axisColorMode': 'text', 'scaleDistribution': {'type': 'linear'},
+        'stacking': {'mode': 'none', 'group': 'A'}, 'thresholdsStyle': {'mode': 'off'},
+        'hideFrom': {'tooltip': False, 'viz': False, 'legend': False}}}, 'overrides': [
+            {'matcher': {'id': 'byName', 'options': name}, 'properties': [
+                {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
+            for name, color in zip(duration_fields, ('#56B4E9', '#E69F00'))]}
+    panels = model['panels']
+    existing = next((i for i, p in enumerate(panels) if p['id'] == 981), None)
+    if existing is not None:
+        if panels[existing]['type'] not in ('barchart', 'timeseries') or 'matchwise_frontend_requests' not in json.dumps(panels[existing]):
+            raise ValueError('Panel 981 is already used by an unrelated panel')
+        chart['gridPos'] = copy.deepcopy(panels[existing]['gridPos'])
+        old_bottom = chart['gridPos']['y'] + chart['gridPos']['h']
+        delta = 8 - chart['gridPos']['h']
+        chart['gridPos']['h'] = 8
+        def resize_following(items):
+            for panel in items:
+                if panel['gridPos']['y'] >= old_bottom:
+                    panel['gridPos']['y'] += delta
+                resize_following(panel.get('panels', []))
+        resize_following(panels)
+        panels[existing] = chart
+        return model
+    index = next(i for i, p in enumerate(panels) if p['id'] == 980)
+    start = panels[index]['gridPos']['y']
+    def shift(items):
+        for panel in items:
+            if panel['gridPos']['y'] >= start:
+                panel['gridPos']['y'] += 8
+            shift(panel.get('panels', []))
+    shift(panels)
+    chart['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': 8}
+    panels.insert(index, chart)
+    return model
 
 
 if __name__ == '__main__':
