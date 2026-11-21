@@ -28,6 +28,14 @@ FE_FIELDS = [('request_id', 'request_id', False), ('frontend_ms', 'duration_ms',
              ('frontend_outcome', 'outcome', False), ('frontend_started_ms', 'started_at_ms', True)]
 BE_FIELDS = [('request_id', 'reqId', False), ('backend_ms', 'responseTimeMs', True),
              ('backend_route', 'route', False), ('backend_status', 'statusCode', False)]
+
+
+def grouped_name(name):
+    # Grafana groupBy changes the raw field identity. Display-name renames do
+    # not survive every downstream join, so use the real names until the end.
+    return name if name == 'request_id' else name + ' (lastNotNull)'
+
+
 FRONT = (FE + f' | request_id=~"{UUID}" | request_id=~".*${{request_id:regex}}.*"'
          + project(FE_FIELDS))
 BACK = (BE + f' | reqId=~"{UUID}" | reqId=~".*${{request_id:regex}}.*"'
@@ -86,19 +94,22 @@ def build(lang):
                 for name, _, _ in fields}}},
         ])
     transforms.extend([
-        {'id': 'renameByRegex', 'options': {'regex': r' \(lastNotNull\)$', 'renamePattern': ''}},
         {'id': 'joinByField', 'options': {'byField': 'request_id', 'mode': 'outerTabular'}},
         {'id': 'filterByValue', 'options': {'type': 'include', 'match': 'all', 'filters': [
-            {'fieldName': 'frontend_route', 'config': {'id': 'isNotNull', 'options': {}}}]}},
+            {'fieldName': grouped_name('frontend_route'), 'config': {'id': 'isNotNull', 'options': {}}}]}},
         {'id': 'convertFieldType', 'options': {'conversions': [
-            {'targetField': f, 'destinationType': 'number'}
+            {'targetField': grouped_name(f), 'destinationType': 'number'}
             for f in ('frontend_ms', 'backend_ms', 'frontend_started_ms')]}},
-        {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': 'frontend_ms', 'desc': True}]}},
+        {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': grouped_name('frontend_ms'), 'desc': True}]}},
+        # Presentation renames are applied after joins, filters and sorting.
+        {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {},
+         'renameByName': {grouped_name(name): name for name, _, _ in FE_FIELDS + BE_FIELDS
+                          if name != 'request_id'}}},
     ])
     p['transformations'] = transforms
     p['options'] = {'showHeader': True, 'cellHeight': 'sm', 'footer': {'show': False}}
     p['fieldConfig']['overrides'] = [
-        {'matcher': {'id': 'byName', 'options': name}, 'properties': [
+        {'matcher': {'id': 'byName', 'options': grouped_name(name)}, 'properties': [
             {'id': 'unit', 'value': 'ms'},
             {'id': 'thresholds', 'value': {'mode': 'absolute', 'steps': [
                 {'value': None, 'color': 'green'}, {'value': 1000, 'color': 'orange'},
@@ -106,7 +117,7 @@ def build(lang):
             {'id': 'custom.cellOptions', 'value': {'type': 'color-background'}}]}
         for name in ('frontend_ms', 'backend_ms')]
     p['fieldConfig']['overrides'].append({
-        'matcher': {'id': 'byName', 'options': 'frontend_started_ms'},
+        'matcher': {'id': 'byName', 'options': grouped_name('frontend_started_ms')},
         'properties': [{'id': 'unit', 'value': 'dateTimeAsIso'}]})
 
     p = panel('logs', L('Lassú vagy hibás frontendkérések', 'Slow or failed frontend requests'), 0, 17, 24, 9,

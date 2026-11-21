@@ -58,7 +58,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "frontend_ms"
+              "options": "frontend_ms (lastNotNull)"
             },
             "properties": [
               {
@@ -96,7 +96,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "backend_ms"
+              "options": "backend_ms (lastNotNull)"
             },
             "properties": [
               {
@@ -134,7 +134,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "frontend_started_ms"
+              "options": "frontend_started_ms (lastNotNull)"
             },
             "properties": [
               {
@@ -286,13 +286,6 @@
           }
         },
         {
-          "id": "renameByRegex",
-          "options": {
-            "regex": " \\(lastNotNull\\)$",
-            "renamePattern": ""
-          }
-        },
-        {
           "id": "joinByField",
           "options": {
             "byField": "request_id",
@@ -306,7 +299,7 @@
             "match": "all",
             "filters": [
               {
-                "fieldName": "frontend_route",
+                "fieldName": "frontend_route (lastNotNull)",
                 "config": {
                   "id": "isNotNull",
                   "options": {}
@@ -320,15 +313,15 @@
           "options": {
             "conversions": [
               {
-                "targetField": "frontend_ms",
+                "targetField": "frontend_ms (lastNotNull)",
                 "destinationType": "number"
               },
               {
-                "targetField": "backend_ms",
+                "targetField": "backend_ms (lastNotNull)",
                 "destinationType": "number"
               },
               {
-                "targetField": "frontend_started_ms",
+                "targetField": "frontend_started_ms (lastNotNull)",
                 "destinationType": "number"
               }
             ]
@@ -340,10 +333,27 @@
             "fields": {},
             "sort": [
               {
-                "field": "frontend_ms",
+                "field": "frontend_ms (lastNotNull)",
                 "desc": true
               }
             ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "frontend_ms (lastNotNull)": "frontend_ms",
+              "frontend_route (lastNotNull)": "frontend_route",
+              "frontend_status (lastNotNull)": "frontend_status",
+              "frontend_outcome (lastNotNull)": "frontend_outcome",
+              "frontend_started_ms (lastNotNull)": "frontend_started_ms",
+              "backend_ms (lastNotNull)": "backend_ms",
+              "backend_route (lastNotNull)": "backend_route",
+              "backend_status (lastNotNull)": "backend_status"
+            }
           }
         }
       ]

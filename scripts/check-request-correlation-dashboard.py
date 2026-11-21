@@ -36,8 +36,28 @@ def main():
         table = next(p for p in panels if p['type'] == 'table')
         transforms = table['transformations']
         assert any(t['id'] == 'joinByField' and t['options']['byField'] == 'request_id' for t in transforms)
-        assert any(t['id'] == 'filterByValue' and t['options']['filters'][0]['fieldName'] == 'frontend_route'
+        assert any(t['id'] == 'filterByValue' and t['options']['filters'][0]['fieldName'] == 'frontend_route (lastNotNull)'
                    for t in transforms), 'Backend-only probes must not enter the correlation table'
+        # Contract from Grafana groupBy: aggregates become raw fields named
+        # '<field> (lastNotNull)'. Filters/conversions/sorts must use these names,
+        # not a display-name rename that the join can discard.
+        grouped_fields = {'request_id'}
+        for transform in transforms:
+            if transform['id'] == 'groupBy':
+                for name, opts in transform['options']['fields'].items():
+                    if opts['operation'] == 'aggregate':
+                        grouped_fields.update(name + f' ({aggregation})' for aggregation in opts['aggregations'])
+        assert not any(t['id'] == 'renameByRegex' for t in transforms)
+        assert transforms[-1]['id'] == 'organize'
+        for transform in transforms:
+            options = transform['options']
+            if transform['id'] == 'filterByValue':
+                assert all(f['fieldName'] in grouped_fields for f in options['filters'])
+            if transform['id'] == 'convertFieldType':
+                assert all(c['targetField'] in grouped_fields for c in options['conversions'])
+            if transform['id'] == 'sortBy':
+                assert all(s['field'] in grouped_fields for s in options['sort'])
+        assert all(o['matcher']['options'] in grouped_fields for o in table['fieldConfig']['overrides'])
         for panel in panels:
             for target in panel['targets']:
                 if target['datasource']['type'] == 'loki':
