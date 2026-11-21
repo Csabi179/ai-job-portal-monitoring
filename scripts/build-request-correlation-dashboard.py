@@ -196,23 +196,29 @@ def build(lang):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                         help='Insert the request table and timing line chart into existing HU/EN Service Comparison JSON')
+    mode.add_argument('--summary-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Update only period-summary cards and event chart scales; preserve request table/chart')
     args = parser.parse_args()
-    if args.embed_only:
+    directory = args.embed_only or args.summary_only
+    if directory:
         candidates = []
         for lang in ('hu', 'en'):
             suffix = '' if lang == 'hu' else '-en'
-            path = args.embed_only / f'matchwise-service-comparison{suffix}.json'
+            path = directory / f'matchwise-service-comparison{suffix}.json'
             current = json.loads(path.read_text(encoding='utf-8'))
             expected_uid = 'matchwise-service-comparison' + suffix
             if current.get('uid') != expected_uid:
                 raise ValueError(f'Unexpected dashboard UID: {path}')
-            candidates.append((path, embed_comparison_table(current, lang)))
+            update = selected_period_summary if args.summary_only else embed_comparison_table
+            candidates.append((path, update(current, lang)))
         # Validate both destinations before writing either file.
         for path, model in candidates:
             path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
-            print('Updated request table and timing line chart:', path)
+            print('Updated period summaries and event scales:' if args.summary_only else
+                  'Updated request table and timing line chart:', path)
         return
     for lang in ('hu', 'en'):
         suffix = '' if lang == 'hu' else '-en'
@@ -271,6 +277,94 @@ def embed_comparison_table(model, lang):
         variables.append(copy.deepcopy(next(v for v in build(lang)['templating']['list'] if v['name'] == 'request_id')))
     model = embed_comparison_chart(model, table, lang)
     model = refine_comparison_scorecard(model, lang)
+    model = selected_period_summary(model, lang)
+    return model
+
+
+def selected_period_summary(model, lang):
+    """Period-wide counter rates and weighted error shares; never gate history on current health."""
+    def L(hu, en):
+        return hu if lang == 'hu' else en
+    def walk(items):
+        for item in items:
+            yield item
+            yield from walk(item.get('panels', []))
+    panels = list(walk(model['panels']))
+    start = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('01 ·'))
+    end = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('02 ·'))
+    cards = [p for p in model['panels'][start + 1:end] if p['type'] == 'stat']
+    if len(cards) == 16:
+        model['panels'][start]['title'] = L('01 · Ellenőrzések most · időszaki átlagok',
+                                            '01 · Checks now · period averages')
+        fe = 'job="frontend_traffic",mode="real"'
+        db = 'job="supabase",instance="${supabase_instance}"'
+        responses = f'sum(rate(frontend_api_http_responses_total{{{fe}}}[$__range]))'
+        failures = f'sum(rate(frontend_api_http_responses_total{{{fe},status=~"4..|5.."}}[$__range]))'
+        commits = f'sum(rate(pg_stat_database_xact_commit_total{{{db}}}[$__range]))'
+        rollbacks = f'sum(rate(pg_stat_database_xact_rollback_total{{{db}}}[$__range]))'
+        expressions = {
+            2: f'sum(rate(frontend_api_requests_started_total{{{fe}}}[$__range])) * 60',
+            3: f'100 * (({failures} or on() (0 * {responses})) / ({responses} > 0))',
+            10: f'{commits} * 60',
+            11: f'100 * {rollbacks} / (({commits} + {rollbacks}) > 0)',
+        }
+        for index in (2, 3, 6, 7, 10, 11):
+            card = cards[index]
+            for target in card['targets']:
+                target['expr'] = expressions.get(index, target['expr'].replace('[5m]', '[$__range]'))
+                target.update(instant=True, range=False)
+            for key in ('timeFrom', 'timeShift'):
+                card.pop(key, None)
+            traffic = index % 4 == 2
+            card['title'] = (L('Forgalom · időszaki átlag', 'Traffic · period avg') if traffic else
+                             L('Rollback · időszaki arány', 'Rollback · period share') if index == 11 else
+                             L('HTTP-hibák · időszaki arány', 'HTTP errors · period share'))
+            card['description'] = L(
+                'A kiválasztott teljes időablakra, annak végpontjában számítva. ',
+                'Calculated over the entire selected time range at its end. ') + (
+                L('Átlagos percenkénti forgalom; számláló-visszaállítások kezelve.',
+                  'Average traffic per minute; counter resets are handled.') if traffic else
+                L('Az időszak összes eseményével súlyozott hibaarány, nem a százalékok számtani átlaga.',
+                  'Event-weighted share across the period, not an arithmetic mean of percentages.')) + L(
+                ' Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.',
+                ' Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.')
+    for panel in panels:
+        if panel['id'] in (29, 30, 31, 32) and panel['type'] == 'stat':
+            for target in panel['targets']:
+                expr = target['expr'].replace('[5m]', '[$__range]')
+                # Idempotently convert period counts to average events/minute.
+                if '$__range_s' not in expr:
+                    expr = f'({expr}) * 60 / $__range_s'
+                target['expr'] = expr
+                target.update(instant=True, range=False, queryType='instant')
+            for key in ('timeFrom', 'timeShift'):
+                panel.pop(key, None)
+            defaults = panel['fieldConfig']['defaults']
+            defaults.update(unit='suffix:' + L('esemény/perc', 'events/min'), decimals=2)
+            # Old count thresholds cannot be applied to a per-minute rate.
+            defaults['color'] = {'mode': 'fixed', 'fixedColor': '#E69F00'}
+            defaults['noValue'] = L('Nincs eseményminta', 'No event sample')
+            panel['description'] = L(
+                'A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.',
+                'Selected-period event count / duration in minutes. Health checks excluded; absent logs are not zero.')
+        if panel['id'] == 28 and panel['type'] == 'text':
+            panel['options']['content'] = L(
+                '**A kiválasztott teljes időablak átlaga, esemény/percben; health checkek nélkül.** '
+                'A 401/403/404/429 vizsgálati jel, nem támadás bizonyítéka. Hiányzó napló nem nulla esemény. '
+                'Nincs IP- vagy fiókazonosítás; a 429 önmagában nem bizonyít rate limitinget.',
+                '**Average over the entire selected time range, in events/min; health checks excluded.** '
+                'HTTP 401/403/404/429 are investigation signals, not proof of an attack. Missing logs do not mean zero events. '
+                'No IP or account attribution is collected; a 429 does not prove rate limiting is implemented.')
+        defaults = panel.get('fieldConfig', {}).get('defaults', {})
+        unit = defaults.get('unit', '')
+        if panel['type'] == 'timeseries' and (unit.startswith('suffix:') and any(
+                word in unit for word in ('/min', '/perc')) or panel['id'] in (33, 34)):
+            defaults['min'] = 0
+            defaults.pop('max', None)
+            custom = defaults.setdefault('custom', {})
+            custom.update(axisSoftMin=0, axisSoftMax=1)
+            if panel['id'] in (33, 34):
+                defaults['unit'] = 'suffix:' + L('kérés/perc', 'requests/min')
     return model
 
 

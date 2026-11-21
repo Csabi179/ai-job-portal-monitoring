@@ -245,3 +245,26 @@ Grafana rendering checks require the Oracle environment.
 
 Implementation references: [Grafana transformations](https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/query-transform-data/transform-data/),
 [Loki query pipelines](https://grafana.com/docs/loki/latest/query/log_queries/).
+
+### Selected-period averages and event chart scale
+
+Service Comparison traffic scorecards now evaluate `rate(counter[$__range]) * 60`
+at the selected end time. HTTP error and rollback percentages are event-weighted
+shares over that same window, not averages of rolling percentages. Historical
+summaries do not depend on current health or telemetry freshness gates; the
+separate current-health cards retain those checks. Incomplete counter coverage
+can still produce an extrapolated estimate; missing samples remain missing.
+Counter resets are handled by applying rate before aggregation.
+
+The four security cards show selected-period log counts divided by
+`$__range_s / 60`, in events/minute (two decimals), preserving their health
+exclusion and zero fallback only where the base log stream exists. Their text
+describes the new units. Time-series event/traffic charts have a zero minimum
+and a soft maximum of one event/minute, with no hard upper cap; peaks can extend
+the axis. Percentage and request-latency chart scales are unchanged. Both
+languages and the in-place updater use these settings. Live query execution
+and Grafana rendering must be checked after deployment.
+
+References: [Grafana time-range variables](https://grafana.com/docs/grafana/latest/visualizations/dashboards/variables/built-in-variables/),
+[Prometheus rate](https://prometheus.io/docs/prometheus/latest/querying/functions/#rate),
+[Grafana soft axis limits](https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/visualizations/time-series/).

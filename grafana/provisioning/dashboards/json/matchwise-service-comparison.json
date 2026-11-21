@@ -77,7 +77,7 @@
     {
       "id": 901,
       "type": "row",
-      "title": "01 · Összegzőkártya · most",
+      "title": "01 · Ellenőrzések most · időszaki átlagok",
       "collapsed": false,
       "panels": [],
       "gridPos": {
@@ -258,8 +258,8 @@
     {
       "id": 309,
       "type": "stat",
-      "title": "Forgalom · 5p átlag",
-      "description": "Frontend · Forgalom / perc\n\nBöngészős API-hívások percenként.\n\nA hiányzó minta nem bizonyít nulla forgalmat.",
+      "title": "Forgalom · időszaki átlag",
+      "description": "A kiválasztott teljes időablakra, annak végpontjában számítva. Átlagos percenkénti forgalom; számláló-visszaállítások kezelve. Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -267,7 +267,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) < 180))",
+          "expr": "sum(rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])) * 60",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -334,8 +334,8 @@
     {
       "id": 310,
       "type": "stat",
-      "title": "HTTP-hibák · 5p",
-      "description": "Frontend · Hibaarány (%)\n\n4xx+5xx a böngészőben látott HTTP-válaszok között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.\n\nForgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.",
+      "title": "HTTP-hibák · időszaki arány",
+      "description": "A kiválasztott teljes időablakra, annak végpontjában számítva. Az időszak összes eseményével súlyozott hibaarány, nem a százalékok számtani átlaga. Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -343,7 +343,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 * ((sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\",status=~\"4..|5..\"}[5m])) or on() (0 * sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) / sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) and on() (sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) > 0) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+          "expr": "100 * ((sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\",status=~\"4..|5..\"}[$__range])) or on() (0 * sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])))) / (sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])) > 0))",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -605,8 +605,8 @@
     {
       "id": 323,
       "type": "stat",
-      "title": "Forgalom · 5p átlag",
-      "description": "Backend · Forgalom / perc\n\nNaplózott API-kérések percenként (health nélkül).\n\nA hiányzó minta nem bizonyít nulla forgalmat.",
+      "title": "Forgalom · időszaki átlag",
+      "description": "A kiválasztott teljes időablakra, annak végpontjában számítva. Átlagos percenkénti forgalom; számláló-visszaállítások kezelve. Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -614,7 +614,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 60",
+          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) * 60",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -683,8 +683,8 @@
     {
       "id": 324,
       "type": "stat",
-      "title": "HTTP-hibák · 5p",
-      "description": "Backend · Hibaarány (%)\n\n4xx+5xx a naplózott API-kérések között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.\n\nForgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.",
+      "title": "HTTP-hibák · időszaki arány",
+      "description": "A kiválasztott teljes időablakra, annak végpontjában számítva. Az időszak összes eseményével súlyozott hibaarány, nem a százalékok számtani átlaga. Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -692,7 +692,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | statusCode >= 400 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 0)) / (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) > 0))",
+          "expr": "100 * ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | statusCode >= 400 | __error__=\"\" [$__range])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) * 0)) / (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) > 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -956,8 +956,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Forgalom · 5p átlag",
-      "description": "Adatbázis · Forgalom / perc\n\nLezárt PostgreSQL-tranzakciók percenként. Nem HTTP-kérés.\n\nA hiányzó minta nem bizonyít nulla forgalmat.",
+      "title": "Forgalom · időszaki átlag",
+      "description": "A kiválasztott teljes időablakra, annak végpontjában számítva. Átlagos percenkénti forgalom; számláló-visszaállítások kezelve. Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -965,7 +965,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) * 60) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "expr": "sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) * 60",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1032,8 +1032,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Rollback arány · 5p",
-      "description": "Adatbázis · Hibaarány (%)\n\nVisszagörgetett tranzakciók aránya. Nem HTTP-hibaarány.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.\n\nForgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.",
+      "title": "Rollback · időszaki arány",
+      "description": "A kiválasztott teljes időablakra, annak végpontjában számítva. Az időszak összes eseményével súlyozott hibaarány, nem a százalékok számtani átlaga. Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1041,7 +1041,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 * sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) / ((sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) + sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) > 0)) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "expr": "100 * sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) / ((sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) + sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range]))) > 0)",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -3860,7 +3860,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "Nincs adat",
           "min": 0
@@ -3964,7 +3966,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "Nincs adat",
           "min": 0,
@@ -5049,7 +5053,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "Nincs adat",
           "min": 0
@@ -5166,7 +5172,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "Nincs adat",
           "min": 0
@@ -5292,7 +5300,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "Nincs adat",
           "min": 0
@@ -5386,7 +5396,7 @@
       "title": "Biztonsági jelzések · Értelmezés",
       "options": {
         "mode": "markdown",
-        "content": "**Utolsó 5 perc, health nélkül.** A 401/403/404/429 darabszám vizsgálati jelzés, önmagában nem támadásbizonyíték. Hiányzó eredményből nem következik nulla esemény. Nincs IP- vagy fiókszintű hozzárendelés; a 429-panel nem igazolja a korlátozás meglétét."
+        "content": "**A kiválasztott teljes időablak átlaga, esemény/percben; health checkek nélkül.** A 401/403/404/429 vizsgálati jel, nem támadás bizonyítéka. Hiányzó napló nem nulla esemény. Nincs IP- vagy fiókazonosítás; a 429 önmagában nem bizonyít rate limitinget."
       },
       "gridPos": {
         "x": 0,
@@ -5399,7 +5409,7 @@
       "id": 29,
       "type": "stat",
       "title": "401 · Nincs hitelesítés",
-      "description": "401 · Nincs hitelesítés · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5411,7 +5421,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5420,11 +5430,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:esemény/perc",
           "min": 0,
-          "noValue": "Nincs adat",
+          "noValue": "Nincs eseményminta",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5450,7 +5461,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5480,7 +5492,7 @@
       "id": 30,
       "type": "stat",
       "title": "403 · Tiltott",
-      "description": "403 · Hozzáférés megtagadva · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5492,7 +5504,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5501,11 +5513,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:esemény/perc",
           "min": 0,
-          "noValue": "Nincs adat",
+          "noValue": "Nincs eseményminta",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5531,7 +5544,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5561,7 +5575,7 @@
       "id": 31,
       "type": "stat",
       "title": "404 · Nem található",
-      "description": "404 · Nem található · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5573,7 +5587,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5582,11 +5596,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:esemény/perc",
           "min": 0,
-          "noValue": "Nincs adat",
+          "noValue": "Nincs eseményminta",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5612,7 +5627,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5642,7 +5658,7 @@
       "id": 32,
       "type": "stat",
       "title": "429 · Korlátozott kérés",
-      "description": "429 · Korlátozott kérés · 5 perc\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5654,7 +5670,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5663,11 +5679,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:esemény/perc",
           "min": 0,
-          "noValue": "Nincs adat",
+          "noValue": "Nincs eseményminta",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5693,7 +5710,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5780,7 +5798,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:kérés/perc",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
@@ -5800,7 +5818,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "min": 0,
           "noValue": "Nincs adat"
@@ -5868,7 +5888,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:kérés/perc",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
@@ -5888,7 +5908,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "min": 0,
           "noValue": "Nincs adat"
@@ -6967,7 +6989,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -7333,7 +7357,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -7492,7 +7518,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -7732,7 +7760,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -7915,7 +7945,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -8904,7 +8936,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -9040,7 +9074,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -9117,7 +9153,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",
@@ -9745,7 +9783,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "Nincs adat",

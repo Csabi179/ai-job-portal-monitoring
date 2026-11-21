@@ -48,6 +48,53 @@ def run_checker(directory):
 
 
 class ServiceDashboardTests(unittest.TestCase):
+    def test_period_summaries_upgrade_old_models_without_changing_other_queries(self):
+        import copy
+        requests = module('period_summaries', 'build-request-correlation-dashboard.py')
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            name = f'matchwise-service-comparison{suffix}.json'
+            old = json.loads(subprocess.check_output(
+                ['git', 'show', f'212c4902a4bc1e5b20b5edb8428d9951319d57db:grafana/provisioning/dashboards/json/{name}'],
+                cwd=REPO).decode('utf-8'))
+            old['live_setting'] = 'keep'
+            result = requests.selected_period_summary(copy.deepcopy(old), lang)
+            self.assertEqual(result, requests.selected_period_summary(copy.deepcopy(result), lang))
+            self.assertEqual(result['live_setting'], 'keep')
+            before = {p['id']: p for p in checker.walk(old['panels'])}
+            after = {p['id']: p for p in checker.walk(result['panels'])}
+            changed_queries = {29, 30, 31, 32, 309, 310, 323, 324, 337, 338}
+            for key, panel in after.items():
+                if key not in changed_queries:
+                    self.assertEqual(panel.get('targets'), before[key].get('targets'))
+            for key in changed_queries:
+                for target in after[key]['targets']:
+                    expr = target['expr']
+                    self.assertIn('[$__range]', expr)
+                    self.assertNotIn('[5m]', expr)
+                    self.assertNotIn('time()', expr)
+                    self.assertNotIn('min(up', expr)  # Current health must not hide history.
+                    self.assertTrue(target['instant'])
+                    self.assertFalse(target['range'])
+                    expanded = checker.substitute(expr)
+                    self.assertNotIn('$__', expanded)
+                    self.assertNotIn('15m_s', expanded)
+                    if key in (29, 30, 31, 32):
+                        self.assertIn('* 60 / $__range_s', expr)
+                        self.assertIn('route!~', expr)
+                        self.assertEqual(after[key]['fieldConfig']['defaults']['decimals'], 2)
+                    if key in (323, 324):
+                        self.assertIn('route!~', expr)
+                        self.assertIn('route=~', expr)
+            for key in (310, 324, 338):
+                self.assertIn('> 0', after[key]['targets'][0]['expr'])
+                self.assertNotIn('avg_over_time', after[key]['targets'][0]['expr'])
+            for key in (33, 34, 377):
+                defaults = after[key]['fieldConfig']['defaults']
+                self.assertEqual(defaults['min'], 0)
+                self.assertNotIn('max', defaults)  # Peaks above one must remain visible.
+                self.assertEqual(defaults['custom']['axisSoftMax'], 1)
+            self.assertEqual(after[981], before[981])  # Request timing graph is not an event counter.
+
     def test_visual_refinements_preserve_queries_and_distinguish_failures_from_speed(self):
         requests = module('visual_refinements', 'build-request-correlation-dashboard.py')
         for lang, suffix in [('hu', ''), ('en', '-en')]:

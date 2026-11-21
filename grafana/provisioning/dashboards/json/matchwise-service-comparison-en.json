@@ -76,7 +76,7 @@
     {
       "id": 901,
       "type": "row",
-      "title": "01 · Scorecard · now",
+      "title": "01 · Checks now · period averages",
       "collapsed": false,
       "panels": [],
       "gridPos": {
@@ -257,8 +257,8 @@
     {
       "id": 309,
       "type": "stat",
-      "title": "Traffic · 5m avg",
-      "description": "Frontend · Traffic / min\n\nBrowser API calls per minute.\n\nAn absent sample does not establish zero traffic.",
+      "title": "Traffic · period avg",
+      "description": "Calculated over the entire selected time range at its end. Average traffic per minute; counter resets are handled. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -266,7 +266,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) < 180))",
+          "expr": "sum(rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])) * 60",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -333,8 +333,8 @@
     {
       "id": 310,
       "type": "stat",
-      "title": "HTTP errors · 5m",
-      "description": "Frontend · Error rate (%)\n\n4xx+5xx share of browser-observed HTTP responses.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.\n\nNo traffic or missing telemetry can leave the rate undefined; that is not 0%.",
+      "title": "HTTP errors · period share",
+      "description": "Calculated over the entire selected time range at its end. Event-weighted share across the period, not an arithmetic mean of percentages. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -342,7 +342,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 * ((sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\",status=~\"4..|5..\"}[5m])) or on() (0 * sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) / sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) and on() (sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) > 0) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+          "expr": "100 * ((sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\",status=~\"4..|5..\"}[$__range])) or on() (0 * sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])))) / (sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])) > 0))",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -604,8 +604,8 @@
     {
       "id": 323,
       "type": "stat",
-      "title": "Traffic · 5m avg",
-      "description": "Backend · Traffic / min\n\nLogged API requests per minute (health checks excluded).\n\nAn absent sample does not establish zero traffic.",
+      "title": "Traffic · period avg",
+      "description": "Calculated over the entire selected time range at its end. Average traffic per minute; counter resets are handled. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -613,7 +613,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 60",
+          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) * 60",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -682,8 +682,8 @@
     {
       "id": 324,
       "type": "stat",
-      "title": "HTTP errors · 5m",
-      "description": "Backend · Error rate (%)\n\n4xx+5xx share of logged API requests.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.\n\nNo traffic or missing telemetry can leave the rate undefined; that is not 0%.",
+      "title": "HTTP errors · period share",
+      "description": "Calculated over the entire selected time range at its end. Event-weighted share across the period, not an arithmetic mean of percentages. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -691,7 +691,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | statusCode >= 400 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 0)) / (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) > 0))",
+          "expr": "100 * ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | statusCode >= 400 | __error__=\"\" [$__range])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) * 0)) / (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) > 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -955,8 +955,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Traffic · 5m avg",
-      "description": "Database · Traffic / min\n\nCommitted PostgreSQL transactions per minute. Not HTTP requests.\n\nAn absent sample does not establish zero traffic.",
+      "title": "Traffic · period avg",
+      "description": "Calculated over the entire selected time range at its end. Average traffic per minute; counter resets are handled. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -964,7 +964,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) * 60) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "expr": "sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) * 60",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1031,8 +1031,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Rollback share · 5m",
-      "description": "Database · Error rate (%)\n\nRolled-back share of transactions. Not an HTTP error rate.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.\n\nNo traffic or missing telemetry can leave the rate undefined; that is not 0%.",
+      "title": "Rollback · period share",
+      "description": "Calculated over the entire selected time range at its end. Event-weighted share across the period, not an arithmetic mean of percentages. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1040,7 +1040,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 * sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) / ((sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) + sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) > 0)) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "expr": "100 * sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) / ((sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) + sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range]))) > 0)",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -3859,7 +3859,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -3963,7 +3965,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0,
@@ -5048,7 +5052,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -5165,7 +5171,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -5291,7 +5299,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -5385,7 +5395,7 @@
       "title": "Security signals · Interpretation",
       "options": {
         "mode": "markdown",
-        "content": "**Last five minutes, excluding health checks.** HTTP 401/403/404/429 counts are investigation signals, not proof of an attack. Missing results do not mean zero events. No IP or account attribution is collected; a 429 panel does not prove that rate limiting is implemented."
+        "content": "**Average over the entire selected time range, in events/min; health checks excluded.** HTTP 401/403/404/429 are investigation signals, not proof of an attack. Missing logs do not mean zero events. No IP or account attribution is collected; a 429 does not prove rate limiting is implemented."
       },
       "gridPos": {
         "x": 0,
@@ -5398,7 +5408,7 @@
       "id": 29,
       "type": "stat",
       "title": "401 · Unauthenticated",
-      "description": "401 · Unauthenticated · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Selected-period event count / duration in minutes. Health checks excluded; absent logs are not zero.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5410,7 +5420,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5419,11 +5429,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events/min",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5449,7 +5460,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5479,7 +5491,7 @@
       "id": 30,
       "type": "stat",
       "title": "403 · Access denied",
-      "description": "403 · Access denied · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Selected-period event count / duration in minutes. Health checks excluded; absent logs are not zero.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5491,7 +5503,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5500,11 +5512,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events/min",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5530,7 +5543,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5560,7 +5574,7 @@
       "id": 31,
       "type": "stat",
       "title": "404 · Not found",
-      "description": "404 · Not found · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Selected-period event count / duration in minutes. Health checks excluded; absent logs are not zero.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5572,7 +5586,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5581,11 +5595,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events/min",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5611,7 +5626,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5641,7 +5657,7 @@
       "id": 32,
       "type": "stat",
       "title": "429 · Rate limited",
-      "description": "429 · Rate limited · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Selected-period event count / duration in minutes. Health checks excluded; absent logs are not zero.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5653,7 +5669,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5662,11 +5678,12 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events/min",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
-            "mode": "thresholds"
+            "mode": "fixed",
+            "fixedColor": "#E69F00"
           },
           "thresholds": {
             "mode": "absolute",
@@ -5692,7 +5709,8 @@
                 }
               }
             }
-          ]
+          ],
+          "decimals": 2
         },
         "overrides": []
       },
@@ -5779,7 +5797,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:requests/min",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
@@ -5799,7 +5817,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "min": 0,
           "noValue": "No data"
@@ -5867,7 +5887,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:requests/min",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
@@ -5887,7 +5907,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "min": 0,
           "noValue": "No data"
@@ -6966,7 +6988,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7332,7 +7356,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7491,7 +7517,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7731,7 +7759,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7914,7 +7944,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -8903,7 +8935,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -9039,7 +9073,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -9116,7 +9152,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -9744,7 +9782,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
