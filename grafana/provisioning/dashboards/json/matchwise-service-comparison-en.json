@@ -90,7 +90,7 @@
       "id": 302,
       "type": "stat",
       "title": "Frontend",
-      "description": "Frontend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "description": "Frontend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -110,17 +110,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "HTTP DOWN",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "HTTP UP",
                   "color": "green"
                 }
               }
@@ -130,7 +130,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -177,8 +177,8 @@
     {
       "id": 308,
       "type": "stat",
-      "title": "Check time",
-      "description": "Frontend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "HTTP probe duration",
+      "description": "Frontend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -198,14 +198,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -257,8 +257,8 @@
     {
       "id": 309,
       "type": "stat",
-      "title": "Traffic / min",
-      "description": "Frontend · Traffic / min\n\nBrowser API calls per minute.",
+      "title": "Traffic · 5m avg",
+      "description": "Frontend · Traffic / min\n\nBrowser API calls per minute.\n\nAn absent sample does not establish zero traffic.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -278,14 +278,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:calls/min",
-          "noValue": "No data",
+          "noValue": "No traffic sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No traffic sample",
                   "color": "gray"
                 }
               }
@@ -333,8 +333,8 @@
     {
       "id": 310,
       "type": "stat",
-      "title": "Errors (%)",
-      "description": "Frontend · Error rate (%)\n\n4xx+5xx share of browser-observed HTTP responses.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
+      "title": "HTTP errors · 5m",
+      "description": "Frontend · Error rate (%)\n\n4xx+5xx share of browser-observed HTTP responses.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.\n\nNo traffic or missing telemetry can leave the rate undefined; that is not 0%.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -354,18 +354,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "No data",
+          "noValue": "No rate sample",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "No data",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -384,6 +374,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No rate sample",
                   "color": "gray"
                 }
               }
@@ -437,7 +437,7 @@
       "id": 316,
       "type": "stat",
       "title": "Backend",
-      "description": "Backend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "description": "Backend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -457,17 +457,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "HTTP DOWN",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "HTTP UP",
                   "color": "green"
                 }
               }
@@ -477,7 +477,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -524,8 +524,8 @@
     {
       "id": 322,
       "type": "stat",
-      "title": "Check time",
-      "description": "Backend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "HTTP probe duration",
+      "description": "Backend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -545,14 +545,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -604,8 +604,8 @@
     {
       "id": 323,
       "type": "stat",
-      "title": "Traffic / min",
-      "description": "Backend · Traffic / min\n\nLogged API requests per minute (health checks excluded).",
+      "title": "Traffic · 5m avg",
+      "description": "Backend · Traffic / min\n\nLogged API requests per minute (health checks excluded).\n\nAn absent sample does not establish zero traffic.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -627,14 +627,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:requests/min",
-          "noValue": "No data",
+          "noValue": "No traffic sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No traffic sample",
                   "color": "gray"
                 }
               }
@@ -682,8 +682,8 @@
     {
       "id": 324,
       "type": "stat",
-      "title": "Errors (%)",
-      "description": "Backend · Error rate (%)\n\n4xx+5xx share of logged API requests.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
+      "title": "HTTP errors · 5m",
+      "description": "Backend · Error rate (%)\n\n4xx+5xx share of logged API requests.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.\n\nNo traffic or missing telemetry can leave the rate undefined; that is not 0%.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -705,18 +705,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "No data",
+          "noValue": "No rate sample",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "No data",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -735,6 +725,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No rate sample",
                   "color": "gray"
                 }
               }
@@ -788,7 +788,7 @@
       "id": 330,
       "type": "stat",
       "title": "Database",
-      "description": "Database · Status\n\nPostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.",
+      "description": "Database · Status\n\nPostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -808,17 +808,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "DB UNREACHABLE",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "DB REACHABLE",
                   "color": "green"
                 }
               }
@@ -828,7 +828,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -875,8 +875,8 @@
     {
       "id": 336,
       "type": "stat",
-      "title": "Check time",
-      "description": "Database · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Metrics scrape duration",
+      "description": "Database · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -896,14 +896,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -955,8 +955,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Traffic / min",
-      "description": "Database · Traffic / min\n\nCommitted PostgreSQL transactions per minute. Not HTTP requests.",
+      "title": "Traffic · 5m avg",
+      "description": "Database · Traffic / min\n\nCommitted PostgreSQL transactions per minute. Not HTTP requests.\n\nAn absent sample does not establish zero traffic.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -976,14 +976,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:transactions/min",
-          "noValue": "No data",
+          "noValue": "No traffic sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No traffic sample",
                   "color": "gray"
                 }
               }
@@ -1031,8 +1031,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Errors (%)",
-      "description": "Database · Error rate (%)\n\nRolled-back share of transactions. Not an HTTP error rate.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
+      "title": "Rollback share · 5m",
+      "description": "Database · Error rate (%)\n\nRolled-back share of transactions. Not an HTTP error rate.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.\n\nNo traffic or missing telemetry can leave the rate undefined; that is not 0%.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1052,18 +1052,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "No data",
+          "noValue": "No rate sample",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "No data",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -1082,6 +1072,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No rate sample",
                   "color": "gray"
                 }
               }
@@ -1135,7 +1135,7 @@
       "id": 344,
       "type": "stat",
       "title": "Oracle",
-      "description": "Oracle · Status\n\nNode Exporter scrape success on the Oracle machine.",
+      "description": "Oracle · Status\n\nNode Exporter scrape success on the Oracle machine.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1155,17 +1155,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "METRICS DOWN",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "METRICS UP",
                   "color": "green"
                 }
               }
@@ -1175,7 +1175,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -1222,8 +1222,8 @@
     {
       "id": 350,
       "type": "stat",
-      "title": "Check time",
-      "description": "Oracle · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Metrics scrape duration",
+      "description": "Oracle · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1243,14 +1243,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -1766,10 +1766,29 @@
                 }
               },
               {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "auto"
                 }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1804,10 +1823,29 @@
                 }
               },
               {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "auto"
                 }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1820,6 +1858,200 @@
               {
                 "id": "unit",
                 "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 155
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_status (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "gray"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 200,
+                      "to": 399,
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 400,
+                      "to": 499,
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 500,
+                      "to": 599,
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backend_status (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "gray"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 200,
+                      "to": 399,
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 400,
+                      "to": 499,
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 500,
+                      "to": 599,
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_route (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 115
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
               }
             ]
           }
@@ -2022,17 +2254,27 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {},
-            "indexByName": {},
+            "excludeByName": {
+              "backend_route (lastNotNull)": true,
+              "frontend_outcome (lastNotNull)": true
+            },
+            "indexByName": {
+              "frontend_started_ms (lastNotNull)": 0,
+              "frontend_route (lastNotNull)": 1,
+              "frontend_ms (lastNotNull)": 2,
+              "backend_ms (lastNotNull)": 3,
+              "frontend_status (lastNotNull)": 4,
+              "backend_status (lastNotNull)": 5,
+              "request_id": 6
+            },
             "renameByName": {
-              "frontend_ms (lastNotNull)": "frontend_ms",
-              "frontend_route (lastNotNull)": "frontend_route",
-              "frontend_status (lastNotNull)": "frontend_status",
-              "frontend_outcome (lastNotNull)": "frontend_outcome",
-              "frontend_started_ms (lastNotNull)": "frontend_started_ms",
-              "backend_ms (lastNotNull)": "backend_ms",
-              "backend_route (lastNotNull)": "backend_route",
-              "backend_status (lastNotNull)": "backend_status"
+              "frontend_started_ms (lastNotNull)": "Time",
+              "frontend_route (lastNotNull)": "Route",
+              "frontend_ms (lastNotNull)": "Frontend",
+              "backend_ms (lastNotNull)": "Backend",
+              "frontend_status (lastNotNull)": "FE status",
+              "backend_status (lastNotNull)": "BE status",
+              "request_id": "Request ID"
             }
           }
         }

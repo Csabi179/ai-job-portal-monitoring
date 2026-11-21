@@ -188,6 +188,22 @@ evidence and UptimeRobot exclusion in `monitoring-tests.md` only after running.
 
 ### Service Comparison placement and request timing lines
 
+The visual review follow-up improves the request table and Service Comparison
+scorecard without changing datasource queries. HTTP status cells retain their
+actual codes and use green for 2xx/3xx, orange for 4xx, red for 5xx and gray for
+missing values. Duration cells use ordinary text so a fast HTTP 503 is not
+presented as a green success. Time/route/durations/statuses precede a narrow,
+inspectable Request ID column; redundant backend route and HTTP outcome columns
+are hidden, not removed from the underlying data. Human-readable HU/EN headers
+replace raw field names.
+
+Scorecard labels distinguish HTTP checks, PostgreSQL reachability and Oracle
+metrics availability. Duration cards distinguish HTTP probe duration from
+metrics scrape duration. Missing traffic/rate samples are labeled conservatively,
+without inferring zero traffic, 0% errors or an outage; Oracle's explicitly
+uncollected application metrics remain unchanged. Five-minute windows are visible
+in rate-card titles. Live rendering of this visual follow-up remains pending.
+
 The request table is embedded below the section 01 scorecard and before section
 02 Availability and freshness in both Service Comparison language editions.
 An operator screenshot confirms the table's English placement and populated rows.

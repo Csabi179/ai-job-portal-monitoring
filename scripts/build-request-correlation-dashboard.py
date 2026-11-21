@@ -104,9 +104,18 @@ def build(lang):
             for f in ('frontend_ms', 'backend_ms', 'frontend_started_ms')]}},
         {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': grouped_name('frontend_ms'), 'desc': True}]}},
         # Presentation renames are applied after joins, filters and sorting.
-        {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {},
-         'renameByName': {grouped_name(name): name for name, _, _ in FE_FIELDS + BE_FIELDS
-                          if name != 'request_id'}}},
+        {'id': 'organize', 'options': {
+            'excludeByName': {grouped_name('backend_route'): True, grouped_name('frontend_outcome'): True},
+            'indexByName': {name: i for i, name in enumerate([
+                grouped_name('frontend_started_ms'), grouped_name('frontend_route'),
+                grouped_name('frontend_ms'), grouped_name('backend_ms'),
+                grouped_name('frontend_status'), grouped_name('backend_status'), 'request_id'])},
+            'renameByName': dict(zip([
+                grouped_name('frontend_started_ms'), grouped_name('frontend_route'),
+                grouped_name('frontend_ms'), grouped_name('backend_ms'),
+                grouped_name('frontend_status'), grouped_name('backend_status'), 'request_id'],
+                L(['Időpont', 'Útvonal', 'Frontend', 'Backend', 'FE státusz', 'BE státusz', 'Request ID'],
+                  ['Time', 'Route', 'Frontend', 'Backend', 'FE status', 'BE status', 'Request ID']))) }},
     ])
     p['transformations'] = transforms
     p['options'] = {'showHeader': True, 'cellHeight': 'sm', 'footer': {'show': False}}
@@ -116,11 +125,31 @@ def build(lang):
             {'id': 'thresholds', 'value': {'mode': 'absolute', 'steps': [
                 {'value': None, 'color': 'green'}, {'value': 1000, 'color': 'orange'},
                 {'value': 5000, 'color': 'red'}]}},
-            {'id': 'custom.cellOptions', 'value': {'type': 'color-background'}}]}
+            {'id': 'custom.width', 'value': 100},
+            {'id': 'custom.cellOptions', 'value': {'type': 'auto'}},
+            {'id': 'mappings', 'value': [{'type': 'special', 'options': {
+                'match': 'null', 'result': {'text': '—', 'color': 'gray'}}}]}]}
         for name in ('frontend_ms', 'backend_ms')]
     p['fieldConfig']['overrides'].append({
         'matcher': {'id': 'byName', 'options': grouped_name('frontend_started_ms')},
-        'properties': [{'id': 'unit', 'value': 'dateTimeAsIso'}]})
+        'properties': [{'id': 'unit', 'value': 'dateTimeAsIso'}, {'id': 'custom.width', 'value': 155}]})
+    for name in ('frontend_status', 'backend_status'):
+        p['fieldConfig']['overrides'].append({
+            'matcher': {'id': 'byName', 'options': grouped_name(name)}, 'properties': [
+                {'id': 'custom.width', 'value': 80},
+                {'id': 'custom.cellOptions', 'value': {'type': 'color-background'}},
+                {'id': 'color', 'value': {'mode': 'thresholds'}},
+                {'id': 'thresholds', 'value': {'mode': 'absolute', 'steps': [{'value': None, 'color': 'gray'}]}},
+                {'id': 'mappings', 'value': [
+                    {'type': 'range', 'options': {'from': start, 'to': end, 'result': {'color': color}}}
+                    for start, end, color in ((200, 399, 'green'), (400, 499, 'orange'), (500, 599, 'red'))
+                ] + [{'type': 'special', 'options': {'match': 'null', 'result': {'text': '—', 'color': 'gray'}}}]}]})
+    p['fieldConfig']['overrides'].extend([
+        {'matcher': {'id': 'byName', 'options': grouped_name('frontend_route')},
+         'properties': [{'id': 'custom.width', 'value': 160}]},
+        {'matcher': {'id': 'byName', 'options': 'request_id'},
+         'properties': [{'id': 'custom.width', 'value': 115}, {'id': 'custom.inspect', 'value': True}]},
+    ])
 
     p = panel('logs', L('Lassú vagy hibás frontendkérések', 'Slow or failed frontend requests'), 0, 17, 24, 9,
               [target('A', FE + ' | duration_ms >= ${slow_ms:raw} or status=~"[45][0-9][0-9]" or outcome!="http"'
@@ -241,6 +270,56 @@ def embed_comparison_table(model, lang):
     if not any(v['name'] == 'request_id' for v in variables):
         variables.append(copy.deepcopy(next(v for v in build(lang)['templating']['list'] if v['name'] == 'request_id')))
     model = embed_comparison_chart(model, table, lang)
+    model = refine_comparison_scorecard(model, lang)
+    return model
+
+
+def refine_comparison_scorecard(model, lang):
+    """Disambiguate check status, probe duration and absent rate samples; no query changes."""
+    def L(hu, en):
+        return hu if lang == 'hu' else en
+    start = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('01 ·'))
+    end = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('02 ·'))
+    cards = [p for p in model['panels'][start + 1:end] if p['type'] == 'stat']
+    if len(cards) != 16:
+        return model  # Preserve unfamiliar custom scorecards instead of relabelling the wrong cards.
+    for index, card in enumerate(cards):
+        service, column = divmod(index, 4)
+        defaults = card['fieldConfig']['defaults']
+        def absent(text):
+            defaults['noValue'] = text
+            defaults['mappings'] = [m for m in defaults.get('mappings', [])
+                                    if not (m.get('type') == 'special' and m.get('options', {}).get('match') == 'null')]
+            defaults['mappings'].append({'type': 'special', 'options': {
+                'match': 'null', 'result': {'text': text, 'color': 'gray'}}})
+        if column == 0:
+            up, down = (L('HTTP ELÉRHETŐ', 'HTTP UP'), L('HTTP NEM ELÉRHETŐ', 'HTTP DOWN')) if service < 2 else (
+                (L('DB ELÉRHETŐ', 'DB REACHABLE'), L('DB NEM ELÉRHETŐ', 'DB UNREACHABLE')) if service == 2 else
+                (L('METRIKA ELÉRHETŐ', 'METRICS UP'), L('METRIKA NEM ELÉRHETŐ', 'METRICS DOWN')))
+            defaults['mappings'] = [{'type': 'value', 'options': {
+                '0': {'text': down, 'color': 'red'}, '1': {'text': up, 'color': 'green'}}}]
+            absent(L('Nincs friss ellenőrzés', 'No fresh check'))
+            note = L('Az állapot csak az ellenőrzött végpontra vonatkozik; üzleti kérés ettől még adhat hibát.',
+                     'Status covers only the checked endpoint; business requests may still fail.')
+        elif column == 1:
+            card['title'] = L('HTTP-próba ideje', 'HTTP probe duration') if service < 2 else L('Scrape időtartama', 'Metrics scrape duration')
+            absent(L('Nincs friss mérés', 'No fresh sample'))
+            note = L('Nem a frontend felhasználói kéréseinek vagy a backend feldolgozásának válaszideje.',
+                     'Not browser request latency or backend application processing time.')
+        elif service == 3:
+            continue  # Preserve explicitly uncollected Oracle application metrics.
+        elif column == 2:
+            card['title'] = L('Forgalom · 5p átlag', 'Traffic · 5m avg')
+            absent(L('Nincs forgalmi minta', 'No traffic sample'))
+            note = L('A hiányzó minta nem bizonyít nulla forgalmat.', 'An absent sample does not establish zero traffic.')
+        else:
+            card['title'] = (L('HTTP-hibák · 5p', 'HTTP errors · 5m') if service < 2 else
+                             L('Rollback arány · 5p', 'Rollback share · 5m'))
+            absent(L('Nincs arányminta', 'No rate sample'))
+            note = L('Forgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.',
+                     'No traffic or missing telemetry can leave the rate undefined; that is not 0%.')
+        if note not in card.get('description', ''):
+            card['description'] = card.get('description', '') + '\n\n' + note
     return model
 
 

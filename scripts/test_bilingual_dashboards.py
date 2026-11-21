@@ -48,6 +48,41 @@ def run_checker(directory):
 
 
 class ServiceDashboardTests(unittest.TestCase):
+    def test_visual_refinements_preserve_queries_and_distinguish_failures_from_speed(self):
+        requests = module('visual_refinements', 'build-request-correlation-dashboard.py')
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            current = read(JSON_DIR / f'matchwise-service-comparison{suffix}.json')
+            result = requests.embed_comparison_table(current, lang)
+            before = [p.get('targets', []) for p in checker.walk(current['panels'])]
+            after = [p.get('targets', []) for p in checker.walk(result['panels'])]
+            self.assertEqual(before, after)
+            self.assertEqual(result, current)
+            table = next(p for p in result['panels'] if p['id'] == 980)
+            organize = table['transformations'][-1]['options']
+            self.assertEqual(organize['indexByName']['frontend_started_ms (lastNotNull)'], 0)
+            self.assertEqual(organize['indexByName']['request_id'], 6)
+            self.assertTrue(organize['excludeByName']['backend_route (lastNotNull)'])
+            overrides = {o['matcher']['options']: {p['id']: p['value'] for p in o['properties']}
+                         for o in table['fieldConfig']['overrides']}
+            for side in ('frontend', 'backend'):
+                duration = overrides[side + '_ms (lastNotNull)']
+                self.assertEqual(duration['custom.cellOptions']['type'], 'auto')
+                status = overrides[side + '_status (lastNotNull)']
+                red = [m for m in status['mappings'] if m['type'] == 'range'
+                       and m['options']['from'] == 500][0]
+                self.assertEqual(red['options']['result']['color'], 'red')
+                self.assertEqual(red['options']['to'], 599)
+                self.assertNotIn('text', red['options']['result'])  # Keep the actual HTTP code.
+            cards = [p for p in result['panels'] if p['type'] == 'stat'][:16]
+            mapping = cards[0]['fieldConfig']['defaults']['mappings'][0]['options']['1']['text']
+            self.assertIn('HTTP', mapping)
+            self.assertNotEqual(cards[1]['title'], cards[9]['title'])  # Probe vs metrics scrape.
+            for index in (3, 7, 11):
+                d = cards[index]['fieldConfig']['defaults']
+                nulls = [m for m in d['mappings'] if m['type'] == 'special' and m['options']['match'] == 'null']
+                self.assertEqual(nulls[0]['options']['result']['color'], 'gray')
+                self.assertNotEqual(nulls[0]['options']['result']['text'], '0%')
+
     def test_request_table_insertion_preserves_live_panels_and_is_idempotent(self):
         requests = module('request_table', 'build-request-correlation-dashboard.py')
         original = {

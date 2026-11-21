@@ -91,7 +91,7 @@
       "id": 302,
       "type": "stat",
       "title": "Frontend",
-      "description": "Frontend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
+      "description": "Frontend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.\n\nAz állapot csak az ellenőrzött végpontra vonatkozik; üzleti kérés ettől még adhat hibát.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -111,17 +111,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss ellenőrzés",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "NEM ELÉRHETŐ",
+                  "text": "HTTP NEM ELÉRHETŐ",
                   "color": "red"
                 },
                 "1": {
-                  "text": "ELÉRHETŐ",
+                  "text": "HTTP ELÉRHETŐ",
                   "color": "green"
                 }
               }
@@ -131,7 +131,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss ellenőrzés",
                   "color": "gray"
                 }
               }
@@ -178,8 +178,8 @@
     {
       "id": 308,
       "type": "stat",
-      "title": "Mérési idő",
-      "description": "Frontend · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "HTTP-próba ideje",
+      "description": "Frontend · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.\n\nNem a frontend felhasználói kéréseinek vagy a backend feldolgozásának válaszideje.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -199,14 +199,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss mérés",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss mérés",
                   "color": "gray"
                 }
               }
@@ -258,8 +258,8 @@
     {
       "id": 309,
       "type": "stat",
-      "title": "Forgalom",
-      "description": "Frontend · Forgalom / perc\n\nBöngészős API-hívások percenként.",
+      "title": "Forgalom · 5p átlag",
+      "description": "Frontend · Forgalom / perc\n\nBöngészős API-hívások percenként.\n\nA hiányzó minta nem bizonyít nulla forgalmat.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -279,14 +279,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:hívás/perc",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs forgalmi minta",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs forgalmi minta",
                   "color": "gray"
                 }
               }
@@ -334,8 +334,8 @@
     {
       "id": 310,
       "type": "stat",
-      "title": "Hibaarány",
-      "description": "Frontend · Hibaarány (%)\n\n4xx+5xx a böngészőben látott HTTP-válaszok között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "title": "HTTP-hibák · 5p",
+      "description": "Frontend · Hibaarány (%)\n\n4xx+5xx a böngészőben látott HTTP-válaszok között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.\n\nForgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -355,18 +355,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs arányminta",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -385,6 +375,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs arányminta",
                   "color": "gray"
                 }
               }
@@ -438,7 +438,7 @@
       "id": 316,
       "type": "stat",
       "title": "Backend",
-      "description": "Backend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.",
+      "description": "Backend · Állapot\n\nAz utolsó HTTP-próba 3 percen belül, csak működő exporter mellett. Nem folyamatos SLA.\n\nAz állapot csak az ellenőrzött végpontra vonatkozik; üzleti kérés ettől még adhat hibát.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -458,17 +458,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss ellenőrzés",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "NEM ELÉRHETŐ",
+                  "text": "HTTP NEM ELÉRHETŐ",
                   "color": "red"
                 },
                 "1": {
-                  "text": "ELÉRHETŐ",
+                  "text": "HTTP ELÉRHETŐ",
                   "color": "green"
                 }
               }
@@ -478,7 +478,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss ellenőrzés",
                   "color": "gray"
                 }
               }
@@ -525,8 +525,8 @@
     {
       "id": 322,
       "type": "stat",
-      "title": "Mérési idő",
-      "description": "Backend · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "HTTP-próba ideje",
+      "description": "Backend · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.\n\nNem a frontend felhasználói kéréseinek vagy a backend feldolgozásának válaszideje.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -546,14 +546,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss mérés",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss mérés",
                   "color": "gray"
                 }
               }
@@ -605,8 +605,8 @@
     {
       "id": 323,
       "type": "stat",
-      "title": "Forgalom",
-      "description": "Backend · Forgalom / perc\n\nNaplózott API-kérések percenként (health nélkül).",
+      "title": "Forgalom · 5p átlag",
+      "description": "Backend · Forgalom / perc\n\nNaplózott API-kérések percenként (health nélkül).\n\nA hiányzó minta nem bizonyít nulla forgalmat.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -628,14 +628,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:kérés/perc",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs forgalmi minta",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs forgalmi minta",
                   "color": "gray"
                 }
               }
@@ -683,8 +683,8 @@
     {
       "id": 324,
       "type": "stat",
-      "title": "Hibaarány",
-      "description": "Backend · Hibaarány (%)\n\n4xx+5xx a naplózott API-kérések között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "title": "HTTP-hibák · 5p",
+      "description": "Backend · Hibaarány (%)\n\n4xx+5xx a naplózott API-kérések között.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.\n\nForgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -706,18 +706,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs arányminta",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -736,6 +726,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs arányminta",
                   "color": "gray"
                 }
               }
@@ -789,7 +789,7 @@
       "id": 330,
       "type": "stat",
       "title": "Adatbázis",
-      "description": "Adatbázis · Állapot\n\nPostgreSQL elérhetőség (pg_up), csak sikeres Supabase-scrape mellett.",
+      "description": "Adatbázis · Állapot\n\nPostgreSQL elérhetőség (pg_up), csak sikeres Supabase-scrape mellett.\n\nAz állapot csak az ellenőrzött végpontra vonatkozik; üzleti kérés ettől még adhat hibát.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -809,17 +809,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss ellenőrzés",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "NEM ELÉRHETŐ",
+                  "text": "DB NEM ELÉRHETŐ",
                   "color": "red"
                 },
                 "1": {
-                  "text": "ELÉRHETŐ",
+                  "text": "DB ELÉRHETŐ",
                   "color": "green"
                 }
               }
@@ -829,7 +829,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss ellenőrzés",
                   "color": "gray"
                 }
               }
@@ -876,8 +876,8 @@
     {
       "id": 336,
       "type": "stat",
-      "title": "Mérési idő",
-      "description": "Adatbázis · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "Scrape időtartama",
+      "description": "Adatbázis · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.\n\nNem a frontend felhasználói kéréseinek vagy a backend feldolgozásának válaszideje.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -897,14 +897,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss mérés",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss mérés",
                   "color": "gray"
                 }
               }
@@ -956,8 +956,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Forgalom",
-      "description": "Adatbázis · Forgalom / perc\n\nLezárt PostgreSQL-tranzakciók percenként. Nem HTTP-kérés.",
+      "title": "Forgalom · 5p átlag",
+      "description": "Adatbázis · Forgalom / perc\n\nLezárt PostgreSQL-tranzakciók percenként. Nem HTTP-kérés.\n\nA hiányzó minta nem bizonyít nulla forgalmat.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -977,14 +977,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:tranzakció/perc",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs forgalmi minta",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs forgalmi minta",
                   "color": "gray"
                 }
               }
@@ -1032,8 +1032,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Hibaarány",
-      "description": "Adatbázis · Hibaarány (%)\n\nVisszagörgetett tranzakciók aránya. Nem HTTP-hibaarány.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.",
+      "title": "Rollback arány · 5p",
+      "description": "Adatbázis · Hibaarány (%)\n\nVisszagörgetett tranzakciók aránya. Nem HTTP-hibaarány.\n\nA 0–100% tartományon kívüli érték hibás minta; nem helyettesítjük nullával.\n\nForgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1053,18 +1053,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs arányminta",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "Nincs adat",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -1083,6 +1073,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Hibás minta",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Nincs arányminta",
                   "color": "gray"
                 }
               }
@@ -1136,7 +1136,7 @@
       "id": 344,
       "type": "stat",
       "title": "Oracle",
-      "description": "Oracle · Állapot\n\nA Node Exporter scrape sikeressége az Oracle gépen.",
+      "description": "Oracle · Állapot\n\nA Node Exporter scrape sikeressége az Oracle gépen.\n\nAz állapot csak az ellenőrzött végpontra vonatkozik; üzleti kérés ettől még adhat hibát.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1156,17 +1156,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss ellenőrzés",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "NEM ELÉRHETŐ",
+                  "text": "METRIKA NEM ELÉRHETŐ",
                   "color": "red"
                 },
                 "1": {
-                  "text": "ELÉRHETŐ",
+                  "text": "METRIKA ELÉRHETŐ",
                   "color": "green"
                 }
               }
@@ -1176,7 +1176,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss ellenőrzés",
                   "color": "gray"
                 }
               }
@@ -1223,8 +1223,8 @@
     {
       "id": 350,
       "type": "stat",
-      "title": "Mérési idő",
-      "description": "Oracle · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.",
+      "title": "Scrape időtartama",
+      "description": "Oracle · Ellenőrzés időtartama\n\nHTTP-próba (frontend, backend) vagy Prometheus-scrape (adatbázis, Oracle) utolsó időtartama.\n\nNem a frontend felhasználói kéréseinek vagy a backend feldolgozásának válaszideje.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1244,14 +1244,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "Nincs adat",
+          "noValue": "Nincs friss mérés",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "Nincs adat",
+                  "text": "Nincs friss mérés",
                   "color": "gray"
                 }
               }
@@ -1767,10 +1767,29 @@
                 }
               },
               {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "auto"
                 }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1805,10 +1824,29 @@
                 }
               },
               {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "auto"
                 }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1821,6 +1859,200 @@
               {
                 "id": "unit",
                 "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 155
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_status (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "gray"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 200,
+                      "to": 399,
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 400,
+                      "to": 499,
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 500,
+                      "to": 599,
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backend_status (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "gray"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 200,
+                      "to": 399,
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 400,
+                      "to": 499,
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 500,
+                      "to": 599,
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_route (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 115
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
               }
             ]
           }
@@ -2023,17 +2255,27 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {},
-            "indexByName": {},
+            "excludeByName": {
+              "backend_route (lastNotNull)": true,
+              "frontend_outcome (lastNotNull)": true
+            },
+            "indexByName": {
+              "frontend_started_ms (lastNotNull)": 0,
+              "frontend_route (lastNotNull)": 1,
+              "frontend_ms (lastNotNull)": 2,
+              "backend_ms (lastNotNull)": 3,
+              "frontend_status (lastNotNull)": 4,
+              "backend_status (lastNotNull)": 5,
+              "request_id": 6
+            },
             "renameByName": {
-              "frontend_ms (lastNotNull)": "frontend_ms",
-              "frontend_route (lastNotNull)": "frontend_route",
-              "frontend_status (lastNotNull)": "frontend_status",
-              "frontend_outcome (lastNotNull)": "frontend_outcome",
-              "frontend_started_ms (lastNotNull)": "frontend_started_ms",
-              "backend_ms (lastNotNull)": "backend_ms",
-              "backend_route (lastNotNull)": "backend_route",
-              "backend_status (lastNotNull)": "backend_status"
+              "frontend_started_ms (lastNotNull)": "Időpont",
+              "frontend_route (lastNotNull)": "Útvonal",
+              "frontend_ms (lastNotNull)": "Frontend",
+              "backend_ms (lastNotNull)": "Backend",
+              "frontend_status (lastNotNull)": "FE státusz",
+              "backend_status (lastNotNull)": "BE státusz",
+              "request_id": "Request ID"
             }
           }
         }

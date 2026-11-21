@@ -180,8 +180,14 @@ def check_consistency(models, errors):
         if [s[0] for s in shape] != services:
             errors.append(f'comparison {lang}: missing scorecard service labels')
         shape=[s[1:] for s in shape]
-        if len(rows) != 4 or any(s != shape[0] for s in shape) or len(shape[0]) != 3 or any(p['gridPos']['w']!=6 for p in score):
+        if len(rows) != 4 or any(len(s) != 3 for s in shape) or any(p['gridPos']['w']!=6 for p in score):
             errors.append(f'comparison {lang}: scorecard is not 4 identical rows of 4: {shape}')
+        else:
+            durations = [s[0] for s in shape]
+            expected = (['HTTP-próba ideje'] * 2 + ['Scrape időtartama'] * 2 if lang == 'hu' else
+                        ['HTTP probe duration'] * 2 + ['Metrics scrape duration'] * 2)
+            if durations != expected:
+                errors.append(f'comparison {lang}: probe and scrape duration labels are ambiguous: {durations}')
 
 
 def check_parity(models, errors):
