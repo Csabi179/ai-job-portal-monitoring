@@ -167,6 +167,41 @@ evidence and UptimeRobot exclusion in `monitoring-tests.md` only after running.
 
 ## Limits
 
+### Additional matched-request timing chart
+
+Service Comparison now retains the operational Average/P95 trend and sample-count
+chart and adds panel 987 immediately below them, before the request table, in
+both languages. No service or new data pipeline is introduced. The added chart
+copies the actual table's Loki queries, extraction, per-ID deduplication and
+`request_id = reqId` join. It keeps only rows with a browser start timestamp and
+both durations, converts that single start field to the common time axis and
+plots Frontend/Backend durations without averaging. Missing pairs remain visible
+as missing values in the table and do not enter the paired chart. Late matches
+can appear on refresh if both records are inside the log query range.
+
+Both sides of each plotted request use the same browser start time, regardless
+of log arrival order. The independent Average/P95 selector does not affect this
+panel. Two numeric series are displayed; no per-ID metric/ingestion labels are
+created. Same-time requests can overlap. Lines connect observed requests and
+do not imply continuous latency measurement. The original frontend 64-detail
+batch limit and the table's 1000-log-lines-per-side query limit still apply;
+this is a bounded diagnostic view, not a full-traffic trend. Use a narrower range
+or the existing Request ID filter when necessary. Query-range/collection delays
+can omit a pair near a boundary; this simple panel does not add a lookback buffer
+or promise complete pairing. Browser wall-clock accuracy is not independently
+verified, but the two values of a pair always share that same timestamp.
+
+The scoped builder option `--paired-chart-only DIRECTORY` and
+`install-paired-request-chart.sh COMMIT` preserve the existing graph/table
+contents and settings. Only panel 987 is added/updated, with an eight-grid-unit
+shift of subsequent panels on first insertion. The installer reuses the existing
+one-off backup, live Loki query preflight and rollback mechanism; no restart is
+needed. Repeating the update does not add another panel or shift panels again.
+The previous table update is operator-confirmed installed and its populated
+Method/Backend error code columns are evidenced by the November 22 screenshot.
+The newly added chart's live Oracle/Grafana rendering remains to be verified
+after this separate update.
+
 ### Request table method and backend error code
 
 The HU/EN Service Comparison and Request Correlation tables include `Method`

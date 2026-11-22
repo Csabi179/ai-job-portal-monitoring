@@ -22,12 +22,35 @@ def walk(panels):
         yield from walk(panel.get('panels', []))
 
 
-def validate_scope(before, after, name):
+def validate_scope(before, after, name, paired_chart=False):
     panel_id = 980 if 'service-comparison' in name else 2
     old = json.loads(before)
     new = json.loads(after)
     if old.get('uid') != name[:-5] or new.get('uid') != old['uid']:
         raise ValueError(f'Unexpected UID in {name}')
+    if paired_chart:
+        added = [p for p in new['panels'] if p['id'] == 987]
+        previous = [p for p in old['panels'] if p['id'] == 987]
+        table = next(p for p in old['panels'] if p['id'] == 980)
+        if len(added) != 1 or len(previous) > 1 or added[0]['type'] != 'timeseries':
+            raise ValueError('Expected exactly one paired request chart')
+        if added[0]['targets'] != table['targets']:
+            raise ValueError('Paired chart must use the actual table queries')
+        joins = [t['options'] for t in added[0]['transformations'] if t['id'] == 'joinByField']
+        if joins != [{'byField': 'request_id', 'mode': 'outerTabular'}]:
+            raise ValueError('Paired chart must join only by request ID')
+        position = previous[0]['gridPos'] if previous else dict(x=0, y=table['gridPos']['y'], w=24, h=8)
+        if added[0]['gridPos'] != position:
+            raise ValueError('Unexpected paired chart position')
+        old['panels'] = [p for p in old['panels'] if p['id'] != 987]
+        new['panels'] = [p for p in new['panels'] if p['id'] != 987]
+        if not previous:
+            for panel in walk(old['panels']):
+                if panel['gridPos']['y'] >= position['y']:
+                    panel['gridPos']['y'] += 8
+        if new != old:
+            raise ValueError('Changes outside the new chart and necessary vertical layout shift')
+        return
     old_table = [p for p in walk(old['panels']) if p['id'] == panel_id]
     new_table = [p for p in walk(new['panels']) if p['id'] == panel_id]
     if len(old_table) != 1 or len(new_table) != 1 or new_table[0]['type'] != 'table':
@@ -72,29 +95,32 @@ def replace_file(path, content):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('ref')
+    parser.add_argument('--paired-chart', action='store_true', help='Install only the additional HU/EN paired chart')
     args = parser.parse_args()
     repo = Path.cwd()
     ref = subprocess.check_output(['git', 'rev-parse', '--verify', args.ref + '^{commit}'], text=True).strip()
     directory = repo / 'grafana/provisioning/dashboards/json'
-    before = {name: (directory / name).read_bytes() for name in FILES}
+    files = [name for name in FILES if not args.paired_chart or 'service-comparison' in name]
+    before = {name: (directory / name).read_bytes() for name in files}
     with tempfile.TemporaryDirectory(prefix='matchwise-request-table-') as temp:
         staging = Path(temp)
         builder = staging / 'builder.py'
         builder.write_bytes(subprocess.check_output(['git', 'show', ref + ':scripts/build-request-correlation-dashboard.py']))
         for name, content in before.items():
             (staging / name).write_bytes(content)
-        subprocess.run(['python3', str(builder), '--request-table-only', str(staging)], check=True)
-        after = {name: (staging / name).read_bytes() for name in FILES}
+        mode = '--paired-chart-only' if args.paired_chart else '--request-table-only'
+        subprocess.run(['python3', str(builder), mode, str(staging)], check=True)
+        after = {name: (staging / name).read_bytes() for name in files}
     expressions = set()
-    for name in FILES:
-        validate_scope(before[name], after[name], name)
-        panel_id = 980 if 'service-comparison' in name else 2
+    for name in files:
+        validate_scope(before[name], after[name], name, paired_chart=args.paired_chart)
+        panel_id = 987 if args.paired_chart else 980 if 'service-comparison' in name else 2
         table = next(p for p in walk(json.loads(after[name])['panels']) if p['id'] == panel_id)
         expressions.update(t['expr'] for t in table['targets'])
     validate_loki(expressions)
     root = Path.home() / 'monitoring-backups'
     root.mkdir(parents=True, exist_ok=True)
-    backup = Path(tempfile.mkdtemp(prefix='request-table-details.', dir=root))
+    backup = Path(tempfile.mkdtemp(prefix='paired-request-chart.' if args.paired_chart else 'request-table-details.', dir=root))
     for name, content in before.items():
         (backup / name).write_bytes(content)
     (backup / 'source-commit.txt').write_text(ref + '\n', encoding='ascii')
@@ -104,21 +130,22 @@ def main():
         raise RuntimeError('Dashboards changed during preflight; no files installed. Repeat after reviewing.')
     written = []
     try:
-        for name in FILES:
+        for name in files:
             if before[name] != after[name]:
                 written.append(name)
                 replace_file(directory / name, after[name])
-        for name in FILES:
+        for name in files:
             if (directory / name).read_bytes() != after[name]:
                 raise RuntimeError(f'Post-write verification failed: {name}')
     except BaseException:
         for name in reversed(written):
             replace_file(directory / name, before[name])
         raise
-    print('PASS: only the four HU/EN request tables updated; graphs and runtime services unchanged.')
+    print('PASS: HU/EN paired request chart added/updated; existing graphs and tables preserved.' if args.paired_chart else
+          'PASS: only the four HU/EN request tables updated; graphs and runtime services unchanged.')
     print('Allow up to 60 seconds for Grafana provisioning, then refresh.')
-    print('Missing backend error code is displayed as —, never inferred from HTTP status.')
-    for name in FILES:
+    print('No runtime service restart required.')
+    for name in files:
         print('Rollback:', 'cp --', shlex.quote(str(backup / name)), shlex.quote(str(directory / name)))
 
 

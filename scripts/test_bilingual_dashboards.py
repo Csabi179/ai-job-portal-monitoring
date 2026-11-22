@@ -248,15 +248,16 @@ class ServiceDashboardTests(unittest.TestCase):
             ],
         }
         result = requests.embed_comparison_table(original, 'en')
-        self.assertEqual([p['id'] for p in result['panels']], [901, 321, 981, 986, 980, 902, 903])
-        chart, counts, table = result['panels'][2:5]
+        self.assertEqual([p['id'] for p in result['panels']], [901, 321, 981, 986, 987, 980, 902, 903])
+        chart, counts, paired, table = result['panels'][2:6]
         self.assertEqual(chart['type'], 'timeseries')
         self.assertEqual(table['type'], 'table')
         self.assertEqual(chart['gridPos'], {'x': 0, 'y': 4, 'w': 24, 'h': 8})
         self.assertEqual(counts['gridPos'], {'x': 0, 'y': 12, 'w': 24, 'h': 5})
-        self.assertEqual(table['gridPos'], {'x': 0, 'y': 17, 'w': 24, 'h': 12})
-        self.assertEqual(result['panels'][5]['gridPos']['y'], 29)
-        self.assertEqual(result['panels'][6]['panels'][0]['gridPos']['y'], 31)
+        self.assertEqual(paired['gridPos'], {'x': 0, 'y': 17, 'w': 24, 'h': 8})
+        self.assertEqual(table['gridPos'], {'x': 0, 'y': 25, 'w': 24, 'h': 12})
+        self.assertEqual(result['panels'][6]['gridPos']['y'], 37)
+        self.assertEqual(result['panels'][7]['panels'][0]['gridPos']['y'], 39)
         self.assertNotEqual(chart['targets'], table['targets'])
         self.assertEqual(chart['transformations'], [])
         self.assertEqual(chart['interval'], '5m')

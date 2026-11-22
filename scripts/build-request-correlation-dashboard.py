@@ -213,6 +213,8 @@ def build(lang):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--paired-chart-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Add/update only the ID-paired timing chart below existing comparison charts')
     mode.add_argument('--request-table-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                       help='Update only the request tables in both HU/EN dashboard pairs; preserve all graphs')
     mode.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
@@ -226,6 +228,18 @@ def main():
     mode.add_argument('--timing-trend-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                       help='Update the Average/P95 timing trend and sample-count panel in both languages')
     args = parser.parse_args()
+    if args.paired_chart_only:
+        candidates = []
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            path = args.paired_chart_only / f'matchwise-service-comparison{suffix}.json'
+            model = json.loads(path.read_text(encoding='utf-8'))
+            if model.get('uid') != 'matchwise-service-comparison' + suffix:
+                raise ValueError(f'Unexpected dashboard UID: {path}')
+            candidates.append((path, update_paired_chart(model, lang)))
+        for path, model in candidates:
+            path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+            print('Updated paired request chart only:', path)
+        return
     if args.request_table_only:
         candidates = []
         for lang, suffix in [('hu', ''), ('en', '-en')]:
@@ -738,6 +752,84 @@ def update_request_table(model, lang, panel_id=980):
     return result
 
 
+def update_paired_chart(model, lang):
+    """Reuse the actual table's ID join, not independently aggregated log streams."""
+    model = copy.deepcopy(model)
+    panels = model['panels']
+    tables = [p for p in panels if p['id'] == 980]
+    if len(tables) != 1 or tables[0]['type'] != 'table':
+        raise ValueError('Expected the existing request correlation table (980)')
+    table = tables[0]
+    transforms = copy.deepcopy(table['transformations'])
+    joins = [t for t in transforms if t['id'] == 'joinByField']
+    if len(joins) != 1 or joins[0]['options'] != {'byField': 'request_id', 'mode': 'outerTabular'}:
+        raise ValueError('The request table must join by request_id')
+    if [t['refId'] for t in table['targets']] != ['A', 'B']:
+        raise ValueError('Expected frontend/backend table queries A/B')
+    chart = {'id': 987, 'type': 'timeseries', 'datasource': LOKI,
+             'title': ('Frontend és backend · azonos kérések válaszideje' if lang == 'hu' else
+                       'Frontend and backend · matched request timings'),
+             'description': (
+                 'Request ID alapján párosított egyedi kérések, átlagolás nélkül. X: közös böngészős kérésindítás; '
+                 'Y: frontend fetch a válaszfejlécekig / backend feldolgozás, ms. Csak mindkét idővel rendelkező párok. '
+                 'A táblázat azonos lekérdezéseit használja: legfeljebb 1000 naplósor oldalanként; a frontend legfeljebb '
+                 '64 részletet küld csomagonként. Nem teljes forgalmi statisztika. A késő pár frissítéskor jelenhet meg; '
+                 'szűkítsd/tágítsd az időablakot vagy szűrj Request ID-ra. A vonalak megfigyelt kéréseket kötnek össze, '
+                 'nem folyamatos mérést jelentenek. Azonos indítási időpontok átfedhetnek. Average/P95 választó nem vonatkozik rá.'
+                 if lang == 'hu' else
+                 'Individual requests paired by Request ID, without averaging. X: shared browser request start; '
+                 'Y: frontend fetch until response headers / backend processing, ms. Only pairs with both timings. '
+                 'Uses the exact table queries: at most 1000 log lines per side; frontend sends at most 64 details per batch. '
+                 'Not complete traffic statistics. Late matches may appear on refresh; adjust the time range or filter by Request ID. '
+                 'Lines connect observed requests, not continuous measurements. Equal start timestamps can overlap. '
+                 'The Average/P95 selector does not apply.'),
+             'targets': copy.deepcopy(table['targets'])}
+    # Deduplication and ID join stay identical to the actual live table.
+    transforms = [t for t in transforms if t['id'] not in ('organize', 'sortBy')]
+    time_field = grouped_name('frontend_started_ms')
+    duration_fields = [grouped_name(name) for name in ('frontend_ms', 'backend_ms')]
+    transforms.extend([
+        {'id': 'filterByValue', 'options': {'type': 'include', 'match': 'all', 'filters': [
+            {'fieldName': name, 'config': {'id': 'isNotNull', 'options': {}}}
+            for name in [time_field, *duration_fields]]}},
+        {'id': 'convertFieldType', 'options': {'conversions': [
+            {'targetField': time_field, 'destinationType': 'time'}]}},
+        {'id': 'filterFieldsByName', 'options': {'include': {'names': [time_field, *duration_fields]}}},
+        {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': time_field, 'desc': False}]}},
+        {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {}, 'renameByName': {
+            time_field: 'Time', duration_fields[0]: 'Frontend', duration_fields[1]: 'Backend'}}},
+    ])
+    chart['transformations'] = transforms
+    chart['options'] = {'tooltip': {'mode': 'multi', 'sort': 'none'},
+                        'legend': {'showLegend': True, 'displayMode': 'list', 'placement': 'bottom'}}
+    chart['fieldConfig'] = {'defaults': {'unit': 'ms', 'min': 0, 'noValue': '—', 'custom': {
+        'drawStyle': 'line', 'lineInterpolation': 'linear', 'lineWidth': 1, 'fillOpacity': 0,
+        'showPoints': 'always', 'pointSize': 5, 'spanNulls': False, 'axisPlacement': 'auto', 'axisWidth': 72,
+        'axisColorMode': 'text', 'scaleDistribution': {'type': 'linear'},
+        'stacking': {'mode': 'none', 'group': 'A'}, 'thresholdsStyle': {'mode': 'off'}}},
+        'overrides': [{'matcher': {'id': 'byName', 'options': name}, 'properties': [
+            {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
+            for name, color in [('Frontend', '#56B4E9'), ('Backend', '#E69F00')]]}
+    existing = [p for p in panels if p['id'] == 987]
+    if existing:
+        if len(existing) != 1 or existing[0]['type'] != 'timeseries' or not any(
+                t.get('id') == 'joinByField' for t in existing[0].get('transformations', [])):
+            raise ValueError('Panel 987 is already used by an unrelated panel')
+        chart['gridPos'] = copy.deepcopy(existing[0]['gridPos'])
+        panels[panels.index(existing[0])] = chart
+    else:
+        start = table['gridPos']['y']
+        def shift(items):
+            for panel in items:
+                if panel['gridPos']['y'] >= start:
+                    panel['gridPos']['y'] += 8
+                shift(panel.get('panels', []))
+        shift(panels)
+        chart['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': 8}
+        panels.insert(panels.index(table), chart)
+    return model
+
+
 def embed_comparison_chart(model, table, lang):
     """Build an uncapped Loki metric trend; the request table remains the paired detail view."""
     chart = timing_trend_panel(lang)
@@ -758,7 +850,7 @@ def embed_comparison_chart(model, table, lang):
                 resize_following(panel.get('panels', []))
         resize_following(panels)
         panels[existing] = chart
-        return update_timing_trend(model, lang)
+        return update_paired_chart(update_timing_trend(model, lang), lang)
     index = next(i for i, p in enumerate(panels) if p['id'] == 980)
     start = panels[index]['gridPos']['y']
     def shift(items):
@@ -769,7 +861,7 @@ def embed_comparison_chart(model, table, lang):
     shift(panels)
     chart['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': 8}
     panels.insert(index, chart)
-    return update_timing_trend(model, lang)
+    return update_paired_chart(update_timing_trend(model, lang), lang)
 
 
 if __name__ == '__main__':

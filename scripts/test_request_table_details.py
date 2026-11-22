@@ -4,6 +4,7 @@ import contextlib
 import importlib.util
 import json
 import io
+import itertools
 from pathlib import Path
 import unittest
 import subprocess
@@ -94,8 +95,8 @@ class RequestTableDetailsTests(unittest.TestCase):
         source = (ROOT / 'scripts/build-request-correlation-dashboard.py').read_bytes()
         real_run = subprocess.run
         real_replace = installer.replace_file
-        for failure in ('none', 'loki', 'second-write'):
-            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as tmp:
+        for failure, paired in itertools.product(('none', 'loki', 'second-write'), (False, True)):
+            with self.subTest(failure=failure, paired=paired), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp)
                 directory = root / 'grafana/provisioning/dashboards/json'
                 directory.mkdir(parents=True)
@@ -117,7 +118,7 @@ class RequestTableDetailsTests(unittest.TestCase):
                 with contextlib.ExitStack() as stack:
                     stack.enter_context(patch.object(Path, 'cwd', return_value=root))
                     stack.enter_context(patch.object(Path, 'home', return_value=root))
-                    stack.enter_context(patch.object(sys, 'argv', ['installer', 'reviewed-ref']))
+                    stack.enter_context(patch.object(sys, 'argv', ['installer', 'reviewed-ref'] + (['--paired-chart'] if paired else [])))
                     stack.enter_context(patch.object(installer.subprocess, 'check_output', side_effect=['a' * 40, source]))
                     stack.enter_context(patch.object(installer.subprocess, 'run', side_effect=run))
                     loki = stack.enter_context(patch.object(installer, 'validate_loki', side_effect=OSError('Loki offline') if failure == 'loki' else None))
@@ -131,8 +132,8 @@ class RequestTableDetailsTests(unittest.TestCase):
                     loki.assert_called_once()
                 for name in installer.FILES:
                     actual = (directory / name).read_bytes()
-                    if failure == 'none':
-                        installer.validate_scope(originals[name], actual, name)
+                    if failure == 'none' and (not paired or 'service-comparison' in name):
+                        installer.validate_scope(originals[name], actual, name, paired_chart=paired)
                         self.assertNotEqual(originals[name], actual)
                     else:
                         self.assertEqual(actual, originals[name])
