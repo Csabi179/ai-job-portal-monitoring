@@ -49,7 +49,7 @@
         "w": 24,
         "h": 12
       },
-      "description": "Külső összekapcsolás ID alapján. Üres frontend/backend cella: a kiválasztott ablakban nincs pár. Az ID nélküli rekordokat nem kapcsoljuk össze egymással.",
+      "description": "Külső összekapcsolás ID alapján. Üres frontend/backend cella: a kiválasztott ablakban nincs pár. Az ID nélküli rekordokat nem kapcsoljuk össze egymással. A párosítás kizárólag közös kérésazonosítóval történik, nem időpont vagy útvonal alapján. A metódus a frontend kérésből, a hibakód az azonos ID-jú backend http_request rekordból származik. Hiányzó hibakód: —; külön hibanaplóból nem következtetünk rá. Későn érkező párhoz frissíts vagy tágítsd az időablakot.",
       "fieldConfig": {
         "defaults": {
           "noValue": "—"
@@ -350,6 +350,57 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "frontend_method (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backend_error_code (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 290
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "^$",
+                      "result": {
+                        "text": "—"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "frontend_route (lastNotNull)"
             },
             "properties": [
@@ -387,7 +438,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
+          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_method\":{{ printf \"%q\" .method }},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -398,7 +449,7 @@
         },
         {
           "refId": "B",
-          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }}}`",
+          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }},\"backend_error_code\":{{ printf \"%q\" .errorCode }}}`",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -439,6 +490,12 @@
                 "aggregations": []
               },
               "frontend_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_method": {
                 "operation": "aggregate",
                 "aggregations": [
                   "lastNotNull"
@@ -513,6 +570,12 @@
                 "aggregations": [
                   "lastNotNull"
                 ]
+              },
+              "backend_error_code": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
               }
             }
           }
@@ -580,20 +643,24 @@
             },
             "indexByName": {
               "frontend_started_ms (lastNotNull)": 0,
-              "frontend_route (lastNotNull)": 1,
-              "frontend_ms (lastNotNull)": 2,
-              "backend_ms (lastNotNull)": 3,
-              "frontend_status (lastNotNull)": 4,
-              "backend_status (lastNotNull)": 5,
-              "request_id": 6
+              "frontend_method (lastNotNull)": 1,
+              "frontend_route (lastNotNull)": 2,
+              "frontend_ms (lastNotNull)": 3,
+              "backend_ms (lastNotNull)": 4,
+              "frontend_status (lastNotNull)": 5,
+              "backend_status (lastNotNull)": 6,
+              "backend_error_code (lastNotNull)": 7,
+              "request_id": 8
             },
             "renameByName": {
               "frontend_started_ms (lastNotNull)": "Időpont",
+              "frontend_method (lastNotNull)": "Metódus",
               "frontend_route (lastNotNull)": "Útvonal",
               "frontend_ms (lastNotNull)": "Frontend",
               "backend_ms (lastNotNull)": "Backend",
               "frontend_status (lastNotNull)": "FE státusz",
               "backend_status (lastNotNull)": "BE státusz",
+              "backend_error_code (lastNotNull)": "Backend hibakód",
               "request_id": "Request ID"
             }
           }

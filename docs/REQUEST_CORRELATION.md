@@ -167,6 +167,38 @@ evidence and UptimeRobot exclusion in `monitoring-tests.md` only after running.
 
 ## Limits
 
+### Request table method and backend error code
+
+The HU/EN Service Comparison and Request Correlation tables include `Method`
+(frontend `method`) and `Backend error code` (backend `errorCode`). The code is
+projected from the same `http_request` record as backend duration and status,
+then joined through `reqId = request_id`. It is never assigned by nearby time,
+route, status or row position. The two sources can arrive in a different order;
+their ingestion timestamps are not matching keys. ID-less records remain outside
+this table, and repeated ID-bearing records retain the existing deduplication.
+
+An empty/missing code or missing backend match displays `—`; it does not mean
+success. The collector already retains top-level `errorCode` on `http_request`
+events. If the backend emits a code only in a separate error event, it must also
+attach it to its request-completion event before this table can show it. No error
+code is guessed from the HTTP status, and no new error-log ingestion is added.
+An earlier failed request cannot gain a code that was never logged.
+
+Collection delay and query boundaries can temporarily leave a backend cell empty;
+refresh or widen the selected range. The existing 64-details-per-batch and
+1000-lines-per-side query limits remain. This update does not establish complete
+coverage or change the Average/P95 graph's separate populations/time axis.
+
+`build-request-correlation-dashboard.py --request-table-only DIRECTORY` changes
+only the four table panels. `install-request-table-details.sh COMMIT` extracts the
+reviewed builder, applies it to copies of the actual live JSON files, verifies
+that all other panels/settings are unchanged and asks local Loki to parse/execute
+the new table queries before replacing files. It backs up all four originals,
+checks for concurrent edits and attempts automatic rollback on a write failure.
+It preserves local customizations outside the table and needs no service restart.
+The rollout is prepared; actual Oracle installation/rendering must be evidenced
+by the operator after running this new helper.
+
 - Browser data can be blocked, dropped or fabricated; it is not an audit log.
 - Reporting is bounded to 64 details per batch. Details are not all traffic.
 - IDs require the backend header to survive the Vercel proxy. For direct

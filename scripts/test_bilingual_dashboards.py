@@ -206,7 +206,7 @@ class ServiceDashboardTests(unittest.TestCase):
             table = next(p for p in result['panels'] if p['id'] == 980)
             organize = table['transformations'][-1]['options']
             self.assertEqual(organize['indexByName']['frontend_started_ms (lastNotNull)'], 0)
-            self.assertEqual(organize['indexByName']['request_id'], 6)
+            self.assertEqual(organize['indexByName']['request_id'], 8)
             self.assertTrue(organize['excludeByName']['backend_route (lastNotNull)'])
             overrides = {o['matcher']['options']: {p['id']: p['value'] for p in o['properties']}
                          for o in table['fieldConfig']['overrides']}

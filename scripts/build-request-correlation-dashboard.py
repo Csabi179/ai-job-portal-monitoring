@@ -26,10 +26,12 @@ def project(fields):
 
 
 FE_FIELDS = [('request_id', 'request_id', False), ('frontend_ms', 'duration_ms', True),
+             ('frontend_method', 'method', False),
              ('frontend_route', 'route', False), ('frontend_status', 'status', False),
              ('frontend_outcome', 'outcome', False), ('frontend_started_ms', 'started_at_ms', True)]
 BE_FIELDS = [('request_id', 'reqId', False), ('backend_ms', 'responseTimeMs', True),
-             ('backend_route', 'route', False), ('backend_status', 'statusCode', False)]
+             ('backend_route', 'route', False), ('backend_status', 'statusCode', False),
+             ('backend_error_code', 'errorCode', False)]
 
 
 def grouped_name(name):
@@ -84,6 +86,13 @@ def build(lang):
                 'Az ID nélküli rekordokat nem kapcsoljuk össze egymással.',
                 'Outer join by ID. Empty frontend/backend cells mean no match in the selected window. '
                 'Records without IDs are never joined to each other.'))
+    p['description'] += L(
+        ' A párosítás kizárólag közös kérésazonosítóval történik, nem időpont vagy útvonal alapján. '
+        'A metódus a frontend kérésből, a hibakód az azonos ID-jú backend http_request rekordból származik. '
+        'Hiányzó hibakód: —; külön hibanaplóból nem következtetünk rá. Későn érkező párhoz frissíts vagy tágítsd az időablakot.',
+        ' Matching uses only the shared request ID, never timestamp or route proximity. '
+        'Method comes from the frontend request; error code comes from its matched backend http_request record. '
+        'Missing error code: —; it is not inferred from separate error logs. Refresh or widen the range for late matches.')
     transforms = []
     for ref, fields in [('A', FE_FIELDS), ('B', BE_FIELDS)]:
         filt = {'id': 'byRefId', 'options': ref}
@@ -107,15 +116,15 @@ def build(lang):
         {'id': 'organize', 'options': {
             'excludeByName': {grouped_name('backend_route'): True, grouped_name('frontend_outcome'): True},
             'indexByName': {name: i for i, name in enumerate([
-                grouped_name('frontend_started_ms'), grouped_name('frontend_route'),
+                grouped_name('frontend_started_ms'), grouped_name('frontend_method'), grouped_name('frontend_route'),
                 grouped_name('frontend_ms'), grouped_name('backend_ms'),
-                grouped_name('frontend_status'), grouped_name('backend_status'), 'request_id'])},
+                grouped_name('frontend_status'), grouped_name('backend_status'), grouped_name('backend_error_code'), 'request_id'])},
             'renameByName': dict(zip([
-                grouped_name('frontend_started_ms'), grouped_name('frontend_route'),
+                grouped_name('frontend_started_ms'), grouped_name('frontend_method'), grouped_name('frontend_route'),
                 grouped_name('frontend_ms'), grouped_name('backend_ms'),
-                grouped_name('frontend_status'), grouped_name('backend_status'), 'request_id'],
-                L(['Időpont', 'Útvonal', 'Frontend', 'Backend', 'FE státusz', 'BE státusz', 'Request ID'],
-                  ['Time', 'Route', 'Frontend', 'Backend', 'FE status', 'BE status', 'Request ID']))) }},
+                grouped_name('frontend_status'), grouped_name('backend_status'), grouped_name('backend_error_code'), 'request_id'],
+                L(['Időpont', 'Metódus', 'Útvonal', 'Frontend', 'Backend', 'FE státusz', 'BE státusz', 'Backend hibakód', 'Request ID'],
+                  ['Time', 'Method', 'Route', 'Frontend', 'Backend', 'FE status', 'BE status', 'Backend error code', 'Request ID']))) }},
     ])
     p['transformations'] = transforms
     p['options'] = {'showHeader': True, 'cellHeight': 'sm', 'footer': {'show': False}}
@@ -145,6 +154,13 @@ def build(lang):
                     for start, end, color in ((200, 399, 'green'), (400, 499, 'orange'), (500, 599, 'red'))
                 ] + [{'type': 'special', 'options': {'match': 'null', 'result': {'text': '—', 'color': 'gray'}}}]}]})
     p['fieldConfig']['overrides'].extend([
+        {'matcher': {'id': 'byName', 'options': grouped_name('frontend_method')},
+         'properties': [{'id': 'custom.width', 'value': 80}]},
+        {'matcher': {'id': 'byName', 'options': grouped_name('backend_error_code')},
+         'properties': [{'id': 'custom.width', 'value': 290}, {'id': 'custom.inspect', 'value': True},
+                        {'id': 'mappings', 'value': [
+                            {'type': 'regex', 'options': {'pattern': '^$', 'result': {'text': '—'}}},
+                            {'type': 'special', 'options': {'match': 'null', 'result': {'text': '—'}}}]}]},
         {'matcher': {'id': 'byName', 'options': grouped_name('frontend_route')},
          'properties': [{'id': 'custom.width', 'value': 160}]},
         {'matcher': {'id': 'byName', 'options': 'request_id'},
@@ -197,6 +213,8 @@ def build(lang):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--request-table-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Update only the request tables in both HU/EN dashboard pairs; preserve all graphs')
     mode.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                         help='Insert the request table and timing line chart into existing HU/EN Service Comparison JSON')
     mode.add_argument('--summary-only', type=Path, metavar='DASHBOARD_DIRECTORY',
@@ -208,6 +226,19 @@ def main():
     mode.add_argument('--timing-trend-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                       help='Update the Average/P95 timing trend and sample-count panel in both languages')
     args = parser.parse_args()
+    if args.request_table_only:
+        candidates = []
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            for kind in ('service-comparison', 'request-correlation'):
+                path = args.request_table_only / f'matchwise-{kind}{suffix}.json'
+                model = json.loads(path.read_text(encoding='utf-8'))
+                if model.get('uid') != f'matchwise-{kind}{suffix}':
+                    raise ValueError(f'Unexpected dashboard UID: {path}')
+                candidates.append((path, update_request_table(model, lang, 980 if kind == 'service-comparison' else 2)))
+        for path, model in candidates:
+            path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+            print('Updated request table only:', path)
+        return
     directory = (args.embed_only or args.summary_only or args.http_signals_only or
                  args.error_legends_only or args.timing_trend_only)
     if directory:
@@ -676,6 +707,35 @@ def update_timing_trend(model, lang):
             return False
         insert(model['panels'])
     return model
+
+
+def update_request_table(model, lang, panel_id=980):
+    """Replace table data/presentation, retaining layout and every unrelated panel."""
+    result = copy.deepcopy(model)
+    table = next(p for p in build(lang)['panels'] if p['type'] == 'table')
+    if panel_id == 980:
+        table['description'] += ('\n\nFrontend: fetch indításától a válaszfejlécekig; backend: szerveroldali feldolgozás. '
+                                'Health/próbakérések kizárva. Legfeljebb 1000 naplósor oldalanként; szűkítsd az időablakot vagy adj meg request ID-t.'
+                                if lang == 'hu' else
+                                '\n\nFrontend: fetch until response headers; backend: server processing. '
+                                'Health/backend-only probes excluded. At most 1000 log lines per side; narrow the range or filter by request ID.')
+    def replace(panels):
+        found = 0
+        for index, panel in enumerate(panels):
+            if panel.get('id') == panel_id:
+                if panel.get('type') != 'table' or not any(
+                        'matchwise_frontend_requests' in t.get('expr', '') for t in panel.get('targets', [])):
+                    raise ValueError(f'Panel {panel_id} is not a request correlation table')
+                updated = copy.deepcopy(table)
+                updated.update(id=panel_id, gridPos=copy.deepcopy(panel['gridPos']))
+                panels[index] = updated
+                found += 1
+            else:
+                found += replace(panel.get('panels', []))
+        return found
+    if replace(result['panels']) != 1:
+        raise ValueError(f'Expected exactly one request table {panel_id}')
+    return result
 
 
 def embed_comparison_chart(model, table, lang):
