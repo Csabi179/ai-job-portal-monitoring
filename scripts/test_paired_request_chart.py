@@ -45,9 +45,39 @@ class PairedRequestChartTests(unittest.TestCase):
                 'targetField': 'frontend_started_ms (lastNotNull)', 'destinationType': 'time'}])
             self.assertEqual(extra[-1]['options']['renameByName'], {
                 'frontend_started_ms (lastNotNull)': 'Time', 'frontend_ms (lastNotNull)': 'Frontend',
-                'backend_ms (lastNotNull)': 'Backend'})
+                'backend_ms (lastNotNull)': 'Backend', 'request_id': 'Request ID'})
             self.assertFalse(chart['fieldConfig']['defaults']['custom']['spanNulls'])
             self.assertEqual(chart['fieldConfig']['defaults']['unit'], 'ms')
+
+    def test_click_links_keep_row_id_and_context_without_changing_numeric_series(self):
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            model = self.model(suffix)
+            # Existing filter values must not override the clicked row's ID.
+            variable = next(v for v in model['templating']['list'] if v['name'] == 'request_id')
+            variable['current'] = {'text': 'old-filter', 'value': 'old-filter'}
+            chart = next(p for p in builder.update_paired_chart(model, lang)['panels'] if p['id'] == 987)
+            kept = next(t for t in chart['transformations'] if t['id'] == 'filterFieldsByName')['options']['include']['names']
+            self.assertEqual(kept, ['frontend_started_ms (lastNotNull)', 'frontend_ms (lastNotNull)',
+                                    'backend_ms (lastNotNull)', 'request_id'])
+            self.assertEqual(len(chart['fieldConfig']['overrides']), 2)
+            for override in chart['fieldConfig']['overrides']:
+                links = next(p['value'] for p in override['properties'] if p['id'] == 'links')
+                self.assertEqual(len(links), 1)
+                link = links[0]
+                self.assertFalse(link['oneClick'])  # First click must show ID, not navigate immediately.
+                self.assertFalse(link['targetBlank'])
+                self.assertIn('${__data.fields["Request ID"]}', link['title'])
+                self.assertTrue(link['url'].startswith('/d/' + model['uid'] + '?from=${__from}&to=${__to}'))
+                self.assertEqual(link['url'].count('var-request_id='), 1)
+                self.assertNotIn('${request_id', link['url'])
+                for variable in model['templating']['list']:
+                    if variable['name'] != 'request_id':
+                        self.assertIn('${' + variable['name'] + ':queryparam}', link['url'])
+                # Different requests with identical timestamps still resolve from
+                # their own row ID; no time-based lookup or first-match ID is used.
+                for request_id in ('11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222'):
+                    resolved = link['url'].replace('${__data.fields["Request ID"]}', request_id)
+                    self.assertTrue(resolved.endswith('&var-request_id=' + request_id))
 
     def test_only_new_panel_and_necessary_layout_shift_then_idempotent(self):
         current = self.model()

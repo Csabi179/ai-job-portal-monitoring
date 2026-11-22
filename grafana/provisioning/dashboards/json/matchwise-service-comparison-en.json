@@ -1717,7 +1717,7 @@
         "uid": "loki"
       },
       "title": "Frontend and backend · matched request timings",
-      "description": "Individual requests paired by Request ID, without averaging. X: shared browser request start; Y: frontend fetch until response headers / backend processing, ms. Only pairs with both timings. Uses the exact table queries: at most 1000 log lines per side; frontend sends at most 64 details per batch. Not complete traffic statistics. Late matches may appear on refresh; adjust the time range or filter by Request ID. Lines connect observed requests, not continuous measurements. Equal start timestamps can overlap. The Average/P95 selector does not apply.",
+      "description": "Individual requests paired by Request ID, without averaging. X: shared browser request start; Y: frontend fetch until response headers / backend processing, ms. Only pairs with both timings. Uses the exact table queries: at most 1000 log lines per side; frontend sends at most 64 details per batch. Not complete traffic statistics. Late matches may appear on refresh; adjust the time range or filter by Request ID. Lines connect observed requests, not continuous measurements. Equal start timestamps can overlap. The Average/P95 selector does not apply. Click an observed point: the menu shows its full Request ID. Follow the link to filter this dashboard and table to that request, keeping the time window. Clear the Request ID filter to return.",
       "targets": [
         {
           "refId": "A",
@@ -1949,7 +1949,8 @@
               "names": [
                 "frontend_started_ms (lastNotNull)",
                 "frontend_ms (lastNotNull)",
-                "backend_ms (lastNotNull)"
+                "backend_ms (lastNotNull)",
+                "request_id"
               ]
             }
           }
@@ -1974,7 +1975,8 @@
             "renameByName": {
               "frontend_started_ms (lastNotNull)": "Time",
               "frontend_ms (lastNotNull)": "Frontend",
-              "backend_ms (lastNotNull)": "Backend"
+              "backend_ms (lastNotNull)": "Backend",
+              "request_id": "Request ID"
             }
           }
         }
@@ -2031,6 +2033,17 @@
                   "mode": "fixed",
                   "fixedColor": "#56B4E9"
                 }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Request ID: ${__data.fields[\"Request ID\"]} · View request",
+                    "url": "/d/matchwise-service-comparison-en?from=${__from}&to=${__to}&${supabase_instance:queryparam}&${timing_stat:queryparam}&var-request_id=${__data.fields[\"Request ID\"]}",
+                    "targetBlank": false,
+                    "oneClick": false
+                  }
+                ]
               }
             ]
           },
@@ -2046,6 +2059,17 @@
                   "mode": "fixed",
                   "fixedColor": "#E69F00"
                 }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Request ID: ${__data.fields[\"Request ID\"]} · View request",
+                    "url": "/d/matchwise-service-comparison-en?from=${__from}&to=${__to}&${supabase_instance:queryparam}&${timing_stat:queryparam}&var-request_id=${__data.fields[\"Request ID\"]}",
+                    "targetBlank": false,
+                    "oneClick": false
+                  }
+                ]
               }
             ]
           }

@@ -794,10 +794,13 @@ def update_paired_chart(model, lang):
             for name in [time_field, *duration_fields]]}},
         {'id': 'convertFieldType', 'options': {'conversions': [
             {'targetField': time_field, 'destinationType': 'time'}]}},
-        {'id': 'filterFieldsByName', 'options': {'include': {'names': [time_field, *duration_fields]}}},
+        # Keep the ID on the same row for __data.fields data links. A string field
+        # is context, not an additional plotted numeric series or an ingestion label.
+        {'id': 'filterFieldsByName', 'options': {'include': {'names': [time_field, *duration_fields, 'request_id']}}},
         {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': time_field, 'desc': False}]}},
         {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {}, 'renameByName': {
-            time_field: 'Time', duration_fields[0]: 'Frontend', duration_fields[1]: 'Backend'}}},
+            time_field: 'Time', duration_fields[0]: 'Frontend', duration_fields[1]: 'Backend',
+            'request_id': 'Request ID'}}},
     ])
     chart['transformations'] = transforms
     chart['options'] = {'tooltip': {'mode': 'multi', 'sort': 'none'},
@@ -810,6 +813,21 @@ def update_paired_chart(model, lang):
         'overrides': [{'matcher': {'id': 'byName', 'options': name}, 'properties': [
             {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
             for name, color in [('Frontend', '#56B4E9'), ('Backend', '#E69F00')]]}
+    # Do not copy the current request_id variable: it must be replaced, not
+    # duplicated. Other dashboard variables and the absolute time window survive.
+    context = ''.join('&${' + v['name'] + ':queryparam}'
+                      for v in model.get('templating', {}).get('list', []) if v['name'] != 'request_id')
+    request_id = '${__data.fields["Request ID"]}'
+    link = {'title': 'Request ID: ' + request_id + (' · Kérés megtekintése' if lang == 'hu' else ' · View request'),
+            'url': '/d/' + model['uid'] + '?from=${__from}&to=${__to}' + context + '&var-request_id=' + request_id,
+            'targetBlank': False, 'oneClick': False}
+    for override in chart['fieldConfig']['overrides']:
+        override['properties'].append({'id': 'links', 'value': [copy.deepcopy(link)]})
+    chart['description'] += (
+        ' Kattints egy mért pontra: a menü teljes Request ID-t mutat. A hivatkozás az adott kérésre szűri a '
+        'dashboardot és a táblázatot, az időablak megtartásával. Visszatéréshez töröld a Request ID szűrőt.' if lang == 'hu' else
+        ' Click an observed point: the menu shows its full Request ID. Follow the link to filter this dashboard '
+        'and table to that request, keeping the time window. Clear the Request ID filter to return.')
     existing = [p for p in panels if p['id'] == 987]
     if existing:
         if len(existing) != 1 or existing[0]['type'] != 'timeseries' or not any(

@@ -1718,7 +1718,7 @@
         "uid": "loki"
       },
       "title": "Frontend és backend · azonos kérések válaszideje",
-      "description": "Request ID alapján párosított egyedi kérések, átlagolás nélkül. X: közös böngészős kérésindítás; Y: frontend fetch a válaszfejlécekig / backend feldolgozás, ms. Csak mindkét idővel rendelkező párok. A táblázat azonos lekérdezéseit használja: legfeljebb 1000 naplósor oldalanként; a frontend legfeljebb 64 részletet küld csomagonként. Nem teljes forgalmi statisztika. A késő pár frissítéskor jelenhet meg; szűkítsd/tágítsd az időablakot vagy szűrj Request ID-ra. A vonalak megfigyelt kéréseket kötnek össze, nem folyamatos mérést jelentenek. Azonos indítási időpontok átfedhetnek. Average/P95 választó nem vonatkozik rá.",
+      "description": "Request ID alapján párosított egyedi kérések, átlagolás nélkül. X: közös böngészős kérésindítás; Y: frontend fetch a válaszfejlécekig / backend feldolgozás, ms. Csak mindkét idővel rendelkező párok. A táblázat azonos lekérdezéseit használja: legfeljebb 1000 naplósor oldalanként; a frontend legfeljebb 64 részletet küld csomagonként. Nem teljes forgalmi statisztika. A késő pár frissítéskor jelenhet meg; szűkítsd/tágítsd az időablakot vagy szűrj Request ID-ra. A vonalak megfigyelt kéréseket kötnek össze, nem folyamatos mérést jelentenek. Azonos indítási időpontok átfedhetnek. Average/P95 választó nem vonatkozik rá. Kattints egy mért pontra: a menü teljes Request ID-t mutat. A hivatkozás az adott kérésre szűri a dashboardot és a táblázatot, az időablak megtartásával. Visszatéréshez töröld a Request ID szűrőt.",
       "targets": [
         {
           "refId": "A",
@@ -1950,7 +1950,8 @@
               "names": [
                 "frontend_started_ms (lastNotNull)",
                 "frontend_ms (lastNotNull)",
-                "backend_ms (lastNotNull)"
+                "backend_ms (lastNotNull)",
+                "request_id"
               ]
             }
           }
@@ -1975,7 +1976,8 @@
             "renameByName": {
               "frontend_started_ms (lastNotNull)": "Time",
               "frontend_ms (lastNotNull)": "Frontend",
-              "backend_ms (lastNotNull)": "Backend"
+              "backend_ms (lastNotNull)": "Backend",
+              "request_id": "Request ID"
             }
           }
         }
@@ -2032,6 +2034,17 @@
                   "mode": "fixed",
                   "fixedColor": "#56B4E9"
                 }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Request ID: ${__data.fields[\"Request ID\"]} · Kérés megtekintése",
+                    "url": "/d/matchwise-service-comparison?from=${__from}&to=${__to}&${supabase_instance:queryparam}&${timing_stat:queryparam}&var-request_id=${__data.fields[\"Request ID\"]}",
+                    "targetBlank": false,
+                    "oneClick": false
+                  }
+                ]
               }
             ]
           },
@@ -2047,6 +2060,17 @@
                   "mode": "fixed",
                   "fixedColor": "#E69F00"
                 }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Request ID: ${__data.fields[\"Request ID\"]} · Kérés megtekintése",
+                    "url": "/d/matchwise-service-comparison?from=${__from}&to=${__to}&${supabase_instance:queryparam}&${timing_stat:queryparam}&var-request_id=${__data.fields[\"Request ID\"]}",
+                    "targetBlank": false,
+                    "oneClick": false
+                  }
+                ]
               }
             ]
           }

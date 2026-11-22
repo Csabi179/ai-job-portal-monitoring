@@ -199,8 +199,31 @@ one-off backup, live Loki query preflight and rollback mechanism; no restart is
 needed. Repeating the update does not add another panel or shift panels again.
 The previous table update is operator-confirmed installed and its populated
 Method/Backend error code columns are evidenced by the November 22 screenshot.
-The newly added chart's live Oracle/Grafana rendering remains to be verified
-after this separate update.
+The operator's subsequent November 22 screenshot confirms the chart is installed
+and displays both series at shared request times. The follow-up point-selection
+screenshot shows both durations in the tooltip.
+
+#### Click a point to inspect its Request ID
+
+The chart retains `request_id` as a string column named `Request ID` after its
+shared ID join, filtering and sorting. It is not an additional numeric series
+or an ingestion label. Both duration fields have a data link with `oneClick:
+false`: clicking an observed point pins the tooltip/menu with the full ID in
+the link title. Following that link opens this same language dashboard with
+`var-request_id` set from `${__data.fields["Request ID"]}` on the clicked row.
+It preserves `from`/`to` and the other dashboard variables without copying a
+second, potentially stale request-ID variable. The shared Request ID filter
+updates the table and charts; clear it to return to the wider view.
+
+This uses supported Time series data links, not a custom tooltip renderer.
+IDs are not looked up by timestamp; requests sharing a timestamp retain their
+own row IDs, although visually overlapping points may need a narrower view or
+the table for selection. Existing line styles, colors and timing queries remain
+unchanged. Re-run `install-paired-request-chart.sh` with the reviewed follow-up
+commit to update only panel 987, using the existing backup/preflight checks.
+The click-link interaction itself still requires live browser verification.
+
+References: [Grafana data links and row-field variables](https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/configure-data-links/).
 
 ### Request table method and backend error code
 
