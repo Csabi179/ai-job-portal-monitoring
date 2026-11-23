@@ -58,10 +58,17 @@ Kizárólag 127.0.0.1:9121 címen figyel; a nyilvános Caddy csak a
 A /metrics és /health csak helyi elérésre készült.
 
 POST /matchwise-telemetry/v1: text/plain törzsbe írt JSON, schema_version=1.
-Engedélyezett Origin: https://www.matchwise.tech. A szolgáltatás
+Engedélyezett éles Origin: https://www.matchwise.tech és https://matchwise.tech. A szolgáltatás
 FRONTEND_TRAFFIC_ORIGINS változója vesszővel elválasztott, pontos eredeteket
 enged, wildcard nincs. Preview origin csak külön, ellenőrzött beállítás után használható.
-A www nélküli domain nem engedélyezett automatikusan.
+A két domain külön Origin. A 2026-11-24-i nyilvános ellenőrzéskor a www cím a www nélküli
+címre irányított át, miközben a fogadó csak a www eredetnek adott 204-et, a www nélkülinek
+403-at. Az `enable-frontend-production-origins.py` segéd az aktív szolgáltatás tényleges
+eredetlistáját megtartva hozzáadja mindkét éles címet. Csak egy systemd drop-int módosít,
+mentést készít, újraindítja a fogadót, helyben és nyilvános HTTPS-en ellenőrzi a CORS-t,
+hiba esetén megkísérli a visszaállítást. A localhost/preview listát nem bővíti magától.
+A fogadó újraindítása visszaállítja a memóriabeli számlálókat; a korábbi naplófájlok és
+a Prometheusban már tárolt adatok megmaradnak. A kimaradt böngészős méréseket nem pótolja.
 
 Siker és már átvett ismételt csomag: 204. Hibás adatok: 400;
 tiltott origin: 403; túl nagy törzs: 413; hibás tartalomtípus: 415;

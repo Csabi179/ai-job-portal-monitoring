@@ -17,7 +17,7 @@ METHODS = {'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'OTHER'}
 OUTCOMES = {'http', 'network_error', 'aborted'}
 MAX_RESULT_SERIES = 4096
 DELIVERY_FIELDS = ('sent_batches', 'failed_attempts', 'dropped_batches', 'dropped_observations')
-ORIGINS = frozenset(os.environ.get('FRONTEND_TRAFFIC_ORIGINS', 'https://www.matchwise.tech').split(','))
+ORIGINS = frozenset(os.environ.get('FRONTEND_TRAFFIC_ORIGINS', 'https://www.matchwise.tech,https://matchwise.tech').split(','))
 REQUEST_ROUTES = {'/auth/register', '/auth/login', '/auth/logout', '/me', '/account',
                   '/cv', '/cv/upload', '/profile', '/jobs', '/preferences', '/ai/usage',
                   '/cv/:id/download', '/cv/:id/profile', '/jobs/:id', 'unmatched'}
