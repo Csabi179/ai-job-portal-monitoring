@@ -53,6 +53,32 @@
           "value": ""
         },
         "options": []
+      },
+      {
+        "name": "timing_stat",
+        "label": "Response time",
+        "type": "custom",
+        "query": "Average : 0,P95 : 1",
+        "current": {
+          "text": "Average",
+          "value": "0"
+        },
+        "options": [
+          {
+            "text": "Average",
+            "value": "0",
+            "selected": true
+          },
+          {
+            "text": "P95",
+            "value": "1",
+            "selected": false
+          }
+        ],
+        "multi": false,
+        "includeAll": false,
+        "allowCustomValue": false,
+        "hide": 0
       }
     ]
   },
@@ -76,7 +102,7 @@
     {
       "id": 901,
       "type": "row",
-      "title": "01 · Scorecard · now",
+      "title": "01 · Checks now · period averages",
       "collapsed": false,
       "panels": [],
       "gridPos": {
@@ -90,7 +116,7 @@
       "id": 302,
       "type": "stat",
       "title": "Frontend",
-      "description": "Frontend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "description": "Frontend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -110,17 +136,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "HTTP DOWN",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "HTTP UP",
                   "color": "green"
                 }
               }
@@ -130,7 +156,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -177,8 +203,8 @@
     {
       "id": 308,
       "type": "stat",
-      "title": "Check time",
-      "description": "Frontend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "HTTP probe duration",
+      "description": "Frontend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -198,14 +224,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -257,8 +283,8 @@
     {
       "id": 309,
       "type": "stat",
-      "title": "Traffic / min",
-      "description": "Frontend · Traffic / min\n\nBrowser API calls per minute.",
+      "title": "Traffic · period avg",
+      "description": "Calculated over the entire selected time range at its end. Average traffic per minute; counter resets are handled. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -266,7 +292,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) * 60) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_last_received_timestamp_seconds{job=\"frontend_traffic\"}) < 180))",
+          "expr": "sum(rate(frontend_api_requests_started_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])) * 60",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -278,14 +304,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:calls/min",
-          "noValue": "No data",
+          "noValue": "No traffic sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No traffic sample",
                   "color": "gray"
                 }
               }
@@ -333,8 +359,8 @@
     {
       "id": 310,
       "type": "stat",
-      "title": "Errors (%)",
-      "description": "Frontend · Error rate (%)\n\n4xx+5xx share of browser-observed HTTP responses.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
+      "title": "HTTP errors · period share",
+      "description": "Calculated over the entire selected time range at its end. Event-weighted share across the period, not an arithmetic mean of percentages. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -342,7 +368,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 * ((sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\",status=~\"4..|5..\"}[5m])) or on() (0 * sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) / sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])))) and on() (sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[5m])) > 0) and on() ((min(up{job=\"frontend_traffic\"}) == 1) and on() (time() - max(frontend_telemetry_mode_last_received_timestamp_seconds{job=\"frontend_traffic\",mode=\"real\"}) < 180))",
+          "expr": "100 * ((sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\",status=~\"4..|5..\"}[$__range])) or on() (0 * sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])))) / (sum(rate(frontend_api_http_responses_total{job=\"frontend_traffic\",mode=\"real\"}[$__range])) > 0))",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -354,18 +380,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "No data",
+          "noValue": "No rate sample",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "No data",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -384,6 +400,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No rate sample",
                   "color": "gray"
                 }
               }
@@ -437,7 +463,7 @@
       "id": 316,
       "type": "stat",
       "title": "Backend",
-      "description": "Backend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.",
+      "description": "Backend · Status\n\nLatest HTTP probe within three minutes while the exporter works. Not a continuous availability SLA.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -457,17 +483,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "HTTP DOWN",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "HTTP UP",
                   "color": "green"
                 }
               }
@@ -477,7 +503,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -524,8 +550,8 @@
     {
       "id": 322,
       "type": "stat",
-      "title": "Check time",
-      "description": "Backend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "HTTP probe duration",
+      "description": "Backend · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -545,14 +571,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -604,8 +630,8 @@
     {
       "id": 323,
       "type": "stat",
-      "title": "Traffic / min",
-      "description": "Backend · Traffic / min\n\nLogged API requests per minute (health checks excluded).",
+      "title": "Traffic · period avg",
+      "description": "Calculated over the entire selected time range at its end. Average traffic per minute; counter resets are handled. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -613,7 +639,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 60",
+          "expr": "sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) * 60",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -627,14 +653,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:requests/min",
-          "noValue": "No data",
+          "noValue": "No traffic sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No traffic sample",
                   "color": "gray"
                 }
               }
@@ -682,8 +708,8 @@
     {
       "id": 324,
       "type": "stat",
-      "title": "Errors (%)",
-      "description": "Backend · Error rate (%)\n\n4xx+5xx share of logged API requests.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
+      "title": "HTTP errors · period share",
+      "description": "Calculated over the entire selected time range at its end. Event-weighted share across the period, not an arithmetic mean of percentages. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -691,7 +717,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | statusCode >= 400 | __error__=\"\" [5m])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) * 0)) / (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [5m])) > 0))",
+          "expr": "100 * ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | statusCode >= 400 | __error__=\"\" [$__range])) or (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) * 0)) / (sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\", duration_ms=\"responseTimeMs\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" [$__range])) > 0))",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -705,18 +731,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "No data",
+          "noValue": "No rate sample",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "No data",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -735,6 +751,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No rate sample",
                   "color": "gray"
                 }
               }
@@ -788,7 +814,7 @@
       "id": 330,
       "type": "stat",
       "title": "Database",
-      "description": "Database · Status\n\nPostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.",
+      "description": "Database · Status\n\nPostgreSQL reachability (pg_up), shown only while the Supabase scrape succeeds.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -808,17 +834,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "DB UNREACHABLE",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "DB REACHABLE",
                   "color": "green"
                 }
               }
@@ -828,7 +854,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -875,8 +901,8 @@
     {
       "id": 336,
       "type": "stat",
-      "title": "Check time",
-      "description": "Database · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Metrics scrape duration",
+      "description": "Database · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -896,14 +922,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -955,8 +981,8 @@
     {
       "id": 337,
       "type": "stat",
-      "title": "Traffic / min",
-      "description": "Database · Traffic / min\n\nCommitted PostgreSQL transactions per minute. Not HTTP requests.",
+      "title": "Traffic · period avg",
+      "description": "Calculated over the entire selected time range at its end. Average traffic per minute; counter resets are handled. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -964,7 +990,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) * 60) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "expr": "sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) * 60",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -976,14 +1002,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "suffix:transactions/min",
-          "noValue": "No data",
+          "noValue": "No traffic sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No traffic sample",
                   "color": "gray"
                 }
               }
@@ -1031,8 +1057,8 @@
     {
       "id": 338,
       "type": "stat",
-      "title": "Errors (%)",
-      "description": "Database · Error rate (%)\n\nRolled-back share of transactions. Not an HTTP error rate.\n\nA value outside 0–100% is an invalid sample; it is not replaced with zero.",
+      "title": "Rollback · period share",
+      "description": "Calculated over the entire selected time range at its end. Event-weighted share across the period, not an arithmetic mean of percentages. Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1040,7 +1066,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(100 * sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) / ((sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m])) + sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[5m]))) > 0)) and on() ((min(up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1) and on() (min(pg_up{job=\"supabase\",instance=\"${supabase_instance}\"}) == 1))",
+          "expr": "100 * sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) / ((sum(rate(pg_stat_database_xact_commit_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range])) + sum(rate(pg_stat_database_xact_rollback_total{job=\"supabase\",instance=\"${supabase_instance}\"}[$__range]))) > 0)",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -1052,18 +1078,8 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "noValue": "No data",
+          "noValue": "No rate sample",
           "mappings": [
-            {
-              "type": "special",
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "No data",
-                  "color": "gray"
-                }
-              }
-            },
             {
               "type": "range",
               "options": {
@@ -1082,6 +1098,16 @@
                 "to": 1e+30,
                 "result": {
                   "text": "Invalid sample",
+                  "color": "gray"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No rate sample",
                   "color": "gray"
                 }
               }
@@ -1135,7 +1161,7 @@
       "id": 344,
       "type": "stat",
       "title": "Oracle",
-      "description": "Oracle · Status\n\nNode Exporter scrape success on the Oracle machine.",
+      "description": "Oracle · Status\n\nNode Exporter scrape success on the Oracle machine.\n\nStatus covers only the checked endpoint; business requests may still fail.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1155,17 +1181,17 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short",
-          "noValue": "No data",
+          "noValue": "No fresh check",
           "mappings": [
             {
               "type": "value",
               "options": {
                 "0": {
-                  "text": "DOWN",
+                  "text": "METRICS DOWN",
                   "color": "red"
                 },
                 "1": {
-                  "text": "UP",
+                  "text": "METRICS UP",
                   "color": "green"
                 }
               }
@@ -1175,7 +1201,7 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh check",
                   "color": "gray"
                 }
               }
@@ -1222,8 +1248,8 @@
     {
       "id": 350,
       "type": "stat",
-      "title": "Check time",
-      "description": "Oracle · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.",
+      "title": "Metrics scrape duration",
+      "description": "Oracle · Check duration\n\nLatest HTTP probe (frontend, backend) or Prometheus scrape (database, Oracle) duration.\n\nNot browser request latency or backend application processing time.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -1243,14 +1269,14 @@
       "fieldConfig": {
         "defaults": {
           "unit": "s",
-          "noValue": "No data",
+          "noValue": "No fresh sample",
           "mappings": [
             {
               "type": "special",
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No fresh sample",
                   "color": "gray"
                 }
               }
@@ -1422,14 +1448,58 @@
     {
       "id": 981,
       "type": "timeseries",
-      "title": "Frontend and backend · response time by request time",
-      "gridPos": {
-        "x": 0,
-        "y": 20,
-        "w": 24,
-        "h": 8
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
       },
-      "description": "X: browser-recorded request start time. Y: response time on one shared duration scale. Blue frontend, orange backend, paired by request ID using the exact table values. No averaging or top-20 limit; at most 1000 log lines per side. Requests with identical timestamps may overlap. Lines connect observed requests; a missing backend value is not zero.",
+      "title": "Frontend and backend · response time trend · ${timing_stat:text}",
+      "description": "Average / P95: mean / 95th percentile of all logged samples per interval. Intervals of at least 5 minutes. Large points are observed interval values; dashed lines only connect them, including across periods without requests. No latency was measured between points. Mean / Max summarize displayed interval values, not individual requests. X: Loki log time, not browser start time; collection delays may differ. Frontend: real browser requests with IDs. Backend: a separate API log population, excluding health paths and explicit UptimeRobot markers. The curves are not ID-paired; the table below provides exact matches. The table's 1000-line limit does not apply to these metric aggregations.",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "((avg_over_time({job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | duration_ms >= 0 | __error__=\"\" | unwrap duration_ms | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 0)) or (quantile_over_time(0.95, {job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | duration_ms >= 0 | __error__=\"\" | unwrap duration_ms | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 1))) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Frontend"
+        },
+        {
+          "refId": "B",
+          "expr": "((avg_over_time({job=\"matchwise_backend_render_api\"} !~ \"(?i)uptimerobot\" | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | unwrap responseTimeMs | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 0)) or (quantile_over_time(0.95, {job=\"matchwise_backend_render_api\"} !~ \"(?i)uptimerobot\" | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | unwrap responseTimeMs | __error__=\"\" [$__interval]) by () and on() (vector(${timing_stat:raw}) == 1))) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Backend"
+        }
+      ],
+      "transformations": [],
+      "interval": "5m",
+      "maxDataPoints": 600,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max"
+          ]
+        }
+      },
       "fieldConfig": {
         "defaults": {
           "unit": "ms",
@@ -1438,12 +1508,20 @@
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "fillOpacity": 3,
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "lineStyle": {
+              "fill": "dash",
+              "dash": [
+                5,
+                5
+              ]
+            },
             "showPoints": "always",
-            "pointSize": 5,
-            "spanNulls": false,
+            "pointSize": 7,
+            "spanNulls": true,
             "axisPlacement": "auto",
+            "axisWidth": 72,
             "axisColorMode": "text",
             "scaleDistribution": {
               "type": "linear"
@@ -1454,11 +1532,6 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            },
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
             }
           }
         },
@@ -1466,7 +1539,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "frontend_ms (lastNotNull)"
+              "options": "Frontend"
             },
             "properties": [
               {
@@ -1481,7 +1554,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "backend_ms (lastNotNull)"
+              "options": "Backend"
             },
             "properties": [
               {
@@ -1495,6 +1568,53 @@
           }
         ]
       },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      }
+    },
+    {
+      "id": 986,
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "title": "Frontend and backend · requests per interval",
+      "description": "Number of logged requests used by the response-time summary above, with identical intervals and filters. At least 5-minute resolution, automatically coarser for longer time ranges. No bar means no logged sample; it does not establish zero actual traffic.",
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | duration_ms >= 0 | __error__=\"\" [$__interval])) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Frontend"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(count_over_time({job=\"matchwise_backend_render_api\"} !~ \"(?i)uptimerobot\" | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | route=~\"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" [$__interval])) or (vector(0) / vector(0))",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "queryType": "range",
+          "instant": false,
+          "range": true,
+          "editorMode": "code",
+          "legendFormat": "Backend"
+        }
+      ],
+      "transformations": [],
+      "interval": "5m",
+      "maxDataPoints": 600,
       "options": {
         "tooltip": {
           "mode": "multi",
@@ -1503,13 +1623,105 @@
         "legend": {
           "showLegend": true,
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "calcs": []
         }
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "—",
+          "custom": {
+            "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "fillOpacity": 80,
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "showPoints": "never",
+            "pointSize": 7,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisWidth": 72,
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "barWidthFactor": 0.4,
+            "axisSoftMax": 1
+          },
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              },
+              {
+                "id": "custom.barAlignment",
+                "value": -1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backend"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              },
+              {
+                "id": "custom.barAlignment",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 5
+      }
+    },
+    {
+      "id": 987,
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "title": "Frontend and backend · matched request timings",
+      "description": "Individual requests paired by Request ID, without averaging. X: shared browser request start; Y: frontend fetch until response headers / backend processing, ms. Only pairs with both timings. Uses the exact table queries: at most 1000 log lines per side; frontend sends at most 64 details per batch. Not complete traffic statistics. Late matches may appear on refresh; adjust the time range or filter by Request ID. Lines connect observed requests, not continuous measurements. Equal start timestamps can overlap. The Average/P95 selector does not apply. Click an observed point: the menu shows its full Request ID. Follow the link to filter this dashboard and table to that request, keeping the time window. Clear the Request ID filter to return.",
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
+          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_method\":{{ printf \"%q\" .method }},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -1520,7 +1732,7 @@
         },
         {
           "refId": "B",
-          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }}}`",
+          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }},\"backend_error_code\":{{ printf \"%q\" .errorCode }}}`",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -1530,10 +1742,6 @@
           "maxLines": 1000
         }
       ],
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
       "transformations": [
         {
           "id": "extractFields",
@@ -1561,6 +1769,12 @@
                 "aggregations": []
               },
               "frontend_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_method": {
                 "operation": "aggregate",
                 "aggregations": [
                   "lastNotNull"
@@ -1631,6 +1845,12 @@
                 ]
               },
               "backend_status": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "backend_error_code": {
                 "operation": "aggregate",
                 "aggregations": [
                   "lastNotNull"
@@ -1676,6 +1896,47 @@
               },
               {
                 "targetField": "frontend_started_ms (lastNotNull)",
+                "destinationType": "number"
+              }
+            ]
+          }
+        },
+        {
+          "id": "filterByValue",
+          "options": {
+            "type": "include",
+            "match": "all",
+            "filters": [
+              {
+                "fieldName": "frontend_started_ms (lastNotNull)",
+                "config": {
+                  "id": "isNotNull",
+                  "options": {}
+                }
+              },
+              {
+                "fieldName": "frontend_ms (lastNotNull)",
+                "config": {
+                  "id": "isNotNull",
+                  "options": {}
+                }
+              },
+              {
+                "fieldName": "backend_ms (lastNotNull)",
+                "config": {
+                  "id": "isNotNull",
+                  "options": {}
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "targetField": "frontend_started_ms (lastNotNull)",
                 "destinationType": "time"
               }
             ]
@@ -1688,7 +1949,8 @@
               "names": [
                 "frontend_started_ms (lastNotNull)",
                 "frontend_ms (lastNotNull)",
-                "backend_ms (lastNotNull)"
+                "backend_ms (lastNotNull)",
+                "request_id"
               ]
             }
           }
@@ -1713,11 +1975,112 @@
             "renameByName": {
               "frontend_started_ms (lastNotNull)": "Time",
               "frontend_ms (lastNotNull)": "Frontend",
-              "backend_ms (lastNotNull)": "Backend"
+              "backend_ms (lastNotNull)": "Backend",
+              "request_id": "Request ID"
             }
           }
         }
-      ]
+      ],
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "noValue": "—",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "fillOpacity": 0,
+            "showPoints": "always",
+            "pointSize": 5,
+            "spanNulls": false,
+            "axisPlacement": "auto",
+            "axisWidth": 72,
+            "axisColorMode": "text",
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frontend"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#56B4E9"
+                }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Request ID: ${__data.fields[\"Request ID\"]} · View request",
+                    "url": "/d/matchwise-service-comparison-en?from=${__from}&to=${__to}&${supabase_instance:queryparam}&${timing_stat:queryparam}&var-request_id=${__data.fields[\"Request ID\"]}",
+                    "targetBlank": false,
+                    "oneClick": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Backend"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#E69F00"
+                }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Request ID: ${__data.fields[\"Request ID\"]} · View request",
+                    "url": "/d/matchwise-service-comparison-en?from=${__from}&to=${__to}&${supabase_instance:queryparam}&${timing_stat:queryparam}&var-request_id=${__data.fields[\"Request ID\"]}",
+                    "targetBlank": false,
+                    "oneClick": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 33,
+        "w": 24,
+        "h": 8
+      }
     },
     {
       "id": 980,
@@ -1725,11 +2088,11 @@
       "title": "Timing and status per request",
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 41,
         "w": 24,
         "h": 12
       },
-      "description": "Outer join by ID. Empty frontend/backend cells mean no match in the selected window. Records without IDs are never joined to each other.\n\nFrontend: fetch until response headers; backend: server processing. Health/backend-only probes excluded. At most 1000 log lines per side; narrow the range or filter by request ID.",
+      "description": "Outer join by ID. Empty frontend/backend cells mean no match in the selected window. Records without IDs are never joined to each other. Matching uses only the shared request ID, never timestamp or route proximity. Method comes from the frontend request; error code comes from its matched backend http_request record. Missing error code: —; it is not inferred from separate error logs. Refresh or widen the range for late matches.\n\nFrontend: fetch until response headers; backend: server processing. Health/backend-only probes excluded. At most 1000 log lines per side; narrow the range or filter by request ID.",
       "fieldConfig": {
         "defaults": {
           "noValue": "—"
@@ -1766,10 +2129,29 @@
                 }
               },
               {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "auto"
                 }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1804,10 +2186,29 @@
                 }
               },
               {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "auto"
                 }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1820,6 +2221,251 @@
               {
                 "id": "unit",
                 "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 155
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_status (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "gray"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 200,
+                      "to": 399,
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 400,
+                      "to": 499,
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 500,
+                      "to": 599,
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backend_status (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "gray"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 200,
+                      "to": 399,
+                      "result": {
+                        "color": "green"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 400,
+                      "to": 499,
+                      "result": {
+                        "color": "orange"
+                      }
+                    }
+                  },
+                  {
+                    "type": "range",
+                    "options": {
+                      "from": 500,
+                      "to": 599,
+                      "result": {
+                        "color": "red"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—",
+                        "color": "gray"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_method (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "backend_error_code (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 290
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "regex",
+                    "options": {
+                      "pattern": "^$",
+                      "result": {
+                        "text": "—"
+                      }
+                    }
+                  },
+                  {
+                    "type": "special",
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "text": "—"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "frontend_route (lastNotNull)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "request_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 115
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
               }
             ]
           }
@@ -1835,7 +2481,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
+          "expr": "{job=\"matchwise_frontend_requests\"} | json | event=\"frontend_request\" | mode=\"real\" | route!~\"/(api/)?health/?\" | __error__=\"\" | request_id=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | request_id=~\".*${request_id:regex}.*\" | line_format `{\"request_id\":{{ printf \"%q\" .request_id }},\"frontend_ms\":{{.duration_ms}},\"frontend_method\":{{ printf \"%q\" .method }},\"frontend_route\":{{ printf \"%q\" .route }},\"frontend_status\":{{ printf \"%q\" .status }},\"frontend_outcome\":{{ printf \"%q\" .outcome }},\"frontend_started_ms\":{{.started_at_ms}}}`",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -1846,7 +2492,7 @@
         },
         {
           "refId": "B",
-          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }}}`",
+          "expr": "{job=\"matchwise_backend_render_api\"} | json | event=\"http_request\" | route!~\"/(api/)?health/?\" | __error__=\"\" | reqId=~\"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\" | reqId=~\".*${request_id:regex}.*\" | responseTimeMs >= 0 | __error__=\"\" | line_format `{\"request_id\":{{ printf \"%q\" .reqId }},\"backend_ms\":{{.responseTimeMs}},\"backend_route\":{{ printf \"%q\" .route }},\"backend_status\":{{ printf \"%q\" .statusCode }},\"backend_error_code\":{{ printf \"%q\" .errorCode }}}`",
           "datasource": {
             "type": "loki",
             "uid": "loki"
@@ -1887,6 +2533,12 @@
                 "aggregations": []
               },
               "frontend_ms": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "frontend_method": {
                 "operation": "aggregate",
                 "aggregations": [
                   "lastNotNull"
@@ -1957,6 +2609,12 @@
                 ]
               },
               "backend_status": {
+                "operation": "aggregate",
+                "aggregations": [
+                  "lastNotNull"
+                ]
+              },
+              "backend_error_code": {
                 "operation": "aggregate",
                 "aggregations": [
                   "lastNotNull"
@@ -2022,17 +2680,31 @@
         {
           "id": "organize",
           "options": {
-            "excludeByName": {},
-            "indexByName": {},
+            "excludeByName": {
+              "backend_route (lastNotNull)": true,
+              "frontend_outcome (lastNotNull)": true
+            },
+            "indexByName": {
+              "frontend_started_ms (lastNotNull)": 0,
+              "frontend_method (lastNotNull)": 1,
+              "frontend_route (lastNotNull)": 2,
+              "frontend_ms (lastNotNull)": 3,
+              "backend_ms (lastNotNull)": 4,
+              "frontend_status (lastNotNull)": 5,
+              "backend_status (lastNotNull)": 6,
+              "backend_error_code (lastNotNull)": 7,
+              "request_id": 8
+            },
             "renameByName": {
-              "frontend_ms (lastNotNull)": "frontend_ms",
-              "frontend_route (lastNotNull)": "frontend_route",
-              "frontend_status (lastNotNull)": "frontend_status",
-              "frontend_outcome (lastNotNull)": "frontend_outcome",
-              "frontend_started_ms (lastNotNull)": "frontend_started_ms",
-              "backend_ms (lastNotNull)": "backend_ms",
-              "backend_route (lastNotNull)": "backend_route",
-              "backend_status (lastNotNull)": "backend_status"
+              "frontend_started_ms (lastNotNull)": "Time",
+              "frontend_method (lastNotNull)": "Method",
+              "frontend_route (lastNotNull)": "Route",
+              "frontend_ms (lastNotNull)": "Frontend",
+              "backend_ms (lastNotNull)": "Backend",
+              "frontend_status (lastNotNull)": "FE status",
+              "backend_status (lastNotNull)": "BE status",
+              "backend_error_code (lastNotNull)": "Backend error code",
+              "request_id": "Request ID"
             }
           }
         }
@@ -2046,7 +2718,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 40,
+        "y": 53,
         "w": 24,
         "h": 1
       }
@@ -2182,7 +2854,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 41,
+        "y": 54,
         "w": 24,
         "h": 6
       }
@@ -2286,7 +2958,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 47,
+        "y": 60,
         "w": 6,
         "h": 4
       }
@@ -2390,7 +3062,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 47,
+        "y": 60,
         "w": 6,
         "h": 4
       }
@@ -2494,7 +3166,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 47,
+        "y": 60,
         "w": 6,
         "h": 4
       }
@@ -2598,7 +3270,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 47,
+        "y": 60,
         "w": 6,
         "h": 4
       }
@@ -2678,7 +3350,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 51,
+        "y": 64,
         "w": 6,
         "h": 4
       }
@@ -2758,7 +3430,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 51,
+        "y": 64,
         "w": 6,
         "h": 4
       }
@@ -2838,7 +3510,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 51,
+        "y": 64,
         "w": 6,
         "h": 4
       }
@@ -2918,7 +3590,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 51,
+        "y": 64,
         "w": 6,
         "h": 4
       }
@@ -2931,7 +3603,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 55,
+        "y": 68,
         "w": 24,
         "h": 1
       }
@@ -3035,7 +3707,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 56,
+        "y": 69,
         "w": 8,
         "h": 3
       }
@@ -3139,7 +3811,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 56,
+        "y": 69,
         "w": 8,
         "h": 3
       }
@@ -3243,7 +3915,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 56,
+        "y": 69,
         "w": 8,
         "h": 3
       }
@@ -3347,7 +4019,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 59,
+        "y": 72,
         "w": 8,
         "h": 3
       }
@@ -3451,7 +4123,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 59,
+        "y": 72,
         "w": 8,
         "h": 3
       }
@@ -3555,7 +4227,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 59,
+        "y": 72,
         "w": 8,
         "h": 3
       }
@@ -3617,7 +4289,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -3672,7 +4346,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 62,
+        "y": 75,
         "w": 12,
         "h": 8
       }
@@ -3721,7 +4395,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0,
@@ -3749,7 +4425,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 62,
+        "y": 75,
         "w": 12,
         "h": 8
       }
@@ -3915,7 +4591,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 70,
+        "y": 83,
         "w": 12,
         "h": 8
       }
@@ -4081,7 +4757,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 70,
+        "y": 83,
         "w": 12,
         "h": 8
       }
@@ -4249,7 +4925,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 78,
+        "y": 91,
         "w": 12,
         "h": 8
       }
@@ -4366,7 +5042,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 78,
+        "y": 91,
         "w": 12,
         "h": 8
       }
@@ -4564,7 +5240,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 86,
+        "y": 99,
         "w": 24,
         "h": 9
       }
@@ -4577,7 +5253,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 95,
+        "y": 108,
         "w": 24,
         "h": 1
       }
@@ -4733,7 +5409,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {
@@ -4744,7 +5421,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 96,
+        "y": 109,
         "w": 12,
         "h": 8
       }
@@ -4806,7 +5483,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -4850,7 +5529,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {
@@ -4861,7 +5541,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 96,
+        "y": 109,
         "w": 12,
         "h": 8
       }
@@ -4923,7 +5603,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -4967,7 +5649,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {
@@ -4978,7 +5661,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 104,
+        "y": 117,
         "w": 12,
         "h": 8
       }
@@ -5049,7 +5732,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "noValue": "No data",
           "min": 0
@@ -5108,7 +5793,8 @@
           "placement": "bottom",
           "showLegend": true,
           "calcs": [
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ]
         },
         "tooltip": {
@@ -5119,7 +5805,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 104,
+        "y": 117,
         "w": 12,
         "h": 8
       }
@@ -5127,12 +5813,12 @@
     {
       "id": 905,
       "type": "row",
-      "title": "05 · Backend · security signals",
+      "title": "05 · Backend · HTTP access and error signals",
       "collapsed": false,
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 112,
+        "y": 125,
         "w": 24,
         "h": 1
       }
@@ -5140,23 +5826,24 @@
     {
       "id": 28,
       "type": "text",
-      "title": "Security signals · Interpretation",
+      "title": "HTTP access and error signals",
       "options": {
         "mode": "markdown",
-        "content": "**Last five minutes, excluding health checks.** HTTP 401/403/404/429 counts are investigation signals, not proof of an attack. Missing results do not mean zero events. No IP or account attribution is collected; a 429 panel does not prove that rate limiting is implemented."
+        "content": "Total events in the selected period; the average per minute is shown below. Health checks excluded; missing data is not zero."
       },
       "gridPos": {
         "x": 0,
-        "y": 113,
+        "y": 126,
         "w": 24,
-        "h": 4
-      }
+        "h": 3
+      },
+      "description": "HTTP 401/403/404/429 are investigation signals, not proof of an attack. No IP or account attribution is collected. A 429 does not prove rate limiting is implemented. Zero is shown only when base traffic exists; absent logs are not zero."
     },
     {
       "id": 29,
       "type": "stat",
       "title": "401 · Unauthenticated",
-      "description": "401 · Unauthenticated · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Total logged events in the selected time range, health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5168,7 +5855,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5177,9 +5864,9 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
             "mode": "thresholds"
           },
@@ -5187,12 +5874,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5202,12 +5889,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No event sample",
                   "color": "gray"
                 }
               }
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -5223,21 +5911,24 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 117,
+        "y": 129,
         "w": 6,
-        "h": 4
+        "h": 3
       }
     },
     {
       "id": 30,
       "type": "stat",
       "title": "403 · Access denied",
-      "description": "403 · Access denied · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Total logged events in the selected time range, health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5249,7 +5940,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5258,9 +5949,9 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
             "mode": "thresholds"
           },
@@ -5268,12 +5959,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5283,12 +5974,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No event sample",
                   "color": "gray"
                 }
               }
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -5304,21 +5996,24 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 6,
-        "y": 117,
+        "y": 129,
         "w": 6,
-        "h": 4
+        "h": 3
       }
     },
     {
       "id": 31,
       "type": "stat",
       "title": "404 · Not found",
-      "description": "404 · Not found · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Total logged events in the selected time range, health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5330,7 +6025,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5339,9 +6034,9 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
             "mode": "thresholds"
           },
@@ -5349,12 +6044,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5364,12 +6059,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No event sample",
                   "color": "gray"
                 }
               }
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -5385,21 +6081,24 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 117,
+        "y": 129,
         "w": 6,
-        "h": 4
+        "h": 3
       }
     },
     {
       "id": 32,
       "type": "stat",
       "title": "429 · Rate limited",
-      "description": "429 · Rate limited · 5 minutes\n\nLogged non-health requests in rolling five minutes. Zero is filled only when non-health HTTP traffic exists; no matching traffic/logs is unknown.",
+      "description": "Total logged events in the selected time range, health checks excluded.",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -5411,7 +6110,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)",
+          "expr": "(sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)",
           "editorMode": "code",
           "queryType": "instant",
           "instant": true,
@@ -5420,9 +6119,9 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:events",
           "min": 0,
-          "noValue": "No data",
+          "noValue": "No event sample",
           "color": {
             "mode": "thresholds"
           },
@@ -5430,12 +6129,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "value": null,
+                "color": "gray"
               },
               {
-                "color": "orange",
-                "value": 1
+                "value": 1,
+                "color": "orange"
               }
             ]
           },
@@ -5445,12 +6144,13 @@
               "options": {
                 "match": "null",
                 "result": {
-                  "text": "No data",
+                  "text": "No event sample",
                   "color": "gray"
                 }
               }
             }
-          ]
+          ],
+          "decimals": 0
         },
         "overrides": []
       },
@@ -5466,15 +6166,366 @@
         "textMode": "value",
         "colorMode": "value",
         "graphMode": "none",
-        "justifyMode": "auto"
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 32
+        }
       },
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 18,
-        "y": 117,
+        "y": 129,
         "w": 6,
-        "h": 4
+        "h": 3
       }
+    },
+    {
+      "id": 982,
+      "type": "stat",
+      "title": "",
+      "description": "Event count divided by the selected time range duration in minutes.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:events/min · avg",
+          "min": 0,
+          "noValue": "No event sample",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "gray"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No event sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 0,
+        "y": 132,
+        "w": 6,
+        "h": 1
+      },
+      "transparent": true
+    },
+    {
+      "id": 983,
+      "type": "stat",
+      "title": "",
+      "description": "Event count divided by the selected time range duration in minutes.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:events/min · avg",
+          "min": 0,
+          "noValue": "No event sample",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "gray"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No event sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 6,
+        "y": 132,
+        "w": 6,
+        "h": 1
+      },
+      "transparent": true
+    },
+    {
+      "id": 984,
+      "type": "stat",
+      "title": "",
+      "description": "Event count divided by the selected time range duration in minutes.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:events/min · avg",
+          "min": 0,
+          "noValue": "No event sample",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "gray"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No event sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 12,
+        "y": 132,
+        "w": 6,
+        "h": 1
+      },
+      "transparent": true
+    },
+    {
+      "id": 985,
+      "type": "stat",
+      "title": "",
+      "description": "Event count divided by the selected time range duration in minutes.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [$__range]))) or ((sum(count_over_time({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [$__range]))) * 0)) * 60 / $__range_s",
+          "editorMode": "code",
+          "queryType": "instant",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix:events/min · avg",
+          "min": 0,
+          "noValue": "No event sample",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "gray"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "gray"
+              },
+              {
+                "value": 1,
+                "color": "orange"
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "No event sample",
+                  "color": "gray"
+                }
+              }
+            }
+          ],
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textSize": {
+          "value": 16
+        }
+      },
+      "pluginVersion": "13.2.1",
+      "gridPos": {
+        "x": 18,
+        "y": 132,
+        "w": 6,
+        "h": 1
+      },
+      "transparent": true
     },
     {
       "id": 33,
@@ -5493,7 +6544,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 401 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 401/min",
+          "legendFormat": "401",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5505,7 +6556,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 403 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 403/min",
+          "legendFormat": "403",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5517,7 +6568,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 404 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 404/min",
+          "legendFormat": "404",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5529,7 +6580,7 @@
             "uid": "loki"
           },
           "expr": "((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | statusCode = 429 | __error__=\"\" [5m]))) or ((sum(rate({job=\"matchwise_backend_render_api\"} | json event=\"event\", route=\"route\", method=\"method\", statusCode=\"statusCode\" | event=\"http_request\" | __error__=\"\" | route!~\"(/api/health|/health)\" | __error__=\"\" [5m]))) * 0)) * 60",
-          "legendFormat": "HTTP 429/min",
+          "legendFormat": "429",
           "queryType": "range",
           "instant": false,
           "range": true
@@ -5537,7 +6588,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:requests/min",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
@@ -5557,7 +6608,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "min": 0,
           "noValue": "No data"
@@ -5569,9 +6622,7 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
+          "calcs": []
         },
         "tooltip": {
           "mode": "multi",
@@ -5581,7 +6632,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 121,
+        "y": 133,
         "w": 12,
         "h": 8
       }
@@ -5605,7 +6656,7 @@
           },
           "editorMode": "code",
           "queryType": "range",
-          "legendFormat": "Current 5-minute average",
+          "legendFormat": "Current · 5m",
           "instant": false,
           "range": true
         },
@@ -5618,14 +6669,14 @@
           },
           "editorMode": "code",
           "queryType": "range",
-          "legendFormat": "Previous 30-minute average (offset 5m)",
+          "legendFormat": "Previous · 30m (−5m)",
           "instant": false,
           "range": true
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "suffix:requests/min",
           "custom": {
             "drawStyle": "line",
             "lineInterpolation": "linear",
@@ -5645,7 +6696,9 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "axisSoftMin": 0,
+            "axisSoftMax": 1
           },
           "min": 0,
           "noValue": "No data"
@@ -5657,9 +6710,7 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": [
-            "lastNotNull"
-          ]
+          "calcs": []
         },
         "tooltip": {
           "mode": "multi",
@@ -5669,7 +6720,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 12,
-        "y": 121,
+        "y": 133,
         "w": 12,
         "h": 8
       }
@@ -5682,7 +6733,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 129,
+        "y": 141,
         "w": 24,
         "h": 1
       }
@@ -5770,7 +6821,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 130,
+        "y": 142,
         "w": 8,
         "h": 4
       }
@@ -5846,7 +6897,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 130,
+        "y": 142,
         "w": 8,
         "h": 4
       }
@@ -5923,7 +6974,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 130,
+        "y": 142,
         "w": 8,
         "h": 4
       }
@@ -6000,7 +7051,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 0,
-        "y": 134,
+        "y": 146,
         "w": 8,
         "h": 4
       }
@@ -6079,7 +7130,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 8,
-        "y": 134,
+        "y": 146,
         "w": 8,
         "h": 4
       }
@@ -6171,7 +7222,7 @@
       "pluginVersion": "13.2.1",
       "gridPos": {
         "x": 16,
-        "y": 134,
+        "y": 146,
         "w": 8,
         "h": 4
       }
@@ -6192,7 +7243,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 139,
+            "y": 151,
             "w": 24,
             "h": 4
           }
@@ -6334,7 +7385,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 143,
+            "y": 155,
             "w": 24,
             "h": 8
           }
@@ -6499,7 +7550,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 151,
+            "y": 163,
             "w": 24,
             "h": 8
           }
@@ -6645,7 +7696,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 159,
+            "y": 171,
             "w": 24,
             "h": 8
           }
@@ -6653,7 +7704,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 138,
+        "y": 150,
         "w": 24,
         "h": 1
       }
@@ -6674,7 +7725,7 @@
           },
           "gridPos": {
             "x": 0,
-            "y": 140,
+            "y": 152,
             "w": 24,
             "h": 10
           }
@@ -6724,7 +7775,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -6857,7 +7910,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 150,
+            "y": 162,
             "w": 12,
             "h": 9
           }
@@ -7040,7 +8093,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 150,
+            "y": 162,
             "w": 12,
             "h": 9
           }
@@ -7090,7 +8143,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7199,7 +8254,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 159,
+            "y": 171,
             "w": 12,
             "h": 9
           }
@@ -7249,7 +8304,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7337,7 +8394,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 159,
+            "y": 171,
             "w": 12,
             "h": 9
           }
@@ -7439,7 +8496,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 168,
+            "y": 180,
             "w": 12,
             "h": 9
           }
@@ -7489,7 +8546,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7622,7 +8681,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 168,
+            "y": 180,
             "w": 12,
             "h": 9
           }
@@ -7672,7 +8731,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -7699,7 +8760,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 177,
+            "y": 189,
             "w": 12,
             "h": 9
           }
@@ -7882,7 +8943,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 177,
+            "y": 189,
             "w": 12,
             "h": 9
           }
@@ -7959,7 +9020,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 186,
+            "y": 198,
             "w": 6,
             "h": 5
           }
@@ -8035,7 +9096,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 186,
+            "y": 198,
             "w": 6,
             "h": 5
           }
@@ -8112,7 +9173,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 186,
+            "y": 198,
             "w": 6,
             "h": 5
           }
@@ -8189,7 +9250,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 186,
+            "y": 198,
             "w": 6,
             "h": 5
           }
@@ -8266,7 +9327,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 191,
+            "y": 203,
             "w": 6,
             "h": 5
           }
@@ -8343,7 +9404,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 6,
-            "y": 191,
+            "y": 203,
             "w": 6,
             "h": 5
           }
@@ -8420,7 +9481,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 191,
+            "y": 203,
             "w": 6,
             "h": 5
           }
@@ -8497,7 +9558,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 18,
-            "y": 191,
+            "y": 203,
             "w": 6,
             "h": 5
           }
@@ -8611,7 +9672,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 196,
+            "y": 208,
             "w": 12,
             "h": 9
           }
@@ -8661,7 +9722,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -8725,7 +9788,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 196,
+            "y": 208,
             "w": 12,
             "h": 9
           }
@@ -8797,7 +9860,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -8824,7 +9889,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 205,
+            "y": 217,
             "w": 12,
             "h": 9
           }
@@ -8874,7 +9939,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -8901,7 +9968,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 205,
+            "y": 217,
             "w": 12,
             "h": 9
           }
@@ -9085,7 +10152,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 214,
+            "y": 226,
             "w": 12,
             "h": 7
           }
@@ -9269,7 +10336,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 214,
+            "y": 226,
             "w": 12,
             "h": 7
           }
@@ -9452,7 +10519,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 0,
-            "y": 221,
+            "y": 233,
             "w": 12,
             "h": 9
           }
@@ -9502,7 +10569,9 @@
                 "thresholdsStyle": {
                   "mode": "off"
                 },
-                "axisLabel": ""
+                "axisLabel": "",
+                "axisSoftMin": 0,
+                "axisSoftMax": 1
               },
               "min": 0,
               "noValue": "No data",
@@ -9529,7 +10598,7 @@
           "pluginVersion": "13.2.1",
           "gridPos": {
             "x": 12,
-            "y": 221,
+            "y": 233,
             "w": 12,
             "h": 9
           }
@@ -9537,7 +10606,7 @@
       ],
       "gridPos": {
         "x": 0,
-        "y": 139,
+        "y": 151,
         "w": 24,
         "h": 1
       }

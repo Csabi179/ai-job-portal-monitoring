@@ -26,10 +26,12 @@ def project(fields):
 
 
 FE_FIELDS = [('request_id', 'request_id', False), ('frontend_ms', 'duration_ms', True),
+             ('frontend_method', 'method', False),
              ('frontend_route', 'route', False), ('frontend_status', 'status', False),
              ('frontend_outcome', 'outcome', False), ('frontend_started_ms', 'started_at_ms', True)]
 BE_FIELDS = [('request_id', 'reqId', False), ('backend_ms', 'responseTimeMs', True),
-             ('backend_route', 'route', False), ('backend_status', 'statusCode', False)]
+             ('backend_route', 'route', False), ('backend_status', 'statusCode', False),
+             ('backend_error_code', 'errorCode', False)]
 
 
 def grouped_name(name):
@@ -84,6 +86,13 @@ def build(lang):
                 'Az ID nélküli rekordokat nem kapcsoljuk össze egymással.',
                 'Outer join by ID. Empty frontend/backend cells mean no match in the selected window. '
                 'Records without IDs are never joined to each other.'))
+    p['description'] += L(
+        ' A párosítás kizárólag közös kérésazonosítóval történik, nem időpont vagy útvonal alapján. '
+        'A metódus a frontend kérésből, a hibakód az azonos ID-jú backend http_request rekordból származik. '
+        'Hiányzó hibakód: —; külön hibanaplóból nem következtetünk rá. Későn érkező párhoz frissíts vagy tágítsd az időablakot.',
+        ' Matching uses only the shared request ID, never timestamp or route proximity. '
+        'Method comes from the frontend request; error code comes from its matched backend http_request record. '
+        'Missing error code: —; it is not inferred from separate error logs. Refresh or widen the range for late matches.')
     transforms = []
     for ref, fields in [('A', FE_FIELDS), ('B', BE_FIELDS)]:
         filt = {'id': 'byRefId', 'options': ref}
@@ -104,9 +113,18 @@ def build(lang):
             for f in ('frontend_ms', 'backend_ms', 'frontend_started_ms')]}},
         {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': grouped_name('frontend_ms'), 'desc': True}]}},
         # Presentation renames are applied after joins, filters and sorting.
-        {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {},
-         'renameByName': {grouped_name(name): name for name, _, _ in FE_FIELDS + BE_FIELDS
-                          if name != 'request_id'}}},
+        {'id': 'organize', 'options': {
+            'excludeByName': {grouped_name('backend_route'): True, grouped_name('frontend_outcome'): True},
+            'indexByName': {name: i for i, name in enumerate([
+                grouped_name('frontend_started_ms'), grouped_name('frontend_method'), grouped_name('frontend_route'),
+                grouped_name('frontend_ms'), grouped_name('backend_ms'),
+                grouped_name('frontend_status'), grouped_name('backend_status'), grouped_name('backend_error_code'), 'request_id'])},
+            'renameByName': dict(zip([
+                grouped_name('frontend_started_ms'), grouped_name('frontend_method'), grouped_name('frontend_route'),
+                grouped_name('frontend_ms'), grouped_name('backend_ms'),
+                grouped_name('frontend_status'), grouped_name('backend_status'), grouped_name('backend_error_code'), 'request_id'],
+                L(['Időpont', 'Metódus', 'Útvonal', 'Frontend', 'Backend', 'FE státusz', 'BE státusz', 'Backend hibakód', 'Request ID'],
+                  ['Time', 'Method', 'Route', 'Frontend', 'Backend', 'FE status', 'BE status', 'Backend error code', 'Request ID']))) }},
     ])
     p['transformations'] = transforms
     p['options'] = {'showHeader': True, 'cellHeight': 'sm', 'footer': {'show': False}}
@@ -116,11 +134,38 @@ def build(lang):
             {'id': 'thresholds', 'value': {'mode': 'absolute', 'steps': [
                 {'value': None, 'color': 'green'}, {'value': 1000, 'color': 'orange'},
                 {'value': 5000, 'color': 'red'}]}},
-            {'id': 'custom.cellOptions', 'value': {'type': 'color-background'}}]}
+            {'id': 'custom.width', 'value': 100},
+            {'id': 'custom.cellOptions', 'value': {'type': 'auto'}},
+            {'id': 'mappings', 'value': [{'type': 'special', 'options': {
+                'match': 'null', 'result': {'text': '—', 'color': 'gray'}}}]}]}
         for name in ('frontend_ms', 'backend_ms')]
     p['fieldConfig']['overrides'].append({
         'matcher': {'id': 'byName', 'options': grouped_name('frontend_started_ms')},
-        'properties': [{'id': 'unit', 'value': 'dateTimeAsIso'}]})
+        'properties': [{'id': 'unit', 'value': 'dateTimeAsIso'}, {'id': 'custom.width', 'value': 155}]})
+    for name in ('frontend_status', 'backend_status'):
+        p['fieldConfig']['overrides'].append({
+            'matcher': {'id': 'byName', 'options': grouped_name(name)}, 'properties': [
+                {'id': 'custom.width', 'value': 80},
+                {'id': 'custom.cellOptions', 'value': {'type': 'color-background'}},
+                {'id': 'color', 'value': {'mode': 'thresholds'}},
+                {'id': 'thresholds', 'value': {'mode': 'absolute', 'steps': [{'value': None, 'color': 'gray'}]}},
+                {'id': 'mappings', 'value': [
+                    {'type': 'range', 'options': {'from': start, 'to': end, 'result': {'color': color}}}
+                    for start, end, color in ((200, 399, 'green'), (400, 499, 'orange'), (500, 599, 'red'))
+                ] + [{'type': 'special', 'options': {'match': 'null', 'result': {'text': '—', 'color': 'gray'}}}]}]})
+    p['fieldConfig']['overrides'].extend([
+        {'matcher': {'id': 'byName', 'options': grouped_name('frontend_method')},
+         'properties': [{'id': 'custom.width', 'value': 80}]},
+        {'matcher': {'id': 'byName', 'options': grouped_name('backend_error_code')},
+         'properties': [{'id': 'custom.width', 'value': 290}, {'id': 'custom.inspect', 'value': True},
+                        {'id': 'mappings', 'value': [
+                            {'type': 'regex', 'options': {'pattern': '^$', 'result': {'text': '—'}}},
+                            {'type': 'special', 'options': {'match': 'null', 'result': {'text': '—'}}}]}]},
+        {'matcher': {'id': 'byName', 'options': grouped_name('frontend_route')},
+         'properties': [{'id': 'custom.width', 'value': 160}]},
+        {'matcher': {'id': 'byName', 'options': 'request_id'},
+         'properties': [{'id': 'custom.width', 'value': 115}, {'id': 'custom.inspect', 'value': True}]},
+    ])
 
     p = panel('logs', L('Lassú vagy hibás frontendkérések', 'Slow or failed frontend requests'), 0, 17, 24, 9,
               [target('A', FE + ' | duration_ms >= ${slow_ms:raw} or status=~"[45][0-9][0-9]" or outcome!="http"'
@@ -167,23 +212,73 @@ def build(lang):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--paired-chart-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Add/update only the ID-paired timing chart below existing comparison charts')
+    mode.add_argument('--request-table-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Update only the request tables in both HU/EN dashboard pairs; preserve all graphs')
+    mode.add_argument('--embed-only', type=Path, metavar='DASHBOARD_DIRECTORY',
                         help='Insert the request table and timing line chart into existing HU/EN Service Comparison JSON')
+    mode.add_argument('--summary-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Update only period-summary cards and event chart scales; preserve request table/chart')
+    mode.add_argument('--http-signals-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Refine only HTTP access/error signals; keep both graphs in this section')
+    mode.add_argument('--error-legends-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Show Last* and Max together on the English Errors section charts only')
+    mode.add_argument('--timing-trend-only', type=Path, metavar='DASHBOARD_DIRECTORY',
+                      help='Update the Average/P95 timing trend and sample-count panel in both languages')
     args = parser.parse_args()
-    if args.embed_only:
+    if args.paired_chart_only:
+        candidates = []
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            path = args.paired_chart_only / f'matchwise-service-comparison{suffix}.json'
+            model = json.loads(path.read_text(encoding='utf-8'))
+            if model.get('uid') != 'matchwise-service-comparison' + suffix:
+                raise ValueError(f'Unexpected dashboard UID: {path}')
+            candidates.append((path, update_paired_chart(model, lang)))
+        for path, model in candidates:
+            path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+            print('Updated paired request chart only:', path)
+        return
+    if args.request_table_only:
+        candidates = []
+        for lang, suffix in [('hu', ''), ('en', '-en')]:
+            for kind in ('service-comparison', 'request-correlation'):
+                path = args.request_table_only / f'matchwise-{kind}{suffix}.json'
+                model = json.loads(path.read_text(encoding='utf-8'))
+                if model.get('uid') != f'matchwise-{kind}{suffix}':
+                    raise ValueError(f'Unexpected dashboard UID: {path}')
+                candidates.append((path, update_request_table(model, lang, 980 if kind == 'service-comparison' else 2)))
+        for path, model in candidates:
+            path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
+            print('Updated request table only:', path)
+        return
+    directory = (args.embed_only or args.summary_only or args.http_signals_only or
+                 args.error_legends_only or args.timing_trend_only)
+    if directory:
         candidates = []
         for lang in ('hu', 'en'):
+            if args.error_legends_only and lang != 'en':
+                continue
             suffix = '' if lang == 'hu' else '-en'
-            path = args.embed_only / f'matchwise-service-comparison{suffix}.json'
+            path = directory / f'matchwise-service-comparison{suffix}.json'
             current = json.loads(path.read_text(encoding='utf-8'))
             expected_uid = 'matchwise-service-comparison' + suffix
             if current.get('uid') != expected_uid:
                 raise ValueError(f'Unexpected dashboard UID: {path}')
-            candidates.append((path, embed_comparison_table(current, lang)))
+            update = (update_timing_trend if args.timing_trend_only else
+                      error_legend_summaries if args.error_legends_only else
+                      readable_http_signals if args.http_signals_only else
+                      selected_period_summary if args.summary_only else embed_comparison_table)
+            candidates.append((path, update(current, lang)))
         # Validate both destinations before writing either file.
         for path, model in candidates:
             path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
-            print('Updated request table and timing line chart:', path)
+            print('Updated Average/P95 timing trend:' if args.timing_trend_only else
+                  'Updated English error chart legends:' if args.error_legends_only else
+                  'Updated HTTP access/error signals:' if args.http_signals_only else
+                  'Updated period summaries and event scales:' if args.summary_only else
+                  'Updated request table and timing line chart:', path)
         return
     for lang in ('hu', 'en'):
         suffix = '' if lang == 'hu' else '-en'
@@ -241,48 +336,522 @@ def embed_comparison_table(model, lang):
     if not any(v['name'] == 'request_id' for v in variables):
         variables.append(copy.deepcopy(next(v for v in build(lang)['templating']['list'] if v['name'] == 'request_id')))
     model = embed_comparison_chart(model, table, lang)
+    model = refine_comparison_scorecard(model, lang)
+    model = selected_period_summary(model, lang)
     return model
 
 
-def embed_comparison_chart(model, table, lang):
-    """Plot exact paired request durations over browser request start time."""
-    chart = copy.deepcopy(table)
-    chart.update(id=981, type='timeseries', title=(
-        'Frontend és backend · válaszidő a kérések időpontjában' if lang == 'hu' else
-        'Frontend and backend · response time by request time'))
-    chart['description'] = (
-        'X: a kérés böngészőben rögzített indítási időpontja. Y: válaszidő, közös időskálán. '
-        'Kék frontend, narancssárga backend; azonos request ID alapján párosítva, a táblázat pontos értékeivel. '
-        'Nincs átlagolás vagy 20-as korlát; legfeljebb 1000 naplósor oldalanként. '
-        'Azonos időpontú kérések pontjai átfedhetnek. A vonal a megfigyelt kéréseket köti össze; hiányzó backendérték nem nulla.' if lang == 'hu' else
-        'X: browser-recorded request start time. Y: response time on one shared duration scale. '
-        'Blue frontend, orange backend, paired by request ID using the exact table values. '
-        'No averaging or top-20 limit; at most 1000 log lines per side. '
-        'Requests with identical timestamps may overlap. Lines connect observed requests; a missing backend value is not zero.')
+def selected_period_summary(model, lang):
+    """Period-wide counter rates and weighted error shares; never gate history on current health."""
+    def L(hu, en):
+        return hu if lang == 'hu' else en
+    def walk(items):
+        for item in items:
+            yield item
+            yield from walk(item.get('panels', []))
+    panels = list(walk(model['panels']))
+    start = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('01 ·'))
+    end = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('02 ·'))
+    cards = [p for p in model['panels'][start + 1:end] if p['type'] == 'stat']
+    if len(cards) == 16:
+        model['panels'][start]['title'] = L('01 · Ellenőrzések most · időszaki átlagok',
+                                            '01 · Checks now · period averages')
+        fe = 'job="frontend_traffic",mode="real"'
+        db = 'job="supabase",instance="${supabase_instance}"'
+        responses = f'sum(rate(frontend_api_http_responses_total{{{fe}}}[$__range]))'
+        failures = f'sum(rate(frontend_api_http_responses_total{{{fe},status=~"4..|5.."}}[$__range]))'
+        commits = f'sum(rate(pg_stat_database_xact_commit_total{{{db}}}[$__range]))'
+        rollbacks = f'sum(rate(pg_stat_database_xact_rollback_total{{{db}}}[$__range]))'
+        expressions = {
+            2: f'sum(rate(frontend_api_requests_started_total{{{fe}}}[$__range])) * 60',
+            3: f'100 * (({failures} or on() (0 * {responses})) / ({responses} > 0))',
+            10: f'{commits} * 60',
+            11: f'100 * {rollbacks} / (({commits} + {rollbacks}) > 0)',
+        }
+        for index in (2, 3, 6, 7, 10, 11):
+            card = cards[index]
+            for target in card['targets']:
+                target['expr'] = expressions.get(index, target['expr'].replace('[5m]', '[$__range]'))
+                target.update(instant=True, range=False)
+            for key in ('timeFrom', 'timeShift'):
+                card.pop(key, None)
+            traffic = index % 4 == 2
+            card['title'] = (L('Forgalom · időszaki átlag', 'Traffic · period avg') if traffic else
+                             L('Rollback · időszaki arány', 'Rollback · period share') if index == 11 else
+                             L('HTTP-hibák · időszaki arány', 'HTTP errors · period share'))
+            card['description'] = L(
+                'A kiválasztott teljes időablakra, annak végpontjában számítva. ',
+                'Calculated over the entire selected time range at its end. ') + (
+                L('Átlagos percenkénti forgalom; számláló-visszaállítások kezelve.',
+                  'Average traffic per minute; counter resets are handled.') if traffic else
+                L('Az időszak összes eseményével súlyozott hibaarány, nem a százalékok számtani átlaga.',
+                  'Event-weighted share across the period, not an arithmetic mean of percentages.')) + L(
+                ' Hiányos mintákból csak becslés készülhet; hiányzó adat nem nulla. Backend health checkek kizárva.',
+                ' Incomplete samples can only yield an estimate; missing data is not zero. Backend health checks excluded.')
+    for panel in panels:
+        if panel['id'] in (29, 30, 31, 32) and panel['type'] == 'stat':
+            for target in panel['targets']:
+                expr = target['expr'].replace('[5m]', '[$__range]')
+                # Idempotently convert period counts to average events/minute.
+                if '$__range_s' not in expr:
+                    expr = f'({expr}) * 60 / $__range_s'
+                target['expr'] = expr
+                target.update(instant=True, range=False, queryType='instant')
+            for key in ('timeFrom', 'timeShift'):
+                panel.pop(key, None)
+            defaults = panel['fieldConfig']['defaults']
+            defaults.update(unit='suffix:' + L('esemény/perc', 'events/min'), decimals=2)
+            # Old count thresholds cannot be applied to a per-minute rate.
+            defaults['color'] = {'mode': 'fixed', 'fixedColor': '#E69F00'}
+            defaults['noValue'] = L('Nincs eseményminta', 'No event sample')
+            panel['description'] = L(
+                'A kiválasztott időablak eseményszáma / időtartama percben. Health checkek nélkül; hiányzó napló nem nulla.',
+                'Selected-period event count / duration in minutes. Health checks excluded; absent logs are not zero.')
+        if panel['id'] == 28 and panel['type'] == 'text':
+            panel['options']['content'] = L(
+                '**A kiválasztott teljes időablak átlaga, esemény/percben; health checkek nélkül.** '
+                'A 401/403/404/429 vizsgálati jel, nem támadás bizonyítéka. Hiányzó napló nem nulla esemény. '
+                'Nincs IP- vagy fiókazonosítás; a 429 önmagában nem bizonyít rate limitinget.',
+                '**Average over the entire selected time range, in events/min; health checks excluded.** '
+                'HTTP 401/403/404/429 are investigation signals, not proof of an attack. Missing logs do not mean zero events. '
+                'No IP or account attribution is collected; a 429 does not prove rate limiting is implemented.')
+        defaults = panel.get('fieldConfig', {}).get('defaults', {})
+        unit = defaults.get('unit', '')
+        if panel['type'] == 'timeseries' and (unit.startswith('suffix:') and any(
+                word in unit for word in ('/min', '/perc')) or panel['id'] in (33, 34)):
+            defaults['min'] = 0
+            defaults.pop('max', None)
+            custom = defaults.setdefault('custom', {})
+            custom.update(axisSoftMin=0, axisSoftMax=1)
+            if panel['id'] in (33, 34):
+                defaults['unit'] = 'suffix:' + L('kérés/perc', 'requests/min')
+    return error_legend_summaries(readable_http_signals(model, lang), lang)
+
+
+def error_legend_summaries(model, lang):
+    """Keep Last* semantics and add Max; change only the four English error legends."""
+    if lang != 'en':
+        return model
+    def walk(items):
+        for panel in items:
+            yield panel
+            yield from walk(panel.get('panels', []))
+    charts = [p for p in walk(model['panels']) if p['id'] in (374, 375, 376, 377)]
+    if not charts:
+        return model  # A custom dashboard may omit the Errors section entirely.
+    if len(charts) != 4 or any(p['type'] != 'timeseries' for p in charts):
+        raise ValueError('Expected the four existing Errors time-series panels (374–377)')
+    for panel in charts:
+        panel['options']['legend']['calcs'] = ['lastNotNull', 'max']
+    return model
+
+
+def readable_http_signals(model, lang):
+    """Show exact counts prominently, with a small separate average below each card."""
+    def L(hu, en):
+        return hu if lang == 'hu' else en
+    def walk(items):
+        for item in items:
+            yield item
+            yield from walk(item.get('panels', []))
+    panels = list(walk(model['panels']))
+    by_id = {p['id']: p for p in panels}
+    for panel in panels:
+        if panel['type'] == 'row' and panel['title'].startswith('05 ·'):
+            panel['title'] = L('05 · Backend · HTTP-hozzáférési és hibajelek',
+                               '05 · Backend · HTTP access and error signals')
+    header = by_id.get(28)
+    if header and header['type'] == 'text':
+        header['title'] = L('HTTP-hozzáférési és hibajelek', 'HTTP access and error signals')
+        header['options']['content'] = L(
+            'Összes esemény a kiválasztott időszakban; alatta az átlag percenként. Health checkek nélkül; a hiányzó adat nem nulla.',
+            'Total events in the selected period; the average per minute is shown below. Health checks excluded; missing data is not zero.')
+        header['description'] = L(
+            'A 401/403/404/429 vizsgálati jel, nem támadás bizonyítéka. Nem gyűjtünk IP- vagy fiókazonosítást. '
+            'A 429 önmagában nem bizonyít rate limitinget. Nullát csak meglévő alapforgalom mellett jelzünk; hiányzó napló nem nulla.',
+            'HTTP 401/403/404/429 are investigation signals, not proof of an attack. No IP or account attribution is collected. '
+            'A 429 does not prove rate limiting is implemented. Zero is shown only when base traffic exists; absent logs are not zero.')
+        bottom = header['gridPos']['y'] + header['gridPos']['h']
+        delta = 3 - header['gridPos']['h']
+        header['gridPos']['h'] = 3
+        for panel in panels:
+            if panel is not header and panel['gridPos']['y'] >= bottom:
+                panel['gridPos']['y'] += delta
+    for offset, key in enumerate((29, 30, 31, 32)):
+        card = by_id.get(key)
+        if not card or card['type'] != 'stat':
+            continue
+        count = card['targets'][0]['expr'].replace('[5m]', '[$__range]')
+        suffix = ' * 60 / $__range_s'
+        if count.endswith(suffix):
+            count = count[:-len(suffix)][1:-1]  # Remove the prior average wrapper only.
+        card['targets'][0]['expr'] = count
+        defaults = card['fieldConfig']['defaults']
+        defaults.update(unit='suffix:' + L('esemény', 'events'), decimals=0,
+                        color={'mode': 'thresholds'}, thresholds={'mode': 'absolute', 'steps': [
+                            {'value': None, 'color': 'gray'}, {'value': 1, 'color': 'orange'}]})
+        defaults['mappings'] = [{'type': 'special', 'options': {'match': 'null', 'result': {
+            'text': L('Nincs eseményminta', 'No event sample'), 'color': 'gray'}}}]
+        card['description'] = L('Összes naplózott esemény a kiválasztott időablakban, health checkek nélkül.',
+                                'Total logged events in the selected time range, health checks excluded.')
+        card['options']['textSize'] = {'value': 32}
+        sub_id = 982 + offset
+        existing = by_id.get(sub_id)
+        if existing and not (existing.get('type') == 'stat' and '$__range_s' in json.dumps(existing.get('targets', []))
+                             and existing.get('title') == ''):
+            raise ValueError(f'Panel {sub_id} is already used by an unrelated panel')
+        if not existing:
+            card['gridPos']['h'] = max(2, card['gridPos']['h'] - 1)
+        average = copy.deepcopy(card)
+        average.update(id=sub_id, title='', transparent=True, description=L(
+            'Az eseményszám osztva a kiválasztott időablak hosszával percben.',
+            'Event count divided by the selected time range duration in minutes.'))
+        average['gridPos'] = dict(card['gridPos'], y=card['gridPos']['y'] + card['gridPos']['h'], h=1)
+        average['targets'][0]['expr'] = f'({count}) * 60 / $__range_s'
+        average['fieldConfig']['defaults'].update(
+            unit='suffix:' + L('esemény/perc · átlag', 'events/min · avg'), decimals=4,
+            color={'mode': 'fixed', 'fixedColor': 'gray'})
+        average['options']['textSize'] = {'value': 16}
+        if existing:
+            existing.clear()
+            existing.update(average)
+        else:
+            # Keep count panels first so the four-column layout remains easy to inspect.
+            model['panels'].insert(next(i for i, p in enumerate(model['panels']) if p['id'] == 33), average)
+    for key in (33, 34):
+        panel = by_id.get(key)
+        if not panel:
+            continue
+        panel['options']['legend'].update(calcs=[], displayMode='list')
+        labels = (['401', '403', '404', '429'] if key == 33 else
+                  L(['Aktuális · 5p', 'Korábbi · 30p (−5p)'], ['Current · 5m', 'Previous · 30m (−5m)']))
+        for target, label in zip(panel['targets'], labels):
+            target['legendFormat'] = label
+    return model
+
+
+def refine_comparison_scorecard(model, lang):
+    """Disambiguate check status, probe duration and absent rate samples; no query changes."""
+    def L(hu, en):
+        return hu if lang == 'hu' else en
+    start = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('01 ·'))
+    end = next(i for i, p in enumerate(model['panels']) if p['type'] == 'row' and p['title'].startswith('02 ·'))
+    cards = [p for p in model['panels'][start + 1:end] if p['type'] == 'stat']
+    if len(cards) != 16:
+        return model  # Preserve unfamiliar custom scorecards instead of relabelling the wrong cards.
+    for index, card in enumerate(cards):
+        service, column = divmod(index, 4)
+        defaults = card['fieldConfig']['defaults']
+        def absent(text):
+            defaults['noValue'] = text
+            defaults['mappings'] = [m for m in defaults.get('mappings', [])
+                                    if not (m.get('type') == 'special' and m.get('options', {}).get('match') == 'null')]
+            defaults['mappings'].append({'type': 'special', 'options': {
+                'match': 'null', 'result': {'text': text, 'color': 'gray'}}})
+        if column == 0:
+            up, down = (L('HTTP ELÉRHETŐ', 'HTTP UP'), L('HTTP NEM ELÉRHETŐ', 'HTTP DOWN')) if service < 2 else (
+                (L('DB ELÉRHETŐ', 'DB REACHABLE'), L('DB NEM ELÉRHETŐ', 'DB UNREACHABLE')) if service == 2 else
+                (L('METRIKA ELÉRHETŐ', 'METRICS UP'), L('METRIKA NEM ELÉRHETŐ', 'METRICS DOWN')))
+            defaults['mappings'] = [{'type': 'value', 'options': {
+                '0': {'text': down, 'color': 'red'}, '1': {'text': up, 'color': 'green'}}}]
+            absent(L('Nincs friss ellenőrzés', 'No fresh check'))
+            note = L('Az állapot csak az ellenőrzött végpontra vonatkozik; üzleti kérés ettől még adhat hibát.',
+                     'Status covers only the checked endpoint; business requests may still fail.')
+        elif column == 1:
+            card['title'] = L('HTTP-próba ideje', 'HTTP probe duration') if service < 2 else L('Scrape időtartama', 'Metrics scrape duration')
+            absent(L('Nincs friss mérés', 'No fresh sample'))
+            note = L('Nem a frontend felhasználói kéréseinek vagy a backend feldolgozásának válaszideje.',
+                     'Not browser request latency or backend application processing time.')
+        elif service == 3:
+            continue  # Preserve explicitly uncollected Oracle application metrics.
+        elif column == 2:
+            card['title'] = L('Forgalom · 5p átlag', 'Traffic · 5m avg')
+            absent(L('Nincs forgalmi minta', 'No traffic sample'))
+            note = L('A hiányzó minta nem bizonyít nulla forgalmat.', 'An absent sample does not establish zero traffic.')
+        else:
+            card['title'] = (L('HTTP-hibák · 5p', 'HTTP errors · 5m') if service < 2 else
+                             L('Rollback arány · 5p', 'Rollback share · 5m'))
+            absent(L('Nincs arányminta', 'No rate sample'))
+            note = L('Forgalom nélküli időszak vagy hiányzó telemetria esetén nem feltétlen számolható arány; ez nem 0%.',
+                     'No traffic or missing telemetry can leave the rate undefined; that is not 0%.')
+        if note not in card.get('description', ''):
+            card['description'] = card.get('description', '') + '\n\n' + note
+    return model
+
+
+def ensure_timing_variable(model):
+    variables = model.setdefault('templating', {}).setdefault('list', [])
+    existing = next((v for v in variables if v['name'] == 'timing_stat'), None)
+    if existing:
+        if existing.get('type') != 'custom' or existing.get('query') != 'Average : 0,P95 : 1':
+            raise ValueError('Variable timing_stat is already used by an unrelated setting')
+        return
+    variables.append({'name': 'timing_stat', 'label': 'Response time', 'type': 'custom',
+                      'query': 'Average : 0,P95 : 1', 'current': {'text': 'Average', 'value': '0'},
+                      'options': [{'text': 'Average', 'value': '0', 'selected': True},
+                                  {'text': 'P95', 'value': '1', 'selected': False}],
+                      'multi': False, 'includeAll': False, 'allowCustomValue': False, 'hide': 0})
+
+
+def timing_sample_pipelines():
+    frontend = (FE + f' | request_id=~"{UUID}" | request_id=~".*${{request_id:regex}}.*"'
+                + ' | duration_ms >= 0 | __error__=""')
+    # Keep the API route scope used by the other comparison panels. Exclude explicit
+    # UptimeRobot markers as well as health paths; no backend/frontend join is implied.
+    backend = ('{job="matchwise_backend_render_api"} !~ "(?i)uptimerobot" | json'
+               ' | event="http_request"' + f' | route!~"{HEALTH}"'
+               + ' | route=~"(/api(/.*)?|/(auth|cv|jobs|profile|preferences|me)(/.*)?)"'
+               + f' | reqId=~"{UUID}" | reqId=~".*${{request_id:regex}}.*"'
+               + ' | responseTimeMs >= 0 | __error__=""')
+    return [('A', frontend, 'duration_ms', 'Frontend'), ('B', backend, 'responseTimeMs', 'Backend')]
+
+
+def timing_trend_panel(lang):
+    def metric(ref, pipeline, legend):
+        window = pipeline + ' [$__interval]'
+        # Group within the range aggregation: an average of stream averages or
+        # percentile of stream percentiles would weight the observations incorrectly.
+        mean = f'avg_over_time({window}) by ()'
+        p95 = f'quantile_over_time(0.95, {window}) by ()'
+        expr = (f'(({mean} and on() (vector(${{timing_stat:raw}}) == 0)) or '
+                f'({p95} and on() (vector(${{timing_stat:raw}}) == 1)))'
+                ' or (vector(0) / vector(0))')
+        # Explicit NaN at empty evaluation steps preserves a gap, never a fake zero.
+        return {'refId': ref, 'expr': expr, 'datasource': LOKI, 'queryType': 'range',
+                'instant': False, 'range': True, 'editorMode': 'code', 'legendFormat': legend}
+    return {'id': 981, 'type': 'timeseries', 'datasource': LOKI,
+            'title': ('Frontend és backend · válaszidőtrend · ${timing_stat:text}' if lang == 'hu' else
+                      'Frontend and backend · response time trend · ${timing_stat:text}'),
+            'description': (
+                'Average / P95: az összes naplózott minta időablakonkénti átlaga / 95. percentilise. '
+                'Legalább 5 perces időablakok. A nagy pontok mért időszaki értékek; a szaggatott vonal '
+                'csak összeköti őket, a kérésmentes szakaszokon is. Köztes válaszidőt nem mértünk. '
+                'Mean / Max: a megjelenített időszaki értékek átlaga / maximuma, nem az egyedi kéréseké. '
+                'X: Loki naplóidő, nem a böngésző indítási ideje; a két gyűjtés késése eltérhet. '
+                'Frontend: valódi, ID-val rendelkező böngészős kérések. Backend: külön API-naplóminta; '
+                'health útvonalak és kifejezett UptimeRobot-jelölések nélkül. '
+                'A görbék nem ID-párosítottak; pontos párosítás a lenti táblázatban. '
+                'A táblázat 1000 soros korlátja nem vonatkozik erre az összesítésre.' if lang == 'hu' else
+                'Average / P95: mean / 95th percentile of all logged samples per interval. '
+                'Intervals of at least 5 minutes. Large points are observed interval values; dashed lines '
+                'only connect them, including across periods without requests. No latency was measured between points. '
+                'Mean / Max summarize displayed interval values, not individual requests. '
+                'X: Loki log time, not browser start time; collection delays may differ. '
+                'Frontend: real browser requests with IDs. Backend: a separate API log population, '
+                'excluding health paths and explicit UptimeRobot markers. '
+                'The curves are not ID-paired; the table below provides exact matches. '
+                'The table\'s 1000-line limit does not apply to these metric aggregations.'),
+            'targets': [metric(ref, pipeline + f' | unwrap {field} | __error__=""', legend)
+                        for ref, pipeline, field, legend in timing_sample_pipelines()],
+            'transformations': [], 'interval': '5m', 'maxDataPoints': 600,
+            'options': {'tooltip': {'mode': 'multi', 'sort': 'none'},
+                        'legend': {'showLegend': True, 'displayMode': 'list', 'placement': 'bottom',
+                                   'calcs': ['mean', 'max']}},
+            'fieldConfig': {'defaults': {'unit': 'ms', 'min': 0, 'noValue': '—', 'custom': {
+                'drawStyle': 'line', 'lineInterpolation': 'linear', 'lineWidth': 1, 'fillOpacity': 0,
+                'lineStyle': {'fill': 'dash', 'dash': [5, 5]},
+                'showPoints': 'always', 'pointSize': 7, 'spanNulls': True, 'axisPlacement': 'auto', 'axisWidth': 72,
+                'axisColorMode': 'text', 'scaleDistribution': {'type': 'linear'},
+                'stacking': {'mode': 'none', 'group': 'A'}, 'thresholdsStyle': {'mode': 'off'}}},
+                'overrides': [{'matcher': {'id': 'byName', 'options': name}, 'properties': [
+                    {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
+                    for name, color in [('Frontend', '#56B4E9'), ('Backend', '#E69F00')]]}}
+
+
+def timing_count_panel(lang):
+    chart = timing_trend_panel(lang)
+    chart.update(id=986, title=('Frontend és backend · az összesítés mintaszáma' if lang == 'hu' else
+                                'Frontend and backend · requests per interval'), description=(
+        'A fenti válaszidő-összesítéshez használt naplózott kérések száma, azonos időablakokkal és szűrőkkel. '
+        'Legalább 5 perces felbontás; hosszabb időtartományban automatikusan nagyobb. '
+        'Nincs oszlop: nincs naplózott minta; ez önmagában nem bizonyít nulla tényleges forgalmat.' if lang == 'hu' else
+        'Number of logged requests used by the response-time summary above, with identical intervals and filters. '
+        'At least 5-minute resolution, automatically coarser for longer time ranges. '
+        'No bar means no logged sample; it does not establish zero actual traffic.'))
+    chart['targets'] = [{'refId': ref, 'expr': f'sum(count_over_time({pipeline} [$__interval])) or (vector(0) / vector(0))',
+                         'datasource': LOKI, 'queryType': 'range', 'instant': False, 'range': True,
+                         'editorMode': 'code', 'legendFormat': legend}
+                        for ref, pipeline, _, legend in timing_sample_pipelines()]
+    chart['options']['legend']['calcs'] = []
+    defaults = chart['fieldConfig']['defaults']
+    defaults.update(unit='short', decimals=0)
+    custom = defaults['custom']
+    custom.update(drawStyle='bars', lineWidth=0, fillOpacity=80, showPoints='never', spanNulls=False,
+                  lineStyle={'fill': 'solid'}, barWidthFactor=0.4, axisSoftMax=1)
+    for override, alignment in zip(chart['fieldConfig']['overrides'], (-1, 1)):
+        override['properties'].append({'id': 'custom.barAlignment', 'value': alignment})
+    return chart
+
+
+def update_timing_trend(model, lang):
+    def walk(items):
+        for panel in items:
+            yield panel
+            yield from walk(panel.get('panels', []))
+    current = next((p for p in walk(model['panels']) if p['id'] == 981), None)
+    if not current or current['type'] != 'timeseries' or 'matchwise_frontend_requests' not in json.dumps(current):
+        raise ValueError('Expected the existing request timing chart (981)')
+    count = next((p for p in walk(model['panels']) if p['id'] == 986), None)
+    if count and (count['type'] != 'timeseries' or 'matchwise_frontend_requests' not in json.dumps(count)
+                  or 'count_over_time' not in json.dumps(count)):
+        raise ValueError('Panel 986 is already used by an unrelated panel')
+    chart = timing_trend_panel(lang)
+    chart['gridPos'] = copy.deepcopy(current['gridPos'])
+    ensure_timing_variable(model)
+    current.clear()
+    current.update(chart)
+    counts = timing_count_panel(lang)
+    counts['gridPos'] = dict(current['gridPos'], y=current['gridPos']['y'] + current['gridPos']['h'], h=5)
+    if count:
+        counts['gridPos'] = copy.deepcopy(count['gridPos'])
+        count.clear()
+        count.update(counts)
+    else:
+        bottom = counts['gridPos']['y']
+        for panel in walk(model['panels']):
+            if panel is not current and panel['gridPos']['y'] >= bottom:
+                panel['gridPos']['y'] += 5
+        def insert(items):
+            for i, panel in enumerate(items):
+                if panel is current:
+                    items.insert(i + 1, counts)
+                    return True
+                if insert(panel.get('panels', [])):
+                    return True
+            return False
+        insert(model['panels'])
+    return model
+
+
+def update_request_table(model, lang, panel_id=980):
+    """Replace table data/presentation, retaining layout and every unrelated panel."""
+    result = copy.deepcopy(model)
+    table = next(p for p in build(lang)['panels'] if p['type'] == 'table')
+    if panel_id == 980:
+        table['description'] += ('\n\nFrontend: fetch indításától a válaszfejlécekig; backend: szerveroldali feldolgozás. '
+                                'Health/próbakérések kizárva. Legfeljebb 1000 naplósor oldalanként; szűkítsd az időablakot vagy adj meg request ID-t.'
+                                if lang == 'hu' else
+                                '\n\nFrontend: fetch until response headers; backend: server processing. '
+                                'Health/backend-only probes excluded. At most 1000 log lines per side; narrow the range or filter by request ID.')
+    def replace(panels):
+        found = 0
+        for index, panel in enumerate(panels):
+            if panel.get('id') == panel_id:
+                if panel.get('type') != 'table' or not any(
+                        'matchwise_frontend_requests' in t.get('expr', '') for t in panel.get('targets', [])):
+                    raise ValueError(f'Panel {panel_id} is not a request correlation table')
+                updated = copy.deepcopy(table)
+                updated.update(id=panel_id, gridPos=copy.deepcopy(panel['gridPos']))
+                panels[index] = updated
+                found += 1
+            else:
+                found += replace(panel.get('panels', []))
+        return found
+    if replace(result['panels']) != 1:
+        raise ValueError(f'Expected exactly one request table {panel_id}')
+    return result
+
+
+def update_paired_chart(model, lang):
+    """Reuse the actual table's ID join, not independently aggregated log streams."""
+    model = copy.deepcopy(model)
+    panels = model['panels']
+    tables = [p for p in panels if p['id'] == 980]
+    if len(tables) != 1 or tables[0]['type'] != 'table':
+        raise ValueError('Expected the existing request correlation table (980)')
+    table = tables[0]
+    transforms = copy.deepcopy(table['transformations'])
+    joins = [t for t in transforms if t['id'] == 'joinByField']
+    if len(joins) != 1 or joins[0]['options'] != {'byField': 'request_id', 'mode': 'outerTabular'}:
+        raise ValueError('The request table must join by request_id')
+    if [t['refId'] for t in table['targets']] != ['A', 'B']:
+        raise ValueError('Expected frontend/backend table queries A/B')
+    chart = {'id': 987, 'type': 'timeseries', 'datasource': LOKI,
+             'title': ('Frontend és backend · azonos kérések válaszideje' if lang == 'hu' else
+                       'Frontend and backend · matched request timings'),
+             'description': (
+                 'Request ID alapján párosított egyedi kérések, átlagolás nélkül. X: közös böngészős kérésindítás; '
+                 'Y: frontend fetch a válaszfejlécekig / backend feldolgozás, ms. Csak mindkét idővel rendelkező párok. '
+                 'A táblázat azonos lekérdezéseit használja: legfeljebb 1000 naplósor oldalanként; a frontend legfeljebb '
+                 '64 részletet küld csomagonként. Nem teljes forgalmi statisztika. A késő pár frissítéskor jelenhet meg; '
+                 'szűkítsd/tágítsd az időablakot vagy szűrj Request ID-ra. A vonalak megfigyelt kéréseket kötnek össze, '
+                 'nem folyamatos mérést jelentenek. Azonos indítási időpontok átfedhetnek. Average/P95 választó nem vonatkozik rá.'
+                 if lang == 'hu' else
+                 'Individual requests paired by Request ID, without averaging. X: shared browser request start; '
+                 'Y: frontend fetch until response headers / backend processing, ms. Only pairs with both timings. '
+                 'Uses the exact table queries: at most 1000 log lines per side; frontend sends at most 64 details per batch. '
+                 'Not complete traffic statistics. Late matches may appear on refresh; adjust the time range or filter by Request ID. '
+                 'Lines connect observed requests, not continuous measurements. Equal start timestamps can overlap. '
+                 'The Average/P95 selector does not apply.'),
+             'targets': copy.deepcopy(table['targets'])}
+    # Deduplication and ID join stay identical to the actual live table.
+    transforms = [t for t in transforms if t['id'] not in ('organize', 'sortBy')]
     time_field = grouped_name('frontend_started_ms')
     duration_fields = [grouped_name(name) for name in ('frontend_ms', 'backend_ms')]
-    transforms = copy.deepcopy(table['transformations'])
-    transforms = [t for t in transforms if t['id'] not in ('organize', 'sortBy')]
-    conversion = next(t for t in transforms if t['id'] == 'convertFieldType')
-    next(c for c in conversion['options']['conversions'] if c['targetField'] == time_field)['destinationType'] = 'time'
     transforms.extend([
-        {'id': 'filterFieldsByName', 'options': {'include': {'names': [time_field, *duration_fields]}}},
+        {'id': 'filterByValue', 'options': {'type': 'include', 'match': 'all', 'filters': [
+            {'fieldName': name, 'config': {'id': 'isNotNull', 'options': {}}}
+            for name in [time_field, *duration_fields]]}},
+        {'id': 'convertFieldType', 'options': {'conversions': [
+            {'targetField': time_field, 'destinationType': 'time'}]}},
+        # Keep the ID on the same row for __data.fields data links. A string field
+        # is context, not an additional plotted numeric series or an ingestion label.
+        {'id': 'filterFieldsByName', 'options': {'include': {'names': [time_field, *duration_fields, 'request_id']}}},
         {'id': 'sortBy', 'options': {'fields': {}, 'sort': [{'field': time_field, 'desc': False}]}},
         {'id': 'organize', 'options': {'excludeByName': {}, 'indexByName': {}, 'renameByName': {
-            time_field: 'Time', duration_fields[0]: 'Frontend', duration_fields[1]: 'Backend'}}},
+            time_field: 'Time', duration_fields[0]: 'Frontend', duration_fields[1]: 'Backend',
+            'request_id': 'Request ID'}}},
     ])
     chart['transformations'] = transforms
     chart['options'] = {'tooltip': {'mode': 'multi', 'sort': 'none'},
                         'legend': {'showLegend': True, 'displayMode': 'list', 'placement': 'bottom'}}
     chart['fieldConfig'] = {'defaults': {'unit': 'ms', 'min': 0, 'noValue': '—', 'custom': {
-        'drawStyle': 'line', 'lineInterpolation': 'linear', 'lineWidth': 2, 'fillOpacity': 3,
-        'showPoints': 'always', 'pointSize': 5, 'spanNulls': False, 'axisPlacement': 'auto',
+        'drawStyle': 'line', 'lineInterpolation': 'linear', 'lineWidth': 1, 'fillOpacity': 0,
+        'showPoints': 'always', 'pointSize': 5, 'spanNulls': False, 'axisPlacement': 'auto', 'axisWidth': 72,
         'axisColorMode': 'text', 'scaleDistribution': {'type': 'linear'},
-        'stacking': {'mode': 'none', 'group': 'A'}, 'thresholdsStyle': {'mode': 'off'},
-        'hideFrom': {'tooltip': False, 'viz': False, 'legend': False}}}, 'overrides': [
-            {'matcher': {'id': 'byName', 'options': name}, 'properties': [
-                {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
-            for name, color in zip(duration_fields, ('#56B4E9', '#E69F00'))]}
+        'stacking': {'mode': 'none', 'group': 'A'}, 'thresholdsStyle': {'mode': 'off'}}},
+        'overrides': [{'matcher': {'id': 'byName', 'options': name}, 'properties': [
+            {'id': 'color', 'value': {'mode': 'fixed', 'fixedColor': color}}]}
+            for name, color in [('Frontend', '#56B4E9'), ('Backend', '#E69F00')]]}
+    # Do not copy the current request_id variable: it must be replaced, not
+    # duplicated. Other dashboard variables and the absolute time window survive.
+    context = ''.join('&${' + v['name'] + ':queryparam}'
+                      for v in model.get('templating', {}).get('list', []) if v['name'] != 'request_id')
+    request_id = '${__data.fields["Request ID"]}'
+    link = {'title': 'Request ID: ' + request_id + (' · Kérés megtekintése' if lang == 'hu' else ' · View request'),
+            'url': '/d/' + model['uid'] + '?from=${__from}&to=${__to}' + context + '&var-request_id=' + request_id,
+            'targetBlank': False, 'oneClick': False}
+    for override in chart['fieldConfig']['overrides']:
+        override['properties'].append({'id': 'links', 'value': [copy.deepcopy(link)]})
+    chart['description'] += (
+        ' Kattints egy mért pontra: a menü teljes Request ID-t mutat. A hivatkozás az adott kérésre szűri a '
+        'dashboardot és a táblázatot, az időablak megtartásával. Visszatéréshez töröld a Request ID szűrőt.' if lang == 'hu' else
+        ' Click an observed point: the menu shows its full Request ID. Follow the link to filter this dashboard '
+        'and table to that request, keeping the time window. Clear the Request ID filter to return.')
+    existing = [p for p in panels if p['id'] == 987]
+    if existing:
+        if len(existing) != 1 or existing[0]['type'] != 'timeseries' or not any(
+                t.get('id') == 'joinByField' for t in existing[0].get('transformations', [])):
+            raise ValueError('Panel 987 is already used by an unrelated panel')
+        chart['gridPos'] = copy.deepcopy(existing[0]['gridPos'])
+        panels[panels.index(existing[0])] = chart
+    else:
+        start = table['gridPos']['y']
+        def shift(items):
+            for panel in items:
+                if panel['gridPos']['y'] >= start:
+                    panel['gridPos']['y'] += 8
+                shift(panel.get('panels', []))
+        shift(panels)
+        chart['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': 8}
+        panels.insert(panels.index(table), chart)
+    return model
+
+
+def embed_comparison_chart(model, table, lang):
+    """Build an uncapped Loki metric trend; the request table remains the paired detail view."""
+    chart = timing_trend_panel(lang)
+    ensure_timing_variable(model)
     panels = model['panels']
     existing = next((i for i, p in enumerate(panels) if p['id'] == 981), None)
     if existing is not None:
@@ -299,7 +868,7 @@ def embed_comparison_chart(model, table, lang):
                 resize_following(panel.get('panels', []))
         resize_following(panels)
         panels[existing] = chart
-        return model
+        return update_paired_chart(update_timing_trend(model, lang), lang)
     index = next(i for i, p in enumerate(panels) if p['id'] == 980)
     start = panels[index]['gridPos']['y']
     def shift(items):
@@ -310,7 +879,7 @@ def embed_comparison_chart(model, table, lang):
     shift(panels)
     chart['gridPos'] = {'x': 0, 'y': start, 'w': 24, 'h': 8}
     panels.insert(index, chart)
-    return model
+    return update_paired_chart(update_timing_trend(model, lang), lang)
 
 
 if __name__ == '__main__':

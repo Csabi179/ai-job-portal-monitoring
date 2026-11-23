@@ -23,8 +23,8 @@ from pathlib import Path
 FILES = ['matchwise-unified-monitoring.json', 'matchwise-unified-monitoring-en.json',
          'matchwise-service-comparison.json', 'matchwise-service-comparison-en.json']
 SUBST = [('${excluded_route:raw}', '(/api/health|/health)'), ('${route_filter:regex}', ''),
-         ('${status_filter:raw}', '.*'), ('${request_id:regex}', ''),
-         ('${supabase_instance}', 'example.supabase.co:443'), ('$__range', '15m'),
+         ('${status_filter:raw}', '.*'), ('${request_id:regex}', ''), ('${timing_stat:raw}', '0'),
+         ('${supabase_instance}', 'example.supabase.co:443'), ('$__range_s', '900'), ('$__range', '15m'),
          ('$__rate_interval', '5m'), ('$__interval', '1m')]
 SERVICES_UNIFIED = ('Frontend', 'Backend', 'Oracle')
 STRIP = 6
@@ -103,7 +103,11 @@ def check_semantics(model, uids, errors, name):
     panel_ids = {p['id'] for p in walk(model['panels'])}
     for p in walk(model['panels']):
         if p['type'] == 'timeseries':
-            if p['fieldConfig']['defaults']['custom'].get('spanNulls') is not False:
+            custom = p['fieldConfig']['defaults']['custom']
+            sparse_timing = (name.startswith('matchwise-service-comparison') and p['id'] == 981
+                             and custom.get('lineStyle', {}).get('fill') == 'dash'
+                             and custom.get('showPoints') == 'always')
+            if custom.get('spanNulls') is not False and not sparse_timing:
                 errors.append(f'{name}: {p["id"]} spanNulls must be false (missing data is not zero)')
         for t in p.get('targets', []):
             expr = t.get('expr', '')
@@ -180,8 +184,14 @@ def check_consistency(models, errors):
         if [s[0] for s in shape] != services:
             errors.append(f'comparison {lang}: missing scorecard service labels')
         shape=[s[1:] for s in shape]
-        if len(rows) != 4 or any(s != shape[0] for s in shape) or len(shape[0]) != 3 or any(p['gridPos']['w']!=6 for p in score):
+        if len(rows) != 4 or any(len(s) != 3 for s in shape) or any(p['gridPos']['w']!=6 for p in score):
             errors.append(f'comparison {lang}: scorecard is not 4 identical rows of 4: {shape}')
+        else:
+            durations = [s[0] for s in shape]
+            expected = (['HTTP-próba ideje'] * 2 + ['Scrape időtartama'] * 2 if lang == 'hu' else
+                        ['HTTP probe duration'] * 2 + ['Metrics scrape duration'] * 2)
+            if durations != expected:
+                errors.append(f'comparison {lang}: probe and scrape duration labels are ambiguous: {durations}')
 
 
 def check_parity(models, errors):
